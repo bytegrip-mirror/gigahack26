@@ -119,7 +119,7 @@ public class DeepSeekEngine implements ClassifierEngine {
         ObjectNode root = mapper.createObjectNode();
         root.put("model", properties.deepseek().model());
         root.put("temperature", 0);
-        root.put("max_tokens", 700);
+        root.put("max_tokens", 1400);
         root.put("stream", false);
 
         ObjectNode responseFormat = root.putObject("response_format");
@@ -139,6 +139,9 @@ public class DeepSeekEngine implements ClassifierEngine {
                         - "quote" MUST be copied character-for-character from the document. It is checked by exact \
                         containment. If you cannot copy an exact substring, return match=false. Never paraphrase, \
                         never correct spelling, never join fragments from different places.
+                        - Keep "quote" under 240 characters. Take the shortest run of sentences that carries the \
+                        evidence; a long quote is truncated in transmission and the whole answer is then discarded.
+                        - Keep "reason" under 20 words. Answer with the JSON object and nothing after it.
                         - "confidence" is your probability that a sales manager would act on this document for this \
                         question. Use 0.5 when the document is genuinely ambiguous, and below 0.5 when it is not \
                         evidence. Do not inflate.
@@ -182,8 +185,8 @@ public class DeepSeekEngine implements ClassifierEngine {
             return List.of();
         }
 
-        JsonNode verdictNode = mapper.readTree(stripFence(content.asText()));
-        if (!verdictNode.path("match").asBoolean(false)) {
+        JsonNode verdictNode = readJson(stripFence(content.asText()));
+        if (verdictNode == null || !verdictNode.path("match").asBoolean(false)) {
             return List.of();
         }
 
@@ -217,6 +220,41 @@ public class DeepSeekEngine implements ClassifierEngine {
                 span.get().end(),
                 verdictNode.path("reason").asText(null)));
         return findings;
+    }
+
+    private JsonNode readJson(String raw) {
+        try {
+            return mapper.readTree(raw);
+        } catch (Exception e) {
+            int quoteStart = raw.indexOf("\"quote\"");
+            if (quoteStart < 0) {
+                return null;
+            }
+            java.util.regex.Matcher quoted = java.util.regex.Pattern
+                    .compile("\"quote\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"").matcher(raw);
+            if (!quoted.find()) {
+                return null;
+            }
+            tools.jackson.databind.node.ObjectNode salvaged = mapper.createObjectNode();
+            salvaged.put("match", true);
+            double confidence = 0.7;
+            java.util.regex.Matcher level = java.util.regex.Pattern
+                    .compile("\"confidence\"\\s*:\\s*([0-9.]+)").matcher(raw);
+            if (level.find()) {
+                try {
+                    confidence = Double.parseDouble(level.group(1));
+                } catch (NumberFormatException ignored) {
+                    confidence = 0.7;
+                }
+            }
+            salvaged.put("confidence", confidence);
+            salvaged.put("quote", quoted.group(1).replace("\\\"", "\"").replace("\\\\", "\\"));
+            java.util.regex.Matcher verdict = java.util.regex.Pattern
+                    .compile("\"verdict\"\\s*:\\s*\"([A-Za-z_]+)\"").matcher(raw);
+            salvaged.put("verdict", verdict.find() ? verdict.group(1) : "NONE");
+            salvaged.put("reason", "recovered from a truncated answer");
+            return salvaged;
+        }
     }
 
     private String stripFence(String raw) {
