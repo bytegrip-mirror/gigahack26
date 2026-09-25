@@ -1,26 +1,304 @@
 export const apiBase = __API_URL__.replace(/\/$/, '');
 
-export type Submission = {
+export type WeightTier = 'HIGH' | 'MEDIUM' | 'LOW';
+export type Polarity = 'POSITIVE' | 'NEGATIVE' | 'DISQUALIFYING';
+export type DecayClass = 'EVENT' | 'HIRING' | 'STRUCTURAL';
+export type Band = 'PRIORITY' | 'NURTURE' | 'WATCH' | 'THIN' | 'DISQUALIFIED';
+export type Verdict = 'BUY' | 'COUNTER' | 'BUILD' | 'NONE';
+export type SourceKind = 'JOB_POSTING' | 'NEWS' | 'REGISTRY' | 'FILING';
+
+export type Chip = {
+	evidenceId: string;
+	questionKey: string;
+	question: string;
+	theme: string;
+	tier: WeightTier;
+	polarity: Polarity;
+	contribution: number;
+	quote: string | null;
+	spanStart: number;
+	spanEnd: number;
+	sourceUrl: string;
+	publisher: string;
+};
+
+export type BoardRow = {
 	id: string;
-	author: string;
-	title: string;
-	body: string | null;
-	tags: string[];
+	rank: number;
+	name: string;
+	domain: string | null;
+	country: string | null;
+	hqCity: string | null;
+	industry: string | null;
+	sizeBand: string | null;
+	competitor: boolean;
+	probability: number;
+	band: Band;
+	bandLabel: string;
+	gateReason: string | null;
+	nats: number;
+	signalCount: number;
+	themeCount: number;
+	evidenceCount: number;
+	scannedDocuments: number;
+	silentDocuments: number;
+	newestSignalAt: string | null;
+	newestSignalAgeDays: number | null;
+	strongest: Chip | null;
+	chips: Chip[];
+	themes: string[];
+	headline: string;
+};
+
+export type LedgerRow = {
+	evidenceId: string;
+	questionId: string;
+	questionKey: string;
+	questionText: string;
+	theme: string;
+	tier: WeightTier;
+	polarity: Polarity;
+	verdict: Verdict;
+	confidence: number;
+	spanStart: number;
+	spanEnd: number;
+	spanText: string | null;
+	rationale: string | null;
+	engine: string;
+	spanVerified: boolean;
+	sourceUrl: string;
+	publisher: string;
+	sourceKind: SourceKind;
+	title: string | null;
+	anchor: string;
+	anchorKind: string;
+	ageDays: number;
+	halfLifeDays: number;
+	tierNats: number;
+	authority: number;
+	decay: number;
+	shrink: number;
+	rawNats: number;
+	groupRank: number;
+	discount: number;
+	contributionNats: number;
+	themeCapped: boolean;
+	blocking: boolean;
+};
+
+export type EvidenceView = {
+	id: string;
+	title: string | null;
+	sourceUrl: string;
+	publisher: string;
+	sourceKind: SourceKind;
+	authority: number;
+	publishedAt: string | null;
+	observedAt: string;
+	anchorKind: string;
+	charLength: number;
+	contentHash: string;
+	signalCount: number;
+	verdict: Verdict | null;
+	contribution: number | null;
+	questionText: string | null;
+};
+
+export type CompanyDetail = {
+	id: string;
+	name: string;
+	domain: string | null;
+	country: string | null;
+	hqCity: string | null;
+	industry: string | null;
+	sizeBand: string | null;
+	employees: number | null;
+	sizeConfidence: number | null;
+	caemCode: string | null;
+	competitor: boolean;
+	aliases: string[];
+	coverageNotes: string | null;
+	serviceLine: string;
+	probability: number;
+	logit: number;
+	nats: number;
+	band: Band;
+	bandLabel: string;
+	gateReason: string | null;
+	gateLine: string;
+	baseRate: number;
+	baseLogit: number;
+	themeCap: number;
+	signalCount: number;
+	themeCount: number;
+	scannedDocuments: number;
+	silentDocuments: number;
+	ledger: LedgerRow[];
+	counterEvidence: LedgerRow[];
+	themes: { name: string; total: number; capped: boolean; rows: number }[];
+	weakestLink: string | null;
+	priorityHorizonDays: number | null;
+	nurtureHorizonDays: number | null;
+	sensitivity: Record<string, number>;
+	evidence: EvidenceView[];
+	computedAt: string;
+	engine: string;
+	bandSummary: string;
+};
+
+export type EvidenceDetail = {
+	id: string;
+	key: string;
+	company: string | null;
+	companyId: string;
+	title: string | null;
+	sourceUrl: string;
+	publisher: string;
+	sourceKind: SourceKind;
+	authority: number;
+	publishedAt: string | null;
+	observedAt: string;
+	anchorKind: string;
+	charLength: number;
+	contentHash: string;
+	captureId: string | null;
+	text: string | null;
+	signals: LedgerRow[];
+};
+
+export type Policy = {
+	id: string;
+	key: string;
+	serviceLine: string;
+	text: string;
+	instructions: string;
+	weightTier: WeightTier;
+	nats: number;
+	polarity: Polarity;
+	theme: string;
+	decayClass: DecayClass;
+	halfLifeDays: number;
+	cues: string[];
+	counterCues: string[];
+	active: boolean;
+	signalCount: number;
 	createdAt: string;
+	updatedAt: string;
 };
 
-export type NewSubmission = {
-	author: string;
-	title: string;
-	body: string;
-	tags: string[];
+export type PolicyInput = {
+	serviceLine: string;
+	text: string;
+	instructions: string;
+	weightTier: WeightTier;
+	polarity: Polarity;
+	theme: string;
+	decayClass: DecayClass;
+	cues?: string[];
+	counterCues?: string[];
+	active: boolean;
 };
 
-export type ApiStatus = {
+export type PreviewMatch = {
+	companyId: string;
+	company: string;
+	evidence: number;
+	signals: number;
+	topConfidence: number;
+	quote: string | null;
+};
+
+export type Preview = {
+	serviceLine: string;
+	matchedCompanies: number;
+	matchedEvidence: number;
+	scannedEvidence: number;
+	tookMs: number;
+	engine: string;
+	matches: PreviewMatch[];
+};
+
+export type Move = {
+	companyId: string;
+	company: string;
+	beforeRank: number;
+	afterRank: number;
+	delta: number;
+	beforeProbability: number | null;
+	afterProbability: number;
+	band: Band;
+	direction: 'up' | 'down' | 'flat';
+};
+
+export type Rescore = {
+	serviceLine: string;
+	tookMs: number;
+	companies: number;
+	documentsScanned: number;
+	signalsProduced: number;
+	engine: string;
+	question: string | null;
+	movedRows: number;
+	changedTop: number;
+	moves: Move[];
+	board: BoardRow[];
+	bands: string[];
+};
+
+export type Meta = {
+	serviceLines: string[];
+	defaultServiceLine: string;
+	serviceLine: string;
+	engine: string;
+	requestedEngine: string;
+	languageModelAvailable: boolean;
+	localEngine: string;
+	degraded: boolean;
+	bands: Record<string, number>;
+	captures: number;
+	scoring: {
+		baseRate: number;
+		baseLogit: number;
+		priorityThreshold: number;
+		nurtureThreshold: number;
+		watchThreshold: number;
+		themeCap: number;
+		rankDiscount: number;
+		icpMinEmployees: number;
+	};
+};
+
+export type Status = {
 	service: string;
 	postgres: string;
 	mongo: string;
 	checkedAt: string;
+	companies: number;
+	evidence: number;
+	signals: number;
+	policyQuestions: number;
+	captures: number;
+	engine: string;
+	languageModelAvailable: boolean;
+	degraded: boolean;
+};
+
+export type Outreach = {
+	companyId: string;
+	company: string;
+	channel: string;
+	subject: string;
+	body: string;
+	citations: {
+		marker: string;
+		question: string;
+		quote: string;
+		sourceUrl: string;
+		publisher: string;
+	}[];
+	persona: string;
+	valueProposition: string;
+	engine: string;
 };
 
 export class ApiError extends Error {
@@ -59,45 +337,122 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 	if (!response.ok) {
 		throw new ApiError(await describeFailure(response), response.status);
 	}
-
+	if (response.status === 204) {
+		return undefined as T;
+	}
 	return (await response.json()) as T;
 }
 
-export function listSubmissions(): Promise<Submission[]> {
-	return request<Submission[]>('/api/submissions');
+function query(params: Record<string, string | number | boolean | null | undefined>): string {
+	const search = new URLSearchParams();
+	for (const [key, value] of Object.entries(params)) {
+		if (value !== null && value !== undefined && value !== '') {
+			search.set(key, String(value));
+		}
+	}
+	const text = search.toString();
+	return text ? `?${text}` : '';
 }
 
-export function createSubmission(input: NewSubmission): Promise<Submission> {
-	return request<Submission>('/api/submissions', {
-		method: 'POST',
-		body: JSON.stringify(input)
-	});
+export function fetchMeta(serviceLine?: string): Promise<Meta> {
+	return request<Meta>(`/api/meta${query({ serviceLine })}`);
 }
 
-export function fetchStatus(): Promise<ApiStatus> {
-	return request<ApiStatus>('/api/status');
+export function fetchStatus(): Promise<Status> {
+	return request<Status>('/api/status');
 }
 
-export function parseTags(raw: string): string[] {
-	return raw
-		.split(',')
-		.map((tag) => tag.trim().replace(/^#/, ''))
-		.filter((tag) => tag.length > 0)
-		.slice(0, 8);
+export function fetchBoard(options: {
+	serviceLine: string;
+	filter?: string;
+	sort?: string;
+	q?: string;
+}): Promise<BoardRow[]> {
+	return request<BoardRow[]>(
+		`/api/companies${query({
+			serviceLine: options.serviceLine,
+			filter: options.filter ?? 'all',
+			sort: options.sort ?? 'score',
+			q: options.q
+		})}`
+	);
 }
 
-export function relativeTime(iso: string, now: number): string {
-	const seconds = Math.max(0, Math.round((now - new Date(iso).getTime()) / 1000));
-	if (seconds < 45) return 'just now';
-	const minutes = Math.round(seconds / 60);
-	if (minutes < 60) return `${minutes}m ago`;
-	const hours = Math.round(minutes / 60);
-	if (hours < 24) return `${hours}h ago`;
-	return `${Math.round(hours / 24)}d ago`;
+export function fetchCompany(id: string, serviceLine: string): Promise<CompanyDetail> {
+	return request<CompanyDetail>(`/api/companies/${id}${query({ serviceLine })}`);
 }
 
-export const freshWindowMs = 5 * 60 * 1000;
+export function fetchEvidence(id: string): Promise<EvidenceDetail> {
+	return request<EvidenceDetail>(`/api/evidence/${id}`);
+}
 
-export function isFresh(iso: string, now: number): boolean {
-	return now - new Date(iso).getTime() < freshWindowMs;
+export function fetchPolicies(serviceLine?: string): Promise<Policy[]> {
+	return request<Policy[]>(`/api/policies${query({ serviceLine })}`);
+}
+
+export function createPolicy(input: PolicyInput): Promise<Policy> {
+	return request<Policy>('/api/policies', { method: 'POST', body: JSON.stringify(input) });
+}
+
+export function updatePolicy(id: string, input: PolicyInput): Promise<Policy> {
+	return request<Policy>(`/api/policies/${id}`, { method: 'PATCH', body: JSON.stringify(input) });
+}
+
+export function deletePolicy(id: string): Promise<void> {
+	return request<void>(`/api/policies/${id}`, { method: 'DELETE' });
+}
+
+export function previewPolicy(input: {
+	serviceLine: string;
+	text: string;
+	instructions?: string;
+	tier?: WeightTier;
+	polarity?: Polarity;
+	theme?: string;
+}): Promise<Preview> {
+	return request<Preview>(
+		`/api/policies/preview${query({
+			serviceLine: input.serviceLine,
+			text: input.text,
+			instructions: input.instructions,
+			tier: input.tier,
+			polarity: input.polarity,
+			theme: input.theme
+		})}`
+	);
+}
+
+export type Engine = 'local' | 'deepseek';
+
+export function rescore(input: {
+	serviceLine: string;
+	questionId?: string | null;
+	question?: string | null;
+	engine?: Engine | null;
+}): Promise<Rescore> {
+	return request<Rescore>('/api/rescore', { method: 'POST', body: JSON.stringify(input) });
+}
+
+export function sendFeedback(input: {
+	companyId: string;
+	questionId?: string | null;
+	repVerdict: 'ACCEPT' | 'REJECT';
+	note?: string;
+}): Promise<unknown> {
+	return request('/api/feedback', { method: 'POST', body: JSON.stringify(input) });
+}
+
+export function fetchOutreach(companyId: string, serviceLine: string, channel: string): Promise<Outreach> {
+	return request<Outreach>(
+		`/api/outreach/${companyId}${query({ serviceLine, channel })}`
+	);
+}
+
+export function fetchPrecision(): Promise<{
+	decisions: number;
+	accepted: number;
+	rejected: number;
+	queuePrecision: number | null;
+}> {
+	return request('/api/feedback/precision');
 }

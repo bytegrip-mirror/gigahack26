@@ -1,0 +1,81 @@
+package com.pistonpunk.gigahack26.web;
+
+import com.pistonpunk.gigahack26.domain.DecayClass;
+import com.pistonpunk.gigahack26.domain.Polarity;
+import com.pistonpunk.gigahack26.domain.WeightTier;
+import com.pistonpunk.gigahack26.service.PolicyService;
+import com.pistonpunk.gigahack26.web.dto.PolicyRequest;
+import com.pistonpunk.gigahack26.web.dto.PolicyView;
+import com.pistonpunk.gigahack26.web.dto.PreviewResponse;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/api/policies")
+public class PolicyController {
+
+    private final PolicyService policies;
+
+    public PolicyController(PolicyService policies) {
+        this.policies = policies;
+    }
+
+    @GetMapping
+    public List<PolicyView> list(@RequestParam(name = "serviceLine", required = false) String serviceLine) {
+        return policies.list(serviceLine);
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public PolicyView create(@Valid @RequestBody PolicyRequest request) {
+        return policies.create(request);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<PolicyView> update(@PathVariable UUID id, @Valid @RequestBody PolicyRequest request) {
+        return policies.update(id, request)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        return policies.delete(id)
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/preview")
+    public PreviewResponse preview(@RequestParam(name = "serviceLine") String serviceLine,
+                                   @RequestParam(name = "text") String text,
+                                   @RequestParam(name = "instructions", required = false) String instructions,
+                                   @RequestParam(name = "tier", required = false) WeightTier tier,
+                                   @RequestParam(name = "polarity", required = false) Polarity polarity,
+                                   @RequestParam(name = "theme", required = false) String theme) {
+        return policies.preview(serviceLine, text, instructions, tier, polarity, theme);
+    }
+
+    @GetMapping("/themes")
+    public List<String> themes() {
+        return policies.knownThemes();
+    }
+
+    @GetMapping("/decay-classes")
+    public List<DecayClass> decayClasses() {
+        return List.of(DecayClass.values());
+    }
+}

@@ -1,0 +1,19 @@
+package com.pistonpunk.gigahack26.repository;
+
+import com.pistonpunk.gigahack26.domain.PolicyQuestion;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+public interface PolicyQuestionRepository extends JpaRepository<PolicyQuestion, UUID> {
+
+    Optional<PolicyQuestion> findByKey(String key);
+
+    List<PolicyQuestion> findByServiceLineOrderByWeightTierDesc(String serviceLine);
+
+    List<PolicyQuestion> findByActiveTrue();
+
+    List<PolicyQuestion> findByActiveTrueAndServiceLine(String serviceLine);
+}

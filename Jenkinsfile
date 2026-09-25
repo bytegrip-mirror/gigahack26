@@ -34,6 +34,9 @@ pipeline {
         TRAEFIK_ENTRYPOINT = "websecure"
         TRAEFIK_CERTRESOLVER = "myresolver"
         NETWORK = "web"
+
+        CLASSIFIER_ENGINE = "local"
+        DEEPSEEK_MODEL = "deepseek-flash"
     }
 
     stages {
@@ -167,7 +170,8 @@ pipeline {
             steps {
                 withCredentials([
                     string(credentialsId: 'gigahack26-db-password', variable: 'DB_PASSWORD'),
-                    string(credentialsId: 'gigahack26-mongo-password', variable: 'MONGO_PASSWORD')
+                    string(credentialsId: 'gigahack26-mongo-password', variable: 'MONGO_PASSWORD'),
+                    string(credentialsId: 'gigahack26-deepseek-key', variable: 'DEEPSEEK_API_KEY')
                 ]) {
                     sh 'docker rm -f ${API_CONTAINER} || true'
                     sh 'docker rm -f ${UI_CONTAINER} || true'
@@ -181,6 +185,11 @@ pipeline {
                             -e POSTGRES_PASSWORD=${DB_PASSWORD} \
                             -e MONGO_URI=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_CONTAINER}:27017/${MONGO_DB_NAME}?authSource=admin \
                             -e CORS_ALLOWED_ORIGINS=https://${UI_DOMAIN} \
+                            -e CLASSIFIER_ENGINE=${CLASSIFIER_ENGINE} \
+                            -e DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-} \
+                            -e DEEPSEEK_MODEL=${DEEPSEEK_MODEL} \
+                            -e CORPUS_SEED=true \
+                            -e ADMIN_ENABLED=false \
                             --label traefik.enable=true \
                             --label "traefik.docker.network=${NETWORK}" \
                             --label "traefik.http.routers.gigahack26api.rule=Host(\\`${API_DOMAIN}\\`)" \
@@ -209,6 +218,40 @@ pipeline {
             }
         }
 
+        stage('Verify the deployment') {
+            steps {
+                sh '''
+                    for attempt in $(seq 1 90); do
+                        status=$(docker exec ${API_CONTAINER} wget -q -O - http://localhost:8080/api/status 2>/dev/null || echo "")
+                        if echo "$status" | grep -q '"postgres":"up"' && echo "$status" | grep -q '"mongo":"up"'; then
+                            echo "$status"
+                            exit 0
+                        fi
+                        sleep 2
+                    done
+                    echo "The API did not report both stores up in time"
+                    docker logs ${API_CONTAINER} --tail 120 || true
+                    exit 1
+                '''
+                sh '''
+                    for attempt in $(seq 1 30); do
+                        if docker exec ${API_CONTAINER} wget -q -O - "https://${UI_DOMAIN}/" 2>/dev/null \
+                            | grep -qi "<!doctype html>"; then
+                            echo "The board answers on https://${UI_DOMAIN}"
+                            exit 0
+                        fi
+                        sleep 2
+                    done
+                    echo "The board did not answer on https://${UI_DOMAIN}"
+                    exit 1
+                '''
+                sh '''
+                    docker exec ${API_CONTAINER} wget -q -O - "https://${API_DOMAIN}/api/status" || exit 1
+                    echo
+                    echo "The API answers on https://${API_DOMAIN} through Traefik, over TLS"
+                '''
+            }
+        }
     }
 
     post {

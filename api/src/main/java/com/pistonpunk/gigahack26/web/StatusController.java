@@ -1,5 +1,11 @@
 package com.pistonpunk.gigahack26.web;
 
+import com.pistonpunk.gigahack26.repository.CompanyRepository;
+import com.pistonpunk.gigahack26.repository.EvidenceRepository;
+import com.pistonpunk.gigahack26.repository.PolicyQuestionRepository;
+import com.pistonpunk.gigahack26.repository.SignalRepository;
+import com.pistonpunk.gigahack26.service.BoardService;
+import com.pistonpunk.gigahack26.service.CaptureStore;
 import com.pistonpunk.gigahack26.web.dto.StatusResponse;
 import org.bson.Document;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -16,17 +22,44 @@ public class StatusController {
 
     private final JdbcTemplate jdbc;
     private final MongoTemplate mongo;
+    private final CompanyRepository companies;
+    private final EvidenceRepository evidence;
+    private final SignalRepository signals;
+    private final PolicyQuestionRepository questions;
+    private final CaptureStore captures;
+    private final BoardService board;
     private final Clock clock;
 
-    public StatusController(JdbcTemplate jdbc, MongoTemplate mongo, Clock clock) {
+    public StatusController(JdbcTemplate jdbc, MongoTemplate mongo, CompanyRepository companies,
+                            EvidenceRepository evidence, SignalRepository signals,
+                            PolicyQuestionRepository questions, CaptureStore captures, BoardService board,
+                            Clock clock) {
         this.jdbc = jdbc;
         this.mongo = mongo;
+        this.companies = companies;
+        this.evidence = evidence;
+        this.signals = signals;
+        this.questions = questions;
+        this.captures = captures;
+        this.board = board;
         this.clock = clock;
     }
 
     @GetMapping
     public StatusResponse status() {
-        return new StatusResponse("gigahack26-api", probePostgres(), probeMongo(), clock.instant());
+        return new StatusResponse(
+                "gigahack26-api",
+                probePostgres(),
+                probeMongo(),
+                clock.instant(),
+                count(companies::count),
+                count(evidence::count),
+                count(signals::count),
+                count(questions::count),
+                captures.size(),
+                board.primaryEngine(),
+                board.languageModelAvailable(),
+                board.degraded());
     }
 
     private String probePostgres() {
@@ -44,6 +77,14 @@ public class StatusController {
             return "up";
         } catch (RuntimeException e) {
             return "down";
+        }
+    }
+
+    private long count(java.util.function.Supplier<Long> supplier) {
+        try {
+            return supplier.get();
+        } catch (RuntimeException e) {
+            return -1;
         }
     }
 }

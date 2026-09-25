@@ -4,10 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A two-store starter for Gigahack 26. A Spring Boot API writes each pitch to
-PostgreSQL and MongoDB and reads them back merged; a static SvelteKit SPA serves
-the board. Jenkins builds both images and deploys four containers on the host's
-`web` Docker network behind Traefik.
+A B2B buying-signal platform for Orange Systems, built for Gigahack 26. A sales
+team writes a question in plain language; the platform re-classifies a stored
+corpus of public documents against it, re-ranks companies, and shows the
+arithmetic behind every score. A Spring Boot API owns the pipeline, PostgreSQL
+holds the relational record, MongoDB holds the raw captures, and a static
+SvelteKit SPA is the board. Jenkins builds both images and deploys four
+containers behind Traefik.
+
+The product's identity is **refusing to recommend bad companies, with evidence**.
+Every claim on screen resolves to a byte range in a document the crawler stored.
 
 ## Commands
 
@@ -19,13 +25,25 @@ docker compose down                # keep data
 docker compose down -v             # drop the volumes too
 ```
 
+The first boot seeds the corpus from `api/src/main/resources/corpus/raw.json` and
+scores it — expect roughly a minute before the board fills. Set
+`CORPUS_FORCE_RESEED=true` to re-seed over an existing database.
+
 API (from `api/`):
 
 ```sh
-./gradlew test                                 # 13 tests
-./gradlew test --tests SubmissionServiceTest   # one class
-./gradlew test --tests 'SubmissionServiceTest.createWritesTheRowToPostgresAndTheDocumentToMongo'
+./gradlew test                                 # 27 tests
+./gradlew test --tests ScoringServiceTest      # one class
+./gradlew test --tests 'ScoringServiceTest.aCompanyWithNoEvidenceScoresExactlyAtTheBaseRate'
 ./gradlew bootRun                              # needs Postgres and Mongo reachable
+```
+
+The build targets Java 25, so `./gradlew` fails on a JDK 21 host. Run it in the
+same image CI uses:
+
+```sh
+docker run --rm -v "$PWD":/src -v gigahack26-gradle-cache:/root/.gradle -w /src \
+  eclipse-temurin:25-jdk-alpine ./gradlew --no-daemon test
 ```
 
 UI (from `ui/`):
@@ -38,83 +56,112 @@ npm run dev                        # :5173
 ```
 
 Deploy: push to `main`. The GitHub webhook triggers `Gigahack26/gigahack26` on
-`jen.pistonpunk.com`, which runs the root `Jenkinsfile` (~30s warm).
-
-## Running from source
-
-Take the databases from compose and run the app from source in a second
-terminal:
-
-```sh
-docker compose up postgres mongo     # stores only, schema created on boot
-cd api && ./gradlew bootRun
-cd ui  && npm install && npm run dev
-```
-
-No environment is needed for this: the API already defaults to `localhost:5432`
-and `localhost:27017`, and the UI defaults to `http://localhost:8080`. The
-UI runs on `:5173` here, which `docker-compose.yml` already lists in
-`CORS_ALLOWED_ORIGINS`.
+`jen.pistonpunk.com`, which runs the root `Jenkinsfile`.
 
 ## Architecture
 
-**Two stores, one write path.** `SubmissionService.create` saves a `Submission`
-row through JPA, then a `SubmissionDetail` document through Spring Data MongoDB,
-keyed by the Postgres id. `list()` reads the rows, then fetches the matching
-documents in one `findBySubmissionIdIn` call and merges them into
-`SubmissionResponse`. A pitch is only complete when both writes land; there is no
-distributed transaction and no reconciliation. `GET /api/status` is what tells you
-whether each store is actually reachable.
+**Two stores, two jobs.** PostgreSQL holds `company`, `evidence`, `signal`,
+`policy_question`, `policy_score` and `feedback` — the relational record that
+makes a score reproducible from stored rows. MongoDB holds `raw_capture`: the
+unmodified document text plus its hash. **This split is the anti-fabrication
+mechanism.** A signal stores `span_start`/`span_end`, which index into the capture
+in Mongo, so a quote is a slice of bytes the crawler actually fetched rather than
+text a model wrote. Deleting or rewriting captures breaks every span on the board.
 
-**The API is the only thing that talks to a database.** The browser never sees
-Postgres or Mongo; the SPA calls `/api/**` cross-origin. That makes
-`CorsConfig` load-bearing — it is pinned by `CorsConfigTest`, and the allowed
-origins come from `CORS_ALLOWED_ORIGINS` (the pipeline sets it to the board's
-origin, compose sets it to both local ports).
+**Evidence is extractive by construction.** No component is ever asked to
+paraphrase. The local engine returns a sentence window of the stored document; the
+language-model engine returns a quote that `SpanLocator` must then find by exact
+containment on normalised text, falling back to a contiguous fuzzy match at ≥0.9
+token overlap, and otherwise the row is **struck** and dropped. `CorpusSeeder`
+applies the same containment check to the committed overlay, so a hand-edited
+`signals.json` cannot smuggle in a quote that is not in its capture.
 
-**Config is environment-first.** Every value in
-`api/src/main/resources/application.yml` is a `${ENV:default}` placeholder, so
-the same image runs locally and in production. The UI has no runtime
-config at all: Vite inlines `PUBLIC_API_URL` into the bundle at build time
-(`__API_URL__` in `vite.config.ts`), which is why the Jenkinsfile passes it as a
-build arg and why changing the API host needs a rebuild, not a restart.
+**Scoring is additive log-odds, not a weighted sum.** `ScoringService` builds one
+`LedgerRow` per signal with
+`w = tier × source_authority × 2^(−Δt/H) × (2·confidence − 1)`, sums them on top of
+`logit(base_rate)`, and takes one sigmoid. Three corrections live in that class and
+each one has a test: rows answering the same question are rank-discounted at ρ
+(`correlated evidence`), each theme is capped so a single loud topic cannot breach
+the Priority line (`applyThemeCap`), and disqualifiers are **boolean gates outside
+the sum** — a company building in-house, a competitor, or one below the ICP size
+floor leaves the queue with a stated reason while its score is still computed and
+shown. The card prints the whole derivation, so a juror can check it with a
+calculator.
 
-**Deploy shape.** The Jenkinsfile builds `gigahack26-api` and `gigahack26-ui`,
-recreates the Postgres and Mongo containers and waits for each to accept
-connections, then recreates the two app containers with Traefik labels for
-`hackapi.pistonpunk.com` and `hack.pistonpunk.com`. Secrets come from
-folder-scoped Jenkins credentials, never from the repo.
+**A signal question is the unit of configuration.** `policy_question` carries the
+plain-language `text`, an `instructions` rubric, a `weight_tier`, a `polarity`
+(`POSITIVE`, `NEGATIVE`, `DISQUALIFYING`), a `theme`, a `decay_class` that fixes its
+half-life, and `cues`/`counter_cues` for the local engine. The rubric is what makes
+the system work: it lets the classifier make the business inference a senior rep
+would instead of matching the word "automation". `LocalRubricEngine.deriveCues`
+means a question typed cold in the Studio — with no cues configured — still scores.
+
+**Two classifier engines, chosen per request.** `ClassifierRouter` fronts a
+`LocalRubricEngine` (deterministic, offline, ~2s over the whole corpus) and a
+`DeepSeekEngine` (OpenAI-compatible HTTP, one document per call, quote verified by
+containment). `POST /api/rescore` accepts an `engine` field, so the deployed demo
+re-scores on the local engine by default and can escalate to the language model
+when the network allows. **The demo must never depend on venue Wi-Fi** — that is
+why the default is local and why the UI disables the model option when
+`meta.languageModelAvailable` is false.
+
+**The corpus ships with model-extracted signals.** `corpus/raw.json` is real
+crawled documents; `corpus/signals.json`, when present, is an overlay of
+language-model verdicts with their quotes. `CorpusSeeder` applies the overlay where
+it exists and falls back to the local engine everywhere else, verifying every
+overlay quote against its capture. Regenerate the overlay with
+`POST /api/admin/signals/build` with `ADMIN_ENABLED=true` and a key configured.
+
+**Config is environment-first.** Every value in `application.yml` is a
+`${ENV:default}` placeholder. The UI has no runtime config: Vite inlines
+`PUBLIC_API_URL` at build time (`__API_URL__` in `vite.config.ts`), which is why the
+Jenkinsfile passes it as a build arg and why changing the API host needs a rebuild.
 
 ## Every change has to hold the infrastructure together
 
-This is the standing rule for this repo: **a change is not finished when the
-feature works — it is finished when both the deployed path and the local path
-still work.** The two are wired separately, so touching one and not the other is
-the default failure mode.
-
-When a change introduces or alters any of these, update all of the places that
-know about it:
+A change is not finished when the feature works — it is finished when both the
+deployed path and the local path still work. The two are wired separately, so
+touching one and not the other is the default failure mode.
 
 | Change | Update |
 | --- | --- |
 | New environment variable | `application.yml` placeholder, `Jenkinsfile` `docker run -e`, `docker-compose.yml`, `.env.example` |
-| New backing service | `docker-compose.yml` (with a healthcheck), `Jenkinsfile` deploy stage that waits for readiness, the `web` network |
+| New backing service | `docker-compose.yml` (with a healthcheck), a `Jenkinsfile` stage that waits for readiness, the `web` network |
 | New API route or origin | `CorsConfig` mapping if outside `/api/**`, `CorsConfigTest`, the UI client in `src/lib/api.ts` |
 | New build-time value for the SPA | `vite.config.ts` define, `ui/Dockerfile` build arg, `Jenkinsfile` `--build-arg` |
 | New port or domain | Traefik labels in the `Jenkinsfile`, `docker-compose.yml` |
 | New API dependency | `api/build.gradle.kts`, and check the Dockerfile's build stage still resolves it |
+| New corpus field | `CorpusFiles`, `CorpusSeeder`, `tools/build_corpus.py`, and re-seed |
 
 Verify with the gates CI runs, not just the one you touched: `./gradlew test` and
 `npm run check`, then `docker compose up --build` for the local path, then a push
-for the deployed path and a real request against the live host. The pipeline no
-longer has a post-deploy check, so **a green build does not mean the app works** —
-`hackapi.pistonpunk.com/api/status` must report both stores `up`, and a POST must
-land.
+and a real request against the live host. The pipeline verifies the deployment
+itself — it waits for `/api/status` to report both stores `up` and fetches the
+board and the API through Traefik over TLS — so **a green build now means the app
+answered**, not merely that the images built.
+
+## Security posture, deliberately
+
+There is **no authentication**, and that is a scoped decision rather than an
+oversight: the corpus is public web pages, there are no user accounts, no tenants
+and no personal data, and the jury is meant to type a question into the Studio
+themselves. What follows from it, and must be respected:
+
+- `ADMIN_ENABLED` stays **false** in the deployed container. `POST /api/admin/signals/build`
+  spends real money on model calls and must never be reachable from the internet.
+- `DEEPSEEK_API_KEY` is a Jenkins-side secret. The pipeline reads it from the
+  environment and passes it empty when it is not configured; the app degrades to
+  the local engine rather than failing.
+- Anyone who can reach the API can rewrite policies and re-score. That is the
+  demo. Do not put real customer data in this deployment.
 
 ## Conventions
 
 - No comments in code. Names and structure carry the meaning.
 - Commits: imperative subject, a body that says what broke or why, no
   `Co-Authored-By` trailer.
-- Design tokens for the board live in `ui/src/app.css`; keep to the charcoal
-  and single-lime system and the `Inter` / `IBM Plex Mono` pairing.
+- Design tokens live in `ui/src/app.css`; stay on the Orange light palette —
+  `--orange` `#ff7900` on white and warm neutrals, with the `Inter` / `IBM Plex Mono`
+  pairing. There is no dark mode.
+- The board must survive a 1024×768 projector: nothing load-bearing below 13px,
+  and nothing that only appears on hover.

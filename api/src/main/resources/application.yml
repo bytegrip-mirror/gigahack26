@@ -5,14 +5,25 @@ server:
 spring:
   application:
     name: gigahack26-api
+  threads:
+    virtual:
+      enabled: true
   datasource:
     url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/gigahack26}
     username: ${POSTGRES_USER:gigahack}
     password: ${POSTGRES_PASSWORD:gigahack}
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:12}
   jpa:
     open-in-view: false
     hibernate:
       ddl-auto: update
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 400
+        order_inserts: true
+        order_updates: true
   mongodb:
     uri: ${MONGO_URI:mongodb://localhost:27017/gigahack26}
     representation:
@@ -24,13 +35,42 @@ spring:
 app:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+  classifier:
+    engine: ${CLASSIFIER_ENGINE:local}
+    max-candidates-per-document: 4
+    confidence-floor: 0.5
+    deepseek:
+      base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
+      api-key: ${DEEPSEEK_API_KEY:}
+      model: ${DEEPSEEK_MODEL:deepseek-flash}
+      concurrency: 64
+      timeout-ms: 25000
+  scoring:
+    base-rate: 0.25
+    priority-threshold: 0.75
+    nurture-threshold: 0.50
+    watch-threshold: 0.30
+    rank-discount: 0.5
+    icp-min-employees: 200
+    icp-countries: ${ICP_COUNTRIES:MD,RO,DE,FR,IT,ES,PT,NL,BE,LU,AT,CH,PL,CZ,SK,HU,BG,RS,UA,TR,GB,IE,SE,NO,DK,FI,GR,HR,SI,EE,LV,LT,US,CA}
+  corpus:
+    raw-path: ${CORPUS_RAW_PATH:corpus/raw.json}
+    signals-path: ${CORPUS_SIGNALS_PATH:corpus/signals.json}
+    seed-on-startup: ${CORPUS_SEED:true}
+    force-reseed: ${CORPUS_FORCE_RESEED:false}
+    admin-enabled: ${ADMIN_ENABLED:false}
 
 management:
   endpoints:
     web:
       exposure:
         include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
 
 logging:
   level:
     root: info
+    com.pistonpunk.gigahack26: info
