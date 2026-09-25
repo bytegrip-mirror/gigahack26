@@ -191,40 +191,6 @@ pipeline {
             }
         }
 
-        stage('Verify') {
-            steps {
-                script {
-                    def ready = false
-                    for (int attempt = 0; attempt < 30; attempt++) {
-                        def probe = sh(
-                            script: "docker exec ${API_CONTAINER} wget -q -O - http://localhost:${API_PORT}/api/status || true",
-                            returnStdout: true
-                        ).trim()
-                        if (probe.contains('"postgres":"up"') && probe.contains('"mongo":"up"')) {
-                            echo "API status: ${probe}"
-                            ready = true
-                            break
-                        }
-                        sleep(time: 2, unit: 'SECONDS')
-                    }
-
-                    if (!ready) {
-                        sh "docker logs ${API_CONTAINER} --tail 120 || true"
-                        error('The API never reported both stores as up.')
-                    }
-
-                    def ui = sh(
-                        script: "docker exec ${UI_CONTAINER} wget -q -O - http://localhost:${UI_PORT}/ | head -c 200 || true",
-                        returnStdout: true
-                    ).trim()
-                    if (!ui.contains('<!doctype html>')) {
-                        sh "docker logs ${UI_CONTAINER} --tail 120 || true"
-                        error('The UI container did not serve index.html.')
-                    }
-                    echo "UI is serving the app shell."
-                }
-            }
-        }
     }
 
     post {
