@@ -350,12 +350,13 @@
 		workspace.loadCounts();
 	}
 
-	function exportRows(list: BoardRow[], name: string) {
+	function exportRows(list: ScopedRow[], name: string) {
 		save(
 			name,
 			csv(
 				[
 					'rank',
+					'service_line',
 					'company',
 					'domain',
 					'country',
@@ -371,7 +372,8 @@
 					'lead_stage'
 				],
 				list.map((row) => [
-					row.rank,
+					allLines ? row.fitRank : row.rank,
+					row.serviceLine,
 					row.name,
 					row.domain,
 					row.country,
@@ -478,7 +480,7 @@
 		];
 	}
 
-	async function runRow(row: BoardRow, id: string) {
+	async function runRow(row: ScopedRow, id: string) {
 		if (id === 'open') select(row.id);
 		else if (id === 'capture' && row.strongest) capture = { id: row.strongest.evidenceId, focus: { start: row.strongest.spanStart, end: row.strongest.spanEnd } };
 		else if (id === 'link') {
