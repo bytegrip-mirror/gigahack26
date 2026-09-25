@@ -1,7 +1,7 @@
 package com.pistonpunk.gigahack26.service;
 
 import com.pistonpunk.gigahack26.domain.RawCapture;
-import com.pistonpunk.gigahack26.repository.RawCaptureRepository;
+import com.pistonpunk.gigahack26.repository.mongo.RawCaptureRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;

@@ -1,4 +1,4 @@
-package com.pistonpunk.gigahack26.repository;
+package com.pistonpunk.gigahack26.repository.mongo;
 
 import com.pistonpunk.gigahack26.domain.RawCapture;
 import org.springframework.data.mongodb.repository.MongoRepository;

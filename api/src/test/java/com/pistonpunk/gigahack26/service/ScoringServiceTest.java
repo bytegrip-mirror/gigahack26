@@ -107,6 +107,27 @@ class ScoringServiceTest {
     }
 
     @Test
+    void twoPassagesFromOneDocumentAreRankDiscountedNotCountedTwice() {
+        PolicyQuestion question = question("a", Polarity.POSITIVE, WeightTier.HIGH, "automation");
+        Evidence document = evidence("e1", "cost reduction programme and process optimisation target");
+
+        List<Signal> signals = List.of(
+                signal(document, question, Verdict.BUY, 0.9, 0, 20),
+                signal(document, question, Verdict.BUY, 0.9, 25, 45));
+
+        ScoreComputation result = scoring.compute(
+                company(false, "DE", 4000, 0.9), List.of(document), signals, List.of(question), NOW);
+
+        List<LedgerRow> rows = result.rows();
+        assertEquals(2, rows.size(), "both passages are kept and shown");
+        assertEquals(1.0, rows.get(0).discount(), 1e-9);
+        assertEquals(properties.rankDiscount(), rows.get(1).discount(), 1e-9);
+        assertEquals(rows.get(0).contributionNats() * properties.rankDiscount(),
+                rows.get(1).contributionNats(), 1e-3,
+                "the second passage from the same document must not carry full weight");
+    }
+
+    @Test
     void aCompanyBuildingItInHouseIsGatedAndItsWeightStaysOutOfTheSum() {
         PolicyQuestion insourcing = question("build", Polarity.DISQUALIFYING, WeightTier.HIGH, "automation");
         PolicyQuestion programme = question("programme", Polarity.POSITIVE, WeightTier.HIGH, "automation");
@@ -240,7 +261,12 @@ class ScoringServiceTest {
     }
 
     private Signal signal(Evidence evidence, PolicyQuestion question, Verdict verdict, double confidence) {
+        return signal(evidence, question, verdict, confidence, 0, Math.min(4, evidence.getCharLength()));
+    }
+
+    private Signal signal(Evidence evidence, PolicyQuestion question, Verdict verdict, double confidence,
+                          int spanStart, int spanEnd) {
         return new Signal(UUID.randomUUID(), evidence.getId(), evidence.getCompanyId(), question.getId(),
-                verdict, confidence, 0, Math.min(4, evidence.getCharLength()), "because", "test", true, NOW);
+                verdict, confidence, spanStart, spanEnd, "because", "test", true, NOW);
     }
 }

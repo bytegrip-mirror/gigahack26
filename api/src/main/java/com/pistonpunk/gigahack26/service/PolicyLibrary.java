@@ -4,7 +4,7 @@ import com.pistonpunk.gigahack26.domain.DecayClass;
 import com.pistonpunk.gigahack26.domain.Polarity;
 import com.pistonpunk.gigahack26.domain.PolicyQuestion;
 import com.pistonpunk.gigahack26.domain.WeightTier;
-import com.pistonpunk.gigahack26.repository.PolicyQuestionRepository;
+import com.pistonpunk.gigahack26.repository.jpa.PolicyQuestionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

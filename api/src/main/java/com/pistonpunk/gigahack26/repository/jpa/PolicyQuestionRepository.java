@@ -1,4 +1,4 @@
-package com.pistonpunk.gigahack26.repository;
+package com.pistonpunk.gigahack26.repository.jpa;
 
 import com.pistonpunk.gigahack26.domain.PolicyQuestion;
 import org.springframework.data.jpa.repository.JpaRepository;

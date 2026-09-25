@@ -37,6 +37,7 @@ services:
       retries: 20
 
   api:
+    image: gigahack26-api-local
     build: ./api
     environment:
       SERVER_PORT: 8080
@@ -66,6 +67,7 @@ services:
       start_period: 90s
 
   ui:
+    image: gigahack26-ui-local
     build:
       context: ./ui
       args:

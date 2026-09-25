@@ -2,7 +2,7 @@ package com.pistonpunk.gigahack26.web;
 
 import com.pistonpunk.gigahack26.domain.Feedback;
 import com.pistonpunk.gigahack26.domain.RepVerdict;
-import com.pistonpunk.gigahack26.repository.FeedbackRepository;
+import com.pistonpunk.gigahack26.repository.jpa.FeedbackRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

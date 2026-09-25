@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { untrack } from 'svelte';
 	import {
 		createPolicy,
 		deletePolicy,
@@ -45,15 +46,24 @@
 	$effect(() => {
 		const line = serviceLine;
 		if (!line) return;
+		let cancelled = false;
 		loading = true;
-		fetchPolicies().then((result) => {
-			policies = result;
-			loading = false;
-			if (!selectedId) {
-				const first = result.find((policy) => policy.serviceLine === line) ?? result[0];
-				if (first) select(first);
-			}
-		});
+		fetchPolicies()
+			.then((result) => {
+				if (cancelled) return;
+				policies = result;
+				loading = false;
+				if (!untrack(() => selectedId)) {
+					const first = result.find((policy) => policy.serviceLine === line) ?? result[0];
+					if (first) select(first);
+				}
+			})
+			.catch(() => {
+				if (!cancelled) loading = false;
+			});
+		return () => {
+			cancelled = true;
+		};
 	});
 
 	$effect(() => {
@@ -170,8 +180,11 @@
 			list.push(policy);
 			map.set(policy.serviceLine, list);
 		}
-		return [...map.entries()];
+		const scoped = [...map.entries()].filter(([line]) => line === serviceLine);
+		return scoped.length > 0 ? scoped : [...map.entries()];
 	});
+
+	const elsewhere = $derived(policies.filter((policy) => policy.serviceLine !== serviceLine).length);
 </script>
 
 <svelte:head><title>Signal Studio · Orange Systems</title></svelte:head>
@@ -194,7 +207,7 @@
 		{:else}
 			{#each grouped as [line, items] (line)}
 				<div class="group">
-					<h3>{line}</h3>
+					<h3>{line} <span class="muted">· {items.length}</span></h3>
 					{#each items as policy (policy.id)}
 						<button class="item" class:active={policy.id === selectedId} onclick={() => select(policy)}>
 							<div class="row gap-6" style="flex-wrap: wrap">
@@ -215,6 +228,12 @@
 					{/each}
 				</div>
 			{/each}
+			{#if elsewhere > 0}
+				<p class="tiny muted" style="margin: 10px 6px 2px">
+					{elsewhere} more {elsewhere === 1 ? 'question' : 'questions'} on other service lines — switch
+					line in the header to see them.
+				</p>
+			{/if}
 		{/if}
 	</aside>
 

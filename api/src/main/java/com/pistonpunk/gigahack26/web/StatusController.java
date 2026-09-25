@@ -1,9 +1,9 @@
 package com.pistonpunk.gigahack26.web;
 
-import com.pistonpunk.gigahack26.repository.CompanyRepository;
-import com.pistonpunk.gigahack26.repository.EvidenceRepository;
-import com.pistonpunk.gigahack26.repository.PolicyQuestionRepository;
-import com.pistonpunk.gigahack26.repository.SignalRepository;
+import com.pistonpunk.gigahack26.repository.jpa.CompanyRepository;
+import com.pistonpunk.gigahack26.repository.jpa.EvidenceRepository;
+import com.pistonpunk.gigahack26.repository.jpa.PolicyQuestionRepository;
+import com.pistonpunk.gigahack26.repository.jpa.SignalRepository;
 import com.pistonpunk.gigahack26.service.BoardService;
 import com.pistonpunk.gigahack26.service.CaptureStore;
 import com.pistonpunk.gigahack26.web.dto.StatusResponse;

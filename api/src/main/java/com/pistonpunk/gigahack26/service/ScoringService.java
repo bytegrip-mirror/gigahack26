@@ -146,32 +146,28 @@ public class ScoringService {
     }
 
     private List<LedgerRow> applyRankDiscount(List<LedgerRow> rows) {
-        Map<UUID, List<LedgerRow>> byQuestion = rows.stream()
-                .filter(row -> !row.blocking())
-                .collect(Collectors.groupingBy(LedgerRow::questionId, LinkedHashMap::new, Collectors.toList()));
+        Map<UUID, List<LedgerRow>> byQuestion = new LinkedHashMap<>();
+        List<LedgerRow> discounted = new ArrayList<>(rows.size());
+
+        for (LedgerRow row : rows) {
+            if (row.blocking()) {
+                discounted.add(row);
+                continue;
+            }
+            byQuestion.computeIfAbsent(row.questionId(), key -> new ArrayList<>()).add(row);
+        }
 
         for (List<LedgerRow> group : byQuestion.values()) {
             group.sort(Comparator.comparingDouble((LedgerRow row) -> Math.abs(row.rawNats())).reversed());
             for (int rank = 0; rank < group.size(); rank++) {
-                LedgerRow row = group.get(rank);
-                double discount = Math.pow(properties.rankDiscount(), rank);
-                group.set(rank, withDiscount(row, rank, discount));
+                discounted.add(withDiscount(group.get(rank), rank,
+                        Math.pow(properties.rankDiscount(), rank)));
             }
         }
 
-        List<LedgerRow> merged = new ArrayList<>();
-        for (LedgerRow row : rows) {
-            if (row.blocking()) {
-                merged.add(row);
-                continue;
-            }
-            merged.add(byQuestion.get(row.questionId()).stream()
-                    .filter(candidate -> candidate.evidenceId().equals(row.evidenceId()))
-                    .findFirst()
-                    .orElse(row));
-        }
-        merged.sort(Comparator.comparingDouble((LedgerRow row) -> Math.abs(row.contributionNats())).reversed());
-        return merged;
+        discounted.sort(Comparator.comparingDouble((LedgerRow row) -> Math.abs(row.contributionNats()))
+                .reversed());
+        return discounted;
     }
 
     private LedgerRow withDiscount(LedgerRow row, int rank, double discount) {
