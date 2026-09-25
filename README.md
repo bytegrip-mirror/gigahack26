@@ -32,20 +32,25 @@ in `SubmissionService`. A pitch is only complete when both writes land.
 
 ## Local development
 
-Whole stack in containers:
+One command, no setup. Postgres, MongoDB, the API, and the board all come up
+together; the schema is created on first boot and the API is waited on before
+the board is served:
 
 ```sh
 docker compose up --build
 ```
 
-Then `http://localhost:3000` for the board and `http://localhost:8080/api/status`
-for the API.
+- Board: <http://localhost:3000>
+- API: <http://localhost:8080/api/status>
 
-The credentials in `docker-compose.yml` are throwaway defaults for local work
-only, and both databases are published on loopback. Set `POSTGRES_PASSWORD` and
-`MONGO_PASSWORD` to override them. Nothing in the pipeline reads this file: the
-deployed stack gets a fresh random password per store from the Jenkins
-credential store.
+Data lives in the `postgres-data` and `mongo-data` volumes. `docker compose down`
+keeps it, `docker compose down -v` throws it away.
+
+`.env` is optional. Copy `.env.example` to it only to override the throwaway
+defaults or to add a key for a third-party integration. The credentials in
+`docker-compose.yml` are for local work only and both databases are published on
+loopback; nothing in the pipeline reads this file, and the deployed stack gets a
+fresh random password per store from the Jenkins credential store.
 
 Running the two halves directly, with `docker compose up postgres mongo` for the
 datastores:
