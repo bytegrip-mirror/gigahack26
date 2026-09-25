@@ -31,7 +31,13 @@ public record BoardRow(
         Double newestSignalAgeDays,
         Chip strongest,
         List<Chip> chips,
-        List<String> themes) {
+        List<String> themes,
+        String leadStatus,
+        String leadStatusLabel,
+        java.time.Instant lastContactedAt,
+        int contactCount,
+        String urgency,
+        String whyNow) {
 
     public record Chip(
             String evidenceId,

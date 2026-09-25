@@ -47,6 +47,12 @@ export type BoardRow = {
 	strongest: Chip | null;
 	chips: Chip[];
 	themes: string[];
+	leadStatus: string | null;
+	leadStatusLabel: string | null;
+	lastContactedAt: string | null;
+	contactCount: number;
+	urgency: string;
+	whyNow: string | null;
 };
 
 export type LedgerRow = {
@@ -145,6 +151,46 @@ export type CompanyDetail = {
 	evidence: EvidenceView[];
 	computedAt: string;
 	engine: string;
+	whyNow: WhyNow;
+	lead: LeadView | null;
+	crmConfigured: boolean;
+};
+
+export type WhyNow = {
+	headline: string;
+	narrative: string;
+	urgency: 'ACT_NOW' | 'THIS_WEEK' | 'MONITOR' | 'NONE';
+	urgencyLabel: string;
+	triggers: LedgerRow[];
+	counters: LedgerRow[];
+	daysInBand: number | null;
+};
+
+export type LeadView = {
+	id: string;
+	companyId: string;
+	company: string;
+	domain: string | null;
+	serviceLine: string;
+	status: string;
+	statusLabel: string;
+	channel: string | null;
+	lastContactedAt: string | null;
+	contactCount: number;
+	note: string | null;
+	outreachSubject: string | null;
+	crmSyncedAt: string | null;
+	updatedAt: string;
+};
+
+export type LeadTally = {
+	NEW: number;
+	CONTACTED: number;
+	REPLIED: number;
+	QUALIFIED: number;
+	REJECTED: number;
+	TOTAL: number;
+	crmConfigured: boolean;
 };
 
 export type EvidenceDetail = {
@@ -256,6 +302,7 @@ export type Meta = {
 	localEngine: string;
 	degraded: boolean;
 	bands: Record<string, number>;
+	stages: Record<string, number>;
 	captures: number;
 	scoring: {
 		baseRate: number;
@@ -368,13 +415,15 @@ export function fetchBoard(options: {
 	filter?: string;
 	sort?: string;
 	q?: string;
+	stage?: string;
 }): Promise<BoardRow[]> {
 	return request<BoardRow[]>(
 		`/api/companies${query({
 			serviceLine: options.serviceLine,
 			filter: options.filter ?? 'all',
 			sort: options.sort ?? 'score',
-			q: options.q
+			q: options.q,
+			stage: options.stage
 		})}`
 	);
 }
@@ -451,6 +500,36 @@ export function fetchOutreach(companyId: string, serviceLine: string, channel: s
 	return request<Outreach>(
 		`/api/outreach/${companyId}${query({ serviceLine, channel })}`
 	);
+}
+
+export function fetchLeads(serviceLine: string): Promise<LeadView[]> {
+	return request<LeadView[]>(`/api/leads${query({ serviceLine })}`);
+}
+
+export function fetchLeadTally(serviceLine: string): Promise<LeadTally> {
+	return request<LeadTally>(`/api/leads/tally${query({ serviceLine })}`);
+}
+
+export function recordLead(input: {
+	companyId: string;
+	serviceLine: string;
+	status?: string | null;
+	channel?: string | null;
+	note?: string | null;
+	outreachSubject?: string | null;
+}): Promise<LeadView> {
+	const { companyId, ...body } = input;
+	return request<LeadView>(`/api/leads/${companyId}`, { method: 'POST', body: JSON.stringify(body) });
+}
+
+export function pushToHubspot(
+	companyId: string,
+	serviceLine: string
+): Promise<{ pushed: boolean; queued?: boolean; reason?: string; detail?: string }> {
+	return request(`/api/leads/${companyId}/hubspot`, {
+		method: 'POST',
+		body: JSON.stringify({ serviceLine })
+	});
 }
 
 export function fetchPrecision(): Promise<{

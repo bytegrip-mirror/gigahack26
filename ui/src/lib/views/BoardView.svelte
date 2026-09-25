@@ -31,6 +31,16 @@
 		{ id: 'thin', label: 'Thin' }
 	];
 
+	const STAGES = [
+		{ id: '', label: 'Any stage' },
+		{ id: 'worked', label: 'Worked' },
+		{ id: 'untouched', label: 'Untouched' },
+		{ id: 'CONTACTED', label: 'Contacted' },
+		{ id: 'REPLIED', label: 'Replied' },
+		{ id: 'QUALIFIED', label: 'Qualified' },
+		{ id: 'REJECTED', label: 'Rejected' }
+	];
+
 	const SORTS = [
 		{ id: 'score', label: 'Fit' },
 		{ id: 'themes', label: 'Themes' },
@@ -53,6 +63,7 @@
 
 	let filter = $state('all');
 	let sort = $state('score');
+	let stage = $state('');
 	let query = $state('');
 	let selected = $state<string | null>(untrack(() => initialSelected));
 
@@ -103,13 +114,14 @@
 		const activeFilter = filter;
 		const activeSort = sort;
 		const search = query;
+		const activeStage = stage;
 		if (!line) return;
 
 		let cancelled = false;
 		loading = true;
 		const timer = setTimeout(
 			() => {
-				fetchBoard({ serviceLine: line, filter: activeFilter, sort: activeSort, q: search })
+				fetchBoard({ serviceLine: line, filter: activeFilter, sort: activeSort, q: search, stage: activeStage })
 					.then((result) => {
 						if (cancelled) return;
 						rows = result;
@@ -202,6 +214,15 @@
 			</div>
 
 			<input class="input search" placeholder="Filter by name, country, industry" bind:value={query} />
+
+			<label class="sr-only" for="stage">Lead stage</label>
+			<select id="stage" class="select" bind:value={stage}>
+				{#each STAGES as option (option.id)}
+					<option value={option.id}>
+						{option.label}{option.id === 'worked' && meta ? ` (${meta.stages.TOTAL ?? 0})` : ''}
+					</option>
+				{/each}
+			</select>
 
 			<label class="sr-only" for="sort">Sort</label>
 			<select id="sort" class="select" bind:value={sort}>
@@ -338,9 +359,14 @@
 								<td class="c-co">
 									<span class="co">{row.name}</span>
 									<span class="sub">
-										{#if row.domain}<span class="mono">{row.domain}</span> · {/if}{row.country ?? '—'}{#if row.hqCity} · {row.hqCity}{/if}
+										{#if row.domain}<span class="domain">{row.domain}</span> · {/if}{row.country ?? '—'}{#if row.hqCity} · {row.hqCity}{/if}
 									</span>
 									<span class="sub dim">{row.industry ?? 'unclassified'}{#if row.sizeBand} · {row.sizeBand}{/if}</span>
+									{#if row.leadStatus && row.leadStatus !== 'NEW'}
+										<span class="stage-tag" data-stage={row.leadStatus}>
+											{row.leadStatusLabel}{#if row.contactCount > 1} ×{row.contactCount}{/if}
+										</span>
+									{/if}
 								</td>
 								<td class="c-fit">
 									<div class="fitrow">
@@ -365,7 +391,7 @@
 								</td>
 								<td class="c-sig">
 									{#if row.strongest}
-										<span class="q">{row.strongest.question}</span>
+										<span class="q" class:hot={row.urgency === 'ACT_NOW'}>{row.whyNow}</span>
 										<span class="quote">“{row.strongest.quote}”</span>
 										<span class="sub dim">
 											{row.strongest.publisher} · {ageShort(row.newestSignalAgeDays)}
@@ -473,6 +499,10 @@
 	.tools .select {
 		width: auto;
 		min-width: 104px;
+	}
+
+	.tools #stage {
+		min-width: 118px;
 	}
 
 	.ask {
@@ -657,7 +687,7 @@
 	}
 
 	.c-co {
-		width: 25%;
+		width: 22%;
 	}
 
 	.c-fit {
@@ -669,7 +699,7 @@
 	}
 
 	.c-th {
-		width: 112px;
+		width: 152px;
 	}
 
 	.c-doc {
@@ -759,6 +789,45 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: 4px;
+	}
+
+	.stage-tag {
+		display: inline-block;
+		margin-top: 4px;
+		font-size: 10px;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.07em;
+		padding: 1px 5px;
+		border: 1px solid var(--rule-strong);
+		color: var(--ink-3);
+	}
+
+	.stage-tag[data-stage='QUALIFIED'] {
+		border-color: var(--accent);
+		color: var(--accent);
+	}
+
+	.stage-tag[data-stage='REJECTED'] {
+		border-color: var(--oxblood-line);
+		color: var(--oxblood);
+	}
+
+	.stage-tag[data-stage='CONTACTED'],
+	.stage-tag[data-stage='REPLIED'] {
+		border-color: var(--orange-line);
+		color: var(--orange-ink);
+	}
+
+	.q.hot {
+		color: var(--orange-ink);
+		font-weight: 500;
+	}
+
+	.tags :global(.tag) {
+		max-width: 100%;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	.corrob {

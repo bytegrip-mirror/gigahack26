@@ -48,7 +48,10 @@ public record CompanyDetail(
         Map<String, Double> sensitivity,
         List<EvidenceView> evidence,
         Instant computedAt,
-        String engine) {
+        String engine,
+        WhyNow whyNow,
+        LeadView lead,
+        boolean crmConfigured) {
 
     public record Theme(String name, double total, boolean capped, int rows) {
     }

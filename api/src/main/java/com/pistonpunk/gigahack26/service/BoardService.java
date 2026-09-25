@@ -4,6 +4,7 @@ import com.pistonpunk.gigahack26.domain.Band;
 import com.pistonpunk.gigahack26.domain.Company;
 import com.pistonpunk.gigahack26.domain.CompanyAlias;
 import com.pistonpunk.gigahack26.domain.Evidence;
+import com.pistonpunk.gigahack26.domain.Lead;
 import com.pistonpunk.gigahack26.domain.PolicyScore;
 import com.pistonpunk.gigahack26.domain.Signal;
 import com.pistonpunk.gigahack26.repository.jpa.CompanyAliasRepository;
@@ -39,14 +40,16 @@ public class BoardService {
     private final PolicyScoreRepository scores;
     private final ScoreboardService scoreboard;
     private final ScoringService scoringService;
+    private final WhyNowService whyNow;
+    private final LeadService leads;
     private final ClassifierRouter router;
     private final ScoringProperties scoring;
     private final Clock clock;
 
     public BoardService(CompanyRepository companies, CompanyAliasRepository aliases, EvidenceRepository evidence,
                         SignalRepository signals, PolicyScoreRepository scores, ScoreboardService scoreboard,
-                        ScoringService scoringService, ClassifierRouter router, ScoringProperties scoring,
-                        Clock clock) {
+                        ScoringService scoringService, WhyNowService whyNow, LeadService leads,
+                        ClassifierRouter router, ScoringProperties scoring, Clock clock) {
         this.companies = companies;
         this.aliases = aliases;
         this.evidence = evidence;
@@ -54,6 +57,8 @@ public class BoardService {
         this.scores = scores;
         this.scoreboard = scoreboard;
         this.scoringService = scoringService;
+        this.whyNow = whyNow;
+        this.leads = leads;
         this.router = router;
         this.scoring = scoring;
         this.clock = clock;
@@ -61,6 +66,10 @@ public class BoardService {
 
     @Transactional(readOnly = true)
     public List<BoardRow> board(String serviceLine, String filter, String sort, String query) {
+        return board(serviceLine, filter, sort, query, null);
+    }
+
+    public List<BoardRow> board(String serviceLine, String filter, String sort, String query, String stage) {
         List<ScoreboardService.Computed> computed = scoreboard.compute(serviceLine);
         if (computed.isEmpty()) {
             return List.of();
@@ -72,6 +81,7 @@ public class BoardService {
                 .collect(Collectors.groupingBy(Evidence::getCompanyId));
         Map<UUID, List<Signal>> signalsByCompany = signals.findAll().stream()
                 .collect(Collectors.groupingBy(Signal::getCompanyId));
+        Map<UUID, Lead> leadsByCompany = leads.byCompany(serviceLine);
         Instant now = clock.instant();
 
         String needle = query == null ? "" : query.trim().toLowerCase(Locale.ROOT);
@@ -90,10 +100,15 @@ public class BoardService {
             if (!passesFilter(detail.band(), filter)) {
                 continue;
             }
+            Lead companyLead = leadsByCompany.get(company.getId());
+            if (!passesStage(companyLead, stage)) {
+                continue;
+            }
 
             List<Evidence> companyEvidence = evidenceByCompany.getOrDefault(company.getId(), List.of());
             rows.add(toRow(company, detail, companyEvidence,
-                    signalsByCompany.getOrDefault(company.getId(), List.of()), now));
+                    signalsByCompany.getOrDefault(company.getId(), List.of()),
+                    leadsByCompany.get(company.getId()), now));
         }
 
         rows.sort(comparator(sort));
@@ -224,7 +239,14 @@ public class BoardService {
                 detail.sensitivity(),
                 evidenceViews,
                 now,
-                router.primaryEngineId()));
+                router.primaryEngineId(),
+                whyNow.explain(detail, scoring),
+                leads.find(companyId, serviceLine).map(lead -> new com.pistonpunk.gigahack26.web.dto.LeadView(
+                        lead.getId(), lead.getCompanyId(), company.getName(), company.getDomain(),
+                        lead.getServiceLine(), lead.getStatus().name(), lead.getStatus().label(),
+                        lead.getChannel(), lead.getLastContactedAt(), lead.getContactCount(), lead.getNote(),
+                        lead.getOutreachSubject(), lead.getCrmSyncedAt(), lead.getUpdatedAt())).orElse(null),
+                leads.crmConfigured()));
     }
 
     public String primaryEngine() {
@@ -248,7 +270,7 @@ public class BoardService {
     }
 
     private BoardRow toRow(Company company, ScoreComputation detail, List<Evidence> companyEvidence,
-                           List<Signal> companySignals, Instant now) {
+                           List<Signal> companySignals, Lead lead, Instant now) {
         List<LedgerRow> ranked = detail.rows().stream()
                 .filter(row -> !row.blocking())
                 .sorted(Comparator.comparingDouble((LedgerRow row) -> Math.abs(row.contributionNats())).reversed())
@@ -256,6 +278,7 @@ public class BoardService {
 
         List<BoardRow.Chip> chips = ranked.stream().limit(3).map(BoardService::toChip).toList();
         BoardRow.Chip strongest = chips.isEmpty() ? null : chips.get(0);
+        com.pistonpunk.gigahack26.web.dto.WhyNow why = whyNow.explain(detail, scoring);
 
         Instant newest = detail.rows().stream()
                 .map(LedgerRow::anchor)
@@ -286,7 +309,13 @@ public class BoardService {
                 newest == null ? null : round(Duration.between(newest, now).toHours() / 24.0),
                 strongest,
                 chips,
-                new ArrayList<>(detail.themeTotals().keySet()));
+                new ArrayList<>(detail.themeTotals().keySet()),
+                lead == null ? null : lead.getStatus().name(),
+                lead == null ? null : lead.getStatus().label(),
+                lead == null ? null : lead.getLastContactedAt(),
+                lead == null ? 0 : lead.getContactCount(),
+                why.urgency(),
+                why.headline());
     }
 
     private static BoardRow.Chip toChip(LedgerRow row) {
@@ -305,6 +334,20 @@ public class BoardService {
                 row.publisher());
     }
 
+
+    private static boolean passesStage(Lead lead, String stage) {
+        if (stage == null || stage.isBlank() || stage.equalsIgnoreCase("any")) {
+            return true;
+        }
+        String current = lead == null ? "NEW" : lead.getStatus().name();
+        if (stage.equalsIgnoreCase("worked")) {
+            return lead != null && !current.equals("NEW");
+        }
+        if (stage.equalsIgnoreCase("untouched")) {
+            return lead == null || current.equals("NEW");
+        }
+        return current.equalsIgnoreCase(stage);
+    }
 
     private static boolean passesFilter(Band band, String filter) {
         if (filter == null || filter.isBlank() || filter.equalsIgnoreCase("all")) {
@@ -355,7 +398,8 @@ public class BoardService {
                 row.sizeBand(), row.competitor(), row.probability(), row.band(), row.bandLabel(), row.gateReason(),
                 row.nats(), row.signalCount(), row.themeCount(), row.evidenceCount(), row.scannedDocuments(),
                 row.silentDocuments(), row.newestSignalAt(), row.newestSignalAgeDays(), row.strongest(),
-                row.chips(), row.themes());
+                row.chips(), row.themes(), row.leadStatus(), row.leadStatusLabel(), row.lastContactedAt(),
+                row.contactCount(), row.urgency(), row.whyNow());
     }
 
     private static String trim(String value, int max) {

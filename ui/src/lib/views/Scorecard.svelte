@@ -1,5 +1,13 @@
 <script lang="ts">
-	import { fetchCompany, sendFeedback, type CompanyDetail, type LedgerRow } from '$lib/api';
+	import {
+		fetchCompany,
+		pushToHubspot,
+		recordLead,
+		sendFeedback,
+		type CompanyDetail,
+		type LedgerRow,
+		type LeadView
+	} from '$lib/api';
 	import { toasts } from '$lib/toast.svelte';
 	import {
 		age,
@@ -8,9 +16,7 @@
 		horizon,
 		host,
 		nats,
-		odds,
 		plural,
-		precise,
 		signed,
 		sourceKind,
 		theme,
@@ -33,12 +39,22 @@
 		oncapture: (evidenceId: string, focus: { start: number; end: number } | null) => void;
 	} = $props();
 
+	const STAGES = [
+		{ id: 'NEW', label: 'New' },
+		{ id: 'CONTACTED', label: 'Contacted' },
+		{ id: 'REPLIED', label: 'Replied' },
+		{ id: 'QUALIFIED', label: 'Qualified' },
+		{ id: 'REJECTED', label: 'Rejected' }
+	];
+
 	let detail = $state<CompanyDetail | null>(null);
 	let error = $state<string | null>(null);
 	let loading = $state(true);
 	let outreachOpen = $state(false);
-	let verdict = $state<string | null>(null);
+	let ledgerOpen = $state(false);
 	let silentOnly = $state(false);
+	let lead = $state<LeadView | null>(null);
+	let busy = $state<string | null>(null);
 
 	$effect(() => {
 		const id = companyId;
@@ -50,6 +66,7 @@
 			.then((result) => {
 				if (cancelled) return;
 				detail = result;
+				lead = result.lead;
 				error = null;
 			})
 			.catch((cause) => {
@@ -66,15 +83,63 @@
 	const scored = $derived(detail ? detail.ledger.filter((row) => !row.blocking) : []);
 	const silent = $derived(detail ? detail.evidence.filter((item) => item.signalCount === 0) : []);
 	const documents = $derived(detail ? (silentOnly ? silent : detail.evidence) : []);
+	const stage = $derived(lead?.status ?? 'NEW');
+
+	function daysSince(iso: string): number {
+		return Math.max(0, (Date.now() - new Date(iso).getTime()) / 86_400_000);
+	}
+
+	async function setStage(status: string) {
+		if (!detail) return;
+		busy = 'stage';
+		try {
+			lead = await recordLead({ companyId: detail.id, serviceLine, status });
+			toasts.push(`Marked ${lead.statusLabel.toLowerCase()}.`, 'success');
+		} catch (cause) {
+			toasts.push((cause as Error).message, 'error');
+		} finally {
+			busy = null;
+		}
+	}
+
+	async function pushCrm() {
+		if (!detail) return;
+		busy = 'crm';
+		try {
+			const result = await pushToHubspot(detail.id, serviceLine);
+			if (result.pushed) {
+				toasts.push('Pushed to HubSpot.', 'success');
+			} else {
+				toasts.push(`HubSpot is not connected — ${result.reason}`, 'warn');
+			}
+			lead = await recordLead({ companyId: detail.id, serviceLine });
+		} catch (cause) {
+			toasts.push((cause as Error).message, 'error');
+		} finally {
+			busy = null;
+		}
+	}
 
 	async function judge(value: 'ACCEPT' | 'REJECT') {
 		if (!detail) return;
 		try {
 			await sendFeedback({ companyId: detail.id, repVerdict: value });
-			verdict = value;
 			toasts.push(value === 'ACCEPT' ? 'Counted as a qualified lead.' : 'Counted as rejected.', 'success');
 		} catch (cause) {
 			toasts.push((cause as Error).message, 'error');
+		}
+	}
+
+	function openRow(row: LedgerRow) {
+		oncapture(row.evidenceId, { start: row.spanStart, end: row.spanEnd });
+	}
+
+	async function onDrafted(subject: string) {
+		if (!detail) return;
+		try {
+			lead = await recordLead({ companyId: detail.id, serviceLine, status: 'CONTACTED', outreachSubject: subject });
+		} catch {
+			/* the stage control still works even if this write fails */
 		}
 	}
 </script>
@@ -121,32 +186,113 @@
 			/>
 			{#if detail.gateReason}
 				<p class="gate"><span class="label">Removed</span> {detail.gateReason}</p>
-				<p class="sub dim">
-					Score still computed so the counterfactual is visible. A gate is not a weight.
+			{/if}
+		</section>
+
+		<section class="block why" data-urgency={detail.whyNow.urgency}>
+			<div class="why-head">
+				<p class="label">Why now</p>
+				<span class="urgency" data-urgency={detail.whyNow.urgency}>{detail.whyNow.urgencyLabel}</span>
+			</div>
+			<p class="why-headline dsp">{detail.whyNow.headline}</p>
+			<p class="why-text">{detail.whyNow.narrative}</p>
+			{#if detail.whyNow.daysInBand !== null && detail.whyNow.daysInBand > 0}
+				<p class="why-clock">
+					<span class="num">{Math.round(detail.whyNow.daysInBand)}</span> days left in the top band without new
+					evidence
 				</p>
 			{/if}
 		</section>
 
-		<section class="block">
-			<h3 class="label">Ledger</h3>
-			<Ledger rows={scored} onopen={(row: LedgerRow) => oncapture(row.evidenceId, { start: row.spanStart, end: row.spanEnd })} />
-			<div class="sum mono">
-				<div><span>logit({detail.baseRate.toFixed(2)})</span><span>{signed(detail.baseLogit)}</span></div>
-				{#each scored as row (row.evidenceId + row.questionId + row.spanStart)}
-					<div class="dim">
-						<span>{row.questionKey}{row.themeCapped ? ' · capped' : ''}</span>
-						<span>{signed(row.contributionNats)}</span>
-					</div>
-				{/each}
-				<div class="total"><span>logit → fit</span><span>{signed(detail.logit)} → {fit(detail.probability)}</span></div>
+		<section class="block actions">
+			<div class="stage">
+				<p class="label">Stage</p>
+				<div class="seg" role="tablist" aria-label="Lead stage">
+					{#each STAGES as option (option.id)}
+						<button
+							role="tab"
+							aria-selected={stage === option.id}
+							disabled={busy === 'stage'}
+							onclick={() => setStage(option.id)}
+						>
+							{option.label}
+						</button>
+					{/each}
+				</div>
+				{#if lead && lead.contactCount > 0}
+					<p class="sub dim">
+						{plural(lead.contactCount, 'contact')}
+						{#if lead.lastContactedAt}· last {age(daysSince(lead.lastContactedAt))}{/if}
+						{#if lead.channel}· via {lead.channel}{/if}
+					</p>
+				{/if}
+			</div>
+
+			<div class="row">
+				<button class="btn btn-ink" onclick={() => (outreachOpen = true)}>Generate outreach</button>
+				<button class="btn" disabled={busy === 'crm'} onclick={pushCrm}>
+					{#if busy === 'crm'}<span class="spinner"></span>{/if}
+					{lead?.crmSyncedAt ? 'Re-push to HubSpot' : 'Push to HubSpot'}
+				</button>
+			</div>
+			{#if !detail.crmConfigured}
+				<p class="sub dim">
+					HubSpot is not connected on this instance. The button records the intent and keeps the lead here.
+				</p>
+			{/if}
+			<div class="row quiet">
+				<button class="btn btn-quiet btn-sm" onclick={() => judge('ACCEPT')}>Mark qualified</button>
+				<button class="btn btn-quiet btn-sm" onclick={() => judge('REJECT')}>Not a lead</button>
 			</div>
 		</section>
 
+		{#if detail.whyNow.triggers.length > 0}
+			<section class="block">
+				<h3 class="label">Top signals</h3>
+				<ul class="signals">
+					{#each detail.whyNow.triggers as row (row.evidenceId + row.questionId + row.spanStart)}
+						<li>
+							<div class="sig-head">
+								<span class="key">{row.questionKey}</span>
+								<span class="num pos">{signed(row.contributionNats)}</span>
+							</div>
+							{#if row.spanText}<p class="quote">“{row.spanText}”</p>{/if}
+							<p class="sub dim">
+								{row.publisher} · {age(row.ageDays)} · {theme(row.theme)} · {tier(row.tier)}
+								<button class="link" onclick={() => openRow(row)}>capture</button>
+							</p>
+						</li>
+					{/each}
+				</ul>
+			</section>
+		{/if}
+
+		{#if detail.whyNow.counters.length > 0}
+			<section class="block">
+				<h3 class="label">Counter signals</h3>
+				<ul class="signals">
+					{#each detail.whyNow.counters as row (row.evidenceId + row.questionId + row.spanStart)}
+						<li class="against">
+							<div class="sig-head">
+								<span class="key">{row.questionKey}</span>
+								<span class="num neg">{signed(row.contributionNats)}</span>
+							</div>
+							{#if row.spanText}<p class="quote">“{row.spanText}”</p>{/if}
+							<p class="sub dim">
+								{row.publisher} · {age(row.ageDays)}
+								<button class="link" onclick={() => openRow(row)}>capture</button>
+							</p>
+						</li>
+					{/each}
+				</ul>
+			</section>
+		{/if}
+
 		<section class="block">
-			<h3 class="label">Themes</h3>
-			<p class="sub dim">
-				Cap {nats(detail.themeCap)}, derived from the Priority line. One theme reaches it and stops.
-			</p>
+			<div class="block-head">
+				<h3 class="label">Themes</h3>
+				<span class="sub dim">cap {nats(detail.themeCap)}</span>
+			</div>
 			{#each detail.themes as item (item.name)}
 				<div class="theme">
 					<div class="theme-row">
@@ -154,7 +300,10 @@
 						<span class="num">{signed(item.total)}</span>
 					</div>
 					<div class="bar">
-						<span data-capped={item.capped} style="width:{Math.min(100, (Math.abs(item.total) / detail.themeCap) * 100)}%"></span>
+						<span
+							data-capped={item.capped}
+							style="width:{Math.min(100, (Math.abs(item.total) / detail.themeCap) * 100)}%"
+						></span>
 					</div>
 				</div>
 			{/each}
@@ -163,40 +312,46 @@
 			{/if}
 		</section>
 
-		{#if detail.counterEvidence.length > 0}
-			<section class="block">
-				<h3 class="label">Counter-evidence</h3>
-				<ul class="counter">
-					{#each detail.counterEvidence as row (row.evidenceId + row.questionId + row.spanStart)}
-						<li>
-							<div class="counter-head">
-								<span>{row.questionKey}</span>
-								<span class="num neg">{signed(row.contributionNats)}</span>
-							</div>
-							<p class="sub dim">{row.publisher} · {age(row.ageDays)}</p>
-							{#if row.spanText}<p class="quote">“{row.spanText}”</p>{/if}
-						</li>
-					{/each}
-				</ul>
-			</section>
-		{/if}
-
 		<section class="block">
-			<h3 class="label">Decay</h3>
+			<div class="block-head">
+				<h3 class="label">Decay</h3>
+				<span class="sub dim">half-life sensitivity</span>
+			</div>
 			<dl class="facts">
 				<dt>Priority for</dt><dd>{horizon(detail.priorityHorizonDays)}</dd>
 				<dt>Above Nurture</dt><dd>{horizon(detail.nurtureHorizonDays)}</dd>
 			</dl>
 			<div class="sens">
 				{#each Object.entries(detail.sensitivity) as [label, value] (label)}
-					<div>
-						<span class="num">{value.toFixed(2)}</span>
-						<span class="label">H {label}</span>
-					</div>
+					<div><span class="num">{value.toFixed(2)}</span><span class="label">H {label}</span></div>
 				{/each}
 			</div>
-			{#if detail.weakestLink}
-				<p class="sub dim">Weakest link — falsify here first: <span class="mono">{detail.weakestLink}</span></p>
+		</section>
+
+		<section class="block">
+			<button class="disclose" onclick={() => (ledgerOpen = !ledgerOpen)} aria-expanded={ledgerOpen}>
+				<span class="label">Full ledger · {scored.length}</span>
+				<span class="sub dim">{ledgerOpen ? 'hide' : 'show the arithmetic'}</span>
+			</button>
+			{#if ledgerOpen}
+				<Ledger rows={scored} onopen={openRow} />
+				<div class="sum num">
+					<div><span>logit({detail.baseRate.toFixed(2)})</span><span>{signed(detail.baseLogit)}</span></div>
+					{#each scored as row (row.evidenceId + row.questionId + row.spanStart)}
+						<div class="dim">
+							<span>{row.questionKey}{row.themeCapped ? ' · capped' : ''}</span>
+							<span>{signed(row.contributionNats)}</span>
+						</div>
+					{/each}
+					<div class="total">
+						<span>logit → fit</span><span>{signed(detail.logit)} → {fit(detail.probability)}</span>
+					</div>
+				</div>
+				{#if detail.weakestLink}
+					<p class="sub dim">
+						Weakest link — falsify here first: <span>{detail.weakestLink}</span>
+					</p>
+				{/if}
 			{/if}
 		</section>
 
@@ -226,18 +381,6 @@
 				{/each}
 			</ul>
 		</section>
-
-		<section class="block actions">
-			{#if verdict}
-				<p class="sub">Recorded as {verdict === 'ACCEPT' ? 'qualified' : 'rejected'}.</p>
-			{:else}
-				<div class="row">
-					<button class="btn" onclick={() => judge('ACCEPT')}>Qualified</button>
-					<button class="btn" onclick={() => judge('REJECT')}>Not a lead</button>
-				</div>
-			{/if}
-			<button class="btn btn-ink btn-block" onclick={() => (outreachOpen = true)}>Draft outreach</button>
-		</section>
 	{/if}
 </div>
 
@@ -247,6 +390,7 @@
 		companyName={detail.name}
 		{serviceLine}
 		onclose={() => (outreachOpen = false)}
+		ondrafted={onDrafted}
 	/>
 {/if}
 
@@ -298,8 +442,9 @@
 	}
 
 	.score-val {
-		font-size: 34px;
-		font-weight: 500;
+		font-family: var(--font-display);
+		font-size: 36px;
+		font-weight: 400;
 		line-height: 1;
 		letter-spacing: -0.03em;
 	}
@@ -323,49 +468,168 @@
 		border-bottom: 1px solid var(--rule);
 	}
 
-	.block h3 {
+	.block h3,
+	.block .label {
 		margin-bottom: 8px;
 	}
 
 	.block-head {
 		display: flex;
-		align-items: center;
+		align-items: baseline;
 		justify-content: space-between;
 		gap: 10px;
 		margin-bottom: 8px;
 	}
 
-	.block-head h3 {
+	.block-head h3,
+	.block-head .label {
 		margin: 0;
 	}
 
-	.toggle {
+	.why {
+		background: var(--paper);
+		border-left: 2px solid var(--rule-strong);
+	}
+
+	.why[data-urgency='ACT_NOW'] {
+		background: var(--orange-wash);
+		border-left-color: var(--orange);
+	}
+
+	.why[data-urgency='THIS_WEEK'] {
+		border-left-color: var(--orange-line);
+	}
+
+	.why-head {
 		display: flex;
 		align-items: center;
-		gap: 5px;
-		font-size: 11px;
+		justify-content: space-between;
+		gap: 10px;
+	}
+
+	.why-head .label {
+		margin: 0;
+	}
+
+	.urgency {
+		font-size: 10px;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.09em;
 		color: var(--ink-3);
 	}
 
-	.sum {
-		margin-top: 10px;
-		border-top: 1px solid var(--rule);
-		padding-top: 8px;
+	.urgency[data-urgency='ACT_NOW'] {
+		color: var(--orange-ink);
+	}
+
+	.urgency[data-urgency='ACT_NOW']::before,
+	.urgency[data-urgency='THIS_WEEK']::before {
+		content: '● ';
+		color: var(--orange);
+	}
+
+	.why-headline {
+		margin-top: 6px;
+		font-size: 16px;
+		line-height: 1.3;
+		color: var(--ink);
+	}
+
+	.why-text {
+		margin-top: 6px;
+		font-size: 12.5px;
+		line-height: 1.6;
+		color: var(--ink-2);
+	}
+
+	.why-clock {
+		margin-top: 8px;
 		font-size: 11.5px;
+		color: var(--ink-3);
 	}
 
-	.sum > div {
+	.actions {
 		display: flex;
-		justify-content: space-between;
-		gap: 12px;
-		padding: 1px 0;
+		flex-direction: column;
+		gap: 9px;
 	}
 
-	.sum .total {
-		border-top: 1px solid var(--rule);
-		margin-top: 5px;
-		padding-top: 5px;
-		font-weight: 500;
+	.stage .label {
+		margin-bottom: 5px;
+	}
+
+	.stage .seg {
+		width: 100%;
+	}
+
+	.stage .seg button {
+		flex: 1;
+		text-align: center;
+	}
+
+	.row {
+		display: flex;
+		gap: 6px;
+	}
+
+	.row .btn {
+		flex: 1;
+	}
+
+	.row.quiet .btn {
+		border-color: transparent;
+		color: var(--ink-3);
+	}
+
+	.signals {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+	}
+
+	.signals li {
+		padding-left: 9px;
+		border-left: 2px solid var(--orange-line);
+	}
+
+	.signals li.against {
+		border-left-color: var(--oxblood-line);
+	}
+
+	.sig-head {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 10px;
+	}
+
+	.pos {
+		color: var(--accent);
+		font-size: 12px;
+	}
+
+	.neg {
+		color: var(--oxblood);
+		font-size: 12px;
+	}
+
+	.quote {
+		margin-top: 3px;
+		font-family: var(--font-display);
+		font-size: 13px;
+		font-style: italic;
+		line-height: 1.45;
+		color: var(--ink-2);
+	}
+
+	.link {
+		color: var(--orange-deep);
+		text-decoration: underline;
+		text-underline-offset: 2px;
 	}
 
 	.theme {
@@ -392,36 +656,6 @@
 
 	.bar span[data-capped='true'] {
 		background: var(--ink);
-	}
-
-	.counter {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		display: flex;
-		flex-direction: column;
-		gap: 10px;
-	}
-
-	.counter-head {
-		display: flex;
-		justify-content: space-between;
-		font-size: 12.5px;
-	}
-
-	.neg {
-		color: var(--oxblood);
-	}
-
-	.quote {
-		margin-top: 3px;
-		padding-left: 8px;
-		border-left: 2px solid var(--rule-strong);
-		font-family: var(--font-display);
-		font-size: 13px;
-		font-style: italic;
-		line-height: 1.45;
-		color: var(--ink-2);
 	}
 
 	.facts {
@@ -464,12 +698,51 @@
 		font-size: 9.5px;
 	}
 
+	.disclose {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		width: 100%;
+		gap: 10px;
+	}
+
+	.disclose .label {
+		margin: 0;
+	}
+
+	.sum {
+		margin-top: 10px;
+		border-top: 1px solid var(--rule);
+		padding-top: 8px;
+		font-size: 11.5px;
+	}
+
+	.sum > div {
+		display: flex;
+		justify-content: space-between;
+		gap: 12px;
+		padding: 1px 0;
+	}
+
+	.sum .total {
+		border-top: 1px solid var(--rule);
+		margin-top: 5px;
+		padding-top: 5px;
+		font-weight: 500;
+	}
+
+	.toggle {
+		display: flex;
+		align-items: center;
+		gap: 5px;
+		font-size: 11px;
+		color: var(--ink-3);
+	}
+
 	.docs {
 		list-style: none;
 		margin: 0;
 		padding: 0;
-		display: flex;
-		flex-direction: column;
 		border-top: 1px solid var(--rule);
 	}
 
@@ -506,21 +779,5 @@
 		line-clamp: 2;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
-	}
-
-	.actions {
-		display: flex;
-		flex-direction: column;
-		gap: 8px;
-		border-bottom: 0;
-	}
-
-	.row {
-		display: flex;
-		gap: 6px;
-	}
-
-	.row .btn {
-		flex: 1;
 	}
 </style>

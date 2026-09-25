@@ -2,8 +2,6 @@
 	import '../app.css';
 	import '@fontsource-variable/newsreader/opsz.css';
 	import '@fontsource-variable/archivo';
-	import '@fontsource/ibm-plex-mono/400.css';
-	import '@fontsource/ibm-plex-mono/500.css';
 
 	import { untrack } from 'svelte';
 	import { page } from '$app/state';
@@ -11,6 +9,7 @@
 	import { session } from '$lib/session.svelte';
 	import { toasts } from '$lib/toast.svelte';
 	import { shortNumber } from '$lib/format';
+	import Logo from '$lib/components/Logo.svelte';
 
 	let { children } = $props();
 
@@ -73,7 +72,7 @@
 <div class="app">
 	<aside class="rail">
 		<a class="brand" href="/">
-			<span class="mark" aria-hidden="true"></span>
+			<Logo size={19} />
 			<span class="wordmark">
 				<strong class="dsp">Signal Desk</strong>
 				<span class="label">Orange Systems</span>
@@ -176,13 +175,6 @@
 
 	.brand:hover {
 		text-decoration: none;
-	}
-
-	.mark {
-		width: 18px;
-		height: 18px;
-		background: var(--orange);
-		flex: none;
 	}
 
 	.wordmark {

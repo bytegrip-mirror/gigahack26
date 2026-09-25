@@ -113,7 +113,7 @@
 								<li>
 									<div class="sig-head">
 										<span class="tag tag-wash">{tier(signal.tier)}</span>
-										<span class="mono qkey">{signal.questionKey}</span>
+										<span class="key">{signal.questionKey}</span>
 										{#if signal.blocking}<span class="tag tag-oxblood">disqualifying</span>{/if}
 										<span class="num dim">c {confidence(signal.confidence)} · chars {signal.spanStart}–{signal.spanEnd}</span>
 									</div>
@@ -277,12 +277,7 @@
 		flex-wrap: wrap;
 	}
 
-	.qkey {
-		font-size: 11px;
-		color: var(--orange-ink);
-	}
-
-	.sig-head .num {
+		.sig-head .num {
 		font-size: 10.5px;
 	}
 
@@ -311,7 +306,6 @@
 		padding: 12px;
 		background: var(--paper);
 		border: 1px solid var(--rule);
-		font-family: var(--font-mono);
 		font-size: 12px;
 		line-height: 1.7;
 		white-space: pre-wrap;

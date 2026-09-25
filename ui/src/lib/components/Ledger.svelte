@@ -38,9 +38,9 @@
 					</div>
 
 					<div class="col-q">
-						<span class="mono qkey">{row.questionKey}</span>
+						<span class="key">{row.questionKey}</span>
 						<span class="sub">{row.questionText}</span>
-						<span class="mono formula">
+						<span class="formula num">
 							{tier(row.tier)} {signed(row.tierNats, 1)} × {row.authority.toFixed(2)} × {row.decay.toFixed(3)} × {row.shrink.toFixed(2)}
 							{#if row.groupRank > 0}<span class="mark">rank {row.groupRank + 1} ×{row.discount}</span>{/if}
 							{#if row.themeCapped}<span class="mark">capped</span>{/if}
@@ -114,10 +114,7 @@
 		margin-top: 2px;
 	}
 
-	.qkey {
-		font-size: 10.5px;
-		color: var(--orange-ink);
-	}
+	
 
 	.formula {
 		display: block;

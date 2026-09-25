@@ -2,6 +2,7 @@ package com.pistonpunk.gigahack26.web;
 
 import com.pistonpunk.gigahack26.service.BoardService;
 import com.pistonpunk.gigahack26.service.CaptureStore;
+import com.pistonpunk.gigahack26.service.LeadService;
 import com.pistonpunk.gigahack26.service.PolicyLibrary;
 import com.pistonpunk.gigahack26.service.ScoringProperties;
 import com.pistonpunk.gigahack26.service.ScoreboardService;
@@ -27,21 +28,24 @@ public class BoardController {
     private final ScoreboardService scoreboard;
     private final ScoringProperties scoring;
     private final CaptureStore captures;
+    private final LeadService leads;
 
     public BoardController(BoardService board, ScoreboardService scoreboard, ScoringProperties scoring,
-                           CaptureStore captures) {
+                           CaptureStore captures, LeadService leads) {
         this.board = board;
         this.scoreboard = scoreboard;
         this.scoring = scoring;
         this.captures = captures;
+        this.leads = leads;
     }
 
     @GetMapping("/companies")
     public List<BoardRow> companies(@RequestParam(name = "serviceLine", required = false) String serviceLine,
                                     @RequestParam(name = "filter", defaultValue = "all") String filter,
                                     @RequestParam(name = "sort", defaultValue = "score") String sort,
-                                    @RequestParam(name = "q", required = false) String query) {
-        return board.board(line(serviceLine), filter, sort, query);
+                                    @RequestParam(name = "q", required = false) String query,
+                                    @RequestParam(name = "stage", required = false) String stage) {
+        return board.board(line(serviceLine), filter, sort, query, stage);
     }
 
     @GetMapping("/companies/{id}")
@@ -66,6 +70,7 @@ public class BoardController {
         meta.put("localEngine", board.localEngineId());
         meta.put("degraded", board.degraded());
         meta.put("bands", board.bandCounts(line));
+        meta.put("stages", leads.tally(line));
         meta.put("captures", captures.size());
         meta.put("scoring", Map.of(
                 "baseRate", scoring.baseRate(),

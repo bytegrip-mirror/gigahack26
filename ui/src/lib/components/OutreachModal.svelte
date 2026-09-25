@@ -6,8 +6,15 @@
 		companyId,
 		companyName,
 		serviceLine,
-		onclose
-	}: { companyId: string; companyName: string; serviceLine: string; onclose: () => void } = $props();
+		onclose,
+		ondrafted
+	}: {
+		companyId: string;
+		companyName: string;
+		serviceLine: string;
+		onclose: () => void;
+		ondrafted?: (subject: string) => void;
+	} = $props();
 
 	let channel = $state<'email' | 'inmail'>('email');
 	let draft = $state<Outreach | null>(null);
@@ -22,7 +29,9 @@
 		error = null;
 		fetchOutreach(companyId, line, chosen)
 			.then((result) => {
-				if (channel === chosen) draft = result;
+				if (channel !== chosen) return;
+				draft = result;
+				ondrafted?.(result.subject);
 			})
 			.catch((cause) => {
 				if (channel === chosen) error = cause.message;
@@ -108,7 +117,7 @@
 						{#each draft.citations as citation (citation.marker)}
 							<div class="cite">
 								<div class="cite-head">
-									<span class="mono marker">{citation.marker}</span>
+									<span class="key marker">{citation.marker}</span>
 									<span class="sub dim">{host(citation.sourceUrl)}</span>
 								</div>
 								<p class="quote">“{citation.quote}”</p>
