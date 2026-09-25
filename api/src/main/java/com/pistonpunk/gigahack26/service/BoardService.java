@@ -43,13 +43,13 @@ public class BoardService {
     private final WhyNowService whyNow;
     private final LeadService leads;
     private final ClassifierRouter router;
-    private final ScoringProperties scoring;
+    private final ScoringConfig settings;
     private final Clock clock;
 
     public BoardService(CompanyRepository companies, CompanyAliasRepository aliases, EvidenceRepository evidence,
                         SignalRepository signals, PolicyScoreRepository scores, ScoreboardService scoreboard,
                         ScoringService scoringService, WhyNowService whyNow, LeadService leads,
-                        ClassifierRouter router, ScoringProperties scoring, Clock clock) {
+                        ClassifierRouter router, ScoringConfig settings, Clock clock) {
         this.companies = companies;
         this.aliases = aliases;
         this.evidence = evidence;
@@ -60,7 +60,7 @@ public class BoardService {
         this.whyNow = whyNow;
         this.leads = leads;
         this.router = router;
-        this.scoring = scoring;
+        this.settings = settings;
         this.clock = clock;
     }
 
@@ -193,7 +193,7 @@ public class BoardService {
                 .map(entry -> new CompanyDetail.Theme(
                         entry.getKey(),
                         entry.getValue(),
-                        Math.abs(entry.getValue()) >= scoring.themeCap() - 1e-6,
+                        Math.abs(entry.getValue()) >= settings.effective().themeCap() - 1e-6,
                         (int) detail.rows().stream()
                                 .filter(row -> row.theme().equals(entry.getKey())).count()))
                 .toList();
@@ -220,12 +220,12 @@ public class BoardService {
                 detail.band().label(),
                 detail.gateReason(),
                 detail.gateLine(),
-                scoring.baseRate(),
-                round(scoring.baseLogit()),
-                round(scoring.themeCap()),
-                scoring.priorityThreshold(),
-                scoring.nurtureThreshold(),
-                scoring.watchThreshold(),
+                settings.effective().baseRate(),
+                round(settings.effective().baseLogit()),
+                round(settings.effective().themeCap()),
+                settings.effective().priorityThreshold(),
+                settings.effective().nurtureThreshold(),
+                settings.effective().watchThreshold(),
                 detail.signalCount(),
                 detail.themeCount(),
                 detail.scannedDocuments(),
@@ -240,7 +240,7 @@ public class BoardService {
                 evidenceViews,
                 now,
                 router.primaryEngineId(),
-                whyNow.explain(detail, scoring),
+                whyNow.explain(detail, settings.effective()),
                 leads.find(companyId, serviceLine).map(lead -> new com.pistonpunk.gigahack26.web.dto.LeadView(
                         lead.getId(), lead.getCompanyId(), company.getName(), company.getDomain(),
                         lead.getServiceLine(), lead.getStatus().name(), lead.getStatus().label(),
@@ -278,7 +278,7 @@ public class BoardService {
 
         List<BoardRow.Chip> chips = ranked.stream().limit(3).map(BoardService::toChip).toList();
         BoardRow.Chip strongest = chips.isEmpty() ? null : chips.get(0);
-        com.pistonpunk.gigahack26.web.dto.WhyNow why = whyNow.explain(detail, scoring);
+        com.pistonpunk.gigahack26.web.dto.WhyNow why = whyNow.explain(detail, settings.effective());
 
         Instant newest = detail.rows().stream()
                 .map(LedgerRow::anchor)

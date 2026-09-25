@@ -10,7 +10,11 @@ public record ScoringProperties(
         double watchThreshold,
         double rankDiscount,
         int icpMinEmployees,
-        String icpCountries) {
+        String icpCountries,
+        boolean geographyGate,
+        boolean sizeGate,
+        boolean competitorGate,
+        String icpIndustries) {
 
     public double baseLogit() {
         return Math.log(baseRate / (1.0 - baseRate));

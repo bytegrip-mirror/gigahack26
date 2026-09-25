@@ -84,6 +84,9 @@
 			<a href="/studio" aria-current={page.url.pathname.startsWith('/studio') ? 'page' : undefined}>
 				Signal Studio
 			</a>
+			<a href="/profile" aria-current={page.url.pathname.startsWith('/profile') ? 'page' : undefined}>
+				Customer profile
+			</a>
 		</nav>
 
 		<div class="block">

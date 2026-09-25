@@ -6,6 +6,7 @@ import com.pistonpunk.gigahack26.service.LeadService;
 import com.pistonpunk.gigahack26.service.PolicyLibrary;
 import com.pistonpunk.gigahack26.service.ScoringProperties;
 import com.pistonpunk.gigahack26.service.ScoreboardService;
+import com.pistonpunk.gigahack26.service.SettingsService;
 import com.pistonpunk.gigahack26.web.dto.BoardRow;
 import com.pistonpunk.gigahack26.web.dto.CompanyDetail;
 import org.springframework.http.ResponseEntity;
@@ -26,15 +27,15 @@ public class BoardController {
 
     private final BoardService board;
     private final ScoreboardService scoreboard;
-    private final ScoringProperties scoring;
+    private final SettingsService settingsService;
     private final CaptureStore captures;
     private final LeadService leads;
 
-    public BoardController(BoardService board, ScoreboardService scoreboard, ScoringProperties scoring,
+    public BoardController(BoardService board, ScoreboardService scoreboard, SettingsService settingsService,
                            CaptureStore captures, LeadService leads) {
         this.board = board;
         this.scoreboard = scoreboard;
-        this.scoring = scoring;
+        this.settingsService = settingsService;
         this.captures = captures;
         this.leads = leads;
     }
@@ -72,6 +73,7 @@ public class BoardController {
         meta.put("bands", board.bandCounts(line));
         meta.put("stages", leads.tally(line));
         meta.put("captures", captures.size());
+        ScoringProperties scoring = settingsService.effective();
         meta.put("scoring", Map.of(
                 "baseRate", scoring.baseRate(),
                 "baseLogit", round(scoring.baseLogit()),

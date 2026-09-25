@@ -27,10 +27,10 @@ class ScoringServiceTest {
     private static final Instant NOW = Instant.parse("2026-09-25T12:00:00Z");
 
     private final ScoringProperties properties = new ScoringProperties(
-            0.25, 0.75, 0.50, 0.30, 0.5, 200, "MD,RO,DE,FR");
+            0.25, 0.75, 0.50, 0.30, 0.5, 200, "MD,RO,DE,FR", true, true, true, "");
 
     private final CaptureStore captures = new CaptureStore(null);
-    private final ScoringService scoring = new ScoringService(properties, captures);
+    private final ScoringService scoring = new ScoringService(() -> properties, captures);
 
     @Test
     void aCompanyWithNoEvidenceScoresExactlyAtTheBaseRate() {

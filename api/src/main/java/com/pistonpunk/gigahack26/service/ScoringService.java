@@ -30,16 +30,17 @@ public class ScoringService {
     private static final double SIZE_CONFIDENCE_FLOOR = 0.8;
     private static final double CAP_SAFETY = 0.001;
 
-    private final ScoringProperties properties;
+    private final ScoringConfig settings;
     private final CaptureStore captures;
 
-    public ScoringService(ScoringProperties properties, CaptureStore captures) {
-        this.properties = properties;
+    public ScoringService(ScoringConfig settings, CaptureStore captures) {
+        this.settings = settings;
         this.captures = captures;
     }
 
     public ScoreComputation compute(Company company, List<Evidence> evidence, List<Signal> signals,
                                     List<PolicyQuestion> questions, Instant now) {
+        ScoringProperties properties = settings.effective();
         Map<UUID, Evidence> evidenceById = evidence.stream()
                 .collect(Collectors.toMap(Evidence::getId, Function.identity(), (a, b) -> a));
         Map<UUID, PolicyQuestion> questionById = questions.stream()
@@ -104,8 +105,8 @@ public class ScoringService {
                     blocking));
         }
 
-        rows = applyRankDiscount(rows);
-        rows = applyThemeCap(rows);
+        rows = applyRankDiscount(rows, properties);
+        rows = applyThemeCap(rows, properties);
 
         double nats = rows.stream()
                 .filter(row -> !row.blocking())
@@ -114,8 +115,8 @@ public class ScoringService {
         double logit = properties.baseLogit() + nats;
         double probability = sigmoid(logit);
 
-        Optional<String> gate = gate(company, blockedByBuild, buildReason);
-        Band band = band(probability, rows, gate.isPresent());
+        Optional<String> gate = gate(company, blockedByBuild, buildReason, properties);
+        Band band = band(probability, rows, gate.isPresent(), properties);
 
         Set<String> themes = rows.stream()
                 .filter(row -> !row.blocking() && row.contributionNats() > 0)
@@ -132,7 +133,7 @@ public class ScoringService {
                 round(nats),
                 band,
                 gate.orElse(null),
-                gateLine(company, gate.orElse(null)),
+                gateLine(company, gate.orElse(null), properties),
                 rows,
                 themeTotals(rows),
                 (int) rows.stream().filter(row -> !row.blocking()).count(),
@@ -140,12 +141,12 @@ public class ScoringService {
                 scanned,
                 silent.size(),
                 weakestLink(rows),
-                horizon(rows, now, properties.priorityThreshold()),
-                horizon(rows, now, properties.nurtureThreshold()),
-                sensitivity(rows, now));
+                horizon(rows, now, properties.priorityThreshold(), properties),
+                horizon(rows, now, properties.nurtureThreshold(), properties),
+                sensitivity(rows, now, properties));
     }
 
-    private List<LedgerRow> applyRankDiscount(List<LedgerRow> rows) {
+    private List<LedgerRow> applyRankDiscount(List<LedgerRow> rows, ScoringProperties properties) {
         Map<UUID, List<LedgerRow>> byQuestion = new LinkedHashMap<>();
         List<LedgerRow> discounted = new ArrayList<>(rows.size());
 
@@ -180,7 +181,7 @@ public class ScoringService {
                 rank, round(discount), round(row.rawNats() * discount), row.themeCapped(), false);
     }
 
-    private List<LedgerRow> applyThemeCap(List<LedgerRow> rows) {
+    private List<LedgerRow> applyThemeCap(List<LedgerRow> rows, ScoringProperties properties) {
         Map<String, Double> totals = themeTotals(rows);
         double cap = properties.themeCap();
         Map<String, Double> scale = new LinkedHashMap<>();
@@ -220,8 +221,9 @@ public class ScoringService {
         return totals;
     }
 
-    private Optional<String> gate(Company company, boolean blockedByBuild, String buildReason) {
-        if (company.isCompetitor()) {
+    private Optional<String> gate(Company company, boolean blockedByBuild, String buildReason,
+                                  ScoringProperties properties) {
+        if (properties.competitorGate() && company.isCompetitor()) {
             return Optional.of("Competitor — provides the same services we sell");
         }
         if (blockedByBuild && buildReason != null) {
@@ -229,29 +231,33 @@ public class ScoringService {
         }
         Integer employees = company.getEmployees();
         double confidence = company.getSizeConfidence() == null ? 0.0 : company.getSizeConfidence();
-        if (employees != null && confidence >= SIZE_CONFIDENCE_FLOOR && employees < properties.icpMinEmployees()) {
+        if (properties.sizeGate() && employees != null && confidence >= SIZE_CONFIDENCE_FLOOR
+                && employees < properties.icpMinEmployees()) {
             return Optional.of("Below the size floor — " + employees + " employees, ICP floor is "
                     + properties.icpMinEmployees());
         }
-        if (company.getCountry() != null && !icpCountries().contains(company.getCountry())) {
+        if (properties.geographyGate() && company.getCountry() != null
+                && !icpCountries(properties).contains(company.getCountry())) {
             return Optional.of("Outside the ICP geography — HQ " + company.getCountry());
         }
         return Optional.empty();
     }
 
-    private String gateLine(Company company, String gateReason) {
+    private static String gateLine(Company company, String gateReason, ScoringProperties properties) {
         String country = company.getCountry() == null ? "unknown" : company.getCountry();
-        String geography = icpCountries().contains(country) ? "PASS" : "FAIL";
+        String geography = icpCountries(properties).contains(country) ? "PASS" : "FAIL";
         String size = company.getEmployees() == null
                 ? "unknown"
                 : company.getEmployees() + " employees";
-        String verdict = gateReason == null ? "PASS" : "FAIL";
         return "Gate: geography — HQ %s %s ∈ ICP → %s · size — %s → %s · competitor — %s"
                 .formatted(company.getHqCity() == null ? "" : company.getHqCity().trim() + ", ", country,
-                        geography, size, verdict, company.isCompetitor() ? "YES" : "no");
+                        properties.geographyGate() ? geography : "off",
+                        size,
+                        properties.sizeGate() || !"FAIL".equals(geography) ? (gateReason == null ? "PASS" : "FAIL") : "off",
+                        properties.competitorGate() ? (company.isCompetitor() ? "YES" : "no") : "off");
     }
 
-    private Set<String> icpCountries() {
+    private static Set<String> icpCountries(ScoringProperties properties) {
         Set<String> countries = new LinkedHashSet<>();
         for (String country : properties.icpCountries().split(",")) {
             String trimmed = country.trim().toUpperCase();
@@ -262,7 +268,7 @@ public class ScoringService {
         return countries;
     }
 
-    private Band band(double probability, List<LedgerRow> rows, boolean gated) {
+    private Band band(double probability, List<LedgerRow> rows, boolean gated, ScoringProperties properties) {
         if (gated) {
             return Band.DISQUALIFIED;
         }
@@ -282,18 +288,18 @@ public class ScoringService {
         return Band.THIN;
     }
 
-    private Double horizon(List<LedgerRow> rows, Instant now, double threshold) {
-        if (sigmoid(properties.baseLogit() + projectedNats(rows, 0)) < threshold) {
+    private Double horizon(List<LedgerRow> rows, Instant now, double threshold, ScoringProperties properties) {
+        if (sigmoid(properties.baseLogit() + projectedNats(rows, 0, properties)) < threshold) {
             return null;
         }
         double low = 0;
         double high = 730;
-        if (sigmoid(properties.baseLogit() + projectedNats(rows, high)) >= threshold) {
+        if (sigmoid(properties.baseLogit() + projectedNats(rows, high, properties)) >= threshold) {
             return null;
         }
         for (int i = 0; i < 40; i++) {
             double mid = (low + high) / 2;
-            if (sigmoid(properties.baseLogit() + projectedNats(rows, mid)) >= threshold) {
+            if (sigmoid(properties.baseLogit() + projectedNats(rows, mid, properties)) >= threshold) {
                 low = mid;
             } else {
                 high = mid;
@@ -302,11 +308,11 @@ public class ScoringService {
         return round(low);
     }
 
-    private Map<String, Double> sensitivity(List<LedgerRow> rows, Instant now) {
+    private Map<String, Double> sensitivity(List<LedgerRow> rows, Instant now, ScoringProperties properties) {
         Map<String, Double> values = new LinkedHashMap<>();
         for (int halfLife : new int[]{30, 90, 180}) {
             List<LedgerRow> rescaled = rows.stream().map(row -> withHalfLife(row, halfLife)).toList();
-            values.put(halfLife + "d", round(sigmoid(properties.baseLogit() + projectedNats(rescaled, 0))));
+            values.put(halfLife + "d", round(sigmoid(properties.baseLogit() + projectedNats(rescaled, 0, properties))));
         }
         return values;
     }
@@ -326,7 +332,7 @@ public class ScoringService {
                 row.groupRank(), row.discount(), round(raw * row.discount()), row.themeCapped(), false);
     }
 
-    private double projectedNats(List<LedgerRow> rows, double projectedDays) {
+    private double projectedNats(List<LedgerRow> rows, double projectedDays, ScoringProperties properties) {
         Map<String, Double> totals = new LinkedHashMap<>();
         for (LedgerRow row : rows) {
             if (row.blocking()) {

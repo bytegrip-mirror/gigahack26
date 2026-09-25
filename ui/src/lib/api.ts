@@ -532,6 +532,42 @@ export function pushToHubspot(
 	});
 }
 
+export type Settings = {
+	icpCountries: string[];
+	icpIndustries: string[];
+	icpMinEmployees: number;
+	geographyGate: boolean;
+	sizeGate: boolean;
+	competitorGate: boolean;
+	baseRate: number;
+	priorityThreshold: number;
+	nurtureThreshold: number;
+	watchThreshold: number;
+	rankDiscount: number;
+	themeCap: number;
+	updatedAt: string;
+	inScope: Record<string, number>;
+	indexedCompanies: number;
+};
+
+export function fetchSettings(): Promise<Settings> {
+	return request<Settings>('/api/settings');
+}
+
+export function saveSettings(
+	input: Omit<Settings, 'themeCap' | 'updatedAt' | 'inScope' | 'indexedCompanies'>,
+	serviceLine: string
+): Promise<Settings> {
+	return request<Settings>(`/api/settings${query({ serviceLine })}`, {
+		method: 'PUT',
+		body: JSON.stringify({
+			...input,
+			icpCountries: input.icpCountries.join(','),
+			icpIndustries: input.icpIndustries.join(',')
+		})
+	});
+}
+
 export function fetchPrecision(): Promise<{
 	decisions: number;
 	accepted: number;
