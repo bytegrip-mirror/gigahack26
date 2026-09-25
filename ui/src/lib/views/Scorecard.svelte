@@ -9,7 +9,7 @@
 		type LeadView
 	} from '$lib/api';
 	import { toasts } from '$lib/toast.svelte';
-	import { age, date, fit, host, nats, plural, signed, sourceKind, theme, tier } from '$lib/format';
+	import { age, date, fit, host, nats, plural, signed, sourceKind, theme } from '$lib/format';
 	import { copy } from '$lib/export';
 	import Tag from '$lib/components/Tag.svelte';
 	import ScoreMeter from '$lib/components/ScoreMeter.svelte';
