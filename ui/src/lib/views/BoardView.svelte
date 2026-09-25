@@ -407,7 +407,9 @@
 				polarity
 			});
 			outcome = result;
-			rows = result.board.map((row) => ({ ...row, serviceLine, fitRank: row.rank }));
+			rows = allLines
+				? await loadBoard()
+				: result.board.map((row) => ({ ...row, serviceLine, fitRank: row.rank }));
 			elapsed = result.tookMs;
 			if (filter !== 'all') filter = 'all';
 			toasts.push(
@@ -448,7 +450,9 @@
 		else if (id === 'rescore') {
 			try {
 				const result = await rescore({ serviceLine, engine: 'local' });
-				rows = result.board.map((row) => ({ ...row, serviceLine, fitRank: row.rank }));
+				rows = allLines
+					? await loadBoard()
+					: result.board.map((row) => ({ ...row, serviceLine, fitRank: row.rank }));
 				toasts.push(`Re-scored ${shortNumber(result.documentsScanned)} documents in ${duration(result.tookMs)}.`, 'success');
 				workspace.reload();
 			} catch (cause) {
