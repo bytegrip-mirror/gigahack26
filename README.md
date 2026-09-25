@@ -41,6 +41,12 @@ docker compose up --build
 Then `http://localhost:3000` for the board and `http://localhost:8080/api/status`
 for the API.
 
+The credentials in `docker-compose.yml` are throwaway defaults for local work
+only, and both databases are published on loopback. Set `POSTGRES_PASSWORD` and
+`MONGO_PASSWORD` to override them. Nothing in the pipeline reads this file: the
+deployed stack gets a fresh random password per store from the Jenkins
+credential store.
+
 Running the two halves directly, with `docker compose up postgres mongo` for the
 datastores:
 
@@ -74,7 +80,7 @@ PUBLIC_API_URL=https://hackapi.pistonpunk.com npm run build
 Jenkins job `Gigahack26/gigahack26` on `jen.pistonpunk.com` runs the `Jenkinsfile`
 from `main`. On every push it:
 
-1. runs `mvn test` (9 tests) and `svelte-check` in throwaway containers,
+1. runs `mvn test` (13 tests) and `svelte-check` in throwaway containers,
 2. builds the `gigahack26-api` and `gigahack26-ui` images,
 3. recreates the `gigahack26-db` (postgres:16-alpine) and `gigahack26-mongo`
    (mongo:8.0) containers on the `web` network, waiting for each to accept
