@@ -371,7 +371,6 @@
 							<span class="label">of {shortNumber(preview.scannedEvidence)} docs</span>
 						</div>
 						<div><span class="num big">{duration(preview.tookMs)}</span><span class="label">scan</span></div>
-						<div><span class="sub dim">{preview.engine}</span><span class="label">engine</span></div>
 					</div>
 
 					{#if preview.matches.length > 0}
