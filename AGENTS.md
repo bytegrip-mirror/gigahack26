@@ -112,6 +112,16 @@ it exists and falls back to the local engine everywhere else, verifying every
 overlay quote against its capture. Regenerate the overlay with
 `POST /api/admin/signals/build` with `ADMIN_ENABLED=true` and a key configured.
 
+**Rebuilding the corpus.** `python3 tools/fast_corpus.py` refreshes
+`corpus/raw.json` from the company list in `tools/build_corpus.py`. It discovers
+articles through Bing News RSS, which — unlike Google News — returns the real
+publisher URL inside the redirect's `url` parameter, so the article body can be
+fetched directly. Do not try to resolve Google News article links: the
+`batchexecute` endpoint it needs answers 429 from this host. The sweep is
+breadth-first and flushes partial output every 20 companies, so a long run never
+loses everything. Every document is re-hashable and the script will not write a
+document it could not actually fetch.
+
 **Config is environment-first.** Every value in `application.yml` is a
 `${ENV:default}` placeholder. The UI has no runtime config: Vite inlines
 `PUBLIC_API_URL` at build time (`__API_URL__` in `vite.config.ts`), which is why the

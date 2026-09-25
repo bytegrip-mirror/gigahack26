@@ -29,7 +29,7 @@ BROWSER_UA = (
 PLAIN_UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 
 SEC_UA = UA
-NEWS_WORKERS = 8
+NEWS_WORKERS = 24
 JOB_WORKERS = 24
 ARTICLE_WORKERS = 40
 REG_WORKERS = 6
@@ -37,17 +37,49 @@ FILING_WORKERS = 4
 
 MAX_TEXT = 12000
 MIN_TEXT = 120
-MAX_NEWS_PER_COMPANY = 10
 MAX_JOBS_PER_COMPANY = 25
 MAX_FILINGS_PER_COMPANY = 2
-NEWS_QUERIES = [
-    '"{}" automation',
-    '"{}" digital transformation',
-    '"{}" artificial intelligence',
-    '"{}" cybersecurity',
-    '"{}" cost cutting',
-    '"{}" results',
-]
+RECENCY_PRIMARY = "when:270d"
+RECENCY_SECONDARY = "when:365d"
+MAX_AGE_DAYS = 548
+THEME_QUERIES = {
+    "automation": [
+        '"{}" automation',
+        '"{}" digital transformation',
+        '"{}" efficiency programme',
+        '"{}" cost cutting',
+        '"{}" results',
+    ],
+    "security": [
+        '"{}" cybersecurity',
+        '"{}" CISO',
+        '"{}" NIS2',
+        '"{}" DORA',
+    ],
+    "data": [
+        '"{}" artificial intelligence',
+        '"{}" machine learning',
+        '"{}" data governance',
+        '"{}" data platform',
+    ],
+}
+THEME_TARGETS = {"automation": 5, "security": 2, "data": 2}
+THEME_ORDER = ["automation", "security", "data"]
+
+THEME_WORDS = {
+    "security": ["cybersecurity", "cyber security", "ciso", "data breach", "breach",
+                 "nis2", "dora", "iso 27001", "ransomware", "infosec", "soc 2",
+                 "threat", "vulnerability", "phishing", "zero trust", "penetration test",
+                 "security operations", "incident response"],
+    "data": ["artificial intelligence", "machine learning", "data platform",
+             "data governance", "chief data officer", "data lake", "data warehouse",
+             "analytics", "generative ai", "genai", "llm", "data quality", "data mesh",
+             "business intelligence", "data science", "predictive"],
+    "automation": ["automation", "rpa", "robotic process", "digital transformation",
+                   "process mining", "workflow", "efficiency", "cost cutting",
+                   "restructuring", "outsourcing", "shared services", "bpo",
+                   "erp", "sap", "straight-through", "back office", "self-service"],
+}
 
 SIGNAL_WORDS = [
     "automation", "automate", "automated", "rpa", "robotic process", "robotics",
@@ -396,11 +428,12 @@ def gn_resolve(gn_link):
         article = gn_link.split("/rss/articles/")[-1].split("?")[0]
         with GN_DECODE_LOCK:
             raw, _, _ = http_get(gn_link, headers={"User-Agent": BROWSER_UA},
-                                 host_limit=NEWS_WORKERS, timeout=25)
+                                 host_limit=NEWS_WORKERS, timeout=30, retries=2)
             page = raw.decode("utf-8", "replace")
             msg = re.search(r'data-n-a-sg="([^"]+)"', page)
             mts = re.search(r'data-n-a-ts="([^"]+)"', page)
             if not msg or not mts:
+                bump("gn_no_token")
                 return None
             sg = msg.group(1)
             ts = mts.group(1)
@@ -415,17 +448,24 @@ def gn_resolve(gn_link):
                 "https://news.google.com/_/DotsSplashUi/data/batchexecute?rpcids=Fbv4je",
                 headers={"User-Agent": BROWSER_UA,
                          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"},
-                host_limit=NEWS_WORKERS, timeout=25, data=body,
+                host_limit=NEWS_WORKERS, timeout=30, retries=2, data=body,
             )
         txt = raw2.decode("utf-8", "replace")
         m = re.findall(r'\[\\"garturlres\\",\\"(https?:[^"\\]+)', txt)
         if not m:
             m = re.findall(r'"(https?://(?!news\.google|www\.google|accounts\.google)[^"]{15,})"', txt)
         if not m:
+            bump("gn_no_result")
             return None
         url = m[0].replace("\\u003d", "=").replace("\\u0026", "&").replace("\\/", "/")
-        return url if url.startswith("http") else None
-    except Exception:
+        if not url.startswith("http"):
+            bump("gn_bad_url")
+            return None
+        bump("gn_resolved")
+        return url
+    except Exception as exc:
+        bump("gn_error")
+        bump("gn_error_" + type(exc).__name__)
         return None
 
 
@@ -1657,81 +1697,127 @@ def gn_search_url(query):
             "&hl=en-US&gl=US&ceid=US:en")
 
 
+def age_days(published):
+    if not published:
+        return None
+    try:
+        d = dt.datetime.strptime(published, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=dt.timezone.utc)
+    except Exception:
+        return None
+    return (dt.datetime.now(dt.timezone.utc) - d).days
+
+
+def collect_news_candidates(company, variants, token, recency):
+    cands = {}
+    for theme in THEME_ORDER:
+        for tmpl in THEME_QUERIES[theme]:
+            query = tmpl.format(company["name"])
+            if recency:
+                query = query + " " + recency
+            try:
+                raw, _, _ = http_get(gn_search_url(query), headers={"User-Agent": BROWSER_UA},
+                                     host_limit=NEWS_WORKERS, timeout=25, retries=1)
+            except Exception:
+                bump("news_query_fail")
+                continue
+            bump("news_queries")
+            xml = raw.decode("utf-8", "replace")
+            for it in parse_rss_items(xml):
+                title = re.sub(r"\s+", " ", strip_tags(it.get("title", ""))).strip()
+                link = htmlmod.unescape(it.get("link", "")).strip()
+                if not link.startswith("http"):
+                    continue
+                dedup = re.sub(r"[^a-z0-9]+", " ", title.lower()).strip()
+                if not dedup:
+                    continue
+                pubdate = rfc822_to_iso(it.get("pubDate"))
+                age = age_days(pubdate)
+                if age is not None and age > MAX_AGE_DAYS:
+                    bump("news_too_old")
+                    continue
+                prev = cands.get(dedup)
+                if prev is not None:
+                    if theme not in prev["themes"]:
+                        prev["themes"].append(theme)
+                    continue
+                desc = clean_text(strip_tags(it.get("description", "")))
+                src = re.sub(r"\s+", " ", strip_tags(it.get("source", ""))).strip()
+                title_hit = mentions_company(title, variants)
+                score = score_signal(title + "\n" + desc)
+                if title_hit:
+                    score += 4
+                if token and token.lower() in title.lower():
+                    score += 2
+                cands[dedup] = {
+                    "title": title[:400],
+                    "link": link,
+                    "desc": desc,
+                    "source": src,
+                    "published": pubdate,
+                    "score": score,
+                    "title_hit": title_hit,
+                    "themes": [theme],
+                }
+    return cands
+
+
+def rank_theme(items):
+    return sorted(items, key=lambda x: (0 if x["title_hit"] else 1, -x["score"], x["title"]))
+
+
+def select_by_theme(cands):
+    picked = []
+    used = set()
+    for theme in THEME_ORDER:
+        pool = [v for k, v in cands.items() if theme in v["themes"] and k not in used]
+        for v in rank_theme(pool)[:THEME_TARGETS[theme]]:
+            picked.append(v)
+            used.add(re.sub(r"[^a-z0-9]+", " ", v["title"].lower()).strip())
+    total_target = sum(THEME_TARGETS.values())
+    if len(picked) < total_target:
+        rest = [v for k, v in cands.items()
+                if re.sub(r"[^a-z0-9]+", " ", v["title"].lower()).strip() not in used]
+        for v in rank_theme(rest)[:total_target - len(picked)]:
+            picked.append(v)
+    return picked
+
+
 def news_docs(company, observed):
     variants = name_variants(company)
     token = short_token(company["name"])
-    cands = {}
-    for tmpl in NEWS_QUERIES:
-        query = tmpl.format(company["name"])
-        try:
-            raw, _, _ = http_get(gn_search_url(query), headers={"User-Agent": BROWSER_UA},
-                                 host_limit=NEWS_WORKERS, timeout=25, retries=1)
-        except Exception:
-            bump("news_query_fail")
-            continue
-        bump("news_queries")
-        xml = raw.decode("utf-8", "replace")
-        for it in parse_rss_items(xml):
-            title = re.sub(r"\s+", " ", strip_tags(it.get("title", ""))).strip()
-            link = htmlmod.unescape(it.get("link", "")).strip()
-            if not link.startswith("http"):
-                continue
-            dedup = re.sub(r"[^a-z0-9]+", " ", title.lower()).strip()
-            if not dedup or dedup in cands:
-                continue
-            desc = clean_text(strip_tags(it.get("description", "")))
-            src = re.sub(r"\s+", " ", strip_tags(it.get("source", ""))).strip()
-            pubdate = rfc822_to_iso(it.get("pubDate"))
-            title_hit = mentions_company(title, variants)
-            blob = title + "\n" + desc
-            score = score_signal(blob)
-            if title_hit:
-                score += 4
-            if token and token.lower() in title.lower():
-                score += 2
-            cands[dedup] = {
-                "title": title[:400],
-                "link": link,
-                "desc": desc,
-                "source": src,
-                "published": pubdate,
-                "score": score,
-                "title_hit": title_hit,
-            }
-    ranked = sorted(cands.values(), key=lambda x: (-x["score"], x["title"]))
-    chosen = [x for x in ranked if x["title_hit"]][:MAX_NEWS_PER_COMPANY]
-    if len(chosen) < 4:
-        extra = [x for x in ranked if not x["title_hit"]]
-        chosen.extend(extra[:4 - len(chosen)])
+    cands = collect_news_candidates(company, variants, token, RECENCY_PRIMARY)
+    picked = select_by_theme(cands)
+    if len(picked) < sum(THEME_TARGETS.values()):
+        extra = collect_news_candidates(company, variants, token, RECENCY_SECONDARY)
+        for k, v in extra.items():
+            if k not in cands:
+                cands[k] = v
+        picked = select_by_theme(cands)
     docs = []
     i = 0
-    for item in chosen:
+    for item in picked:
         i += 1
         url = item["link"]
         publisher = item["source"] or "news.google.com"
         text = ""
-        resolved = None
-        if "news.google.com" in url:
-            resolved = gn_resolve(url)
-        else:
-            resolved = url
+        resolved = gn_resolve(url) if "news.google.com" in url else url
         if resolved:
             try:
                 body = fetch_article_text(resolved)
             except Exception:
                 body = ""
+                bump("article_fail")
             if body and len(body) >= MIN_TEXT:
                 low = body.lower()
-                if any(v in low for v in variants) or item["title_hit"]:
+                if any(v in low for v in variants):
                     text = body
                     url = resolved
                     publisher = urllib.parse.urlparse(resolved).netloc or publisher
-        if not text:
-            if len(item["desc"]) >= MIN_TEXT:
-                text = clean_text(item["desc"])
-        if not text or len(text) < MIN_TEXT:
-            continue
-        if has_markup(text):
+                else:
+                    bump("article_offtopic")
+        if not text and len(item["desc"]) >= MIN_TEXT:
+            text = clean_text(item["desc"])
+        if not text or len(text) < MIN_TEXT or has_markup(text):
             continue
         docs.append(Doc("nws-%d" % i, company["key"], url, publisher, "news",
                         item["published"], item["title"], text, observed))
@@ -1919,10 +2005,17 @@ def registry_doc(company, observed):
         return None
     records = data.get("data") or []
     if not records:
+        bump("registry_empty")
         return None
-    target = company["name"].lower()
-    words = [w for w in re.split(r"[^a-z0-9]+", target) if len(w) > 3 and
-             w not in ("group", "holding", "holdings", "international", "company", "limited")]
+    targets = [company["name"], company["gleif"]] + company["aliases"]
+    stop = {"group", "holding", "holdings", "international", "company", "limited",
+            "corp", "corporation", "systems", "solutions", "services", "gmbh", "ag",
+            "plc", "the", "and"}
+    words = []
+    for t in targets:
+        for w in re.split(r"[^a-z0-9]+", t.lower()):
+            if len(w) > 3 and w not in stop and w not in words:
+                words.append(w)
     best = None
     for rec in records:
         a = rec.get("attributes") or {}
@@ -2068,6 +2161,35 @@ def validate(path):
             errs.append("orphan %s" % e["key"])
     rich = sum(1 for k, v in per_company.items() if v >= 6)
     news_share = kinds.get("news", 0) / max(1, len(ev))
+    ages = []
+    undated = 0
+    for e in ev:
+        a = age_days(e["publishedAt"])
+        if a is None:
+            undated += 1
+        else:
+            ages.append(a)
+    ages.sort()
+
+    def pct(p):
+        if not ages:
+            return None
+        return ages[min(len(ages) - 1, int(len(ages) * p))]
+
+    theme_counts = {}
+    company_themes = {}
+    for e in ev:
+        low = e["text"].lower()
+        best, best_n = "other", 0
+        for th in THEME_ORDER:
+            n = sum(1 for w in THEME_WORDS[th] if w in low)
+            if n > best_n:
+                best, best_n = th, n
+        theme_counts[best] = theme_counts.get(best, 0) + 1
+        if best != "other":
+            company_themes.setdefault(e["companyKey"], set()).add(best)
+    tot_theme = sum(theme_counts.values()) or 1
+    quiet = sum(1 for c in comps if per_company.get(c["key"], 0) <= 4)
     print(json.dumps({
         "companies": len(comps),
         "evidence": len(ev),
@@ -2075,6 +2197,14 @@ def validate(path):
         "companies_with_6_plus": rich,
         "competitors": sum(1 for c in comps if c["isCompetitor"]),
         "news_share": round(news_share, 3),
+        "age_days": {"median": pct(0.5), "p25": pct(0.25), "p75": pct(0.75),
+                     "max": ages[-1] if ages else None, "undated": undated},
+        "within_12_months": sum(1 for a in ages if a <= 365),
+        "theme_mix": {k: round(v / tot_theme, 3) for k, v in
+                      sorted(theme_counts.items(), key=lambda x: -x[1])},
+        "companies_with_2_plus_themes": sum(
+            1 for c in comps if len(company_themes.get(c["key"], ())) >= 2),
+        "thin_companies": quiet,
         "errors": len(errs),
     }, indent=1))
     for e in errs[:20]:
@@ -2129,6 +2259,24 @@ def main():
             "aliases": company["aliases"],
         })
         evidence.extend(d.to_json() for d in docs)
+    fresh = []
+    stale = {}
+    for e in evidence:
+        a = age_days(e["publishedAt"])
+        if a is not None and a > MAX_AGE_DAYS:
+            stale.setdefault(e["companyKey"], []).append(e)
+            continue
+        fresh.append(e)
+    have = {e["companyKey"] for e in fresh}
+    for key in sorted(stale):
+        if key in have:
+            continue
+        keep = sorted(stale[key], key=lambda e: e["publishedAt"] or "")[-1]
+        fresh.append(keep)
+        bump("stale_kept_for_coverage")
+    if len(fresh) >= 1600:
+        bump("stale_dropped", len(evidence) - len(fresh))
+        evidence = fresh
     evidence.sort(key=lambda e: (e["companyKey"], e["sourceKind"], e["key"]))
     payload = {
         "generatedAt": observed,

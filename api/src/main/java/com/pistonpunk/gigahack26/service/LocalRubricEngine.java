@@ -6,6 +6,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -22,6 +25,7 @@ public class LocalRubricEngine implements ClassifierEngine {
     private static final double MIDPOINT = 1.6;
     private static final int MAX_FINDINGS = 3;
     private static final int MAX_DERIVED_TERMS = 14;
+    private static final int PREPARED_CACHE_SIZE = 512;
 
     private static final Set<String> STOPWORDS = Set.of(
             "about", "after", "again", "against", "among", "because", "been", "before", "being", "between",
@@ -33,9 +37,37 @@ public class LocalRubricEngine implements ClassifierEngine {
             "question", "counts", "evidence", "document", "company's", "within", "whether");
 
     private final ClassifierProperties properties;
+    private final Map<String, Prepared> prepared = Collections.synchronizedMap(
+            new LinkedHashMap<>(32, 0.75f, true) {
+                @Override
+                protected boolean removeEldestEntry(Map.Entry<String, Prepared> eldest) {
+                    return size() > PREPARED_CACHE_SIZE;
+                }
+            });
+
+    private record PreparedWindow(int start, int end, String normalized) {
+    }
+
+    private record Prepared(String normalized, List<PreparedWindow> windows) {
+    }
 
     public LocalRubricEngine(ClassifierProperties properties) {
         this.properties = properties;
+    }
+
+    private Prepared prepare(String document) {
+        Prepared cached = prepared.get(document);
+        if (cached != null) {
+            return cached;
+        }
+        List<PreparedWindow> windows = new ArrayList<>();
+        for (TextWindows.Window window : TextWindows.split(document)) {
+            windows.add(new PreparedWindow(window.start(), window.end(),
+                    NormalizedText.of(window.text()).text()));
+        }
+        Prepared built = new Prepared(NormalizedText.of(document).text(), windows);
+        prepared.put(document, built);
+        return built;
     }
 
     @Override
@@ -75,16 +107,16 @@ public class LocalRubricEngine implements ClassifierEngine {
         List<CuePattern> counters = compile(question.getCounterCues(), COUNTER_MULTIPLIER);
         Set<String> questionTerms = significantTerms(question.getText() + " " + question.getInstructions());
 
-        String normalizedDocument = NormalizedText.of(document).text();
-        boolean anyCue = cues.stream().anyMatch(cue -> normalizedDocument.contains(cue.label()))
-                || counters.stream().anyMatch(cue -> normalizedDocument.contains(cue.label()));
+        Prepared ready = prepare(document);
+        boolean anyCue = cues.stream().anyMatch(cue -> ready.normalized().contains(cue.label()))
+                || counters.stream().anyMatch(cue -> ready.normalized().contains(cue.label()));
         if (!anyCue) {
             return List.of();
         }
 
         List<Finding> findings = new ArrayList<>();
-        for (TextWindows.Window window : TextWindows.split(document)) {
-            String normalized = NormalizedText.of(window.text()).text();
+        for (PreparedWindow window : ready.windows()) {
+            String normalized = window.normalized();
             double score = 0.0;
             List<String> hits = new ArrayList<>();
 
