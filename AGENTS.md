@@ -22,10 +22,10 @@ docker compose down -v             # drop the volumes too
 API (from `api/`):
 
 ```sh
-./mvnw test                                    # 13 tests
-./mvnw test -Dtest=SubmissionServiceTest       # one class
-./mvnw test -Dtest=SubmissionServiceTest#createWritesTheRowToPostgresAndTheDocumentToMongo
-./mvnw spring-boot:run                         # needs Postgres and Mongo reachable
+./gradlew test                                 # 13 tests
+./gradlew test --tests SubmissionServiceTest   # one class
+./gradlew test --tests 'SubmissionServiceTest.createWritesTheRowToPostgresAndTheDocumentToMongo'
+./gradlew bootRun                              # needs Postgres and Mongo reachable
 ```
 
 UI (from `ui/`):
@@ -74,7 +74,7 @@ source in a second terminal:
 
 ```sh
 docker compose up postgres mongo     # stores only, schema created on boot
-cd api && ./mvnw spring-boot:run
+cd api && ./gradlew bootRun
 cd ui  && npm install && npm run dev
 ```
 
@@ -129,9 +129,9 @@ know about it:
 | New API route or origin | `CorsConfig` mapping if outside `/api/**`, `CorsConfigTest`, the UI client in `src/lib/api.ts` |
 | New build-time value for the SPA | `vite.config.ts` define, `ui/Dockerfile` build arg, `Jenkinsfile` `--build-arg` |
 | New port or domain | Traefik labels in the `Jenkinsfile`, `docker-compose.yml` |
-| New API dependency | `pom.xml`, and check the Dockerfile's build stage still resolves it |
+| New API dependency | `api/build.gradle.kts`, and check the Dockerfile's build stage still resolves it |
 
-Verify with the gates CI runs, not just the one you touched: `./mvnw test` and
+Verify with the gates CI runs, not just the one you touched: `./gradlew test` and
 `npm run check`, then `docker compose up --build` for the local path, then a push
 for the deployed path and a real request against the live host. The pipeline no
 longer has a post-deploy check, so **a green build does not mean the app works** —
