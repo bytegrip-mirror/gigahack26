@@ -47,7 +47,6 @@ export type BoardRow = {
 	strongest: Chip | null;
 	chips: Chip[];
 	themes: string[];
-	headline: string;
 };
 
 export type LedgerRow = {
@@ -146,7 +145,6 @@ export type CompanyDetail = {
 	evidence: EvidenceView[];
 	computedAt: string;
 	engine: string;
-	bandSummary: string;
 };
 
 export type EvidenceDetail = {

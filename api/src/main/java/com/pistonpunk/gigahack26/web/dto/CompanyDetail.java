@@ -48,8 +48,7 @@ public record CompanyDetail(
         Map<String, Double> sensitivity,
         List<EvidenceView> evidence,
         Instant computedAt,
-        String engine,
-        String bandSummary) {
+        String engine) {
 
     public record Theme(String name, double total, boolean capped, int rows) {
     }

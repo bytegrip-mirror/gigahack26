@@ -31,8 +31,7 @@ public record BoardRow(
         Double newestSignalAgeDays,
         Chip strongest,
         List<Chip> chips,
-        List<String> themes,
-        String headline) {
+        List<String> themes) {
 
     public record Chip(
             String evidenceId,

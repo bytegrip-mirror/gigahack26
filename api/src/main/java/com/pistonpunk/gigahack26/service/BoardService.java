@@ -224,8 +224,7 @@ public class BoardService {
                 detail.sensitivity(),
                 evidenceViews,
                 now,
-                router.primaryEngineId(),
-                headline(detail, company)));
+                router.primaryEngineId()));
     }
 
     public String primaryEngine() {
@@ -287,8 +286,7 @@ public class BoardService {
                 newest == null ? null : round(Duration.between(newest, now).toHours() / 24.0),
                 strongest,
                 chips,
-                new ArrayList<>(detail.themeTotals().keySet()),
-                headline(detail, company));
+                new ArrayList<>(detail.themeTotals().keySet()));
     }
 
     private static BoardRow.Chip toChip(LedgerRow row) {
@@ -307,20 +305,6 @@ public class BoardService {
                 row.publisher());
     }
 
-    private static String headline(ScoreComputation detail, Company company) {
-        LedgerRow strongest = detail.strongest();
-        if (strongest == null) {
-            return detail.band() == Band.DISQUALIFIED
-                    ? company.getName() + " is out of the queue: " + detail.gateReason()
-                    : company.getName() + " has no qualifying evidence yet";
-        }
-        String age = strongest.ageDays() < 1
-                ? "today"
-                : (int) strongest.ageDays() + " days old";
-        return "%s fit %.2f — %d weighted signals across %d themes, strongest: %s (%s, %s)"
-                .formatted(strongest.theme(), detail.probability(), detail.signalCount(), detail.themeCount(),
-                        trim(strongest.questionText(), 90), strongest.publisher(), age);
-    }
 
     private static boolean passesFilter(Band band, String filter) {
         if (filter == null || filter.isBlank() || filter.equalsIgnoreCase("all")) {
@@ -371,7 +355,7 @@ public class BoardService {
                 row.sizeBand(), row.competitor(), row.probability(), row.band(), row.bandLabel(), row.gateReason(),
                 row.nats(), row.signalCount(), row.themeCount(), row.evidenceCount(), row.scannedDocuments(),
                 row.silentDocuments(), row.newestSignalAt(), row.newestSignalAgeDays(), row.strongest(),
-                row.chips(), row.themes(), row.headline());
+                row.chips(), row.themes());
     }
 
     private static String trim(String value, int max) {
