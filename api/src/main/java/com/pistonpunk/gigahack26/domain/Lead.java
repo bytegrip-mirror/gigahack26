@@ -113,6 +113,7 @@ public class Lead {
     }
 
     public void record(LeadStatus status, String channel, String note, String outreachSubject, Instant now) {
+        LeadStatus previous = this.status;
         if (status != null) {
             this.status = status;
         }
@@ -125,7 +126,7 @@ public class Lead {
         if (outreachSubject != null && !outreachSubject.isBlank()) {
             this.outreachSubject = outreachSubject.trim();
         }
-        if (this.status != LeadStatus.NEW && this.status != LeadStatus.REJECTED) {
+        if (status != null && status != previous && status != LeadStatus.NEW && status != LeadStatus.REJECTED) {
             this.lastContactedAt = now;
             this.contactCount++;
         }

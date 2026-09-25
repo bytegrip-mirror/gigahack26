@@ -35,7 +35,7 @@ public class LeadService {
     public Lead record(UUID companyId, String serviceLine, LeadStatus status, String channel, String note,
                        String outreachSubject) {
         Lead lead = leads.findByCompanyIdAndServiceLine(companyId, serviceLine)
-                .orElseGet(() -> leads.save(new Lead(UUID.randomUUID(), companyId, serviceLine, clock.instant())));
+                .orElseGet(() -> new Lead(UUID.randomUUID(), companyId, serviceLine, clock.instant()));
         lead.record(status, channel, note, outreachSubject, clock.instant());
         return leads.save(lead);
     }
@@ -94,7 +94,7 @@ public class LeadService {
     @Transactional
     public Lead markSynced(UUID companyId, String serviceLine) {
         Lead lead = leads.findByCompanyIdAndServiceLine(companyId, serviceLine)
-                .orElseGet(() -> leads.save(new Lead(UUID.randomUUID(), companyId, serviceLine, clock.instant())));
+                .orElseGet(() -> new Lead(UUID.randomUUID(), companyId, serviceLine, clock.instant()));
         lead.markSynced(clock.instant());
         return leads.save(lead);
     }
