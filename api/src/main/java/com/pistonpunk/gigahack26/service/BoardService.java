@@ -348,7 +348,7 @@ public class BoardService {
 
     private static Comparator<BoardRow> comparator(String sort) {
         String key = sort == null ? "score" : sort.toLowerCase(Locale.ROOT);
-        return switch (key) {
+        Comparator<BoardRow> rank = switch (key) {
             case "name" -> Comparator.comparing(BoardRow::name, String.CASE_INSENSITIVE_ORDER);
             case "evidence" -> Comparator.comparingInt(BoardRow::evidenceCount).reversed();
             case "recent" -> Comparator.comparing(BoardRow::newestSignalAt,
@@ -356,8 +356,11 @@ public class BoardService {
             case "themes" -> Comparator.comparingInt(BoardRow::themeCount).reversed()
                     .thenComparing(Comparator.comparingDouble(BoardRow::probability).reversed());
             default -> Comparator.comparingDouble(BoardRow::probability).reversed()
-                    .thenComparing(Comparator.comparingInt(BoardRow::evidenceCount).reversed());
+                    .thenComparing(Comparator.comparingInt(BoardRow::evidenceCount).reversed())
+                    .thenComparing(BoardRow::name, String.CASE_INSENSITIVE_ORDER);
         };
+        return Comparator.comparingInt((BoardRow row) -> Band.DISQUALIFIED.name().equals(row.band()) ? 1 : 0)
+                .thenComparing(rank);
     }
 
     private static BoardRow withRank(BoardRow row, int rank) {

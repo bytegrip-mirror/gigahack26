@@ -147,7 +147,9 @@
 				serviceLine,
 				question: text,
 				questionId: null,
-				engine
+				engine,
+				tier: weightTier,
+				polarity
 			});
 			outcome = result;
 			rows = result.board;
@@ -156,7 +158,7 @@
 				filter = 'all';
 			}
 			toasts.push(
-				`Re-scored ${shortNumber(result.documentsScanned)} documents in ${duration(result.tookMs)} — ${result.movedRows} rows moved.`,
+				`Re-scored ${shortNumber(result.documentsScanned)} documents in ${duration(result.tookMs)} — ${result.movedRows} rows moved. The question is now part of the policy set.`,
 				'success'
 			);
 			fetchMeta(serviceLine).then((result) => (meta = result));

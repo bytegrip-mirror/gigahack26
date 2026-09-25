@@ -77,6 +77,44 @@ public class PolicyService {
     }
 
     @Transactional
+    public PolicyQuestion findOrCreate(String serviceLine, String text, WeightTier tier, Polarity polarity,
+                                       String theme, String instructions) {
+        String key = slug(serviceLine) + ".asked-" + sha(text).substring(0, 10);
+        Optional<PolicyQuestion> existing = questions.findByKey(key);
+        if (existing.isPresent()) {
+            return existing.get();
+        }
+        return questions.save(new PolicyQuestion(
+                UUID.randomUUID(),
+                key,
+                serviceLine,
+                text,
+                orEmpty(instructions),
+                tier == null ? WeightTier.HIGH : tier,
+                polarity == null ? Polarity.POSITIVE : polarity,
+                theme == null || theme.isBlank() ? "asked" : theme.trim(),
+                DecayClass.STRUCTURAL,
+                LocalRubricEngine.deriveCues(text, orEmpty(instructions)),
+                List.of(),
+                true,
+                clock.instant()));
+    }
+
+    private static String sha(String value) {
+        try {
+            byte[] digest = java.security.MessageDigest.getInstance("SHA-1")
+                    .digest(value.trim().toLowerCase(Locale.ROOT).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder hex = new StringBuilder();
+            for (int i = 0; i < 6; i++) {
+                hex.append(String.format("%02x", digest[i]));
+            }
+            return hex.toString();
+        } catch (java.security.NoSuchAlgorithmException e) {
+            return Integer.toHexString(value.hashCode());
+        }
+    }
+
+    @Transactional
     public PolicyView create(PolicyRequest request) {
         PolicyQuestion question = new PolicyQuestion(
                 UUID.randomUUID(),

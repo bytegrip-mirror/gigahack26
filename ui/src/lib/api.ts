@@ -429,6 +429,10 @@ export function rescore(input: {
 	questionId?: string | null;
 	question?: string | null;
 	engine?: Engine | null;
+	tier?: WeightTier | null;
+	polarity?: Polarity | null;
+	theme?: string | null;
+	instructions?: string | null;
 }): Promise<Rescore> {
 	return request<Rescore>('/api/rescore', { method: 'POST', body: JSON.stringify(input) });
 }

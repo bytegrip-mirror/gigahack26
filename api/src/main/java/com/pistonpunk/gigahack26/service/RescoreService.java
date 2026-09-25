@@ -2,6 +2,8 @@ package com.pistonpunk.gigahack26.service;
 
 import com.pistonpunk.gigahack26.domain.Company;
 import com.pistonpunk.gigahack26.domain.Evidence;
+import com.pistonpunk.gigahack26.domain.Polarity;
+import com.pistonpunk.gigahack26.domain.WeightTier;
 import com.pistonpunk.gigahack26.domain.PolicyQuestion;
 import com.pistonpunk.gigahack26.domain.Signal;
 import com.pistonpunk.gigahack26.repository.jpa.CompanyRepository;
@@ -40,13 +42,18 @@ public class RescoreService {
     private final PolicyQuestionRepository questions;
     private final ScoreboardService scoreboard;
     private final BoardService board;
+    private final PolicyService policies;
     private final ClassifierRouter router;
+    private final ScoringProperties scoring;
     private final CaptureStore captures;
     private final Clock clock;
 
     public RescoreService(CompanyRepository companies, EvidenceRepository evidence, SignalRepository signals,
                           PolicyQuestionRepository questions, ScoreboardService scoreboard, BoardService board,
-                          ClassifierRouter router, CaptureStore captures, Clock clock) {
+                          PolicyService policies, ClassifierRouter router, ScoringProperties scoring,
+                          CaptureStore captures, Clock clock) {
+        this.policies = policies;
+        this.scoring = scoring;
         this.companies = companies;
         this.evidence = evidence;
         this.signals = signals;
@@ -106,7 +113,8 @@ public class RescoreService {
     }
 
     @Transactional
-    public RescoreResponse rescore(String serviceLine, UUID questionId, String label, String engineOverride) {
+    public RescoreResponse rescore(String serviceLine, UUID questionId, String label, String engineOverride,
+                                   WeightTier tier, Polarity polarity, String theme, String instructions) {
         long started = System.nanoTime();
 
         Map<UUID, Ranked> before = new LinkedHashMap<>();
@@ -114,19 +122,34 @@ public class RescoreService {
             before.put(row.id(), new Ranked(row.rank(), row.probability(), row.band()));
         }
 
-        List<PolicyQuestion> target = serviceLineQuestions(serviceLine, questionId);
+        List<PolicyQuestion> target = new ArrayList<>(serviceLineQuestions(serviceLine, questionId));
+        if (questionId == null && label != null && label.trim().length() >= 10) {
+            PolicyQuestion asked = policies.findOrCreate(serviceLine, label.trim(), tier, polarity, theme,
+                    instructions);
+            if (target.stream().noneMatch(question -> question.getId().equals(asked.getId()))) {
+                target.add(asked);
+            }
+            label = asked.getText();
+        }
         Outcome outcome = reclassify(target, true, engineOverride);
         scoreboard.rescore(serviceLine);
 
         List<BoardRow> after = board.board(serviceLine, "all", "score", null);
 
+        double base = scoring.baseRate();
         List<RescoreResponse.Move> moves = new ArrayList<>();
+        int movedRows = 0;
         for (BoardRow row : after) {
             Ranked previous = before.get(row.id());
             if (previous == null) {
                 continue;
             }
+            boolean scoredBefore = previous.probability() > base + 1e-9;
+            boolean scoredAfter = row.probability() > base + 1e-9;
             int delta = previous.rank() - row.rank();
+            if (delta != 0 && (scoredBefore || scoredAfter)) {
+                movedRows++;
+            }
             if (delta == 0 && Math.abs(previous.probability() - row.probability()) < 0.0005) {
                 continue;
             }
@@ -142,8 +165,6 @@ public class RescoreService {
                     delta > 0 ? "up" : delta < 0 ? "down" : "flat"));
         }
         moves.sort(Comparator.comparingInt(move -> -Math.abs(move.delta())));
-
-        int movedRows = (int) moves.stream().filter(move -> move.delta() != 0).count();
         UUID leaderBefore = before.entrySet().stream()
                 .min(Comparator.comparingInt(entry -> entry.getValue().rank()))
                 .map(Map.Entry::getKey).orElse(null);

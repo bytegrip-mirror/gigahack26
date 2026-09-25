@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -29,11 +30,25 @@ public class PolicyLibrary {
 
     @Transactional
     public void ensureSeeded() {
-        if (questions.count() > 0) {
-            return;
-        }
         for (Definition definition : definitions()) {
-            questions.save(toEntity(definition));
+            Optional<PolicyQuestion> existing = questions.findByKey(definition.key());
+            if (existing.isEmpty()) {
+                questions.save(toEntity(definition));
+                continue;
+            }
+            PolicyQuestion question = existing.get();
+            question.revise(
+                    definition.text(),
+                    definition.instructions(),
+                    definition.tier(),
+                    definition.polarity(),
+                    definition.theme(),
+                    definition.decayClass(),
+                    definition.cues(),
+                    definition.counterCues(),
+                    question.isActive(),
+                    clock.instant());
+            questions.save(question);
         }
     }
 
@@ -71,12 +86,16 @@ public class PolicyLibrary {
                         Does not count: a generic statement that the company \"invests in digital\", a product page, \
                         or a supplier's description of work it did for someone else. The programme must belong to this \
                         company and must be current.""",
-                        WeightTier.HIGH, Polarity.POSITIVE, "automation", DecayClass.STRUCTURAL,
+                        WeightTier.HIGH, Polarity.POSITIVE, "efficiency", DecayClass.STRUCTURAL,
                         List.of("cost reduction", "efficiency programme", "efficiency target", "operating efficiency",
                                 "process optimisation", "process optimization", "operational excellence",
                                 "shared services", "process consolidation", "cost savings", "savings target",
                                 "productivity programme", "headcount reduction", "reduce costs", "streamline operations",
-                                "process efficiency", "automation programme", "digital transformation programme"),
+                                "process efficiency", "automation programme", "digital transformation programme",
+                                "job cuts", "cut jobs", "cutting jobs", "reduce headcount", "headcount cut",
+                                "restructuring", "restructure", "cost cutting", "cost-cutting", "efficiency drive",
+                                "productivity gains", "operating margin", "savings programme", "spending cuts",
+                                "simplify operations", "operational efficiency programme", "reduce operating costs"),
                         List.of("no plans to", "already completed")),
                 new Definition(
                         "automation.hiring", AUTOMATION,
@@ -89,13 +108,16 @@ public class PolicyLibrary {
 
                         Does not count: a role that writes automation code as a product for external customers, or an \
                         internship. A vendor hiring RPA engineers is building, not buying.""",
-                        WeightTier.HIGH, Polarity.POSITIVE, "automation", DecayClass.HIRING,
+                        WeightTier.HIGH, Polarity.POSITIVE, "capability", DecayClass.HIRING,
                         List.of("rpa developer", "rpa engineer", "automation engineer", "automation developer",
                                 "process mining", "process excellence", "robotic process automation",
                                 "intelligent automation", "automation analyst", "process automation",
                                 "business process analyst", "blue prism", "uipath", "power automate",
                                 "automation specialist", "automation consultant", "workflow automation",
-                                "process improvement", "lean six sigma", "operations excellence"),
+                                "process improvement", "lean six sigma", "operations excellence",
+                                "digital transformation", "business process", "process lead", "transformation office",
+                                "change management", "continuous improvement", "operational excellence manager",
+                                "automation lead", "head of automation", "shared services"),
                         List.of("internship", "intern,", "unpaid", "student worker")),
                 new Definition(
                         "automation.insourcing", AUTOMATION,
@@ -106,7 +128,7 @@ public class PolicyLibrary {
                         will build rather than buy, so it is removed from the queue and the reason is recorded.
 
                         Does not count: a company that has an internal team overseeing external delivery partners.""",
-                        WeightTier.HIGH, Polarity.DISQUALIFYING, "automation", DecayClass.STRUCTURAL,
+                        WeightTier.HIGH, Polarity.DISQUALIFYING, "in-house", DecayClass.STRUCTURAL,
                         List.of("centre of excellence", "center of excellence", "in-house automation",
                                 "internal automation team", "automation factory", "in-house developed",
                                 "own automation platform", "proprietary automation", "internal r&d",
@@ -122,7 +144,7 @@ public class PolicyLibrary {
                         This is counter-evidence, not a disqualifier: a company with an incumbent partner is harder \
                         to sell to, but the research says prior vendor experience is also the strongest predictor of \
                         buying again, so it reduces the score rather than removing the company.""",
-                        WeightTier.MEDIUM, Polarity.NEGATIVE, "automation", DecayClass.STRUCTURAL,
+                        WeightTier.MEDIUM, Polarity.NEGATIVE, "capability", DecayClass.STRUCTURAL,
                         List.of("multi-year agreement", "strategic partnership with", "extended its partnership",
                                 "signed a contract with", "selected as its", "renewed its contract",
                                 "named as the preferred"),
@@ -136,11 +158,13 @@ public class PolicyLibrary {
 
                         Does not count: a security engineer hire, a vendor's own staff, or a role below director \
                         level. A new security leader reviews the inherited stack, which is a buying moment.""",
-                        WeightTier.HIGH, Polarity.POSITIVE, "security", DecayClass.HIRING,
+                        WeightTier.HIGH, Polarity.POSITIVE, "capability", DecayClass.HIRING,
                         List.of("chief information security officer", "ciso", "head of cybersecurity",
                                 "head of security", "director of information security", "vp of security",
                                 "chief security officer", "appointed chief information security",
-                                "group security officer", "security leadership"),
+                                "group security officer", "security leadership", "chief security officer",
+                                "new ciso", "appointed ciso", "head of cyber", "security chief",
+                                "information security officer", "cyber security lead"),
                         List.of("internship", "advisory board")),
                 new Definition(
                         "security.compliance", SECURITY,
@@ -151,11 +175,13 @@ public class PolicyLibrary {
 
                         Does not count: a vendor explaining what the regulation means in general, or an article \
                         about the regulation with no connection to this company's own obligations.""",
-                        WeightTier.HIGH, Polarity.POSITIVE, "security", DecayClass.STRUCTURAL,
+                        WeightTier.HIGH, Polarity.POSITIVE, "compliance", DecayClass.STRUCTURAL,
                         List.of("nis2", "dora", "iso 27001", "soc 2", "pci dss", "psd2", "cyber resilience",
                                 "regulatory compliance", "compliance deadline", "compliance requirements",
                                 "audit requirement", "certification programme", "regulatory obligation",
-                                "must comply"),
+                                "must comply", "regulatory pressure", "compliance burden", "cyber security directive",
+                                "security regulation", "data protection regulation", "compliance framework",
+                                "cyber resilience act", "security certification", "iso/iec 27001"),
                         List.of("what is nis2", "explainer", "guide to")),
                 new Definition(
                         "security.incident", SECURITY,
@@ -166,10 +192,13 @@ public class PolicyLibrary {
 
                         Does not count: industry-wide statistics, a same-named company, or a breach at a supplier \
                         reported as a general news item.""",
-                        WeightTier.HIGH, Polarity.POSITIVE, "security", DecayClass.EVENT,
+                        WeightTier.HIGH, Polarity.POSITIVE, "incident", DecayClass.EVENT,
                         List.of("data breach", "cyber attack", "cyberattack", "ransomware", "security incident",
                                 "exposed data", "data leak", "hacked", "fined by", "enforcement action",
-                                "suffered a breach", "security flaw", "vulnerability exposed"),
+                                "suffered a breach", "security flaw", "vulnerability exposed",
+                                "cyber incident", "cybersecurity incident", "data breach", "security breach",
+                                "attacked by", "extortion", "stolen data", "compromised", "zero-day",
+                                "vulnerability", "patch", "security failure", "regulator fined"),
                         List.of("how to protect", "avoid becoming")),
                 new Definition(
                         "security.insourcing", SECURITY,
@@ -179,7 +208,7 @@ public class PolicyLibrary {
                         internal security engineering function that replaces external providers.
 
                         Does not count: a company that outsources to a managed security provider.""",
-                        WeightTier.HIGH, Polarity.DISQUALIFYING, "security", DecayClass.STRUCTURAL,
+                        WeightTier.HIGH, Polarity.DISQUALIFYING, "in-house", DecayClass.STRUCTURAL,
                         List.of("security operations centre", "security operations center", "in-house soc",
                                 "own soc", "in-house security team", "security centre of excellence",
                                 "internal security operations", "we handle security ourselves"),
@@ -193,11 +222,14 @@ public class PolicyLibrary {
 
                         Does not count: a vendor case study about someone else, a generic \"we are exploring AI\" \
                         statement with no use case, or a prediction about the industry.""",
-                        WeightTier.HIGH, Polarity.POSITIVE, "data", DecayClass.STRUCTURAL,
+                        WeightTier.HIGH, Polarity.POSITIVE, "initiative", DecayClass.STRUCTURAL,
                         List.of("artificial intelligence strategy", "ai strategy", "ai programme", "ai initiative",
                                 "generative ai", "machine learning", "data platform", "data lakehouse",
                                 "data warehouse", "predictive analytics", "ai use case", "ai adoption",
-                                "data-driven", "analytics platform", "copilot rollout", "ai pilot"),
+                                "data-driven", "analytics platform", "copilot rollout", "ai pilot",
+                                "ai agents", "ai agent", "agentic", "large language model", "genai", "gen ai",
+                                "ai transformation", "ai roadmap", "ai investment", "ai platform", "data strategy",
+                                "digital strategy", "ai capabilities", "ai solutions", "ai tools"),
                         List.of("what is artificial intelligence", "explainer")),
                 new Definition(
                         "data.hiring", DATA,
@@ -208,7 +240,7 @@ public class PolicyLibrary {
 
                         Does not count: a consultancy advertising data roles for client projects, or a role that \
                         is not part of this company's own function.""",
-                        WeightTier.MEDIUM, Polarity.POSITIVE, "data", DecayClass.HIRING,
+                        WeightTier.MEDIUM, Polarity.POSITIVE, "capability", DecayClass.HIRING,
                         List.of("data engineer", "data scientist", "machine learning engineer", "ml engineer",
                                 "data architect", "analytics engineer", "head of data", "chief data officer",
                                 "data analyst", "business intelligence", "data platform engineer"),
@@ -221,7 +253,7 @@ public class PolicyLibrary {
                         or a stated single-source-of-truth programme.
 
                         Does not count: a general statement that data is important.""",
-                        WeightTier.MEDIUM, Polarity.POSITIVE, "data", DecayClass.STRUCTURAL,
+                        WeightTier.MEDIUM, Polarity.POSITIVE, "compliance", DecayClass.STRUCTURAL,
                         List.of("data governance", "master data management", "data quality", "data catalogue",
                                 "data catalog", "data lineage", "single source of truth", "data stewardship",
                                 "data management programme"),

@@ -22,7 +22,7 @@ public class LocalRubricEngine implements ClassifierEngine {
     private static final double QUESTION_TERM_WEIGHT = 0.45;
     private static final double QUESTION_TERM_CAP = 1.2;
     private static final double SLOPE = 0.6;
-    private static final double MIDPOINT = 1.6;
+    private static final double MIDPOINT = 1.35;
     private static final int MAX_FINDINGS = 3;
     private static final int MAX_DERIVED_TERMS = 14;
     private static final int PREPARED_CACHE_SIZE = 512;

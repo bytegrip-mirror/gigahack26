@@ -47,9 +47,9 @@ app:
       timeout-ms: 25000
   scoring:
     base-rate: ${SCORING_BASE_RATE:0.25}
-    priority-threshold: ${SCORING_PRIORITY_THRESHOLD:0.75}
-    nurture-threshold: ${SCORING_NURTURE_THRESHOLD:0.50}
-    watch-threshold: ${SCORING_WATCH_THRESHOLD:0.30}
+    priority-threshold: ${SCORING_PRIORITY_THRESHOLD:0.55}
+    nurture-threshold: ${SCORING_NURTURE_THRESHOLD:0.45}
+    watch-threshold: ${SCORING_WATCH_THRESHOLD:0.28}
     rank-discount: ${SCORING_RANK_DISCOUNT:0.5}
     icp-min-employees: ${ICP_MIN_EMPLOYEES:200}
     icp-countries: ${ICP_COUNTRIES:MD,RO,DE,FR,IT,ES,PT,NL,BE,LU,AT,CH,PL,CZ,SK,HU,BG,RS,UA,TR,GB,IE,SE,NO,DK,FI,GR,HR,SI,EE,LV,LT,US,CA}

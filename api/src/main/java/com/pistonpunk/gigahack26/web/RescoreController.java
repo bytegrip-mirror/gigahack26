@@ -1,5 +1,7 @@
 package com.pistonpunk.gigahack26.web;
 
+import com.pistonpunk.gigahack26.domain.Polarity;
+import com.pistonpunk.gigahack26.domain.WeightTier;
 import com.pistonpunk.gigahack26.service.PolicyLibrary;
 import com.pistonpunk.gigahack26.service.RescoreService;
 import com.pistonpunk.gigahack26.web.dto.RescoreResponse;
@@ -20,7 +22,8 @@ public class RescoreController {
         this.rescore = rescore;
     }
 
-    public record Request(String serviceLine, UUID questionId, String question, String engine) {
+    public record Request(String serviceLine, UUID questionId, String question, String engine,
+                          WeightTier tier, Polarity polarity, String theme, String instructions) {
     }
 
     @PostMapping
@@ -31,6 +34,10 @@ public class RescoreController {
         UUID questionId = request == null ? null : request.questionId();
         String label = request == null ? null : request.question();
         String engine = request == null ? null : request.engine();
-        return rescore.rescore(serviceLine, questionId, label, engine);
+        WeightTier tier = request == null ? null : request.tier();
+        Polarity polarity = request == null ? null : request.polarity();
+        String theme = request == null ? null : request.theme();
+        String instructions = request == null ? null : request.instructions();
+        return rescore.rescore(serviceLine, questionId, label, engine, tier, polarity, theme, instructions);
     }
 }
