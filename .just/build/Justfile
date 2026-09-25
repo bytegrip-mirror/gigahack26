@@ -1,0 +1,14 @@
+set working-directory := "../.."
+
+[private]
+default:
+    just --list --justfile {{source_file()}}
+
+all: api ui
+
+api *FLAGS:
+    cd api && ./gradlew -q bootJar {{FLAGS}}
+
+ui *FLAGS:
+    [ -d ui/node_modules ] || npm --prefix ui ci
+    npm --prefix ui run build {{FLAGS}}
