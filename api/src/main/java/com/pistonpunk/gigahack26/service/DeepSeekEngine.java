@@ -97,7 +97,7 @@ public class DeepSeekEngine implements ClassifierEngine {
                     .POST(HttpRequest.BodyPublishers.ofString(payload))
                     .build();
 
-            HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = send(httpRequest);
             if (response.statusCode() != 200) {
                 log.warn("deepseek returned {}: {}", response.statusCode(), summarise(response.body()));
                 throw new LanguageModelUnavailableException("model returned " + response.statusCode());
@@ -114,6 +114,24 @@ public class DeepSeekEngine implements ClassifierEngine {
         } finally {
             permits.release();
         }
+    }
+
+    private static final int MAX_ATTEMPTS = 5;
+    private static final long BASE_BACKOFF_MS = 400;
+
+    private HttpResponse<String> send(HttpRequest request) throws Exception {
+        HttpResponse<String> response = null;
+        for (int attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            int status = response.statusCode();
+            if (status != 429 && status != 402 && status != 503) {
+                return response;
+            }
+            long wait = BASE_BACKOFF_MS * (1L << attempt);
+            log.debug("model asked us to slow down ({}); waiting {} ms", status, wait);
+            Thread.sleep(wait);
+        }
+        return response;
     }
 
     private String buildPayload(ClassificationRequest request, String document) throws Exception {

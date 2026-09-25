@@ -64,16 +64,19 @@ Status: **phases 1, 2, 3, 5 and 6 landed; phase 4 and the challenge sweep in pro
 
 ## Phase 4 — classification that can be defended
 
-- [~] A full model pass over the corpus is running: every pair the cue lists
-      would have matched, every disqualifying question, and a sample of the rest
-      is being re-judged by the model, with each quote verified against its
-      capture. In flight; the overlay lands as `corpus/signals.json` when it
-      finishes.
-- [x] Every signal records which engine produced it, and a draft that fell back
-      says so rather than looking like one the model wrote.
+- [~] A full model pass over the corpus is running: every pair the cue lists would
+      have matched, every disqualifying question, and a sample of the rest, each
+      quote verified against its capture. The first attempt finished in fifteen
+      minutes and exposed two defects, both now fixed and the pass restarted:
+      truncated replies were being discarded (191 in six minutes), and a failed
+      call was indistinguishable from a considered rejection, so failures were
+      being written as "no signal" and suppressing the cue list that would have
+      matched. The overlay lands as `corpus/signals.json` when the re-run finishes.
+- [x] Every signal records which engine produced it, and a draft that fell back says
+      so rather than looking like one the model wrote.
 - [ ] Cue lists remain the fallback's configuration and stay editable, but stop
-      being the product's answer to "how does it decide" — this rests on the
-      model pass above landing.
+      being the product's answer to "how does it decide" — this rests on the model
+      pass above landing, and on the seeded board actually reading the overlay.
 
 ## Phase 5 — outreach that reads like a person wrote it
 
