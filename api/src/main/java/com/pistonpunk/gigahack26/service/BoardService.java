@@ -245,7 +245,8 @@ public class BoardService {
                         lead.getId(), lead.getCompanyId(), company.getName(), company.getDomain(),
                         lead.getServiceLine(), lead.getStatus().name(), lead.getStatus().label(),
                         lead.getChannel(), lead.getLastContactedAt(), lead.getContactCount(), lead.getNote(),
-                        lead.getOutreachSubject(), lead.getCrmSyncedAt(), lead.getUpdatedAt())).orElse(null),
+                        lead.getOutreachSubject(), null, null, lead.getCrmSyncedAt(), lead.getUpdatedAt()))
+                        .orElse(null),
                 leads.crmConfigured()));
     }
 

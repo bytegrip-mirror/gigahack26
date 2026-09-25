@@ -16,6 +16,8 @@ public record LeadView(
         int contactCount,
         String note,
         String outreachSubject,
+        Double probability,
+        String band,
         Instant crmSyncedAt,
         Instant updatedAt) {
 }

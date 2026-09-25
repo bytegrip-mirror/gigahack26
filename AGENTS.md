@@ -178,8 +178,14 @@ profile.
 **A lead travels with its company.** `lead` holds the stage — new, contacted,
 replied, qualified, rejected — plus how many times the company has been worked,
 when, through which channel, and the subject of the last draft. The board filters
-by stage. The HubSpot push records the intent and marks the lead when
-`HUBSPOT_TOKEN` is absent rather than pretending to have synced.
+by stage; the Pipeline view groups everything worked by stage and advances it
+inline. The contact count moves only on a real transition, never on a re-save.
+The HubSpot push records the intent and marks the lead when `HUBSPOT_TOKEN` is
+absent rather than pretending to have synced.
+
+**Every screen is a pane, not a page.** Board, Studio, Pipeline and the customer
+profile all render a topbar plus independently scrolling panes inside the fixed
+shell. None of them scrolls the document.
 
 **Config is environment-first.** Every value in `application.yml` is a
 `${ENV:default}` placeholder. The UI has no runtime config: Vite inlines

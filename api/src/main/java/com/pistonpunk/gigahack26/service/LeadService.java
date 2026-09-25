@@ -3,8 +3,10 @@ package com.pistonpunk.gigahack26.service;
 import com.pistonpunk.gigahack26.domain.Company;
 import com.pistonpunk.gigahack26.domain.Lead;
 import com.pistonpunk.gigahack26.domain.LeadStatus;
+import com.pistonpunk.gigahack26.domain.PolicyScore;
 import com.pistonpunk.gigahack26.repository.jpa.CompanyRepository;
 import com.pistonpunk.gigahack26.repository.jpa.LeadRepository;
+import com.pistonpunk.gigahack26.repository.jpa.PolicyScoreRepository;
 import com.pistonpunk.gigahack26.web.dto.LeadView;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,11 +25,13 @@ public class LeadService {
 
     private final LeadRepository leads;
     private final CompanyRepository companies;
+    private final PolicyScoreRepository scores;
     private final Clock clock;
 
-    public LeadService(LeadRepository leads, CompanyRepository companies, Clock clock) {
+    public LeadService(LeadRepository leads, CompanyRepository companies, PolicyScoreRepository scores, Clock clock) {
         this.leads = leads;
         this.companies = companies;
+        this.scores = scores;
         this.clock = clock;
     }
 
@@ -57,10 +61,14 @@ public class LeadService {
         Map<UUID, Company> byId = companies.findAllById(found.stream().map(Lead::getCompanyId).toList()).stream()
                 .collect(Collectors.toMap(Company::getId, company -> company));
 
+        Map<UUID, PolicyScore> scoreByCompany = scores.findByServiceLine(serviceLine).stream()
+                .collect(Collectors.toMap(PolicyScore::getCompanyId, score -> score, (a, b) -> a));
+
         return found.stream()
                 .sorted((a, b) -> b.getUpdatedAt().compareTo(a.getUpdatedAt()))
                 .map(lead -> {
                     Company company = byId.get(lead.getCompanyId());
+                    PolicyScore score = scoreByCompany.get(lead.getCompanyId());
                     return new LeadView(
                             lead.getId(),
                             lead.getCompanyId(),
@@ -74,6 +82,8 @@ public class LeadService {
                             lead.getContactCount(),
                             lead.getNote(),
                             lead.getOutreachSubject(),
+                            score == null ? null : score.getProbability(),
+                            score == null ? null : score.getBand().name(),
                             lead.getCrmSyncedAt(),
                             lead.getUpdatedAt());
                 })

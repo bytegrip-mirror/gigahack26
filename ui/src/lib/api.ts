@@ -179,6 +179,8 @@ export type LeadView = {
 	contactCount: number;
 	note: string | null;
 	outreachSubject: string | null;
+	probability: number | null;
+	band: string | null;
 	crmSyncedAt: string | null;
 	updatedAt: string;
 };
