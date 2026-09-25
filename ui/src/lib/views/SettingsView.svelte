@@ -3,10 +3,12 @@
 		createServiceLine,
 		deleteServiceLine,
 		fetchMeta,
+		fetchRegionCountries,
 		fetchServiceLines,
 		fetchSettings,
 		saveSettings,
 		updateServiceLine,
+		type RegionCountry,
 		type ServiceLine,
 		type Settings
 	} from '$lib/api';
@@ -32,6 +34,7 @@
 	let settings = $state<Settings | null>(null);
 	let draft = $state<Settings | null>(null);
 	let lines = $state<ServiceLine[]>([]);
+	let regionCountries = $state<RegionCountry[]>([]);
 	let bands = $state<Record<string, number>>({});
 	let loading = $state(true);
 	let saving = $state(false);
@@ -54,8 +57,8 @@
 		if (!serviceLine) return;
 		let cancelled = false;
 		loading = true;
-		Promise.all([fetchSettings(), fetchServiceLines(true), fetchMeta(serviceLine)])
-			.then(([config, lineList, meta]) => {
+		Promise.all([fetchSettings(), fetchServiceLines(true), fetchMeta(serviceLine), fetchRegionCountries()])
+			.then(([config, lineList, meta, countryRows]) => {
 				if (cancelled) return;
 				settings = config;
 				draft = { ...config };
@@ -63,6 +66,7 @@
 				industries = config.icpIndustries.join(', ');
 				lines = lineList;
 				bands = meta.bands;
+				regionCountries = countryRows;
 			})
 			.catch((cause) => toasts.push((cause as Error).message, 'error'))
 			.finally(() => {
@@ -72,6 +76,25 @@
 			cancelled = true;
 		};
 	});
+
+	function regionsOf(all: RegionCountry[]): { key: string; name: string; codes: string[] }[] {
+		const grouped = new Map<string, { name: string; codes: string[] }>();
+		for (const entry of all) {
+			const group = grouped.get(entry.continentKey) ?? { name: entry.continentKey, codes: [] };
+			group.codes.push(entry.code);
+			grouped.set(entry.continentKey, group);
+		}
+		return [...grouped.entries()].map(([key, group]) => ({ key, name: label(key), codes: group.codes }));
+	}
+
+	function label(key: string): string {
+		return key.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+	}
+
+	function addRegion(codes: string[]) {
+		const merged = new Set([...parse(countries), ...codes]);
+		countries = [...merged].join(', ');
+	}
 
 	function parse(raw: string): string[] {
 		return raw
@@ -289,6 +312,17 @@
 							A company outside these markets leaves the queue with the reason shown, whatever its score.
 							Empty means every market.
 						</p>
+						<div class="field">
+							<span class="label">Add a whole region</span>
+							<div class="chips">
+								{#each regionsOf(regionCountries) as group (group.key)}
+									<button class="tag region-pick" onclick={() => addRegion(group.codes)}>
+										+ {group.name}
+									</button>
+								{/each}
+							</div>
+						</div>
+
 						<label class="field">
 							<span class="label">Countries</span>
 							<textarea class="textarea" rows="2" bind:value={countries}></textarea>
@@ -581,6 +615,17 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: 4px;
+	}
+
+	.region-pick {
+		cursor: pointer;
+		border-color: var(--orange-line);
+		background: var(--orange-wash);
+		color: var(--orange-ink);
+	}
+
+	.region-pick:hover {
+		background: var(--surface);
 	}
 
 	.facts {
