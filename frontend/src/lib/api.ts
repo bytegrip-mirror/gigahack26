@@ -44,14 +44,16 @@ async function describeFailure(response: Response): Promise<string> {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+	const headers: Record<string, string> = { accept: 'application/json' };
+	if (init?.body) {
+		headers['content-type'] = 'application/json';
+	}
+
 	let response: Response;
 	try {
-		response = await fetch(`${apiBase}${path}`, {
-			...init,
-			headers: { 'content-type': 'application/json', accept: 'application/json' }
-		});
+		response = await fetch(`${apiBase}${path}`, { ...init, headers });
 	} catch {
-		throw new ApiError(`Couldn't reach the API at ${apiBase}.`);
+		throw new ApiError("Couldn't reach the API.");
 	}
 
 	if (!response.ok) {

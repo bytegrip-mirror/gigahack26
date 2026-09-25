@@ -251,6 +251,7 @@
 	}
 
 	textarea {
+		max-width: 46rem;
 		padding: 0.5rem 0.75rem;
 		line-height: 1.5;
 		resize: vertical;
