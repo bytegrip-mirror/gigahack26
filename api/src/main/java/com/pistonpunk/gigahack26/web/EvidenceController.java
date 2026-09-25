@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Clock;
 import java.time.Duration;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -47,6 +48,25 @@ public class EvidenceController {
         this.companies = companies;
         this.captures = captures;
         this.clock = clock;
+    }
+
+    @GetMapping("/{id}/capture")
+    public ResponseEntity<Map<String, Object>> capture(@PathVariable UUID id) {
+        return evidence.findById(id).map(item -> {
+            String text = captures.text(item.getKey());
+            Map<String, Object> capture = new LinkedHashMap<>();
+            capture.put("evidenceId", item.getId());
+            capture.put("evidenceKey", item.getKey());
+            capture.put("sourceUrl", item.getSourceUrl());
+            capture.put("publisher", item.getPublisher());
+            capture.put("sourceKind", item.getSourceKind().name());
+            capture.put("contentHash", item.getContentHash());
+            capture.put("capturedAt", item.getObservedAt());
+            capture.put("publishedAt", item.getPublishedAt());
+            capture.put("charLength", item.getCharLength());
+            capture.put("text", text);
+            return ResponseEntity.ok(capture);
+        }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/{id}")

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { fetchEvidence, type EvidenceDetail, type LedgerRow } from '$lib/api';
+	import { apiBase, fetchEvidence, type EvidenceDetail, type LedgerRow } from '$lib/api';
 	import { date, timestamp, nats, odds, confidence, tier, sourceKind, host, plural } from '$lib/format';
 	import Modal from './Modal.svelte';
 
@@ -171,6 +171,9 @@
 
 {#if detail}
 	<div class="actions">
+		<a class="btn" href={`${apiBase}/api/evidence/${detail.id}/capture`} target="_blank" rel="noreferrer noopener">
+			Raw capture (JSON)
+		</a>
 		<a class="btn" href={detail.sourceUrl} target="_blank" rel="noreferrer noopener">Open source ↗</a>
 	</div>
 {/if}
