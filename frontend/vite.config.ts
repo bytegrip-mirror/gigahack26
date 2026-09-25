@@ -15,8 +15,6 @@ export default defineConfig({
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
 
-			// The app is a client-rendered SPA served by nginx: adapter-static
-			// emits the asset bundle plus an index.html fallback.
 			adapter: adapter({ fallback: 'index.html' })
 		})
 	]
