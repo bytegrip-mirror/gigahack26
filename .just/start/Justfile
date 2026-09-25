@@ -1,0 +1,18 @@
+set working-directory := "../.."
+
+[private]
+default:
+    just --list --justfile {{source_file()}}
+
+all *FLAGS:
+    docker compose up --build {{FLAGS}}
+
+stores:
+    docker compose up postgres mongo
+
+api *FLAGS:
+    cd api && ./gradlew bootRun {{FLAGS}}
+
+ui *FLAGS:
+    [ -d ui/node_modules ] || npm --prefix ui ci
+    npm --prefix ui run dev {{FLAGS}}

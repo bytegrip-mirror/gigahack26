@@ -1,5 +1,5 @@
 {
   perSystem = {pkgs, ...}: {
-    shellPackages = with pkgs; [alejandra rumdl docker-client docker-compose];
+    shellPackages = with pkgs; [just alejandra rumdl docker-client docker-compose];
   };
 }

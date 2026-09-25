@@ -1,0 +1,7 @@
+# Lint and type-check
+lint: ui-deps
+    google-java-format --aosp --dry-run --set-exit-if-changed $(fd -e java . api/src)
+    alejandra -q -c .
+    rumdl check .
+    cd api && ./gradlew -q compileJava
+    npm --prefix ui run check

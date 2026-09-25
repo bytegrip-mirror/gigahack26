@@ -12,3 +12,5 @@ dist/
 .DS_Store
 .direnv/
 .direnv/
+.jdk
+.gradle/

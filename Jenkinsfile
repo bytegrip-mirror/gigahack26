@@ -46,10 +46,10 @@ pipeline {
                 sh '''
                     docker run --rm \
                         -v "$(pwd)/api":/src \
-                        -v gigahack26-maven-cache:/root/.m2 \
+                        -v gigahack26-gradle-cache:/root/.gradle \
                         -w /src \
-                        maven:3.9-eclipse-temurin-21 \
-                        mvn -B -ntp test
+                        eclipse-temurin:25-jdk-alpine \
+                        ./gradlew --no-daemon test
                 '''
             }
         }
