@@ -95,7 +95,15 @@ public class ScoreboardService {
     }
 
     public List<PolicyQuestion> activeQuestions(String serviceLine) {
-        return questions.findByActiveTrueAndServiceLine(serviceLine);
+        return distinct(questions.findByActiveTrueAndServiceLine(serviceLine));
+    }
+
+    public static List<PolicyQuestion> distinct(List<PolicyQuestion> found) {
+        Map<UUID, PolicyQuestion> byId = new LinkedHashMap<>();
+        for (PolicyQuestion question : found) {
+            byId.putIfAbsent(question.getId(), question);
+        }
+        return List.copyOf(byId.values());
     }
 
     public List<String> serviceLines() {

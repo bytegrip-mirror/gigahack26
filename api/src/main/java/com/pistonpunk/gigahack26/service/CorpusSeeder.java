@@ -126,7 +126,7 @@ public class CorpusSeeder implements ApplicationRunner {
 
     private void refreshSignals() {
         long started = System.nanoTime();
-        List<PolicyQuestion> active = questions.findByActiveTrue();
+        List<PolicyQuestion> active = ScoreboardService.distinct(questions.findByActiveTrue());
         log.info("the shipped policy set changed; re-classifying {} documents against {} questions",
                 evidence.count(), active.size());
         signals.deleteAll();
@@ -204,8 +204,9 @@ public class CorpusSeeder implements ApplicationRunner {
     }
 
     private void persistSignals() {
-        List<PolicyQuestion> active = questions.findByActiveTrue();
+        List<PolicyQuestion> active = ScoreboardService.distinct(questions.findByActiveTrue());
         List<Evidence> all = evidence.findAll();
+        signals.deleteAll();
         Map<String, Overlay> overlay = readOverlay();
         Map<UUID, String> names = new ConcurrentHashMap<>();
         companies.findAll().forEach(company -> names.put(company.getId(), company.getName()));

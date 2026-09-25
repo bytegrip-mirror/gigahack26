@@ -69,8 +69,9 @@ public class RescoreService {
     }
 
     @Transactional
-    public Outcome reclassify(List<PolicyQuestion> target, boolean replace, String engineOverride) {
+    public Outcome reclassify(List<PolicyQuestion> candidates, boolean replace, String engineOverride) {
         long started = System.nanoTime();
+        List<PolicyQuestion> target = ScoreboardService.distinct(candidates);
         List<Evidence> all = evidence.findAll();
         Map<UUID, String> names = companies.findAll().stream()
                 .collect(Collectors.toMap(Company::getId, Company::getName, (a, b) -> a));
@@ -187,7 +188,8 @@ public class RescoreService {
     }
 
     private List<PolicyQuestion> serviceLineQuestions(String serviceLine, UUID questionId) {
-        List<PolicyQuestion> active = questions.findByActiveTrueAndServiceLine(serviceLine);
+        List<PolicyQuestion> active = ScoreboardService.distinct(
+                questions.findByActiveTrueAndServiceLine(serviceLine));
         if (questionId == null) {
             return active;
         }
