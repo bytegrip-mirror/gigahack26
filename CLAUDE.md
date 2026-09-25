@@ -40,6 +40,49 @@ npm run dev                        # :5173
 Deploy: push to `main`. The GitHub webhook triggers `Gigahack26/gigahack26` on
 `jen.pistonpunk.com`, which runs the root `Jenkinsfile` (~30s warm).
 
+## Running locally with Nix
+
+Compose still needs a Docker daemon, which on NixOS comes from the host
+configuration rather than from the flake. What a flake is for here is the
+toolchain, so a Nix user can also run the two halves natively instead of in
+containers. Put this `flake.nix` at the repo root and run `nix develop`:
+
+```nix
+{
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+
+  outputs = { self, nixpkgs }:
+    let
+      systems = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
+      forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
+    in {
+      devShells = forAllSystems (pkgs: {
+        default = pkgs.mkShell {
+          packages = with pkgs; [ jdk21 maven nodejs_22 docker-client docker-compose ];
+        };
+      });
+    };
+}
+```
+
+Those names track what the Dockerfiles pin. On an older nixpkgs, fall back to
+`jdk` and `nodejs_20` if the versioned attributes are missing — the requirement is
+the version, not the spelling.
+
+With the shell active, take the databases from compose and run the app from
+source in a second terminal:
+
+```sh
+docker compose up postgres mongo     # stores only, schema created on boot
+cd backend  && ./mvnw spring-boot:run
+cd frontend && npm install && npm run dev
+```
+
+No environment is needed for this: the API already defaults to `localhost:5432`
+and `localhost:27017`, and the frontend defaults to `http://localhost:8080`. The
+frontend runs on `:5173` here, which `docker-compose.yml` already lists in
+`CORS_ALLOWED_ORIGINS`.
+
 ## Architecture
 
 **Two stores, one write path.** `SubmissionService.create` saves a `Submission`
@@ -81,11 +124,11 @@ know about it:
 
 | Change | Update |
 | --- | --- |
-| New environment variable | `application.yml` placeholder, `Jenkinsfile` `docker run -e`, `docker-compose.yml`, `.env.example`, README table |
-| New backing service | `docker-compose.yml` (with a healthcheck), `Jenkinsfile` deploy stage that waits for readiness, the `web` network, README |
+| New environment variable | `application.yml` placeholder, `Jenkinsfile` `docker run -e`, `docker-compose.yml`, `.env.example` |
+| New backing service | `docker-compose.yml` (with a healthcheck), `Jenkinsfile` deploy stage that waits for readiness, the `web` network |
 | New API route or origin | `CorsConfig` mapping if outside `/api/**`, `CorsConfigTest`, the frontend client in `src/lib/api.ts` |
 | New build-time value for the SPA | `vite.config.ts` define, `frontend/Dockerfile` build arg, `Jenkinsfile` `--build-arg` |
-| New port or domain | Traefik labels in the `Jenkinsfile`, `docker-compose.yml`, README |
+| New port or domain | Traefik labels in the `Jenkinsfile`, `docker-compose.yml` |
 | New backend dependency | `pom.xml`, and check the Dockerfile's build stage still resolves it |
 
 Verify with the gates CI runs, not just the one you touched: `./mvnw test` and
@@ -94,26 +137,6 @@ for the deployed path and a real request against the live host. The pipeline no
 longer has a post-deploy check, so **a green build does not mean the app works** —
 `hackapi.pistonpunk.com/api/status` must report both stores `up`, and a POST must
 land.
-
-## Gotchas that have already cost time
-
-- **Spring Boot 4 moved the Mongo keys.** `spring.data.mongodb.*` is deprecated at
-  *error* level and no longer bound; connection settings live under
-  `spring.mongodb.*` (`uri`, `representation.uuid`, host/port/credentials).
-  `spring.data.mongodb.auto-index-creation` kept the old prefix. A stale key is
-  ignored silently — the driver falls back to `localhost:27017` and the app
-  crash-loops behind a 502. Check new keys against
-  `META-INF/spring-configuration-metadata.json` in the Boot jar before assuming a
-  property name is live.
-- **`spring.mongodb.representation.uuid: standard` is required.** Driver 5.8
-  refuses to encode a `UUID` field without it, so writes fail with
-  `CodecConfigurationException` while reads keep working.
-- **MongoDB is pinned to 7.0.** 8.0–8.3.8 exit during startup on Linux kernel
-  6.19–7.0.13 (TCMalloc vs the `rseq` ABI, SERVER-121912), and this host is in
-  that range. Do not bump the tag without checking the kernel.
-- The board is a client-rendered SPA: nginx falls back to `index.html` for unknown
-  paths, so new routes need no server config, but anything that must be
-  server-rendered needs `ssr` re-enabled in `src/routes/+layout.ts`.
 
 ## Conventions
 
