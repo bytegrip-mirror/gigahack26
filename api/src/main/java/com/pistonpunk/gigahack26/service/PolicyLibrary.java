@@ -115,9 +115,8 @@ public class PolicyLibrary {
                                 "business process analyst", "blue prism", "uipath", "power automate",
                                 "automation specialist", "automation consultant", "workflow automation",
                                 "process improvement", "lean six sigma", "operations excellence",
-                                "digital transformation", "business process", "process lead", "transformation office",
-                                "change management", "continuous improvement", "operational excellence manager",
-                                "automation lead", "head of automation", "shared services"),
+                                "process lead", "transformation office", "operational excellence manager",
+                                "automation lead", "head of automation"),
                         List.of("internship", "intern,", "unpaid", "student worker")),
                 new Definition(
                         "automation.insourcing", AUTOMATION,
@@ -228,8 +227,7 @@ public class PolicyLibrary {
                                 "data warehouse", "predictive analytics", "ai use case", "ai adoption",
                                 "data-driven", "analytics platform", "copilot rollout", "ai pilot",
                                 "ai agents", "ai agent", "agentic", "large language model", "genai", "gen ai",
-                                "ai transformation", "ai roadmap", "ai investment", "ai platform", "data strategy",
-                                "digital strategy", "ai capabilities", "ai solutions", "ai tools"),
+                                "ai transformation", "ai roadmap", "ai investment", "ai platform", "data strategy"),
                         List.of("what is artificial intelligence", "explainer")),
                 new Definition(
                         "data.hiring", DATA,
