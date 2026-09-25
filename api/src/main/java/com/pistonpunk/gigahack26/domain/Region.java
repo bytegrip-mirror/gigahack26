@@ -58,7 +58,7 @@ public class Region {
         this.name = name;
         this.level = level;
         this.parentKey = parentKey;
-        this.countries = countries;
+        this.countries = countries == null ? "" : countries;
         this.sortOrder = sortOrder;
         this.active = true;
         this.createdAt = createdAt;
@@ -110,7 +110,7 @@ public class Region {
 
     public void revise(String name, String countries, int sortOrder, boolean active) {
         this.name = name;
-        this.countries = countries;
+        this.countries = countries == null ? "" : countries;
         this.sortOrder = sortOrder;
         this.active = active;
     }
