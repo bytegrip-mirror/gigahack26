@@ -51,9 +51,10 @@ public class SettingsController {
 
     private SettingsView view(WorkspaceSettings row) {
         List<Company> all = companies.findAll();
+        List<String> countries = split(row.getIcpCountries());
         Map<String, Long> inScope = new LinkedHashMap<>();
         inScope.put("total", (long) all.size());
-        inScope.put("inGeography", all.stream().filter(this::inGeography).count());
+        inScope.put("inGeography", all.stream().filter(company -> inGeography(company, countries)).count());
         inScope.put("aboveSizeFloor", all.stream()
                 .filter(company -> company.getEmployees() == null
                         || company.getEmployees() >= row.getIcpMinEmployees()).count());
@@ -77,8 +78,7 @@ public class SettingsController {
                 all.size());
     }
 
-    private boolean inGeography(Company company) {
-        List<String> countries = split(settings.current().getIcpCountries());
+    private static boolean inGeography(Company company, List<String> countries) {
         return countries.isEmpty() || company.getCountry() == null
                 || countries.contains(company.getCountry().toUpperCase(Locale.ROOT));
     }
