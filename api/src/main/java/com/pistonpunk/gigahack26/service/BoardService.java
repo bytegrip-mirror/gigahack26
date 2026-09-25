@@ -278,7 +278,7 @@ public class BoardService {
 
         List<BoardRow.Chip> chips = ranked.stream().limit(3).map(BoardService::toChip).toList();
         BoardRow.Chip strongest = chips.isEmpty() ? null : chips.get(0);
-        com.pistonpunk.gigahack26.web.dto.WhyNow why = whyNow.explain(detail, settings.effective());
+        WhyNowService.Brief why = whyNow.brief(detail, settings.effective());
 
         Instant newest = detail.rows().stream()
                 .map(LedgerRow::anchor)

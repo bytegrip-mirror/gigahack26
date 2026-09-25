@@ -11,11 +11,31 @@ public class WhyNowService {
     private static final int TRIGGERS = 3;
     private static final int COUNTERS = 3;
 
-    public WhyNow explain(ScoreComputation detail, ScoringProperties properties) {
-        List<LedgerRow> positives = detail.rows().stream()
+    public record Brief(String headline, String urgency) {
+    }
+
+    public Brief brief(ScoreComputation detail, ScoringProperties properties) {
+        List<LedgerRow> positives = positives(detail);
+        if (positives.isEmpty()) {
+            return new Brief(
+                    detail.band() == com.pistonpunk.gigahack26.domain.Band.DISQUALIFIED
+                            ? "Out of the queue — " + detail.gateReason()
+                            : "No dated reason to make contact",
+                    "NONE");
+        }
+        LedgerRow trigger = positives.get(0);
+        return new Brief(headline(trigger), urgency(detail, trigger, properties));
+    }
+
+    private static List<LedgerRow> positives(ScoreComputation detail) {
+        return detail.rows().stream()
                 .filter(row -> !row.blocking() && row.contributionNats() > 0)
                 .sorted((a, b) -> Double.compare(b.contributionNats(), a.contributionNats()))
                 .toList();
+    }
+
+    public WhyNow explain(ScoreComputation detail, ScoringProperties properties) {
+        List<LedgerRow> positives = positives(detail);
 
         List<LedgerRow> counters = detail.counterEvidence().stream()
                 .sorted((a, b) -> Double.compare(a.contributionNats(), b.contributionNats()))
