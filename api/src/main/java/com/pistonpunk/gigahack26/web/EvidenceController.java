@@ -3,6 +3,8 @@ package com.pistonpunk.gigahack26.web;
 import com.pistonpunk.gigahack26.domain.Company;
 import com.pistonpunk.gigahack26.domain.Evidence;
 import com.pistonpunk.gigahack26.domain.PolicyQuestion;
+import com.pistonpunk.gigahack26.domain.Verdict;
+import com.pistonpunk.gigahack26.domain.Polarity;
 import com.pistonpunk.gigahack26.domain.Signal;
 import com.pistonpunk.gigahack26.repository.jpa.CompanyRepository;
 import com.pistonpunk.gigahack26.repository.jpa.EvidenceRepository;
@@ -82,6 +84,10 @@ public class EvidenceController {
                     PolicyQuestion question = byId.get(signal.getQuestionId());
                     double ageDays = Math.max(0, Duration.between(item.decayAnchor(), clock.instant())
                             .toHours() / 24.0);
+                    double halfLife = question.getDecayClass().halfLifeDays();
+                    double decay = Math.pow(2.0, -ageDays / halfLife);
+                    double shrink = 2.0 * signal.getConfidence() - 1.0;
+                    double raw = question.signedMagnitude() * item.getSourceAuthority() * decay * shrink;
                     return new LedgerRow(
                             item.getId(), question.getId(), question.getKey(), question.getText(),
                             question.getTheme(), question.getWeightTier(), question.getPolarity(),
@@ -89,8 +95,10 @@ public class EvidenceController {
                             slice(text, signal.getSpanStart(), signal.getSpanEnd()), signal.getRationale(),
                             signal.getEngine(), signal.isSpanVerified(), item.getSourceUrl(), item.getPublisher(),
                             item.getSourceKind(), item.getTitle(), item.decayAnchor(), item.decayAnchorKind(),
-                            round(ageDays), question.getDecayClass().halfLifeDays(), question.signedMagnitude(),
-                            item.getSourceAuthority(), 0, 0, 0, 0, 1.0, 0, false, false);
+                            round(ageDays), halfLife, question.signedMagnitude(), item.getSourceAuthority(),
+                            round(decay), round(shrink), round(raw), 0, 1.0, round(raw), false,
+                            signal.getVerdict() == Verdict.BUILD
+                                    || question.getPolarity() == Polarity.DISQUALIFYING);
                 })
                 .sorted((a, b) -> Double.compare(b.confidence(), a.confidence()))
                 .toList();

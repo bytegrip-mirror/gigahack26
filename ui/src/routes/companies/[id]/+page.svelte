@@ -220,7 +220,7 @@
 					<p class="small muted">Nothing in the corpus argues against this company.</p>
 				{:else}
 					<ul class="counter">
-						{#each detail.counterEvidence as row (row.evidenceId + row.questionId)}
+						{#each detail.counterEvidence as row (row.evidenceId + row.questionId + row.spanStart)}
 							<li>
 								<div class="row" style="justify-content: space-between">
 									<span class="small">{row.questionKey}</span>
