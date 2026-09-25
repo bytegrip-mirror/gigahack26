@@ -1,17 +1,26 @@
 <script lang="ts">
 	import '../app.css';
+	import '@fontsource-variable/newsreader/opsz.css';
+	import '@fontsource-variable/archivo';
+	import '@fontsource/ibm-plex-mono/400.css';
+	import '@fontsource/ibm-plex-mono/500.css';
+
 	import { untrack } from 'svelte';
 	import { page } from '$app/state';
 	import { fetchMeta, fetchStatus, type Meta, type Status } from '$lib/api';
 	import { session } from '$lib/session.svelte';
 	import { toasts } from '$lib/toast.svelte';
-	import { plural, shortNumber } from '$lib/format';
+	import { shortNumber } from '$lib/format';
 
 	let { children } = $props();
 
 	let meta = $state<Meta | null>(null);
 	let status = $state<Status | null>(null);
 	let loading = $state(true);
+	let counts = $state<Record<string, number>>({});
+
+	const healthy = $derived(status !== null && status.postgres === 'up' && status.mongo === 'up');
+	const lines = $derived(meta?.serviceLines ?? []);
 
 	$effect(() => {
 		let cancelled = false;
@@ -22,12 +31,10 @@
 				meta = metaResult;
 				status = statusResult;
 				loading = false;
-				if (!stored) {
-					session.set(metaResult.defaultServiceLine);
-				}
+				if (!stored) session.set(metaResult.defaultServiceLine);
 				if (metaResult.degraded) {
 					toasts.push(
-						'The language model is not reachable, so the board is running on the local rubric engine. Re-scores stay instant and offline.',
+						'The language model is unreachable, so re-scores run on the local rubric engine. They stay instant and offline.',
 						'warn'
 					);
 				}
@@ -40,281 +47,371 @@
 		};
 	});
 
-	const healthy = $derived(status !== null && status.postgres === 'up' && status.mongo === 'up');
+	$effect(() => {
+		const available = lines;
+		if (available.length === 0) return;
+		let cancelled = false;
+		Promise.all(available.map((line) => fetchMeta(line).then((m) => [line, m.bands.PRIORITY ?? 0] as const)))
+			.then((pairs) => {
+				if (cancelled) return;
+				counts = Object.fromEntries(pairs);
+			})
+			.catch(() => {});
+		return () => {
+			cancelled = true;
+		};
+	});
 
-	function switchServiceLine(value: string) {
-		session.set(value);
+	function chooseLine(line: string) {
+		if (line === session.serviceLine) return;
+		session.set(line);
 		meta = null;
-		fetchMeta(value).then((result) => (meta = result));
+		fetchMeta(line).then((result) => (meta = result));
 	}
 </script>
 
-<div class="shell">
-	<header>
-		<div class="bar">
-			<a class="brand" href="/">
-				<span class="mark" aria-hidden="true"></span>
-				<span class="brand-text">
-					<strong>Signal Desk</strong>
-					<span class="tiny muted">Orange Systems · B2B buying signals</span>
-				</span>
+<div class="app">
+	<aside class="rail">
+		<a class="brand" href="/">
+			<span class="mark" aria-hidden="true"></span>
+			<span class="wordmark">
+				<strong class="dsp">Signal Desk</strong>
+				<span class="label">Orange Systems</span>
+			</span>
+		</a>
+
+		<nav aria-label="Views">
+			<a href="/" aria-current={page.url.pathname === '/' ? 'page' : undefined}>Board</a>
+			<a href="/studio" aria-current={page.url.pathname.startsWith('/studio') ? 'page' : undefined}>
+				Signal Studio
 			</a>
+		</nav>
 
-			<nav>
-				<a href="/" class:active={page.url.pathname === '/'}>Board</a>
-				<a href="/studio" class:active={page.url.pathname.startsWith('/studio')}>Signal Studio</a>
-			</nav>
-
-			<div class="right">
-				{#if meta && meta.serviceLines.length > 0}
-					<label class="line-picker">
-						<span class="sr-only">Service line</span>
-						<select
-							class="select"
-							value={session.serviceLine}
-							onchange={(event) => switchServiceLine(event.currentTarget.value)}
+		<div class="block">
+			<p class="label">Service lines</p>
+			<ul>
+				{#each lines as line (line)}
+					<li>
+						<button
+							class="line"
+							aria-current={line === session.serviceLine ? 'true' : undefined}
+							onclick={() => chooseLine(line)}
 						>
-							{#each meta.serviceLines as line (line)}
-								<option value={line}>{line}</option>
-							{/each}
-						</select>
-					</label>
-				{/if}
-
-				{#if status}
-					<div class="status" title="PostgreSQL, MongoDB and the classifier engine">
-						<span class="dot" class:ok={healthy} class:bad={!healthy}></span>
-						<span class="tiny mono">
-							{status.postgres}/{status.mongo}
-						</span>
-						<span class="sep"></span>
-						<span class="tiny mono muted" title="Corpus size">
-							{shortNumber(status.companies)} co · {shortNumber(status.evidence)} docs
-						</span>
-					</div>
-				{:else if loading}
-					<div class="status"><span class="spinner"></span></div>
-				{/if}
-			</div>
+							<span class="line-name">{line}</span>
+							{#if counts[line] !== undefined}
+								<span class="num line-count">{counts[line]}</span>
+							{/if}
+						</button>
+					</li>
+				{/each}
+			</ul>
 		</div>
-	</header>
+
+		{#if status}
+			<div class="block">
+				<p class="label">Corpus</p>
+				<dl class="facts">
+					<dt>Companies</dt><dd class="num">{shortNumber(status.companies)}</dd>
+					<dt>Documents</dt><dd class="num">{shortNumber(status.evidence)}</dd>
+					<dt>Signals</dt><dd class="num">{shortNumber(status.signals)}</dd>
+				</dl>
+			</div>
+		{/if}
+
+		<div class="rail-foot">
+			{#if status}
+				<p class="stores">
+					<span class="dot" class:ok={healthy} class:bad={!healthy}></span>
+					postgres {status.postgres} · mongo {status.mongo}
+				</p>
+				<p class="label engine">{status.engine}</p>
+			{:else if loading}
+				<p class="stores"><span class="spinner"></span> connecting</p>
+			{/if}
+		</div>
+	</aside>
 
 	<main>
 		{@render children()}
 	</main>
-
-	<footer>
-		<span class="tiny muted">
-			Every claim on this board resolves to a byte range in a stored capture.
-			{#if status && status.signals > 0}
-				{plural(status.signals, 'signal')} derived from {plural(status.evidence, 'document')}.
-			{/if}
-		</span>
-		{#if meta}
-			<span class="tiny mono muted">engine {meta.engine}</span>
-		{/if}
-	</footer>
 </div>
 
 <div class="toasts" aria-live="polite">
 	{#each toasts.items as toast (toast.id)}
-		<div class="toast toast-{toast.tone}">
+		<div class="toast" data-tone={toast.tone}>
 			<span>{toast.message}</span>
-			<button class="btn btn-ghost tiny" onclick={() => toasts.dismiss(toast.id)}>Dismiss</button>
+			<button class="btn btn-quiet btn-sm" onclick={() => toasts.dismiss(toast.id)}>Dismiss</button>
 		</div>
 	{/each}
 </div>
 
 <style>
-	.shell {
-		min-height: 100%;
+	.app {
+		display: grid;
+		grid-template-columns: var(--rail) minmax(0, 1fr);
+		height: 100vh;
+	}
+
+	.rail {
+		border-right: 1px solid var(--rule);
+		background: var(--paper);
 		display: flex;
 		flex-direction: column;
+		overflow-y: auto;
+		scrollbar-width: none;
 	}
 
-	header {
-		position: sticky;
-		top: 0;
-		z-index: 30;
-		background: var(--surface);
-		border-bottom: 1px solid var(--line);
-	}
-
-	.bar {
-		max-width: 1560px;
-		margin: 0 auto;
-		padding: 0 24px;
-		height: var(--header-height);
-		display: flex;
-		align-items: center;
-		gap: 28px;
+	.rail::-webkit-scrollbar {
+		display: none;
 	}
 
 	.brand {
 		display: flex;
 		align-items: center;
-		gap: 10px;
-		text-decoration: none;
+		gap: 9px;
+		padding: 14px 14px 15px;
 		color: var(--ink);
+		border-bottom: 1px solid var(--rule);
+	}
+
+	.brand:hover {
+		text-decoration: none;
 	}
 
 	.mark {
-		width: 26px;
-		height: 26px;
-		border-radius: 7px;
+		width: 18px;
+		height: 18px;
 		background: var(--orange);
-		box-shadow: inset 0 -9px 0 rgb(0 0 0 / 0.14);
 		flex: none;
 	}
 
-	.brand-text {
+	.wordmark {
 		display: flex;
 		flex-direction: column;
-		line-height: 1.15;
+		gap: 1px;
+		min-width: 0;
 	}
 
-	.brand-text strong {
-		font-size: 15px;
-		letter-spacing: -0.01em;
+	.wordmark strong {
+		font-size: 17px;
+		line-height: 1.1;
+	}
+
+	.wordmark .label {
+		font-size: 9.5px;
 	}
 
 	nav {
 		display: flex;
-		gap: 2px;
-		margin-right: auto;
+		flex-direction: column;
+		padding: 6px 0;
+		border-bottom: 1px solid var(--rule);
 	}
 
 	nav a {
-		text-decoration: none;
+		padding: 7px 14px 7px 13px;
+		font-size: 13.5px;
 		color: var(--ink-2);
-		font-size: 14px;
-		font-weight: 550;
-		padding: 6px 12px;
-		border-radius: var(--radius-sm);
+		border-left: 2px solid transparent;
+		transition: background var(--ease), color var(--ease);
 	}
 
 	nav a:hover {
-		background: var(--surface-sunken);
+		background: var(--sunken);
+		text-decoration: none;
 		color: var(--ink);
 	}
 
-	nav a.active {
-		background: var(--orange-050);
-		color: var(--orange-ink);
+	nav a[aria-current='page'] {
+		border-left-color: var(--orange);
+		color: var(--ink);
+		font-weight: 500;
 	}
 
-	.right {
+	.block {
+		padding: 13px 14px;
+		border-bottom: 1px solid var(--rule);
+	}
+
+	.block .label {
+		margin-bottom: 8px;
+	}
+
+	.block ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.line {
 		display: flex;
-		align-items: center;
-		gap: 14px;
-	}
-
-	.line-picker select {
-		width: auto;
-		min-width: 168px;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 8px;
+		width: 100%;
+		padding: 5px 0 5px 9px;
+		border-left: 2px solid transparent;
 		font-size: 13px;
-		padding: 6px 8px;
+		color: var(--ink-2);
+		text-align: left;
+		transition: color var(--ease), border-color var(--ease);
 	}
 
-	.status {
+	.line:hover {
+		color: var(--ink);
+	}
+
+	.line[aria-current='true'] {
+		border-left-color: var(--orange);
+		color: var(--ink);
+		font-weight: 500;
+	}
+
+	.line-count {
+		font-size: 11.5px;
+		color: var(--ink-3);
+	}
+
+	.facts {
+		display: grid;
+		grid-template-columns: 1fr auto;
+		gap: 3px 10px;
+		margin: 0;
+		font-size: 12.5px;
+	}
+
+	.facts dt {
+		color: var(--ink-3);
+	}
+
+	.facts dd {
+		margin: 0;
+		text-align: right;
+	}
+
+	.rail-foot {
+		margin-top: auto;
+		padding: 12px 14px 14px;
+		display: flex;
+		flex-direction: column;
+		gap: 5px;
+	}
+
+	.stores {
 		display: flex;
 		align-items: center;
-		gap: 7px;
-		padding: 4px 10px;
-		border: 1px solid var(--line);
-		border-radius: 999px;
-		background: var(--surface-sunken);
+		gap: 6px;
+		font-size: 11.5px;
+		color: var(--ink-3);
 	}
 
 	.dot {
-		width: 7px;
-		height: 7px;
+		width: 6px;
+		height: 6px;
 		border-radius: 50%;
+		flex: none;
 	}
 
 	.dot.ok {
-		background: var(--success);
+		background: var(--accent);
 	}
 
 	.dot.bad {
-		background: var(--danger);
+		background: var(--oxblood);
 	}
 
-	.sep {
-		width: 1px;
-		height: 11px;
-		background: var(--line-strong);
+	.engine {
+		font-size: 9.5px;
+		color: var(--ink-4);
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	main {
-		flex: 1;
-		max-width: 1560px;
-		width: 100%;
-		margin: 0 auto;
-		padding: 22px 24px 40px;
-	}
-
-	footer {
-		border-top: 1px solid var(--line);
-		padding: 14px 24px;
+		min-width: 0;
+		overflow: hidden;
 		display: flex;
-		justify-content: space-between;
-		gap: 16px;
-		max-width: 1560px;
-		margin: 0 auto;
-		width: 100%;
+		flex-direction: column;
 	}
 
 	.toasts {
 		position: fixed;
-		right: 20px;
-		bottom: 20px;
+		right: 16px;
+		bottom: 16px;
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
-		z-index: 100;
-		max-width: 420px;
+		gap: 6px;
+		z-index: 200;
+		max-width: 400px;
 	}
 
 	.toast {
 		display: flex;
 		align-items: flex-start;
 		gap: 10px;
-		background: var(--surface);
-		border: 1px solid var(--line-strong);
-		border-left: 3px solid var(--orange);
-		border-radius: var(--radius);
-		box-shadow: var(--shadow-md);
-		padding: 11px 12px;
-		font-size: 13px;
+		background: var(--ink);
+		color: var(--paper);
+		border-radius: 2px;
+		padding: 9px 10px;
+		font-size: 12.5px;
+		line-height: 1.4;
 	}
 
-	.toast-warn {
-		border-left-color: var(--warn);
+	.toast[data-tone='warn'] {
+		background: #4a3208;
 	}
 
-	.toast-error {
-		border-left-color: var(--danger);
+	.toast[data-tone='error'] {
+		background: var(--oxblood);
 	}
 
-	.toast-success {
-		border-left-color: var(--success);
+	.toast :global(.btn) {
+		color: var(--paper);
+		opacity: 0.75;
 	}
 
-	@media (max-width: 900px) {
-		.bar {
-			gap: 14px;
-			padding: 0 14px;
+	@media (max-width: 860px) {
+		.app {
+			grid-template-columns: 1fr;
+			grid-template-rows: auto minmax(0, 1fr);
 		}
-		.brand-text .tiny {
+		.rail {
+			flex-direction: row;
+			align-items: center;
+			gap: 10px;
+			overflow-x: auto;
+			border-right: 0;
+			border-bottom: 1px solid var(--rule);
+		}
+		.brand {
+			border-bottom: 0;
+			padding: 10px 12px;
+		}
+		.wordmark .label {
 			display: none;
 		}
-		.status .sep,
-		.status .muted {
-			display: none;
+		nav {
+			flex-direction: row;
+			border-bottom: 0;
+			padding: 0;
 		}
-		main {
-			padding: 16px 14px 32px;
+		nav a {
+			border-left: 0;
+			border-bottom: 2px solid transparent;
+			padding: 10px 10px 8px;
+		}
+		nav a[aria-current='page'] {
+			border-left-color: transparent;
+			border-bottom-color: var(--orange);
+		}
+		.block {
+			border-bottom: 0;
+			padding: 0;
+		}
+		.block .label,
+		.block ul,
+		.rail-foot {
+			display: none;
 		}
 	}
 </style>

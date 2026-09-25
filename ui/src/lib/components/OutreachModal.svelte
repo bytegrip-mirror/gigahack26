@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { fetchOutreach, type Outreach } from '$lib/api';
 	import { host } from '$lib/format';
-	import Modal from './Modal.svelte';
 
 	let {
 		companyId,
@@ -33,13 +32,25 @@
 			});
 	});
 
-	const fullText = $derived(
-		draft ? `Subject: ${draft.subject}\n\n${draft.body}\n\n${draft.citations.map((c) => `${c.marker} ${c.quote} — ${c.sourceUrl}`).join('\n')}` : ''
+	$effect(() => {
+		const onKey = (event: KeyboardEvent) => {
+			if (event.key === 'Escape') onclose();
+		};
+		window.addEventListener('keydown', onKey);
+		return () => window.removeEventListener('keydown', onKey);
+	});
+
+	const asText = $derived(
+		draft
+			? `Subject: ${draft.subject}\n\n${draft.body}\n\n${draft.citations
+					.map((c) => `${c.marker} ${c.quote} — ${c.sourceUrl}`)
+					.join('\n')}`
+			: ''
 	);
 
 	async function copy() {
 		try {
-			await navigator.clipboard.writeText(fullText);
+			await navigator.clipboard.writeText(asText);
 			copied = true;
 			setTimeout(() => (copied = false), 2000);
 		} catch {
@@ -48,125 +59,220 @@
 	}
 </script>
 
-<Modal
-	title="Outreach draft"
-	subtitle="{companyName} · every claim carries a citation to the capture it came from"
-	wide
-	{onclose}
+<div
+	class="scrim"
+	role="presentation"
+	onclick={(event) => {
+		if (event.target === event.currentTarget) onclose();
+	}}
 >
-	<div class="channel">
-		<button class="btn" class:active={channel === 'email'} onclick={() => (channel = 'email')}>Email</button>
-		<button class="btn" class:active={channel === 'inmail'} onclick={() => (channel = 'inmail')}>LinkedIn InMail</button>
-		{#if draft}
-			<span class="tiny muted" style="margin-left: auto">
-				aimed at the {draft.persona}
-			</span>
-		{/if}
-	</div>
-
-	{#if error}
-		<p class="card" style="padding:14px; color: var(--danger); border-color: var(--danger-line)">{error}</p>
-	{:else if loading && !draft}
-		<div class="row gap-8"><span class="spinner"></span><span class="muted">Composing from the ledger…</span></div>
-	{:else if draft}
-		<div class="grid">
-			<div class="stack gap-12">
-				<label class="stack gap-4">
-					<span class="tiny muted">Subject</span>
-					<input class="input" readonly value={draft.subject} />
-				</label>
-				<label class="stack gap-4">
-					<span class="tiny muted">Message</span>
-					<textarea class="textarea" rows="16" readonly value={draft.body}></textarea>
-				</label>
-				<p class="tiny muted">
-					Composed from the scorecard's own ledger — the sentences are filled from computed values and verbatim
-					passages, so nothing here can say something the evidence does not.
-				</p>
+	<div class="sheet" role="dialog" aria-modal="true" aria-label="Outreach draft">
+		<header>
+			<div>
+				<p class="label">Outreach draft · {companyName}</p>
+				{#if draft}<p class="sub dim">Aimed at {draft.persona}</p>{/if}
 			</div>
+			<div class="head-tools">
+				<div class="seg" role="tablist" aria-label="Channel">
+					<button role="tab" aria-selected={channel === 'email'} onclick={() => (channel = 'email')}>
+						Email
+					</button>
+					<button role="tab" aria-selected={channel === 'inmail'} onclick={() => (channel = 'inmail')}>
+						InMail
+					</button>
+				</div>
+				<button class="btn btn-quiet btn-sm" onclick={onclose} aria-label="Close">✕</button>
+			</div>
+		</header>
 
-			<aside class="stack gap-12">
-				<h3>Citations</h3>
-				{#each draft.citations as citation (citation.marker)}
-					<div class="citation">
-						<div class="row gap-6">
-							<span class="chip chip-orange mono">{citation.marker}</span>
-							<span class="tiny muted">{host(citation.sourceUrl)}</span>
-						</div>
-						<p class="quote">“{citation.quote}”</p>
-						<p class="tiny muted">{citation.question}</p>
-						<a class="tiny" href={citation.sourceUrl} target="_blank" rel="noreferrer noopener">Open source ↗</a>
+		<div class="body">
+			{#if error}
+				<p class="note warn">{error}</p>
+			{:else if loading && !draft}
+				<p class="note"><span class="spinner"></span> Composing</p>
+			{:else if draft}
+				<div class="cols">
+					<div class="draft">
+						<p class="label">Subject</p>
+						<p class="subject dsp">{draft.subject}</p>
+						<p class="label mt">Message</p>
+						<pre>{draft.body}</pre>
+						<p class="sub dim mt">
+							Sentences are filled from computed values and verbatim passages. Nothing here can claim
+							something the ledger does not.
+						</p>
 					</div>
-				{/each}
-				{#if draft.citations.length === 0}
-					<p class="small muted">
-						No positive evidence cleared the floor, so the draft makes no claim. Send it as a research
-						question or leave this company out of the queue.
-					</p>
-				{/if}
-			</aside>
-		</div>
-	{/if}
 
-	{#snippet footer()}
-		<button class="btn" onclick={onclose}>Close</button>
-		<button class="btn btn-primary" onclick={copy} disabled={!draft}>
-			{copied ? 'Copied' : 'Copy the draft'}
-		</button>
-	{/snippet}
-</Modal>
+					<aside class="cites">
+						<p class="label">Citations</p>
+						{#each draft.citations as citation (citation.marker)}
+							<div class="cite">
+								<div class="cite-head">
+									<span class="mono marker">{citation.marker}</span>
+									<span class="sub dim">{host(citation.sourceUrl)}</span>
+								</div>
+								<p class="quote">“{citation.quote}”</p>
+								<p class="sub dim">{citation.question}</p>
+								<a class="sub" href={citation.sourceUrl} target="_blank" rel="noreferrer noopener">Open source</a>
+							</div>
+						{/each}
+						{#if draft.citations.length === 0}
+							<p class="sub dim">
+								No positive evidence cleared the floor, so the draft makes no claim. Send it as a research
+								question instead.
+							</p>
+						{/if}
+					</aside>
+				</div>
+			{/if}
+		</div>
+
+		<footer>
+			<button class="btn" onclick={onclose}>Close</button>
+			<button class="btn btn-ink" onclick={copy} disabled={!draft}>{copied ? 'Copied' : 'Copy draft'}</button>
+		</footer>
+	</div>
+</div>
 
 <style>
-	.channel {
+	.scrim {
+		position: fixed;
+		inset: 0;
+		background: rgb(18 16 13 / 0.34);
 		display: flex;
-		gap: 6px;
 		align-items: center;
-		margin-bottom: 16px;
+		justify-content: center;
+		padding: 4vh 20px;
+		z-index: 150;
 	}
 
-	.channel .btn.active {
-		background: var(--orange-050);
-		border-color: var(--orange);
-		color: var(--orange-ink);
+	.sheet {
+		width: min(1040px, 100%);
+		max-height: 92vh;
+		background: var(--surface);
+		border: 1px solid var(--ink);
+		display: flex;
+		flex-direction: column;
+		min-height: 0;
 	}
 
-	.grid {
+	header {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 14px;
+		padding: 11px 14px;
+		border-bottom: 1px solid var(--ink);
+	}
+
+	.head-tools {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.body {
+		flex: 1;
+		min-height: 0;
+		overflow-y: auto;
+		padding: 16px 14px;
+	}
+
+	footer {
+		display: flex;
+		justify-content: flex-end;
+		gap: 6px;
+		padding: 10px 14px;
+		border-top: 1px solid var(--rule);
+		background: var(--paper);
+	}
+
+	.note {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		font-size: 13px;
+		color: var(--ink-3);
+	}
+
+	.note.warn {
+		color: var(--oxblood);
+	}
+
+	.cols {
 		display: grid;
-		grid-template-columns: minmax(0, 1.5fr) minmax(240px, 1fr);
+		grid-template-columns: minmax(0, 1.55fr) minmax(240px, 1fr);
 		gap: 22px;
 	}
 
-	aside {
-		border-left: 1px solid var(--line);
-		padding-left: 20px;
+	.draft .subject {
+		font-size: 17px;
+		margin: 3px 0 0;
 	}
 
-	.citation {
-		background: var(--surface-sunken);
-		border: 1px solid var(--line);
-		border-radius: var(--radius);
-		padding: 10px;
+	.mt {
+		margin-top: 14px;
+	}
+
+	pre {
+		margin: 3px 0 0;
+		font-family: var(--font-ui);
+		font-size: 13px;
+		line-height: 1.6;
+		white-space: pre-wrap;
+		word-break: break-word;
+	}
+
+	.cites {
+		border-left: 1px solid var(--rule);
+		padding-left: 18px;
 		display: flex;
 		flex-direction: column;
-		gap: 5px;
+		gap: 12px;
+	}
+
+	.cite {
+		border-top: 1px solid var(--rule);
+		padding-top: 8px;
+	}
+
+	.cite-head {
+		display: flex;
+		align-items: baseline;
+		gap: 7px;
+	}
+
+	.marker {
+		font-size: 11px;
+		color: var(--orange-ink);
 	}
 
 	.quote {
-		font-size: 12.5px;
-		line-height: 1.55;
+		margin-top: 4px;
+		font-family: var(--font-display);
+		font-size: 13px;
 		font-style: italic;
+		line-height: 1.45;
 		color: var(--ink-2);
 	}
 
-	@media (max-width: 820px) {
-		.grid {
+	.sub {
+		font-size: 11.5px;
+		line-height: 1.45;
+		color: var(--ink-3);
+		margin-top: 2px;
+		display: block;
+	}
+
+	@media (max-width: 780px) {
+		.cols {
 			grid-template-columns: 1fr;
 		}
-		aside {
+		.cites {
 			border-left: 0;
-			border-top: 1px solid var(--line);
+			border-top: 1px solid var(--rule);
 			padding-left: 0;
-			padding-top: 16px;
+			padding-top: 14px;
 		}
 	}
 </style>

@@ -35,6 +35,14 @@ export function age(days: number | null | undefined): string {
 	return `${(days / 365).toFixed(1)} years ago`;
 }
 
+export function ageShort(days: number | null | undefined): string {
+	if (days === null || days === undefined) return '—';
+	if (days < 1) return 'today';
+	if (days < 30) return `${Math.round(days)}d`;
+	if (days < 365) return `${Math.round(days / 30)}mo`;
+	return `${(days / 365).toFixed(1)}y`;
+}
+
 export function date(iso: string | null | undefined): string {
 	if (!iso) return '—';
 	return new Date(iso).toLocaleDateString(undefined, {

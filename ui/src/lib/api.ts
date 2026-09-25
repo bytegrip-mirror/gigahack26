@@ -129,6 +129,9 @@ export type CompanyDetail = {
 	baseRate: number;
 	baseLogit: number;
 	themeCap: number;
+	priorityThreshold: number;
+	nurtureThreshold: number;
+	watchThreshold: number;
 	signalCount: number;
 	themeCount: number;
 	scannedDocuments: number;
