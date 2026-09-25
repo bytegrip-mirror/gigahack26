@@ -26,7 +26,7 @@ public class PolicyQuestion {
     @Column(name = "question_key", nullable = false, unique = true, length = 80)
     private String key;
 
-    @Column(nullable = false, length = 200)
+    @Column(length = 200)
     private String title;
 
     @Column(name = "service_line", nullable = false, length = 80)

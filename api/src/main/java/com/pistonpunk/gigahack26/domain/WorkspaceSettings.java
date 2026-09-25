@@ -50,34 +50,34 @@ public class WorkspaceSettings {
     @Column(name = "rank_discount", nullable = false)
     private double rankDiscount;
 
-    @Column(name = "voice_tone", nullable = false, length = 40)
+    @Column(name = "voice_tone", length = 40)
     private String voiceTone;
 
-    @Column(name = "voice_formality", nullable = false, length = 20)
+    @Column(name = "voice_formality", length = 20)
     private String voiceFormality;
 
-    @Column(name = "voice_length", nullable = false, length = 20)
+    @Column(name = "voice_length", length = 20)
     private String voiceLength;
 
-    @Column(name = "voice_language", nullable = false, length = 10)
+    @Column(name = "voice_language", length = 10)
     private String voiceLanguage;
 
-    @Column(name = "voice_reader", nullable = false, length = 80)
+    @Column(name = "voice_reader", length = 80)
     private String voiceReader;
 
-    @Column(name = "voice_ask", nullable = false, length = 200)
+    @Column(name = "voice_ask", length = 200)
     private String voiceAsk;
 
-    @Column(name = "voice_sign_off", nullable = false, length = 120)
+    @Column(name = "voice_sign_off", length = 120)
     private String voiceSignOff;
 
-    @Column(name = "voice_signature", nullable = false, length = 160)
+    @Column(name = "voice_signature", length = 160)
     private String voiceSignature;
 
-    @Column(name = "voice_avoid", nullable = false, length = 600)
+    @Column(name = "voice_avoid", length = 600)
     private String voiceAvoid;
 
-    @Column(name = "voice_notes", nullable = false, length = 2000)
+    @Column(name = "voice_notes", length = 2000)
     private String voiceNotes;
 
     @Column(name = "updated_at", nullable = false)
@@ -164,43 +164,43 @@ public class WorkspaceSettings {
     }
 
     public String getVoiceTone() {
-        return voiceTone;
+        return orDefault(voiceTone, "direct");
     }
 
     public String getVoiceFormality() {
-        return voiceFormality;
+        return orDefault(voiceFormality, "neutral");
     }
 
     public String getVoiceLength() {
-        return voiceLength;
+        return orDefault(voiceLength, "short");
     }
 
     public String getVoiceLanguage() {
-        return voiceLanguage;
+        return orDefault(voiceLanguage, "en");
     }
 
     public String getVoiceReader() {
-        return voiceReader;
+        return orDefault(voiceReader, "you");
     }
 
     public String getVoiceAsk() {
-        return voiceAsk;
+        return orDefault(voiceAsk, "Would twenty minutes next week be useful?");
     }
 
     public String getVoiceSignOff() {
-        return voiceSignOff;
+        return voiceSignOff == null ? "Best regards," : voiceSignOff;
     }
 
     public String getVoiceSignature() {
-        return voiceSignature;
+        return voiceSignature == null ? "" : voiceSignature;
     }
 
     public String getVoiceAvoid() {
-        return voiceAvoid;
+        return voiceAvoid == null ? "" : voiceAvoid;
     }
 
     public String getVoiceNotes() {
-        return voiceNotes;
+        return voiceNotes == null ? "" : voiceNotes;
     }
 
     public Instant getUpdatedAt() {
