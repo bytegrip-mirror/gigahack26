@@ -83,7 +83,7 @@ from `main`. On every push it:
 1. runs `mvn test` (13 tests) and `svelte-check` in throwaway containers,
 2. builds the `gigahack26-api` and `gigahack26-ui` images,
 3. recreates the `gigahack26-db` (postgres:16-alpine) and `gigahack26-mongo`
-   (mongo:8.0) containers on the `web` network, waiting for each to accept
+   (mongo:7.0) containers on the `web` network, waiting for each to accept
    connections,
 4. recreates the API and UI containers with Traefik labels for
    `hackapi.pistonpunk.com` and `hack.pistonpunk.com`,
@@ -92,6 +92,11 @@ from `main`. On every push it:
 
 Folder-scoped credentials the job expects: `gigahack26-ssh` (checkout),
 `gigahack26-db-password`, `gigahack26-mongo-password`.
+
+MongoDB is pinned to 7.0 rather than 8.x on purpose. MongoDB 8.0 through 8.3.8
+refuse to start on Linux kernel 6.19–7.0.13 — TCMalloc violating the `rseq` ABI
+([SERVER-121912](https://jira.mongodb.org/browse/SERVER-121912)) — and the host
+here is affected. 7.0 is the only line that starts on every kernel.
 
 CORS is pinned to `https://hack.pistonpunk.com` in production, so the browser
 calls from the board to the API cross-origin and only from that origin.

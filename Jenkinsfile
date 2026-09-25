@@ -22,7 +22,7 @@ pipeline {
         DB_NAME = "gigahack26"
         DB_USER = "gigahack"
 
-        MONGO_IMAGE = "mongo:8.0"
+        MONGO_IMAGE = "mongo:7.0"
         MONGO_CONTAINER = "gigahack26-mongo"
         MONGO_DB_NAME = "gigahack26"
         MONGO_USER = "gigahack"

@@ -16,7 +16,7 @@ services:
       retries: 20
 
   mongo:
-    image: mongo:8.0
+    image: mongo:7.0
     environment:
       MONGO_INITDB_ROOT_USERNAME: gigahack
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-gigahack}
