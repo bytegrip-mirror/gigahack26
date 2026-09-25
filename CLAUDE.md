@@ -58,7 +58,7 @@ containers. Put this `flake.nix` at the repo root and run `nix develop`:
     in {
       devShells = forAllSystems (pkgs: {
         default = pkgs.mkShell {
-          packages = with pkgs; [ jdk21 maven nodejs_22 docker-client docker-compose ];
+          packages = with pkgs; [ jdk25 maven nodejs_22 docker-client docker-compose ];
         };
       });
     };
