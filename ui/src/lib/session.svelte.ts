@@ -18,7 +18,6 @@ function write(value: string) {
 
 class Session {
 	serviceLine = $state<string>(read() ?? '');
-	meta = $state<import('./api').Meta | null>(null);
 
 	set(value: string) {
 		this.serviceLine = value;

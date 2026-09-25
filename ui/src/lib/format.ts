@@ -6,10 +6,6 @@ export function precise(value: number): string {
 	return value.toFixed(4);
 }
 
-export function percent(value: number): string {
-	return `${Math.round(value * 100)}%`;
-}
-
 export function signed(value: number, digits = 3): string {
 	const rounded = value.toFixed(digits);
 	return value > 0 ? `+${rounded}` : rounded;
