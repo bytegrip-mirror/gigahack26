@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { fetchSettings, saveSettings, type Settings } from '$lib/api';
+	import { fetchMeta, fetchSettings, saveSettings, type Settings } from '$lib/api';
 	import { session } from '$lib/session.svelte';
 	import { toasts } from '$lib/toast.svelte';
 	import { shortNumber } from '$lib/format';
@@ -10,6 +10,7 @@
 	let loading = $state(true);
 	let saving = $state(false);
 	let countries = $state('');
+	let bands = $state<Record<string, number>>({});
 	let industries = $state('');
 
 	const dirty = $derived(
@@ -27,8 +28,9 @@
 		if (!serviceLine) return;
 		let cancelled = false;
 		loading = true;
-		fetchSettings()
-			.then((result) => {
+		Promise.all([fetchSettings(), fetchMeta(serviceLine)])
+			.then(([result, meta]) => {
+				bands = meta.bands;
 				if (cancelled) return;
 				settings = result;
 				draft = { ...result };
@@ -61,6 +63,7 @@
 			);
 			settings = saved;
 			draft = { ...saved };
+			bands = (await fetchMeta(serviceLine)).bands;
 			countries = saved.icpCountries.join(', ');
 			industries = saved.icpIndustries.join(', ');
 			toasts.push('Saved. The board has been re-scored against this profile.', 'success');
@@ -100,6 +103,7 @@
 		<p class="note"><span class="spinner"></span> Loading</p>
 	{:else if draft}
 		<div class="panes scroll">
+			<div class="form">
 			<section class="block">
 				<h2 class="dsp">Where we sell</h2>
 				<p class="sub">
@@ -209,6 +213,9 @@
 				</p>
 			</section>
 
+			</div>
+
+			<aside class="aside">
 			<section class="block">
 				<h2 class="dsp">What this profile admits</h2>
 				<dl class="facts">
@@ -223,6 +230,22 @@
 				</dl>
 				<p class="sub dim">Counts are from the last save.</p>
 			</section>
+
+			<section class="block">
+				<h2 class="dsp">Where the queue sits now</h2>
+				<dl class="facts">
+					<dt>Priority</dt><dd class="num">{bands.PRIORITY ?? 0}</dd>
+					<dt>Nurture</dt><dd class="num">{bands.NURTURE ?? 0}</dd>
+					<dt>Watch</dt><dd class="num">{bands.WATCH ?? 0}</dd>
+					<dt>Insufficient evidence</dt><dd class="num">{bands.THIN ?? 0}</dd>
+					<dt>Rejected</dt><dd class="num">{bands.DISQUALIFIED ?? 0}</dd>
+				</dl>
+				<p class="sub dim">
+					The bands move on save. The theme cap is re-derived each time, so one kind of evidence can reach the
+					top band and never pass it.
+				</p>
+			</section>
+			</aside>
 		</div>
 	{/if}
 </div>
@@ -266,17 +289,50 @@
 		min-height: 0;
 		overflow-y: auto;
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-		align-content: start;
+		grid-template-columns: minmax(0, 1fr) clamp(290px, 26%, 380px);
+		align-content: stretch;
+	}
+
+	.form {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.aside {
+		border-left: 1px solid var(--ink);
+		background: var(--paper);
+		display: flex;
+		flex-direction: column;
 	}
 
 	.block {
-		padding: 16px;
-		border-right: 1px solid var(--rule);
+		padding: 16px 20px;
 		border-bottom: 1px solid var(--rule);
 		display: flex;
 		flex-direction: column;
 		gap: 10px;
+	}
+
+	.form .block:last-child {
+		border-bottom: 0;
+	}
+
+	.aside .block {
+		padding: 16px;
+	}
+
+	.aside .block:last-child {
+		border-bottom: 0;
+	}
+
+	@media (max-width: 1080px) {
+		.panes {
+			grid-template-columns: minmax(0, 1fr);
+		}
+		.aside {
+			border-left: 0;
+			border-top: 1px solid var(--ink);
+		}
 	}
 
 	h2 {

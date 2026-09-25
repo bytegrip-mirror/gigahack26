@@ -166,6 +166,21 @@ breadth-first and flushes partial output every 20 companies, so a long run never
 loses everything. Every document is re-hashable and the script will not write a
 document it could not actually fetch.
 
+**The ideal customer profile is data, not deployment config.** Geography,
+industry, the size floor, each gate, the base rate and the band cuts live in a
+single `workspace_settings` row and are edited on the Customer profile screen.
+Saving re-scores every stored document, so the queue answers the new question
+immediately. `application.yml` still supplies the defaults for a fresh database.
+`ScoringService` reads the profile through `ScoringConfig` rather than the
+properties bean, which is what lets the arithmetic be tested against a literal
+profile.
+
+**A lead travels with its company.** `lead` holds the stage — new, contacted,
+replied, qualified, rejected — plus how many times the company has been worked,
+when, through which channel, and the subject of the last draft. The board filters
+by stage. The HubSpot push records the intent and marks the lead when
+`HUBSPOT_TOKEN` is absent rather than pretending to have synced.
+
 **Config is environment-first.** Every value in `application.yml` is a
 `${ENV:default}` placeholder. The UI has no runtime config: Vite inlines
 `PUBLIC_API_URL` at build time (`__API_URL__` in `vite.config.ts`), which is why the
@@ -186,6 +201,7 @@ touching one and not the other is the default failure mode.
 | New port or domain | Traefik labels in the `Jenkinsfile`, `docker-compose.yml` |
 | New API dependency | `api/build.gradle.kts`, and check the Dockerfile's build stage still resolves it |
 | New corpus field | `CorpusFiles`, `CorpusSeeder`, `tools/build_corpus.py`, and re-seed |
+| New scoring input | `ScoringProperties`, `WorkspaceSettings`, `SettingsService.effective()`, the Customer profile screen, and the `ScoringServiceTest` literal |
 
 Verify with the gates CI runs, not just the one you touched: `./gradlew test` and
 `pnpm run check`, then `docker compose up --build` for the local path, then a push
