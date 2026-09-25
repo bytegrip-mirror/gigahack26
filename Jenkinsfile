@@ -45,7 +45,7 @@ pipeline {
             steps {
                 sh '''
                     docker run --rm \
-                        -v "$(pwd)/backend":/src \
+                        -v "$(pwd)/api":/src \
                         -v gigahack26-maven-cache:/root/.m2 \
                         -w /src \
                         maven:3.9-eclipse-temurin-21 \
@@ -58,7 +58,7 @@ pipeline {
             steps {
                 sh '''
                     docker run --rm \
-                        -v "$(pwd)/frontend":/src \
+                        -v "$(pwd)/ui":/src \
                         -v gigahack26-node-modules:/src/node_modules \
                         -w /src \
                         node:22-alpine \
@@ -69,13 +69,13 @@ pipeline {
 
         stage('Build API Image') {
             steps {
-                sh "docker build -t ${API_IMAGE} ./backend"
+                sh "docker build -t ${API_IMAGE} ./api"
             }
         }
 
         stage('Build UI Image') {
             steps {
-                sh "docker build --build-arg PUBLIC_API_URL=https://${API_DOMAIN} -t ${UI_IMAGE} ./frontend"
+                sh "docker build --build-arg PUBLIC_API_URL=https://${API_DOMAIN} -t ${UI_IMAGE} ./ui"
             }
         }
 

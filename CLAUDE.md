@@ -19,7 +19,7 @@ docker compose down                # keep data
 docker compose down -v             # drop the volumes too
 ```
 
-Backend (from `backend/`):
+API (from `api/`):
 
 ```sh
 ./mvnw test                                    # 13 tests
@@ -28,7 +28,7 @@ Backend (from `backend/`):
 ./mvnw spring-boot:run                         # needs Postgres and Mongo reachable
 ```
 
-Frontend (from `frontend/`):
+UI (from `ui/`):
 
 ```sh
 npm run check                      # svelte-check, must be 0 errors
@@ -74,13 +74,13 @@ source in a second terminal:
 
 ```sh
 docker compose up postgres mongo     # stores only, schema created on boot
-cd backend  && ./mvnw spring-boot:run
-cd frontend && npm install && npm run dev
+cd api && ./mvnw spring-boot:run
+cd ui  && npm install && npm run dev
 ```
 
 No environment is needed for this: the API already defaults to `localhost:5432`
-and `localhost:27017`, and the frontend defaults to `http://localhost:8080`. The
-frontend runs on `:5173` here, which `docker-compose.yml` already lists in
+and `localhost:27017`, and the UI defaults to `http://localhost:8080`. The
+UI runs on `:5173` here, which `docker-compose.yml` already lists in
 `CORS_ALLOWED_ORIGINS`.
 
 ## Architecture
@@ -100,8 +100,8 @@ origins come from `CORS_ALLOWED_ORIGINS` (the pipeline sets it to the board's
 origin, compose sets it to both local ports).
 
 **Config is environment-first.** Every value in
-`backend/src/main/resources/application.yml` is a `${ENV:default}` placeholder, so
-the same image runs locally and in production. The frontend has no runtime
+`api/src/main/resources/application.yml` is a `${ENV:default}` placeholder, so
+the same image runs locally and in production. The UI has no runtime
 config at all: Vite inlines `PUBLIC_API_URL` into the bundle at build time
 (`__API_URL__` in `vite.config.ts`), which is why the Jenkinsfile passes it as a
 build arg and why changing the API host needs a rebuild, not a restart.
@@ -126,10 +126,10 @@ know about it:
 | --- | --- |
 | New environment variable | `application.yml` placeholder, `Jenkinsfile` `docker run -e`, `docker-compose.yml`, `.env.example` |
 | New backing service | `docker-compose.yml` (with a healthcheck), `Jenkinsfile` deploy stage that waits for readiness, the `web` network |
-| New API route or origin | `CorsConfig` mapping if outside `/api/**`, `CorsConfigTest`, the frontend client in `src/lib/api.ts` |
-| New build-time value for the SPA | `vite.config.ts` define, `frontend/Dockerfile` build arg, `Jenkinsfile` `--build-arg` |
+| New API route or origin | `CorsConfig` mapping if outside `/api/**`, `CorsConfigTest`, the UI client in `src/lib/api.ts` |
+| New build-time value for the SPA | `vite.config.ts` define, `ui/Dockerfile` build arg, `Jenkinsfile` `--build-arg` |
 | New port or domain | Traefik labels in the `Jenkinsfile`, `docker-compose.yml` |
-| New backend dependency | `pom.xml`, and check the Dockerfile's build stage still resolves it |
+| New API dependency | `pom.xml`, and check the Dockerfile's build stage still resolves it |
 
 Verify with the gates CI runs, not just the one you touched: `./mvnw test` and
 `npm run check`, then `docker compose up --build` for the local path, then a push
@@ -143,5 +143,5 @@ land.
 - No comments in code. Names and structure carry the meaning.
 - Commits: imperative subject, a body that says what broke or why, no
   `Co-Authored-By` trailer.
-- Design tokens for the board live in `frontend/src/app.css`; keep to the charcoal
+- Design tokens for the board live in `ui/src/app.css`; keep to the charcoal
   and single-lime system and the `Inter` / `IBM Plex Mono` pairing.

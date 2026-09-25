@@ -12,9 +12,9 @@
     </parent>
 
     <groupId>com.pistonpunk</groupId>
-    <artifactId>gigahack26-backend</artifactId>
+    <artifactId>gigahack26-api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>gigahack26-backend</name>
+    <name>gigahack26-api</name>
     <description>Gigahack 26 API</description>
 
     <properties>
