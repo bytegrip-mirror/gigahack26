@@ -87,18 +87,18 @@
 			{/each}
 		</nav>
 
-		{#if workspace.status}
-			<section class="block">
-				<p class="label">Corpus</p>
-				<div class="corpus">
-					<Metric value={shortNumber(workspace.status.companies)} label="Companies" />
-					<Metric value={shortNumber(workspace.status.evidence)} label="Documents" />
-					<Metric value={shortNumber(workspace.status.signals)} label="Signals" />
-				</div>
-			</section>
-		{/if}
-
 		<div class="rail-foot">
+			{#if workspace.status}
+				<section class="block">
+					<p class="label">Corpus</p>
+					<div class="corpus">
+						<Metric value={shortNumber(workspace.status.companies)} label="Companies" />
+						<Metric value={shortNumber(workspace.status.evidence)} label="Documents" />
+						<Metric value={shortNumber(workspace.status.signals)} label="Signals" />
+					</div>
+				</section>
+			{/if}
+
 			<div class="region">
 				<p class="label">Board region</p>
 				<Menu
@@ -300,11 +300,15 @@
 
 	.rail-foot {
 		margin-top: auto;
-		padding: var(--sp-3);
 		display: flex;
 		flex-direction: column;
+		padding: 0 var(--sp-3) var(--sp-3);
 		gap: var(--sp-2);
-		border-top: 1px solid var(--rule);
+	}
+
+	.rail-foot .block {
+		padding: var(--sp-3) 0;
+		border-bottom: 1px solid var(--rule);
 	}
 
 	.region {

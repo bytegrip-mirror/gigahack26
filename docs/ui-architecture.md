@@ -32,6 +32,15 @@ fills the remaining width.
 └──────────┴────────────────────────────────────────────────────────────┘
 ```
 
+The rail reads top-down as identity, navigation, then the facts about the corpus
+and the two workspace-wide settings, pushed to the bottom together so they sit in
+the same place on every screen.
+
+When a company is open, `.view` becomes two columns and the detail pane takes the
+**full height of the window** — the topbar, toolbar, list and pager are the left
+column and stop at the divider, rather than running over the top of the pane.
+Below 1100px the pane lays over the view instead of beside it.
+
 Rules that hold across every screen:
 
 - **`.topbar` carries identity, the numbers that summarise the screen, and at
@@ -115,15 +124,35 @@ one `Menu` away, and every row carries the same `⋯` in the last column.
 | Settings | *Save and re-score* | read the writer brief; per service line: enable/disable, delete |
 
 Both buttons on the company pane are full width and stacked: the outreach draft is
-the work, and the HubSpot push is the hand-off, so it carries the HubSpot mark
-and says plainly when no token is configured rather than appearing to sync.
+the work, and the HubSpot push is the hand-off, so it carries the HubSpot mark.
+
+The outreach editor gives the draft two independently scrolling columns — the
+message on the left, its sources on the right — so reading a citation never
+scrolls the text you are editing. The subject and body are editable, and **Send**
+hands them to the rep's mail client through a `mailto:` built with
+`encodeURIComponent` (not `URLSearchParams`, which writes `+` for a space and
+mails it literally). The channel is a small selector beside the draft rather than
+two equal buttons in the header, because the channel changes the text: InMail
+drops the sign-off and signature for something under 90 words, and its action is
+*Copy for LinkedIn* because there is no `mailto:` for it.
 
 The company pane has its own hierarchy: the header carries identity, a tab strip
 sits directly under it — **Overview** (the default), **Ledger** *(n)* and
 **Documents** *(n)* — and each tab replaces the whole body below, so the ledger
 and the document list get the full height of the pane rather than a slot at the
-bottom of a scroll. The fit and the band stay in the tab strip, because they are
-the one thing worth seeing from all three.
+bottom of a scroll.
+
+Overview reads in the order a rep works: the score, why now, the evidence behind
+it, then the stage and the two things you do about it. The band is stated once,
+in the score block. The fit and the band appear again in the tab strip **only
+when a tab other than Overview is showing it**, because otherwise the ledger
+scrolls the score out of sight — and on Overview a second copy would just be the
+same badge twice.
+
+The arithmetic that used to sit in Why now — strongest signal, themes agreeing,
+evidence counts, how long the band holds, documents read — is behind a small
+**Facts** toggle in that panel's head. It is reference material, not the pitch,
+and it was crowding out the sentence that actually explains the company.
 
 The board additionally has a **bulk bar**: selecting any row replaces the filter
 toolbar with a dark bar holding the selection count, *Set stage*, *Export*,
@@ -142,6 +171,14 @@ the board and the pipeline** — the same component in the same position, readin
 and writing one session value so the two never disagree — and it never appears
 on Settings or in the rail. The workspace settings row is global, so that screen
 does not pretend to be scoped: saving re-scores **every** service line.
+
+The switcher is searchable, and it carries **All service lines** at the top. All
+means what it says: every line is fetched and merged into one list, each company
+kept once at the line it scores highest for, so the row still names the line that
+justifies the call and the card opens against that line's policy. Rejected
+companies stay at the bottom, the way a single line's own ranking puts them. The
+`#` column then shows that merged rank rather than the server's per-line rank,
+which would repeat the same numbers three times.
 
 **Region** filters the board by market. It is workspace-wide chrome rather than a
 per-view filter, so it lives in the **rail footer**, bottom-left, labelled *Board

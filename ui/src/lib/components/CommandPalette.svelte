@@ -70,16 +70,45 @@
 			});
 		}
 
+		const allLines = 'all service lines';
+		if (!needle || allLines.includes(needle)) {
+			if (session.allLines) {
+				out.push({
+					id: 'line-all',
+					group: 'Service lines',
+					label: 'All service lines',
+					hint: 'showing',
+					icon: 'layers',
+					run: () => session.setAll()
+				});
+			} else {
+				out.push({
+					id: 'line-all',
+					group: 'Service lines',
+					label: 'All service lines',
+					hint: 'rank everything together',
+					icon: 'layers',
+					run: () => {
+						session.setAll();
+						goto('/');
+					}
+				});
+			}
+		}
+
 		for (const line of serviceLines) {
 			if (needle && !line.toLowerCase().includes(needle)) continue;
-			if (line === session.serviceLine) continue;
+			if (!session.allLines && line === session.serviceLine) continue;
 			out.push({
 				id: `line-${line}`,
 				group: 'Service lines',
 				label: line,
-				hint: 'switch',
+				hint: session.allLines && line === session.serviceLine ? 'last used' : 'switch',
 				icon: 'layers',
-				run: () => session.set(line)
+				run: () => {
+					session.set(line);
+					goto('/');
+				}
 			});
 		}
 

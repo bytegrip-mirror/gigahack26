@@ -51,6 +51,7 @@
 	let error = $state<string | null>(null);
 	let loading = $state(true);
 	let tab = $state('overview');
+	let showFacts = $state(false);
 	let outreachOpen = $state(false);
 	let silentOnly = $state(false);
 	let lead = $state<LeadView | null>(null);
@@ -194,10 +195,12 @@
 					{#if option.id === 'documents'}<span class="num">{detail.evidence.length}</span>{/if}
 				</button>
 			{/each}
-			<span class="chip">
-				<span class="num chip-fit">{fit(detail.probability)}</span>
-				<Tag band={detail.band}>{detail.bandLabel}</Tag>
-			</span>
+			{#if tab !== 'overview'}
+				<span class="chip">
+					<span class="num chip-fit">{fit(detail.probability)}</span>
+					<Tag band={detail.band}>{detail.bandLabel}</Tag>
+				</span>
+			{/if}
 		</div>
 	{/if}
 
@@ -236,28 +239,69 @@
 			<section class="panel why" data-urgency={detail.whyNow.urgency}>
 				<div class="panel-head">
 					<h3 class="label">Why now</h3>
-					<span class="urgency" data-urgency={detail.whyNow.urgency}>{detail.whyNow.urgencyLabel}</span>
+					<div class="head-right">
+						<span class="urgency" data-urgency={detail.whyNow.urgency}>{detail.whyNow.urgencyLabel}</span>
+						<button
+							class="reveal"
+							aria-expanded={showFacts}
+							title="How this score was reached"
+							onclick={() => (showFacts = !showFacts)}
+						>
+							Facts
+							<Icon name={showFacts ? 'chevronDown' : 'chevronRight'} size={12} />
+						</button>
+					</div>
 				</div>
 				<p class="why-text">{detail.whyNow.narrative || detail.whyNow.headline}</p>
-				<dl class="facts why-facts">
-					{#if triggers[0]}
-						<dt>Strongest signal</dt>
-						<dd class="num">{signed(triggers[0].contributionNats, 2)}</dd>
+				{#if showFacts}
+					<dl class="facts why-facts">
+						{#if triggers[0]}
+							<dt>Strongest signal</dt>
+							<dd class="num">{signed(triggers[0].contributionNats, 2)}</dd>
+						{/if}
+						<dt>Themes agreeing</dt>
+						<dd class="num">{detail.themeCount}</dd>
+						<dt>Evidence</dt>
+						<dd class="num">{triggers.length} for · {counters.length} against</dd>
+						{#if detail.band === 'PRIORITY' && detail.priorityHorizonDays !== null}
+							<dt>Holds Priority</dt>
+							<dd class="num">{Math.round(detail.priorityHorizonDays)} more days</dd>
+						{:else if detail.whyNow.daysInBand !== null}
+							<dt>In this band</dt>
+							<dd class="num">{Math.round(detail.whyNow.daysInBand)} days</dd>
+						{/if}
+						<dt>Documents read</dt>
+						<dd class="num">{detail.scannedDocuments} · {detail.silentDocuments} silent</dd>
+					</dl>
+				{/if}
+			</section>
+
+			<section class="panel">
+				<div class="panel-head">
+					<h3 class="label">Evidence</h3>
+					<span class="sub dim num">{triggers.length} for · {counters.length} against</span>
+				</div>
+				<div class="lines">
+					{#each triggers as row (row.evidenceId + row.spanStart)}
+						<button class="line" onclick={() => openRow(row)}>
+							<span class="dot pos"></span>
+							<span class="line-text">{row.questionTitle}</span>
+							<span class="num">{signed(row.contributionNats, 2)}</span>
+						</button>
+					{:else}
+						<p class="sub dim">No signal cleared the confidence floor for this policy.</p>
+					{/each}
+					{#if counters.length > 0}
+						<p class="label against-label">Against</p>
+						{#each counters as row (row.evidenceId + row.spanStart)}
+							<button class="line" onclick={() => openRow(row)}>
+								<span class="dot neg"></span>
+								<span class="line-text">{row.questionTitle}</span>
+								<span class="num">{signed(row.contributionNats, 2)}</span>
+							</button>
+						{/each}
 					{/if}
-					<dt>Themes agreeing</dt>
-					<dd class="num">{detail.themeCount}</dd>
-					<dt>Evidence</dt>
-					<dd class="num">{triggers.length} for · {counters.length} against</dd>
-					{#if detail.band === 'PRIORITY' && detail.priorityHorizonDays !== null}
-						<dt>Holds Priority</dt>
-						<dd class="num">{Math.round(detail.priorityHorizonDays)} more days</dd>
-					{:else if detail.whyNow.daysInBand !== null}
-						<dt>In this band</dt>
-						<dd class="num">{Math.round(detail.whyNow.daysInBand)} days</dd>
-					{/if}
-					<dt>Documents read</dt>
-					<dd class="num">{detail.scannedDocuments} · {detail.silentDocuments} silent</dd>
-				</dl>
+				</div>
 			</section>
 
 			<section class="panel">
@@ -298,37 +342,6 @@
 					{#if busy === 'crm'}<span class="spinner"></span>{:else}<Hubspot size={17} />{/if}
 					{lead?.crmSyncedAt ? 'Re-push to HubSpot' : 'Push to HubSpot'}
 				</button>
-				{#if !detail.crmConfigured}
-					<p class="sub dim">No HubSpot token on this deployment — the push is recorded, not sent.</p>
-				{/if}
-			</section>
-
-			<section class="panel">
-				<div class="panel-head">
-					<h3 class="label">Evidence</h3>
-					<span class="sub dim num">{triggers.length} for · {counters.length} against</span>
-				</div>
-				<div class="lines">
-					{#each triggers as row (row.evidenceId + row.spanStart)}
-						<button class="line" onclick={() => openRow(row)}>
-							<span class="dot pos"></span>
-							<span class="line-text">{row.questionTitle}</span>
-							<span class="num">{signed(row.contributionNats, 2)}</span>
-						</button>
-					{:else}
-						<p class="sub dim">No signal cleared the confidence floor for this policy.</p>
-					{/each}
-					{#if counters.length > 0}
-						<p class="label against-label">Against</p>
-						{#each counters as row (row.evidenceId + row.spanStart)}
-							<button class="line" onclick={() => openRow(row)}>
-								<span class="dot neg"></span>
-								<span class="line-text">{row.questionTitle}</span>
-								<span class="num">{signed(row.contributionNats, 2)}</span>
-							</button>
-						{/each}
-					{/if}
-				</div>
 			</section>
 			{/if}
 
@@ -515,8 +528,31 @@
 		color: var(--orange);
 	}
 
+	.head-right {
+		display: flex;
+		align-items: center;
+		gap: var(--sp-3);
+	}
+
+	.reveal {
+		display: inline-flex;
+		align-items: center;
+		gap: 2px;
+		font-size: var(--fs-micro);
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.09em;
+		color: var(--ink-3);
+	}
+
+	.reveal:hover {
+		color: var(--ink);
+	}
+
 	.why-facts {
-		margin-top: var(--sp-1);
+		margin-top: var(--sp-2);
+		padding-top: var(--sp-2);
+		border-top: 1px solid var(--rule);
 		font-size: var(--fs-base);
 	}
 

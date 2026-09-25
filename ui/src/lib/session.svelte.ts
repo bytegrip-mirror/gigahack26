@@ -1,5 +1,6 @@
 const STORAGE_KEY = 'gigahack26.serviceLine';
 const REGION_KEY = 'gigahack26.region';
+const ALL_KEY = 'gigahack26.allLines';
 
 function readRegion(): string {
 	try {
@@ -17,9 +18,17 @@ function read(): string | null {
 	}
 }
 
-function write(value: string) {
+function readAll(): boolean {
 	try {
-		localStorage.setItem(STORAGE_KEY, value);
+		return localStorage.getItem(ALL_KEY) === 'true';
+	} catch {
+		return false;
+	}
+}
+
+function write(key: string, value: string) {
+	try {
+		localStorage.setItem(key, value);
 	} catch {
 		/* the app works without persistence */
 	}
@@ -28,27 +37,29 @@ function write(value: string) {
 class Session {
 	serviceLine = $state<string>(read() ?? '');
 
+	allLines = $state<boolean>(readAll());
+
 	region = $state<string>(readRegion());
 
 	set(value: string) {
 		this.serviceLine = value;
-		write(value);
+		this.allLines = false;
+		write(STORAGE_KEY, value);
+		write(ALL_KEY, 'false');
+	}
+
+	setAll() {
+		this.allLines = true;
+		write(ALL_KEY, 'true');
 	}
 
 	setRegion(value: string) {
 		this.region = value;
-		try {
-			localStorage.setItem(REGION_KEY, value);
-		} catch {
-			/* the app works without persistence */
-		}
+		write(REGION_KEY, value);
 	}
 
-	resolve(fallback: string) {
-		if (!this.serviceLine) {
-			this.serviceLine = fallback;
-		}
-		return this.serviceLine;
+	scopeLabel(): string {
+		return this.allLines ? 'All service lines' : this.serviceLine;
 	}
 }
 

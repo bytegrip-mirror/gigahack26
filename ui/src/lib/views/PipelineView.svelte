@@ -31,19 +31,48 @@
 	let busy = $state<string | null>(null);
 	let query = $state('');
 
+	const ALL_LINES = '__all__';
 	const serviceLine = $derived(session.serviceLine);
+	const allLines = $derived(session.allLines);
+	const scopeItems = $derived([
+		{ id: ALL_LINES, label: 'All service lines', checked: allLines },
+		...workspace.lines.map((line) => ({
+			id: line,
+			label: line,
+			checked: !allLines && line === serviceLine
+		}))
+	]);
+
+	const lines = $derived(allLines ? (workspace.lines.length > 0 ? workspace.lines : [serviceLine]) : [serviceLine]);
+
+	async function load() {
+		const results = await Promise.all(
+			lines.map((line) =>
+				Promise.all([fetchLeads(line), fetchLeadTally(line)]).then(([list, counts]) => ({ list, counts }))
+			)
+		);
+		leads = results.flatMap(({ list }) => list);
+		tally = results.reduce<LeadTally>(
+			(total, { counts }) => ({
+				NEW: total.NEW + counts.NEW,
+				CONTACTED: total.CONTACTED + counts.CONTACTED,
+				REPLIED: total.REPLIED + counts.REPLIED,
+				QUALIFIED: total.QUALIFIED + counts.QUALIFIED,
+				REJECTED: total.REJECTED + counts.REJECTED,
+				TOTAL: total.TOTAL + counts.TOTAL,
+				crmConfigured: total.crmConfigured || counts.crmConfigured
+			}),
+			{ NEW: 0, CONTACTED: 0, REPLIED: 0, QUALIFIED: 0, REJECTED: 0, TOTAL: 0, crmConfigured: false }
+		);
+	}
 
 	$effect(() => {
 		const line = serviceLine;
+		void allLines;
 		if (!line) return;
 		let cancelled = false;
 		loading = true;
-		Promise.all([fetchLeads(line), fetchLeadTally(line)])
-			.then(([list, counts]) => {
-				if (cancelled) return;
-				leads = list;
-				tally = counts;
-			})
+		load()
 			.catch((cause) => toasts.push((cause as Error).message, 'error'))
 			.finally(() => {
 				if (!cancelled) loading = false;
@@ -80,9 +109,8 @@
 		if (status === lead.status) return;
 		busy = lead.id;
 		try {
-			await recordLead({ companyId: lead.companyId, serviceLine, status });
-			leads = await fetchLeads(serviceLine);
-			tally = await fetchLeadTally(serviceLine);
+			await recordLead({ companyId: lead.companyId, serviceLine: lead.serviceLine, status });
+			await load();
 		} catch (cause) {
 			toasts.push((cause as Error).message, 'error');
 		} finally {
@@ -136,7 +164,7 @@
 
 	function exportAll() {
 		save(
-			`pipeline-${serviceLine.toLowerCase().replace(/\s+/g, '-')}.csv`,
+			`pipeline-${(allLines ? 'all' : serviceLine).toLowerCase().replace(/\s+/g, '-')}.csv`,
 			csv(
 				['company', 'domain', 'stage', 'fit', 'band', 'contacts', 'last_contacted', 'channel', 'subject'],
 				leads.map((lead) => [
@@ -161,7 +189,9 @@
 		<div class="ident">
 			<h1 class="dsp">Pipeline</h1>
 			<p class="sub num">
-				{plural(leads.length, 'company', 'companies')} worked on {serviceLine}
+				{plural(leads.length, 'company', 'companies')} worked{#if allLines}
+					across every service line{:else}
+					on {serviceLine}{/if}
 			</p>
 		</div>
 
@@ -178,17 +208,14 @@
 
 	<div class="toolbar">
 		<Menu
-			text={serviceLine}
+			text={session.scopeLabel()}
 			icon="layers"
 			align="start"
+			searchable
 			label="Service line"
 			title="Which service line's leads this shows"
-			items={workspace.lines.map((line) => ({
-				id: line,
-				label: line,
-				checked: line === serviceLine
-			}))}
-			onselect={(line) => workspace.select(line)}
+			items={scopeItems}
+			onselect={(line) => (line === ALL_LINES ? session.setAll() : workspace.select(line))}
 		/>
 		{#if workspace.switching}<span class="spinner"></span>{/if}
 		<span class="sep"></span>

@@ -231,7 +231,8 @@ a:hover {
 .toolbar {
 	display: flex;
 	align-items: center;
-	gap: var(--sp-2);
+	flex-wrap: wrap;
+	gap: var(--sp-1) var(--sp-2);
 	padding: var(--sp-2) var(--sp-4);
 	min-height: var(--bar);
 	background: var(--surface);
@@ -246,7 +247,7 @@ a:hover {
 .toolbar .sep {
 	width: 1px;
 	align-self: stretch;
-	margin: 4px var(--sp-2);
+	margin: var(--sp-1) var(--sp-2);
 	background: var(--rule);
 }
 

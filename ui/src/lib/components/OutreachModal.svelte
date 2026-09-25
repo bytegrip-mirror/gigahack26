@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { fetchOutreach, type Outreach } from '$lib/api';
+	import { toasts } from '$lib/toast.svelte';
 	import { host } from '$lib/format';
 	import Icon from './Icon.svelte';
+	import Menu from './Menu.svelte';
 
 	let {
 		companyId,
@@ -22,6 +24,8 @@
 	let loading = $state(false);
 	let error = $state<string | null>(null);
 	let copied = $state(false);
+	let subject = $state('');
+	let body = $state('');
 
 	$effect(() => {
 		const chosen = channel;
@@ -32,6 +36,8 @@
 			.then((result) => {
 				if (channel !== chosen) return;
 				draft = result;
+				subject = result.subject;
+				body = result.body;
 				ondrafted?.(result.subject);
 			})
 			.catch((cause) => {
@@ -41,6 +47,18 @@
 				if (channel === chosen) loading = false;
 			});
 	});
+
+	const words = $derived(body.trim() ? body.trim().split(/\s+/).length : 0);
+	const edited = $derived(draft !== null && (subject !== draft.subject || body !== draft.body));
+
+	function mailto(): string {
+		return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+	}
+
+	function send() {
+		window.location.href = mailto();
+		toasts.push('Opening your mail client with the draft filled in.', 'info');
+	}
 
 	$effect(() => {
 		const onKey = (event: KeyboardEvent) => {
@@ -52,7 +70,7 @@
 
 	const asText = $derived(
 		draft
-			? `Subject: ${draft.subject}\n\n${draft.body}\n\n${draft.citations
+			? `Subject: ${subject}\n\n${body}\n\n${draft.citations
 					.map((c) => `${c.marker} ${c.quote} — ${c.sourceUrl}`)
 					.join('\n')}`
 			: ''
@@ -66,6 +84,10 @@
 		} catch {
 			copied = false;
 		}
+	}
+
+	async function openSource(url: string) {
+		window.open(url, '_blank', 'noopener');
 	}
 </script>
 
@@ -83,14 +105,17 @@
 				{#if draft}<p class="sub dim">Aimed at {draft.persona}</p>{/if}
 			</div>
 			<div class="head-tools">
-				<div class="seg" role="tablist" aria-label="Channel">
-					<button role="tab" aria-selected={channel === 'email'} onclick={() => (channel = 'email')}>
-						Email
-					</button>
-					<button role="tab" aria-selected={channel === 'inmail'} onclick={() => (channel = 'inmail')}>
-						InMail
-					</button>
-				</div>
+				<Menu
+					text={channel === 'email' ? 'Email' : 'LinkedIn InMail'}
+					label="Channel"
+					title="The channel the draft is written for"
+					align="end"
+					items={[
+						{ id: 'email', label: 'Email', hint: 'sign-off and signature', checked: channel === 'email' },
+						{ id: 'inmail', label: 'LinkedIn InMail', hint: 'under 90 words', checked: channel === 'inmail' }
+					]}
+					onselect={(id) => (channel = id as 'email' | 'inmail')}
+				/>
 				<button class="icon-btn" onclick={onclose} aria-label="Close the draft" title="Close">
 					<Icon name="close" size={16} />
 				</button>
@@ -104,36 +129,64 @@
 				<p class="note"><span class="spinner"></span> Composing</p>
 			{:else if draft}
 				<div class="cols">
-					<div class="draft">
-						<p class="label">Subject</p>
-						<p class="subject dsp">{draft.subject}</p>
-						<p class="label mt">Message</p>
-						<pre>{draft.body}</pre>
-						<p class="sub dim mt">
-							Sentences are filled from computed values and verbatim passages. Nothing here can claim
-							something the ledger does not.
-						</p>
+					<div class="col">
+						<div class="col-head">
+							<p class="label">{channel === 'email' ? 'Subject' : 'Message'}</p>
+							<span class="sub dim num">
+								{words} words{#if edited} · edited{/if}
+							</span>
+						</div>
+
+						{#if channel === 'email'}
+							<input class="input subject" bind:value={subject} aria-label="Subject" />
+						{/if}
+
+						<textarea class="textarea message" bind:value={body} aria-label="Message body"></textarea>
+
+						<div class="col-foot">
+							<button class="btn btn-sm" onclick={copy} disabled={!draft}>
+								<Icon name="copy" size={14} />
+								{copied ? 'Copied' : 'Copy with citations'}
+							</button>
+							<button class="btn btn-sm" onclick={() => { subject = draft?.subject ?? ''; body = draft?.body ?? ''; }} disabled={!edited}>
+								Reset
+							</button>
+							<span class="spacer"></span>
+							<span class="sub dim">Written from the ledger — edit freely before sending.</span>
+						</div>
 					</div>
 
-					<aside class="cites">
-						<p class="label">Citations</p>
-						{#each draft.citations as citation (citation.marker)}
-							<div class="cite">
-								<div class="cite-head">
-									<span class="key marker">{citation.marker}</span>
-									<span class="sub dim">{host(citation.sourceUrl)}</span>
+					<aside class="col cites">
+						<div class="col-head">
+							<p class="label">Sources</p>
+							<span class="sub dim num">{draft.citations.length}</span>
+						</div>
+						<div class="cite-list">
+							{#each draft.citations as citation (citation.marker)}
+								<div class="cite">
+									<div class="cite-head">
+										<span class="key marker">{citation.marker}</span>
+										<span class="sub dim">{host(citation.sourceUrl)}</span>
+										<button
+											class="icon-btn icon-btn-sm"
+											title="Open the source"
+											aria-label={`Open ${host(citation.sourceUrl)}`}
+											onclick={() => openSource(citation.sourceUrl)}
+										>
+											<Icon name="external" size={13} />
+										</button>
+									</div>
+									<p class="quote">“{citation.quote}”</p>
+									<p class="sub dim">{citation.question}</p>
 								</div>
-								<p class="quote">“{citation.quote}”</p>
-								<p class="sub dim">{citation.question}</p>
-								<a class="sub" href={citation.sourceUrl} target="_blank" rel="noreferrer noopener">Open source</a>
-							</div>
-						{/each}
-						{#if draft.citations.length === 0}
-							<p class="sub dim">
-								No positive evidence cleared the floor, so the draft makes no claim. Send it as a research
-								question instead.
-							</p>
-						{/if}
+							{/each}
+							{#if draft.citations.length === 0}
+								<p class="sub dim">
+									No positive evidence cleared the floor, so the draft makes no claim. Send it as a research
+									question instead.
+								</p>
+							{/if}
+						</div>
 					</aside>
 				</div>
 			{/if}
@@ -141,7 +194,17 @@
 
 		<footer>
 			<button class="btn" onclick={onclose}>Close</button>
-			<button class="btn btn-ink" onclick={copy} disabled={!draft}>{copied ? 'Copied' : 'Copy draft'}</button>
+			{#if channel === 'email'}
+				<button class="btn btn-ink" onclick={send} disabled={!draft}>
+					<Icon name="mail" size={15} />
+					Send
+				</button>
+			{:else}
+				<button class="btn btn-ink" onclick={copy} disabled={!draft}>
+					<Icon name="copy" size={15} />
+					{copied ? 'Copied' : 'Copy for LinkedIn'}
+				</button>
+			{/if}
 		</footer>
 	</div>
 </div>
@@ -159,8 +222,8 @@
 	}
 
 	.sheet {
-		width: min(1040px, 100%);
-		max-height: 92vh;
+		width: min(1080px, 100%);
+		height: min(760px, 92vh);
 		background: var(--surface);
 		border: 1px solid var(--ink);
 		display: flex;
@@ -186,8 +249,73 @@
 	.body {
 		flex: 1;
 		min-height: 0;
-		overflow-y: auto;
+		display: flex;
+		overflow: hidden;
+	}
+
+	.col {
+		display: flex;
+		flex-direction: column;
+		min-height: 0;
 		padding: var(--sp-4);
+		gap: var(--sp-2);
+	}
+
+	.col:first-child {
+		flex: 1.55;
+	}
+
+	.cites {
+		flex: 1;
+		min-width: 260px;
+		border-left: 1px solid var(--rule);
+		padding-left: var(--sp-4);
+	}
+
+	.col-head {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: var(--sp-2);
+		flex: none;
+	}
+
+	.subject {
+		flex: none;
+		font-family: var(--font-display);
+		font-size: var(--fs-lg);
+		font-weight: 500;
+	}
+
+	.message {
+		flex: 1;
+		min-height: 0;
+		resize: none;
+		font-family: var(--font-ui);
+		font-size: var(--fs-md);
+		line-height: 1.6;
+	}
+
+	.col-foot {
+		display: flex;
+		align-items: center;
+		gap: var(--sp-1);
+		flex: none;
+	}
+
+	.col-foot .spacer {
+		margin-left: auto;
+	}
+
+	.cite-list {
+		flex: 1;
+		min-height: 0;
+		overflow-y: auto;
+		scrollbar-width: thin;
+		display: flex;
+		flex-direction: column;
+		gap: var(--sp-3);
+		padding-right: var(--sp-1);
 	}
 
 	footer {
@@ -215,32 +343,6 @@
 		display: grid;
 		grid-template-columns: minmax(0, 1.55fr) minmax(240px, 1fr);
 		gap: var(--sp-5);
-	}
-
-	.draft .subject {
-		font-size: var(--fs-lg);
-		margin: 3px 0 0;
-	}
-
-	.mt {
-		margin-top: var(--sp-4);
-	}
-
-	pre {
-		margin: 3px 0 0;
-		font-family: var(--font-ui);
-		font-size: var(--fs-md);
-		line-height: 1.6;
-		white-space: pre-wrap;
-		word-break: break-word;
-	}
-
-	.cites {
-		border-left: 1px solid var(--rule);
-		padding-left: var(--sp-4);
-		display: flex;
-		flex-direction: column;
-		gap: var(--sp-3);
 	}
 
 	.cite {
@@ -277,14 +379,24 @@
 	}
 
 	@media (max-width: 780px) {
-		.cols {
-			grid-template-columns: 1fr;
+		.body {
+			flex-direction: column;
+			overflow-y: auto;
+		}
+		.col {
+			flex: none;
+			padding: var(--sp-3);
+		}
+		.message {
+			min-height: 180px;
 		}
 		.cites {
 			border-left: 0;
 			border-top: 1px solid var(--rule);
-			padding-left: 0;
-			padding-top: var(--sp-4);
+			padding-left: var(--sp-3);
+		}
+		.cite-list {
+			overflow-y: visible;
 		}
 	}
 </style>

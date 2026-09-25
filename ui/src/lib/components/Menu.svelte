@@ -12,6 +12,7 @@
 		size = 'md',
 		align = 'end',
 		block = false,
+		searchable = false,
 		disabled = false,
 		title = ''
 	}: {
@@ -23,9 +24,13 @@
 		size?: 'sm' | 'md';
 		align?: 'start' | 'end';
 		block?: boolean;
+		searchable?: boolean;
 		disabled?: boolean;
 		title?: string;
 	} = $props();
+
+	let needle = $state('');
+	let field = $state<HTMLInputElement | null>(null);
 
 	let open = $state(false);
 	let at = $state({ top: 0, left: 0, min: 0 });
@@ -33,6 +38,14 @@
 	let panel = $state<HTMLDivElement | null>(null);
 
 	const options = $derived(items.filter((item) => !item.disabled));
+
+	const shown = $derived.by(() => {
+		const term = needle.trim().toLowerCase();
+		if (!term) return items;
+		return items.filter(
+			(item) => item.label.toLowerCase().includes(term) || (item.hint ?? '').toLowerCase().includes(term)
+		);
+	});
 
 	function place() {
 		const node = trigger;
@@ -51,6 +64,7 @@
 
 	function show() {
 		if (disabled) return;
+		needle = '';
 		open = true;
 	}
 
@@ -66,10 +80,18 @@
 
 	$effect(() => {
 		if (!open) return;
-		requestAnimationFrame(place);
+		requestAnimationFrame(() => {
+			place();
+			if (searchable) field?.focus();
+		});
 		const close = () => hide();
 		window.addEventListener('scroll', close, true);
 		return () => window.removeEventListener('scroll', close, true);
+	});
+
+	$effect(() => {
+		void shown.length;
+		if (open) requestAnimationFrame(place);
 	});
 
 	function onKey(event: KeyboardEvent) {
@@ -78,7 +100,10 @@
 		const index = nodes.indexOf(document.activeElement as HTMLButtonElement);
 		if (event.key === 'Escape') {
 			event.preventDefault();
-			hide(true);
+			if (searchable && needle) needle = '';
+			else hide(true);
+		} else if (searchable && event.key.length === 1 && document.activeElement !== field) {
+			field?.focus();
 		} else if (event.key === 'ArrowDown') {
 			event.preventDefault();
 			nodes[Math.min(nodes.length - 1, index + 1)]?.focus();
@@ -132,7 +157,32 @@
 		style:left="{at.left}px"
 		style:min-width="{at.min}px"
 	>
-		{#each items as item (item.id)}
+		{#if searchable}
+			<div class="menu-search">
+				<Icon name="search" size={14} />
+				<input
+					bind:this={field}
+					class="input input-sm"
+					placeholder="Filter"
+					autocomplete="off"
+					spellcheck="false"
+					bind:value={needle}
+					onkeydown={(event) => {
+						if (event.key === 'Enter') {
+							event.preventDefault();
+							const first = shown.find((item) => !item.disabled);
+							if (first) choose(first.id);
+						} else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+							event.preventDefault();
+							const options = panel?.querySelectorAll<HTMLButtonElement>('.menu-item:not(:disabled)') ?? [];
+							(options[event.key === 'ArrowDown' ? 0 : options.length - 1] as HTMLButtonElement | undefined)?.focus();
+						}
+					}}
+				/>
+			</div>
+		{/if}
+
+		{#each shown as item (item.id)}
 			{#if item.separatorBefore}<div class="menu-sep"></div>{/if}
 			<button
 				class="menu-item"
@@ -150,11 +200,35 @@
 		{/each}
 		{#if options.length === 0}
 			<p class="menu-label">Nothing available</p>
+		{:else if shown.length === 0}
+			<p class="menu-label">Nothing matches “{needle}”</p>
 		{/if}
 	</div>
 {/if}
 
 <style>
+	.menu-search {
+		display: flex;
+		align-items: center;
+		gap: var(--sp-1);
+		padding: var(--sp-1) var(--sp-2) var(--sp-2);
+		margin-bottom: var(--sp-1);
+		border-bottom: 1px solid var(--rule);
+		color: var(--ink-3);
+		position: sticky;
+		top: 0;
+		background: var(--surface);
+	}
+
+	.menu-search .input {
+		border-color: transparent;
+		padding-left: 0;
+	}
+
+	.menu-search .input:focus {
+		box-shadow: none;
+	}
+
 	.trigger-text {
 		overflow: hidden;
 		text-overflow: ellipsis;

@@ -66,6 +66,10 @@
 		DISQUALIFIED: 4
 	};
 
+	const ALL_LINES = '__all__';
+
+	type ScopedRow = BoardRow & { serviceLine: string; fitRank: number };
+
 	const BAND_FILTERS: Record<string, (band: string) => boolean> = {
 		all: () => true,
 		hot: (band) => band === 'PRIORITY' || band === 'NURTURE',
@@ -81,7 +85,7 @@
 		{ id: 'REJECTED', label: 'Rejected' }
 	];
 
-	let rows = $state<BoardRow[]>([]);
+	let rows = $state<ScopedRow[]>([]);
 	let loading = $state(true);
 	let error = $state<string | null>(null);
 
@@ -111,14 +115,21 @@
 	const meta = $derived(workspace.meta);
 	const serviceLine = $derived(session.serviceLine);
 	const filtered = $derived(session.region !== 'world' || stage !== '' || query !== '');
-	const scopeItems = $derived(
-		workspace.lines.map((line) => ({
+	const allLines = $derived(session.allLines);
+	const scopeItems = $derived([
+		{
+			id: ALL_LINES,
+			label: 'All service lines',
+			hint: String(Object.values(workspace.counts).reduce((sum, count) => sum + count, 0)),
+			checked: allLines
+		},
+		...workspace.lines.map((line) => ({
 			id: line,
 			label: line,
 			hint: workspace.counts[line] === undefined ? '' : String(workspace.counts[line]),
-			checked: line === serviceLine
+			checked: !allLines && line === serviceLine
 		}))
-	);
+	]);
 
 	const movements = $derived.by(() => {
 		const map = new Map<string, Move>();
@@ -164,7 +175,7 @@
 							(b.newestSignalAgeDays ?? Number.POSITIVE_INFINITY))
 					);
 				default:
-					return sign * (a.rank - b.rank);
+					return sign * (a.fitRank - b.fitRank);
 			}
 		});
 		return list;
@@ -174,8 +185,42 @@
 	const pages = $derived(Math.max(1, Math.ceil(sorted.length / effective)));
 	const current = $derived(sorted.slice((Math.min(page, pages) - 1) * effective, Math.min(page, pages) * effective));
 
+	async function loadBoard(): Promise<ScopedRow[]> {
+		const options = {
+			filter: 'all',
+			sort: 'score',
+			q: query,
+			stage,
+			region: session.region
+		};
+		const lines = allLines ? (workspace.lines.length > 0 ? workspace.lines : [serviceLine]) : [serviceLine];
+		const results = await Promise.all(
+			lines.map((line) => fetchBoard({ serviceLine: line, ...options }).then((list) => ({ line, list })))
+		);
+		const merged: ScopedRow[] = results.flatMap(({ line, list }) =>
+			list.map((row) => ({ ...row, serviceLine: line, fitRank: row.rank }))
+		);
+		if (allLines) {
+			const best = new Map<string, ScopedRow>();
+			for (const row of merged) {
+				const held = best.get(row.id);
+				if (!held || row.probability > held.probability) best.set(row.id, row);
+			}
+			const list = [...best.values()].sort(
+				(a, b) =>
+					(a.band === 'DISQUALIFIED' ? 1 : 0) - (b.band === 'DISQUALIFIED' ? 1 : 0) ||
+					b.probability - a.probability ||
+					a.name.localeCompare(b.name)
+			);
+			list.forEach((row, index) => (row.fitRank = index + 1));
+			return list;
+		}
+		return merged;
+	}
+
 	$effect(() => {
 		const line = serviceLine;
+		void allLines;
 		const search = query;
 		const activeStage = stage;
 		const activeRegion = session.region;
@@ -185,14 +230,7 @@
 		loading = true;
 		const timer = setTimeout(
 			() => {
-				fetchBoard({
-					serviceLine: line,
-					filter: 'all',
-					sort: 'score',
-					q: search,
-					stage: activeStage,
-					region: activeRegion
-				})
+				loadBoard()
 					.then((result) => {
 						if (cancelled) return;
 						rows = result;
@@ -203,7 +241,7 @@
 					.catch((cause) => {
 						if (cancelled) return;
 						loading = false;
-						error = cause.message;
+						error = (cause as Error).message;
 					});
 			},
 			search ? 200 : 0
@@ -255,6 +293,10 @@
 	const allPicked = $derived(current.length > 0 && current.every((row) => picked.has(row.id)));
 	const somePicked = $derived(current.some((row) => picked.has(row.id)));
 
+	function lineOf(id: string): string {
+		return rows.find((row) => row.id === id)?.serviceLine ?? serviceLine;
+	}
+
 	function reasons(row: BoardRow): Chip[] {
 		const seen = new Map<string, Chip>();
 		for (const chip of row.chips) {
@@ -294,7 +336,7 @@
 		if (ids.length === 0 || !serviceLine) return;
 		busy = true;
 		const results = await Promise.allSettled(
-			ids.map((companyId) => recordLead({ companyId, serviceLine, status }))
+			ids.map((companyId) => recordLead({ companyId, serviceLine: lineOf(companyId), status }))
 		);
 		busy = false;
 		const done = results.filter((result) => result.status === 'fulfilled').length;
@@ -304,14 +346,7 @@
 				: `Marked ${done} of ${ids.length} ${label}. The rest failed.`,
 			done === ids.length ? 'success' : 'warn'
 		);
-		rows = await fetchBoard({
-			serviceLine,
-			filter: 'all',
-			sort: 'score',
-			q: query,
-			stage,
-			region: session.region
-		});
+		rows = await loadBoard();
 		workspace.loadCounts();
 	}
 
@@ -372,7 +407,7 @@
 				polarity
 			});
 			outcome = result;
-			rows = result.board;
+			rows = result.board.map((row) => ({ ...row, serviceLine, fitRank: row.rank }));
 			elapsed = result.tookMs;
 			if (filter !== 'all') filter = 'all';
 			toasts.push(
@@ -406,13 +441,14 @@
 	]);
 
 	async function runSecondary(id: string) {
-		if (id === 'export-all') exportRows(sorted, `board-${serviceLine.toLowerCase().replace(/\s+/g, '-')}.csv`);
+		if (id === 'export-all')
+			exportRows(sorted, `board-${(allLines ? 'all' : serviceLine).toLowerCase().replace(/\s+/g, '-')}.csv`);
 		else if (id === 'copy-link') copyLink();
 		else if (id === 'clear') clearFilters();
 		else if (id === 'rescore') {
 			try {
 				const result = await rescore({ serviceLine, engine: 'local' });
-				rows = result.board;
+				rows = result.board.map((row) => ({ ...row, serviceLine, fitRank: row.rank }));
 				toasts.push(`Re-scored ${shortNumber(result.documentsScanned)} documents in ${duration(result.tookMs)}.`, 'success');
 				workspace.reload();
 			} catch (cause) {
@@ -460,7 +496,8 @@
 	}));
 </script>
 
-<div class="view">
+<div class="view" class:split={selected !== null}>
+	<div class="main">
 	<header class="topbar">
 		<div class="ident">
 			<h1 class="dsp">Board</h1>
@@ -595,13 +632,14 @@
 	{:else}
 		<div class="toolbar">
 			<Menu
-				text={serviceLine}
+				text={session.scopeLabel()}
 				icon="layers"
 				align="start"
+				searchable
 				label="Service line"
 				title="What the board is ranked for"
 				items={scopeItems}
-				onselect={(line) => workspace.select(line)}
+				onselect={(line) => (line === ALL_LINES ? session.setAll() : workspace.select(line))}
 			/>
 			{#if workspace.switching}<span class="spinner"></span>{/if}
 			<span class="sep"></span>
@@ -635,7 +673,6 @@
 		</div>
 	{/if}
 
-	<div class="panes" class:split={selected !== null}>
 		<section class="list scroll" aria-label="Ranked companies">
 			<LoadingVeil show={loading} label="Scoring the board" />
 			{#if error}
@@ -691,7 +728,7 @@
 									</span>
 								</td>
 								<td class="num c-rank">
-									{row.rank}
+									{allLines ? row.fitRank : row.rank}
 									{#if move && move.delta !== 0}
 										<span class="delta" data-dir={move.delta > 0 ? 'up' : 'down'}>
 											{move.delta > 0 ? '▲' : '▼'}{Math.abs(move.delta)}
@@ -701,7 +738,7 @@
 								<td class="c-co">
 									<span class="co">{row.name}</span>
 									<span class="sub">
-										{#if row.domain}<span class="domain">{row.domain}</span> · {/if}{row.country ?? '—'}
+										{#if allLines}<span class="line-tag">{row.serviceLine}</span> · {/if}{#if row.domain}<span class="domain">{row.domain}</span> · {/if}{row.country ?? '—'}
 										{#if row.industry}· {row.industry}{/if}
 										{#if row.sizeBand}· {row.sizeBand}{/if}
 									</span>
@@ -786,20 +823,20 @@
 			{/if}
 		</section>
 
-		{#if selected}
-			<aside class="detail scroll" aria-label="Company detail">
-				<Scorecard
-					companyId={selected}
-					{serviceLine}
-					onclose={() => select(null)}
-					oncapture={(id, focus) => (capture = { id, focus })}
-				/>
-			</aside>
+		{#if sorted.length > 0 && !error}
+			<Pager total={sorted.length} page={Math.min(page, pages)} {size} onsize={(next) => (size = next)} onpage={(next) => (page = next)} />
 		{/if}
 	</div>
 
-	{#if sorted.length > 0 && !error}
-		<Pager total={sorted.length} page={Math.min(page, pages)} {size} onsize={(next) => (size = next)} onpage={(next) => (page = next)} />
+	{#if selected}
+		<aside class="detail" aria-label="Company detail">
+			<Scorecard
+				companyId={selected}
+				serviceLine={lineOf(selected)}
+				onclose={() => select(null)}
+				oncapture={(id, focus) => (capture = { id, focus })}
+			/>
+		</aside>
 	{/if}
 </div>
 
@@ -918,30 +955,38 @@
 		color: var(--ink-4);
 	}
 
-	.panes {
+	.view {
 		position: relative;
-		flex: 1;
-		min-height: 0;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		grid-template-rows: minmax(0, 1fr);
 	}
 
-	.panes.split {
+	.view.split {
 		grid-template-columns: minmax(0, 1fr) clamp(440px, 38%, 660px);
 	}
 
-	.panes.split .c-th,
-	.panes.split .c-doc,
-	.panes.split .c-age,
-	.panes.split :global(th.c-th),
-	.panes.split :global(th.c-doc),
-	.panes.split :global(th.c-age) {
+	.main {
+		display: flex;
+		flex-direction: column;
+		min-width: 0;
+		min-height: 0;
+	}
+
+	.view.split .c-th,
+	.view.split .c-doc,
+	.view.split .c-age,
+	.view.split :global(th.c-th),
+	.view.split :global(th.c-doc),
+	.view.split :global(th.c-age) {
 		display: none;
 	}
 
-	.panes.split .c-sig .evidence li:nth-child(n + 3) {
+	.view.split .c-sig .evidence li:nth-child(n + 3) {
 		display: none;
 	}
 
-	.panes.split .c-co .sub {
+	.view.split .c-co .sub {
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -949,6 +994,7 @@
 
 	.list {
 		position: relative;
+		flex: 1;
 		min-height: 0;
 		background: var(--surface);
 	}
@@ -1117,6 +1163,11 @@
 		text-overflow: ellipsis;
 	}
 
+	.line-tag {
+		color: var(--orange-ink);
+		font-weight: 500;
+	}
+
 	.stage-tag {
 		display: inline-block;
 		margin-top: 3px;
@@ -1170,7 +1221,7 @@
 		:global(th.c-age) {
 			display: none;
 		}
-		.panes.split {
+		.view.split {
 			grid-template-columns: minmax(0, 1fr) 400px;
 		}
 	}
@@ -1226,10 +1277,10 @@
 	}
 
 	@media (max-width: 1100px) {
-		.panes.split {
+		.view.split {
 			grid-template-columns: minmax(0, 1fr);
 		}
-		.panes.split .detail {
+		.view.split .detail {
 			position: absolute;
 			top: 0;
 			right: 0;
