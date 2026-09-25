@@ -16,10 +16,11 @@ import java.util.Optional;
 public class OutreachService {
 
     private static final Map<String, String> PERSONAS = Map.of(
-            "automation", "COO or Head of Process Excellence",
-            "security", "CISO or Head of Information Security",
-            "data", "Chief Data Officer or Head of Data Platform",
-            "custom", "the operations leader who owns this question");
+            PolicyLibrary.AUTOMATION, "COO or Head of Process Excellence",
+            PolicyLibrary.SECURITY, "CISO or Head of Information Security",
+            PolicyLibrary.DATA, "Chief Data Officer or Head of Data Platform");
+
+    private static final String DEFAULT_PERSONA = "operations leader who owns this question";
 
     private static final Map<String, String> PROPOSITIONS = Map.of(
             PolicyLibrary.AUTOMATION,
@@ -49,8 +50,7 @@ public class OutreachService {
                 .limit(3)
                 .toList();
 
-        String theme = evidence.isEmpty() ? "custom" : evidence.get(0).theme();
-        String persona = PERSONAS.getOrDefault(theme, PERSONAS.get("custom"));
+        String persona = PERSONAS.getOrDefault(detail.serviceLine(), DEFAULT_PERSONA);
         String proposition = PROPOSITIONS.getOrDefault(detail.serviceLine(),
                 "we take the first step of this programme off your team's plate");
 
@@ -162,12 +162,7 @@ public class OutreachService {
     }
 
     private String headlineFor(LedgerRow row) {
-        return switch (row.theme()) {
-            case "automation" -> "a note on your automation programme";
-            case "security" -> "a note on your security programme";
-            case "data" -> "a note on your data programme";
-            default -> "a question about " + row.questionKey();
-        };
+        return "a note on your " + row.theme().replace('-', ' ').toLowerCase() + " signals";
     }
 
     private static String age(LedgerRow row) {
