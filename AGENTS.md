@@ -58,6 +58,29 @@ pnpm run dev                         # :5173
 Deploy: push to `main`. The GitHub webhook triggers `Gigahack26/gigahack26` on
 `jen.pistonpunk.com`, which runs the root `Jenkinsfile`.
 
+## Running from source
+
+The flake composes one dev shell from three files: the root adds `just`,
+`docker-client` and `docker-compose`; `api/nix/devshell.nix` adds JDK 25, Gradle
+and `google-java-format`; `ui/nix/devshell.nix` adds Node 22, pnpm and prettier.
+
+```sh
+nix develop            # or: direnv allow
+docker compose up -d postgres mongo     # stores only, schema created on boot
+cd api && ./gradlew bootRun
+cd ui  && pnpm install && pnpm run dev  # :5173
+```
+
+No environment is needed for this: the API already defaults to `localhost:5432`
+and `localhost:27017`, and the UI defaults to `http://localhost:8080`. The UI
+runs on `:5173` here, which `docker-compose.yml` already lists in
+`CORS_ALLOWED_ORIGINS`.
+
+Without nix, `./gradlew` needs JDK 25 — either run it in the `eclipse-temurin:25-jdk-alpine`
+image as above, or install one. pnpm comes from `corepack enable`, since
+`ui/package.json` pins `packageManager`; if corepack cannot fetch it, the Docker
+path needs neither.
+
 ## Architecture
 
 **Two stores, two jobs.** PostgreSQL holds `company`, `evidence`, `signal`,
