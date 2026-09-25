@@ -92,12 +92,17 @@ public class PolicyService {
                 orEmpty(instructions),
                 tier == null ? WeightTier.HIGH : tier,
                 polarity == null ? Polarity.POSITIVE : polarity,
-                theme == null || theme.isBlank() ? "asked" : theme.trim(),
+                theme == null || theme.isBlank() ? themeFor(text) : theme.trim(),
                 DecayClass.STRUCTURAL,
                 LocalRubricEngine.deriveCues(text, orEmpty(instructions)),
                 List.of(),
                 true,
                 clock.instant()));
+    }
+
+    private static String themeFor(String text) {
+        String derived = firstWords(text, 2).replace(' ', '-');
+        return derived.isBlank() ? "asked" : derived.substring(0, Math.min(40, derived.length()));
     }
 
     private static String sha(String value) {
