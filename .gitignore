@@ -1,0 +1,12 @@
+target/
+node_modules/
+build/
+.svelte-kit/
+dist/
+.idea/
+.vscode/
+*.iml
+*.log
+.env
+.env.local
+.DS_Store
