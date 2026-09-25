@@ -5,6 +5,7 @@ import com.pistonpunk.gigahack26.service.CaptureStore;
 import com.pistonpunk.gigahack26.service.LeadService;
 import com.pistonpunk.gigahack26.service.PolicyLibrary;
 import com.pistonpunk.gigahack26.service.RefreshScheduler;
+import com.pistonpunk.gigahack26.service.RegionService;
 import com.pistonpunk.gigahack26.service.ScoringProperties;
 import com.pistonpunk.gigahack26.service.ScoreboardService;
 import com.pistonpunk.gigahack26.service.SettingsService;
@@ -32,15 +33,17 @@ public class BoardController {
     private final CaptureStore captures;
     private final LeadService leads;
     private final RefreshScheduler refresh;
+    private final RegionService regions;
 
     public BoardController(BoardService board, ScoreboardService scoreboard, SettingsService settingsService,
-                           CaptureStore captures, LeadService leads, RefreshScheduler refresh) {
+                           CaptureStore captures, LeadService leads, RefreshScheduler refresh, RegionService regions) {
         this.board = board;
         this.scoreboard = scoreboard;
         this.settingsService = settingsService;
         this.captures = captures;
         this.leads = leads;
         this.refresh = refresh;
+        this.regions = regions;
     }
 
     @GetMapping("/companies")
@@ -48,8 +51,9 @@ public class BoardController {
                                     @RequestParam(name = "filter", defaultValue = "all") String filter,
                                     @RequestParam(name = "sort", defaultValue = "score") String sort,
                                     @RequestParam(name = "q", required = false) String query,
-                                    @RequestParam(name = "stage", required = false) String stage) {
-        return board.board(line(serviceLine), filter, sort, query, stage);
+                                    @RequestParam(name = "stage", required = false) String stage,
+                                    @RequestParam(name = "region", required = false) String region) {
+        return board.board(line(serviceLine), filter, sort, query, stage, region);
     }
 
     @GetMapping("/companies/{id}")
@@ -76,6 +80,7 @@ public class BoardController {
         meta.put("bands", board.bandCounts(line));
         meta.put("stages", leads.tally(line));
         meta.put("captures", captures.size());
+        meta.put("regions", regions.tree());
         meta.put("nextRefreshAt", refresh.nextRunAt());
         meta.put("lastRefreshAt", refresh.lastRunAt());
         meta.put("refreshIntervalMs", refresh.interval().toMillis());

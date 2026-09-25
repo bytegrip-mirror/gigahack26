@@ -1,6 +1,6 @@
 <script lang="ts">
 	import '../app.css';
-	import '@fontsource-variable/newsreader/opsz.css';
+	import '@fontsource-variable/space-grotesk';
 	import '@fontsource-variable/archivo';
 
 	import { untrack } from 'svelte';

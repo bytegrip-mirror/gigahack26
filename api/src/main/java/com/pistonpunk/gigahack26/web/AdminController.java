@@ -10,6 +10,7 @@ import com.pistonpunk.gigahack26.repository.jpa.EvidenceRepository;
 import com.pistonpunk.gigahack26.repository.jpa.PolicyQuestionRepository;
 import com.pistonpunk.gigahack26.service.CaptureStore;
 import com.pistonpunk.gigahack26.service.ClassifierEngine;
+import com.pistonpunk.gigahack26.service.ClassifierRouter;
 import com.pistonpunk.gigahack26.service.CorpusProperties;
 import com.pistonpunk.gigahack26.service.DeepSeekEngine;
 import com.pistonpunk.gigahack26.service.LocalRubricEngine;
@@ -49,6 +50,7 @@ public class AdminController {
     private final PolicyQuestionRepository questions;
     private final CaptureStore captures;
     private final DeepSeekEngine deepSeek;
+    private final ClassifierRouter router;
     private final LocalRubricEngine local;
     private final CorpusProperties corpus;
     private final ObjectMapper mapper;
@@ -56,13 +58,15 @@ public class AdminController {
 
     public AdminController(CompanyRepository companies, EvidenceRepository evidence,
                            PolicyQuestionRepository questions, CaptureStore captures, DeepSeekEngine deepSeek,
-                           LocalRubricEngine local, CorpusProperties corpus, ObjectMapper mapper, Clock clock) {
+                           LocalRubricEngine local, ClassifierRouter router, CorpusProperties corpus,
+                           ObjectMapper mapper, Clock clock) {
         this.companies = companies;
         this.evidence = evidence;
         this.questions = questions;
         this.captures = captures;
         this.deepSeek = deepSeek;
         this.local = local;
+        this.router = router;
         this.corpus = corpus;
         this.mapper = mapper;
         this.clock = clock;
@@ -75,7 +79,7 @@ public class AdminController {
         if (!corpus.adminEnabled()) {
             return ResponseEntity.notFound().build();
         }
-        if (!deepSeek.available()) {
+        if (!router.modelAvailable()) {
             return ResponseEntity.status(409).body(Map.of(
                     "error", "DEEPSEEK_API_KEY is not configured on this instance"));
         }
@@ -90,6 +94,7 @@ public class AdminController {
 
         AtomicInteger candidates = new AtomicInteger();
         AtomicInteger failed = new AtomicInteger();
+        AtomicInteger reused = new AtomicInteger();
         AtomicInteger pairs = new AtomicInteger();
         List<Map<String, Object>> signals = new ArrayList<>();
 
@@ -114,8 +119,12 @@ public class AdminController {
                         candidates.incrementAndGet();
                         List<ClassifierEngine.Finding> findings;
                         try {
-                            findings = deepSeek.classify(
-                                    new ClassifierEngine.ClassificationRequest(companyName, question, document));
+                            ClassifierRouter.ModelAnswer answer =
+                                    router.askModel(companyName, question, document);
+                            if (answer.reused()) {
+                                reused.incrementAndGet();
+                            }
+                            findings = answer.findings();
                         } catch (com.pistonpunk.gigahack26.service.LanguageModelUnavailableException e) {
                             failed.incrementAndGet();
                             return List.of();
@@ -194,6 +203,7 @@ public class AdminController {
         result.put("strikeRate", calls == 0 ? 0.0 : round((double) strikes / calls));
         result.put("signals", signals.size());
         result.put("failedCalls", failed.get());
+        result.put("reusedFromCache", reused.get());
         result.put("writtenTo", written);
         if (writeError != null) {
             result.put("writeError", writeError);

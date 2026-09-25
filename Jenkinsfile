@@ -26,6 +26,9 @@ pipeline {
         DB_NAME = "gigahack26"
         DB_USER = "gigahack"
 
+        REDIS_IMAGE = "redis:7-alpine"
+        REDIS_CONTAINER = "gigahack26-redis"
+
         MONGO_IMAGE = "mongo:7.0"
         MONGO_CONTAINER = "gigahack26-mongo"
         MONGO_DB_NAME = "gigahack26"
@@ -166,6 +169,39 @@ pipeline {
             }
         }
 
+        stage('Deploy Redis') {
+            steps {
+                sh '''
+                    running_image=$(docker inspect -f '{{.Config.Image}}' ${REDIS_CONTAINER} 2>/dev/null || echo none)
+                    if [ "$running_image" = "${REDIS_IMAGE}" ]; then
+                        echo "Reusing ${REDIS_CONTAINER} (image unchanged)"
+                        docker start ${REDIS_CONTAINER} >/dev/null
+                    else
+                        echo "Recreating ${REDIS_CONTAINER} (${running_image} -> ${REDIS_IMAGE})"
+                        docker rm -f ${REDIS_CONTAINER} >/dev/null 2>&1 || true
+                        docker run -d \
+                            --name ${REDIS_CONTAINER} \
+                            --network=${NETWORK} \
+                            --restart unless-stopped \
+                            ${REDIS_IMAGE} \
+                            redis-server --save '' --appendonly no --maxmemory 256mb --maxmemory-policy allkeys-lru
+                    fi
+                '''
+                sh '''
+                    for attempt in $(seq 1 20); do
+                        if docker exec ${REDIS_CONTAINER} redis-cli ping 2>/dev/null | grep -q PONG; then
+                            echo "Redis is ready"
+                            exit 0
+                        fi
+                        sleep 2
+                    done
+                    echo "Redis did not become ready in time"
+                    docker logs ${REDIS_CONTAINER} || true
+                    exit 1
+                '''
+            }
+        }
+
         stage('Run containers') {
             steps {
                 withCredentials([
@@ -190,6 +226,8 @@ pipeline {
                             -e DEEPSEEK_MODEL=${DEEPSEEK_MODEL} \
                             -e CORPUS_SEED=true \
                             -e ADMIN_ENABLED=false \
+                            -e REDIS_HOST=${REDIS_CONTAINER} \
+                            -e REDIS_PORT=6379 \
                             --label traefik.enable=true \
                             --label "traefik.docker.network=${NETWORK}" \
                             --label "traefik.http.routers.gigahack26api.rule=Host(\\`${API_DOMAIN}\\`)" \

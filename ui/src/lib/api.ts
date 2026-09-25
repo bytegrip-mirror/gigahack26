@@ -35,6 +35,7 @@ export type BoardRow = {
 	probability: number;
 	band: Band;
 	bandLabel: string;
+	bandShort: string;
 	gateReason: string | null;
 	nats: number;
 	signalCount: number;
@@ -308,6 +309,7 @@ export type Meta = {
 	degraded: boolean;
 	bands: Record<string, number>;
 	stages: Record<string, number>;
+	regions: RegionNode[];
 	nextRefreshAt: string | null;
 	lastRefreshAt: string | null;
 	refreshIntervalMs: number;
@@ -424,6 +426,7 @@ export function fetchBoard(options: {
 	sort?: string;
 	q?: string;
 	stage?: string;
+	region?: string;
 }): Promise<BoardRow[]> {
 	return request<BoardRow[]>(
 		`/api/companies${query({
@@ -431,7 +434,8 @@ export function fetchBoard(options: {
 			filter: options.filter ?? 'all',
 			sort: options.sort ?? 'score',
 			q: options.q,
-			stage: options.stage
+			stage: options.stage,
+			region: options.region
 		})}`
 	);
 }
@@ -538,6 +542,27 @@ export function pushToHubspot(
 		method: 'POST',
 		body: JSON.stringify({ serviceLine })
 	});
+}
+
+export type RegionNode = {
+	key: string;
+	name: string;
+	children: { key: string; name: string; children: RegionNode[] }[];
+};
+
+export type RegionCountry = {
+	code: string;
+	regionKey: string;
+	regionName: string;
+	continentKey: string;
+};
+
+export function fetchRegions(): Promise<RegionNode[]> {
+	return request<RegionNode[]>('/api/regions');
+}
+
+export function fetchRegionCountries(): Promise<RegionCountry[]> {
+	return request<RegionCountry[]>('/api/regions/countries');
 }
 
 export type ServiceLine = {

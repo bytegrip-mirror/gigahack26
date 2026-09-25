@@ -36,6 +36,17 @@ services:
       timeout: 5s
       retries: 20
 
+  redis:
+    image: redis:7-alpine
+    command: ['redis-server', '--save', '', '--appendonly', 'no', '--maxmemory', '256mb', '--maxmemory-policy', 'allkeys-lru']
+    ports:
+      - '127.0.0.1:6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
   api:
     image: gigahack26-api-local
     build: ./api
@@ -52,6 +63,8 @@ services:
       CORPUS_SEED: 'true'
       CORPUS_FORCE_RESEED: ${CORPUS_FORCE_RESEED:-false}
       ADMIN_ENABLED: ${ADMIN_ENABLED:-false}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
       SCORING_BASE_RATE: ${SCORING_BASE_RATE:-0.25}
       SCORING_PRIORITY_THRESHOLD: ${SCORING_PRIORITY_THRESHOLD:-0.55}
       SCORING_NURTURE_THRESHOLD: ${SCORING_NURTURE_THRESHOLD:-0.45}
@@ -62,6 +75,8 @@ services:
       postgres:
         condition: service_healthy
       mongo:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     healthcheck:
       test: ['CMD-SHELL', "wget -q -O - http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"'"]

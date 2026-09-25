@@ -25,7 +25,7 @@
 	--rule: #dcd7cd;
 	--rule-strong: #c3bcae;
 
-	--font-display: 'Newsreader Variable', 'Iowan Old Style', Georgia, serif;
+	--font-display: 'Space Grotesk Variable', 'Archivo Variable', ui-sans-serif, sans-serif;
 	--font-ui: 'Archivo Variable', 'Helvetica Neue', Arial, sans-serif;
 
 	--rail: 228px;
@@ -99,9 +99,8 @@ a:hover {
 
 .dsp {
 	font-family: var(--font-display);
-	font-weight: 400;
-	letter-spacing: -0.015em;
-	font-optical-sizing: auto;
+	font-weight: 600;
+	letter-spacing: -0.02em;
 }
 
 .key {

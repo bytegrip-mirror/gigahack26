@@ -56,6 +56,7 @@ public class LeadController {
         return summary;
     }
 
+    @org.springframework.cache.annotation.CacheEvict(value = "board", allEntries = true)
     @PostMapping("/{companyId}")
     public LeadView record(@PathVariable UUID companyId, @Valid @RequestBody RecordRequest request) {
         leads.record(companyId, line(request.serviceLine()), request.status(), request.channel(), request.note(),
@@ -66,6 +67,7 @@ public class LeadController {
                 .orElseThrow();
     }
 
+    @org.springframework.cache.annotation.CacheEvict(value = "board", allEntries = true)
     @PostMapping("/{companyId}/hubspot")
     public ResponseEntity<Map<String, Object>> pushToHubspot(@PathVariable UUID companyId,
                                                              @RequestBody(required = false) RecordRequest request) {

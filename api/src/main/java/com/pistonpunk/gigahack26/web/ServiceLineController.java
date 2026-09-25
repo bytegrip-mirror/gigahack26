@@ -36,18 +36,21 @@ public class ServiceLineController {
         return lines.list(includeInactive);
     }
 
+    @org.springframework.cache.annotation.CacheEvict(value = "board", allEntries = true)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ServiceLineView create(@Valid @RequestBody ServiceLineRequest request) {
         return lines.create(request);
     }
 
+    @org.springframework.cache.annotation.CacheEvict(value = "board", allEntries = true)
     @PatchMapping("/{id}")
     public ResponseEntity<ServiceLineView> update(@PathVariable UUID id,
                                                   @Valid @RequestBody ServiceLineRequest request) {
         return lines.update(id, request).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @org.springframework.cache.annotation.CacheEvict(value = "board", allEntries = true)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         lines.delete(id);

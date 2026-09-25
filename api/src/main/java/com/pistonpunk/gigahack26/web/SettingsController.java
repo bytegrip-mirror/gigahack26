@@ -46,6 +46,7 @@ public class SettingsController {
     }
 
     @PutMapping
+    @org.springframework.cache.annotation.CacheEvict(value = "board", allEntries = true)
     public SettingsView update(@Valid @RequestBody SettingsRequest request,
                                @RequestParam(name = "serviceLine", required = false) String serviceLine) {
         WorkspaceSettings saved = settings.update(request);

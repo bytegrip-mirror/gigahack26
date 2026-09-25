@@ -3,6 +3,7 @@ package com.pistonpunk.gigahack26.web.dto;
 import com.pistonpunk.gigahack26.domain.Polarity;
 import com.pistonpunk.gigahack26.domain.WeightTier;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -20,6 +21,7 @@ public record BoardRow(
         double probability,
         String band,
         String bandLabel,
+        String bandShort,
         String gateReason,
         double nats,
         int signalCount,
@@ -37,7 +39,7 @@ public record BoardRow(
         java.time.Instant lastContactedAt,
         int contactCount,
         String urgency,
-        String whyNow) {
+        String whyNow) implements Serializable {
 
     public record Chip(
             String evidenceId,
@@ -51,6 +53,6 @@ public record BoardRow(
             int spanStart,
             int spanEnd,
             String sourceUrl,
-            String publisher) {
+            String publisher) implements Serializable {
     }
 }

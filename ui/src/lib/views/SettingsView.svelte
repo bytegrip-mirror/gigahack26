@@ -14,6 +14,7 @@
 	import { toasts } from '$lib/toast.svelte';
 	import { shortNumber } from '$lib/format';
 	import Tag from '$lib/components/Tag.svelte';
+	import LoadingVeil from '$lib/components/LoadingVeil.svelte';
 
 	const SECTIONS = [
 		{ id: 'voice', label: 'Voice and style', hint: 'How drafts read' },
@@ -197,6 +198,7 @@
 		<p class="note"><span class="spinner"></span> Loading settings</p>
 	{:else if draft}
 		<div class="panes">
+			<LoadingVeil show={saving} label="Saving and re-scoring" />
 			<nav class="sections" aria-label="Settings sections">
 				{#each SECTIONS as option (option.id)}
 					<button
@@ -470,6 +472,7 @@
 	}
 
 	.panes {
+		position: relative;
 		flex: 1;
 		min-height: 0;
 		display: grid;

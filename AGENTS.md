@@ -166,6 +166,30 @@ breadth-first and flushes partial output every 20 companies, so a long run never
 loses everything. Every document is re-hashable and the script will not write a
 document it could not actually fetch.
 
+**Regions are a two-level taxonomy, and the board filters by them.** `Region` holds
+continents and the commercial regions beneath them, each with the country codes it
+covers. `RegionService.countriesIn` expands either level to its countries, so
+selecting "Europe" and selecting "DACH" are the same code path. Companies are
+placed once, at seed time, from their country code. The selector lives in the board
+toolbar and the choice travels in the session, because it is a workspace-wide
+filter rather than a per-view one.
+
+**Classifications are cached before they are made, not after.** `classification_cache`
+is keyed by the document's fingerprint, the question key and the engine, and
+`ClassifierRouter` consults it before any model call and writes the answer —
+including "nothing here" — straight after one. A corpus pass therefore only pays
+for pairs it has never seen, and a re-run over unchanged documents costs nothing.
+`GET /api/admin/signals/build` reports `reusedFromCache` separately from
+`modelCalls` so the saving is visible rather than assumed.
+
+**Redis caches the expensive reads and nothing else.** The board is 578 ledgers
+recomputed per request; `@Cacheable("board")` on `BoardService.board` takes it from
+about 500 ms to about 20 ms. Every write that could change the answer — re-score,
+settings, leads, policies, service lines, the scheduled refresh — evicts the whole
+cache, and the TTL is 60 seconds, so an eviction that is ever missed expires on its
+own. `CacheConfig` installs an error handler: if Redis is unreachable the request is
+served uncached and logged, never failed.
+
 **The ideal customer profile is data, not deployment config.** Geography,
 industry, the size floor, each gate, the base rate and the band cuts live in a
 single `workspace_settings` row and are edited on the Customer profile screen.
@@ -242,10 +266,9 @@ themselves. What follows from it, and must be respected:
   spent only on the corroboration mark. Semantic oxblood is for rejection and
   negative weights, and nothing else. No gradients, no shadows — hierarchy comes
   from rules and weight. Radii stay between 0 and 2px.
-- Type is three roles, not one: `--font-display` (Newsreader) for page titles,
-  company names and quoted evidence, `--font-ui` (Archivo) for interface text,
-  `--font-mono` (IBM Plex Mono) for every number. Do not set a number in the
-  display face or prose in the mono one.
+- Type is two roles: `--font-display` (Space Grotesk) for page titles, company
+  names and section headings, `--font-ui` (Archivo) for everything else. There is
+  no monospace face; numbers use tabular figures in the interface face.
 - The shell is fixed-height with independently scrolling panes: a rail, then a
   view that splits into list and detail. Nothing scrolls the document itself, and
   selection lives in the URL so a company stays linkable.

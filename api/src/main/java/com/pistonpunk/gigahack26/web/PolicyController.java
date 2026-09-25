@@ -39,12 +39,14 @@ public class PolicyController {
         return policies.list(serviceLine);
     }
 
+    @org.springframework.cache.annotation.CacheEvict(value = "board", allEntries = true)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public PolicyView create(@Valid @RequestBody PolicyRequest request) {
         return policies.create(request);
     }
 
+    @org.springframework.cache.annotation.CacheEvict(value = "board", allEntries = true)
     @PatchMapping("/{id}")
     public ResponseEntity<PolicyView> update(@PathVariable UUID id, @Valid @RequestBody PolicyRequest request) {
         return policies.update(id, request)
@@ -52,6 +54,7 @@ public class PolicyController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @org.springframework.cache.annotation.CacheEvict(value = "board", allEntries = true)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         return policies.delete(id)

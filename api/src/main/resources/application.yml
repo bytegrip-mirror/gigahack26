@@ -31,6 +31,14 @@ spring:
   data:
     mongodb:
       auto-index-creation: true
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 2s
+  cache:
+    type: ${CACHE_TYPE:redis}
+    redis:
+      time-to-live: ${CACHE_TTL_MS:60000}
 
 app:
   cors:
@@ -59,7 +67,7 @@ app:
     icp-countries: ${ICP_COUNTRIES:MD,RO,DE,FR,IT,ES,PT,NL,BE,LU,AT,CH,PL,CZ,SK,HU,BG,RS,UA,TR,GB,IE,SE,NO,DK,FI,GR,HR,SI,EE,LV,LT,US,CA}
   refresh:
     enabled: ${REFRESH_ENABLED:true}
-    interval-ms: ${REFRESH_INTERVAL_MS:900000}
+    interval-ms: ${REFRESH_INTERVAL_MS:43200000}
     initial-delay-ms: ${REFRESH_INITIAL_DELAY_MS:120000}
   corpus:
     raw-path: ${CORPUS_RAW_PATH:corpus/raw.json}

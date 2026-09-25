@@ -4,6 +4,7 @@
 	import { toasts } from '$lib/toast.svelte';
 	import { age, fit, host, plural } from '$lib/format';
 	import Tag from '$lib/components/Tag.svelte';
+	import LoadingVeil from '$lib/components/LoadingVeil.svelte';
 
 	const STAGES = [
 		{ id: 'CONTACTED', label: 'Contacted' },
@@ -103,6 +104,7 @@
 		</div>
 	{:else}
 		<div class="panes scroll">
+			<LoadingVeil show={loading} label="Reading the pipeline" />
 			{#each grouped as stage (stage.id)}
 				{#if stage.rows.length > 0}
 					<section class="stage" data-stage={stage.id}>
@@ -198,6 +200,7 @@
 	}
 
 	.panes {
+		position: relative;
 		flex: 1;
 		min-height: 0;
 		overflow-y: auto;

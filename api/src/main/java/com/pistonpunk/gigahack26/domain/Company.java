@@ -27,6 +27,9 @@ public class Company {
     @Column(length = 2)
     private String country;
 
+    @Column(name = "region_key", length = 80)
+    private String regionKey;
+
     @Column(name = "hq_city", length = 120)
     private String hqCity;
 
@@ -93,6 +96,14 @@ public class Company {
 
     public String getCountry() {
         return country;
+    }
+
+    public String getRegionKey() {
+        return regionKey;
+    }
+
+    public void placeIn(String regionKey) {
+        this.regionKey = regionKey;
     }
 
     public String getHqCity() {

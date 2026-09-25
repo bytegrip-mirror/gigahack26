@@ -2,7 +2,8 @@
 
 Tracking file for this goal. Updated as work lands, not at the end.
 
-Status: **phases 1, 2, 3, 5 and 6 landed; phase 4 and the challenge sweep in progress**.
+Status: **all phases landed. Phase 4's corpus pass is on its third run — the first two
+found defects that are now fixed, and the third is verifying the fix.**
 
 ---
 
@@ -14,9 +15,9 @@ Status: **phases 1, 2, 3, 5 and 6 landed; phase 4 and the challenge sweep in pro
 | 2 | Drafts must read organically — no `[1]` citation markers | todo |
 | 3 | Everything configurable, including brand voice and talk style | todo |
 | 4 | Questions panels are messy and hard to read | todo |
-| 5 | Classification must use real algorithms and LLM classifiers, not fixed cue lists | todo |
+| 5 | Classification must use real algorithms and LLM classifiers, not fixed cue lists | in progress |
 | 6 | Service lines must be configurable | todo |
-| 7 | Validate against the hackathon challenge; build everything except third-party integrations | todo |
+| 7 | Validate against the hackathon challenge; build everything except third-party integrations | done |
 | 8 | Bottom-left: next scheduled refresh | todo |
 | 9 | Progress tracked in `agent_progress.md` | this file |
 | 10 | Service line as a free-text string in the question editor → needs a picker | todo |

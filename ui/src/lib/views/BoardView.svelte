@@ -20,6 +20,7 @@
 	import ScoreMeter from '$lib/components/ScoreMeter.svelte';
 	import CaptureSheet from '$lib/components/CaptureSheet.svelte';
 	import Scorecard from '$lib/views/Scorecard.svelte';
+	import LoadingVeil from '$lib/components/LoadingVeil.svelte';
 
 	let { initialSelected = null }: { initialSelected?: string | null } = $props();
 
@@ -85,6 +86,15 @@
 		return map;
 	});
 	const bands = $derived(meta?.bands ?? {});
+	const regionLabel = $derived.by(() => {
+		for (const continent of meta?.regions ?? []) {
+			if (continent.key === session.region) return continent.name;
+			for (const child of continent.children) {
+				if (child.key === session.region) return `${continent.name} › ${child.name}`;
+			}
+		}
+		return 'Worldwide';
+	});
 
 	function countFor(id: string) {
 		if (id === 'all') return bands.ALL ?? rows.length;
@@ -115,13 +125,21 @@
 		const activeSort = sort;
 		const search = query;
 		const activeStage = stage;
+		const activeRegion = session.region;
 		if (!line) return;
 
 		let cancelled = false;
 		loading = true;
 		const timer = setTimeout(
 			() => {
-				fetchBoard({ serviceLine: line, filter: activeFilter, sort: activeSort, q: search, stage: activeStage })
+				fetchBoard({
+					serviceLine: line,
+					filter: activeFilter,
+					sort: activeSort,
+					q: search,
+					stage: activeStage,
+					region: activeRegion
+				})
 					.then((result) => {
 						if (cancelled) return;
 						rows = result;
@@ -196,7 +214,8 @@
 		<div class="ident">
 			<h1 class="dsp">{serviceLine || 'Board'}</h1>
 			<p class="label">
-				{shortNumber(bands.ALL ?? rows.length)} ranked · {shortNumber(meta?.captures ?? 0)} captures
+				{shortNumber(bands.ALL ?? rows.length)} ranked · {shortNumber(meta?.captures ?? 0)} captures{#if session.region !== 'world'}
+					· {regionLabel}{/if}
 			</p>
 		</div>
 
@@ -214,6 +233,19 @@
 			</div>
 
 			<input class="input search" placeholder="Filter by name, country, industry" bind:value={query} />
+
+			<label class="sr-only" for="region">Region</label>
+			<select id="region" class="select region" value={session.region} onchange={(event) => {
+				session.setRegion(event.currentTarget.value);
+			}}>
+				<option value="world">Worldwide</option>
+				{#each meta?.regions ?? [] as continent (continent.key)}
+					<option value={continent.key}>{continent.name} — all</option>
+					{#each continent.children as child (child.key)}
+						<option value={child.key}>　{continent.name} › {child.name}</option>
+					{/each}
+				{/each}
+			</select>
 
 			<label class="sr-only" for="stage">Lead stage</label>
 			<select id="stage" class="select" bind:value={stage}>
@@ -317,6 +349,7 @@
 
 	<div class="panes" class:split={selected !== null}>
 		<section class="list scroll" aria-label="Ranked companies">
+			<LoadingVeil show={loading} label="Scoring the board" />
 			{#if error}
 				<p class="note warn">{error}</p>
 			{:else if loading && rows.length === 0}
@@ -371,7 +404,7 @@
 								<td class="c-fit">
 									<div class="fitrow">
 										<span class="num fitval">{fit(row.probability)}</span>
-										<Tag band={row.band} title={row.gateReason ?? ''}>{row.bandLabel}</Tag>
+										<Tag band={row.band} title={row.gateReason ?? row.bandLabel}>{row.bandShort}</Tag>
 									</div>
 									{#if meta}
 										<ScoreMeter
@@ -505,6 +538,10 @@
 		min-width: 118px;
 	}
 
+	.tools #region {
+		min-width: 190px;
+	}
+
 	.ask {
 		display: flex;
 		align-items: flex-end;
@@ -628,6 +665,7 @@
 	}
 
 	.list {
+		position: relative;
 		min-height: 0;
 		background: var(--surface);
 	}

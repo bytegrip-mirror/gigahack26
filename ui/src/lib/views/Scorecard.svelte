@@ -9,19 +9,7 @@
 		type LeadView
 	} from '$lib/api';
 	import { toasts } from '$lib/toast.svelte';
-	import {
-		age,
-		date,
-		fit,
-		horizon,
-		host,
-		nats,
-		plural,
-		signed,
-		sourceKind,
-		theme,
-		tier
-	} from '$lib/format';
+	import { age, date, fit, host, nats, plural, signed, sourceKind, theme, tier } from '$lib/format';
 	import Tag from '$lib/components/Tag.svelte';
 	import ScoreMeter from '$lib/components/ScoreMeter.svelte';
 	import Ledger from '$lib/components/Ledger.svelte';
@@ -47,11 +35,17 @@
 		{ id: 'REJECTED', label: 'Rejected' }
 	];
 
+	const TABS = [
+		{ id: 'signals', label: 'Top signals' },
+		{ id: 'ledger', label: 'Ledger' },
+		{ id: 'documents', label: 'Documents' }
+	];
+
 	let detail = $state<CompanyDetail | null>(null);
 	let error = $state<string | null>(null);
 	let loading = $state(true);
+	let tab = $state('signals');
 	let outreachOpen = $state(false);
-	let ledgerOpen = $state(false);
 	let silentOnly = $state(false);
 	let lead = $state<LeadView | null>(null);
 	let busy = $state<string | null>(null);
@@ -84,6 +78,7 @@
 	const silent = $derived(detail ? detail.evidence.filter((item) => item.signalCount === 0) : []);
 	const documents = $derived(detail ? (silentOnly ? silent : detail.evidence) : []);
 	const stage = $derived(lead?.status ?? 'NEW');
+	const counters = $derived(detail?.whyNow?.counters ?? []);
 
 	function daysSince(iso: string): number {
 		return Math.max(0, (Date.now() - new Date(iso).getTime()) / 86_400_000);
@@ -133,15 +128,6 @@
 	function openRow(row: LedgerRow) {
 		oncapture(row.evidenceId, { start: row.spanStart, end: row.spanEnd });
 	}
-
-	async function onDrafted(subject: string) {
-		if (!detail) return;
-		try {
-			lead = await recordLead({ companyId: detail.id, serviceLine, status: 'CONTACTED', outreachSubject: subject });
-		} catch {
-			/* the stage control still works even if this write fails */
-		}
-	}
 </script>
 
 <div class="card">
@@ -163,9 +149,9 @@
 	{#if error}
 		<p class="note warn">{error}</p>
 	{:else if loading && !detail}
-		<p class="note"><span class="spinner"></span> Reading the scorecard</p>
+		<div class="veil"><span class="spinner"></span><span>Reading the scorecard</span></div>
 	{:else if detail}
-		<section class="score">
+		<section class="block score">
 			<div class="score-row">
 				<span class="num score-val">{fit(detail.probability)}</span>
 				<div class="score-meta">
@@ -196,144 +182,114 @@
 			</div>
 			<p class="why-headline dsp">{detail.whyNow.headline}</p>
 			<p class="why-text">{detail.whyNow.narrative}</p>
-			{#if detail.whyNow.daysInBand !== null && detail.whyNow.daysInBand > 0}
-				<p class="why-clock">
-					<span class="num">{Math.round(detail.whyNow.daysInBand)}</span> days left in the top band without new
-					evidence
-				</p>
-			{/if}
 		</section>
 
 		<section class="block actions">
-			<div class="stage">
-				<p class="label">Stage</p>
-				<div class="seg" role="tablist" aria-label="Lead stage">
-					{#each STAGES as option (option.id)}
-						<button
-							role="tab"
-							aria-selected={stage === option.id}
-							disabled={busy === 'stage'}
-							onclick={() => setStage(option.id)}
-						>
-							{option.label}
-						</button>
-					{/each}
-				</div>
-				{#if lead && lead.contactCount > 0}
-					<p class="sub dim">
-						{plural(lead.contactCount, 'contact')}
-						{#if lead.lastContactedAt}· last {age(daysSince(lead.lastContactedAt))}{/if}
-						{#if lead.channel}· via {lead.channel}{/if}
-					</p>
-				{/if}
+			<div class="seg" role="tablist" aria-label="Lead stage">
+				{#each STAGES as option (option.id)}
+					<button
+						role="tab"
+						aria-selected={stage === option.id}
+						disabled={busy === 'stage'}
+						onclick={() => setStage(option.id)}
+					>
+						{option.label}
+					</button>
+				{/each}
 			</div>
-
+			{#if lead && lead.contactCount > 0}
+				<p class="sub dim">
+					{plural(lead.contactCount, 'contact')}
+					{#if lead.lastContactedAt}· last {age(daysSince(lead.lastContactedAt))}{/if}
+					{#if lead.channel}· via {lead.channel}{/if}
+				</p>
+			{/if}
 			<div class="row">
 				<button class="btn btn-ink" onclick={() => (outreachOpen = true)}>Generate outreach</button>
 				<button class="btn" disabled={busy === 'crm'} onclick={pushCrm}>
 					{#if busy === 'crm'}<span class="spinner"></span>{/if}
-					{lead?.crmSyncedAt ? 'Re-push to HubSpot' : 'Push to HubSpot'}
+					{lead?.crmSyncedAt ? 'Re-push' : 'Push to HubSpot'}
 				</button>
 			</div>
-			{#if !detail.crmConfigured}
-				<p class="sub dim">
-					HubSpot is not connected on this instance. The button records the intent and keeps the lead here.
-				</p>
-			{/if}
 			<div class="row quiet">
 				<button class="btn btn-quiet btn-sm" onclick={() => judge('ACCEPT')}>Mark qualified</button>
 				<button class="btn btn-quiet btn-sm" onclick={() => judge('REJECT')}>Not a lead</button>
 			</div>
 		</section>
 
-		{#if detail.whyNow.triggers.length > 0}
-			<section class="block">
-				<h3 class="label">Top signals</h3>
-				<ul class="signals">
-					{#each detail.whyNow.triggers as row (row.evidenceId + row.questionId + row.spanStart)}
-						<li>
-							<div class="sig-head">
-								<span class="key" title={row.questionKey}>{row.questionTitle}</span>
-								<span class="num pos">{signed(row.contributionNats)}</span>
-							</div>
-							{#if row.spanText}<p class="quote">“{row.spanText}”</p>{/if}
-							<p class="sub dim">
-								{row.publisher} · {age(row.ageDays)} · {theme(row.theme)} · {tier(row.tier)}
-								<button class="link" onclick={() => openRow(row)}>capture</button>
-							</p>
-						</li>
-					{/each}
-				</ul>
-			</section>
-		{/if}
-
-		{#if detail.whyNow.counters.length > 0}
-			<section class="block">
-				<h3 class="label">Counter signals</h3>
-				<ul class="signals">
-					{#each detail.whyNow.counters as row (row.evidenceId + row.questionId + row.spanStart)}
-						<li class="against">
-							<div class="sig-head">
-								<span class="key" title={row.questionKey}>{row.questionTitle}</span>
-								<span class="num neg">{signed(row.contributionNats)}</span>
-							</div>
-							{#if row.spanText}<p class="quote">“{row.spanText}”</p>{/if}
-							<p class="sub dim">
-								{row.publisher} · {age(row.ageDays)}
-								<button class="link" onclick={() => openRow(row)}>capture</button>
-							</p>
-						</li>
-					{/each}
-				</ul>
-			</section>
-		{/if}
-
-		<section class="block">
-			<div class="block-head">
-				<h3 class="label">Themes</h3>
-				<span class="sub dim">cap {nats(detail.themeCap)}</span>
-			</div>
-			{#each detail.themes as item (item.name)}
-				<div class="theme">
-					<div class="theme-row">
-						<span>{theme(item.name)}</span>
-						<span class="num">{signed(item.total)}</span>
-					</div>
-					<div class="bar">
-						<span
-							data-capped={item.capped}
-							style="width:{Math.min(100, (Math.abs(item.total) / detail.themeCap) * 100)}%"
-						></span>
-					</div>
+		<section class="block summary">
+			<div class="pair">
+				<div class="col">
+					<p class="label">Top signals · {detail.whyNow.triggers.length}</p>
+					<ul>
+						{#each detail.whyNow.triggers as row (row.evidenceId + row.spanStart)}
+							<li>
+								<button class="line" onclick={() => openRow(row)}>
+									<span class="dot pos"></span>
+									<span class="line-text">{row.questionTitle}</span>
+									<span class="num">{signed(row.contributionNats, 2)}</span>
+								</button>
+							</li>
+						{:else}
+							<li><span class="sub dim">none above the floor</span></li>
+						{/each}
+					</ul>
 				</div>
+				<div class="col against">
+					<p class="label">Counter signals · {counters.length}</p>
+					<ul>
+						{#each counters as row (row.evidenceId + row.spanStart)}
+							<li>
+								<button class="line" onclick={() => openRow(row)}>
+									<span class="dot neg"></span>
+									<span class="line-text">{row.questionTitle}</span>
+									<span class="num">{signed(row.contributionNats, 2)}</span>
+								</button>
+							</li>
+						{:else}
+							<li><span class="sub dim">nothing argues against</span></li>
+						{/each}
+					</ul>
+				</div>
+			</div>
+		</section>
+
+		<div class="tabs" role="tablist" aria-label="Company detail">
+			{#each TABS as option (option.id)}
+				<button role="tab" aria-selected={tab === option.id} onclick={() => (tab = option.id)}>
+					{option.label}
+					{#if option.id === 'ledger'}<span class="num">{scored.length}</span>{/if}
+					{#if option.id === 'documents'}<span class="num">{detail.evidence.length}</span>{/if}
+				</button>
 			{/each}
-			{#if detail.themes.length === 0}
-				<p class="sub dim">No theme contributed; the company sits at the base rate.</p>
-			{/if}
-		</section>
+		</div>
 
-		<section class="block">
-			<div class="block-head">
-				<h3 class="label">Decay</h3>
-				<span class="sub dim">half-life sensitivity</span>
-			</div>
-			<dl class="facts">
-				<dt>Priority for</dt><dd>{horizon(detail.priorityHorizonDays)}</dd>
-				<dt>Above Nurture</dt><dd>{horizon(detail.nurtureHorizonDays)}</dd>
-			</dl>
-			<div class="sens">
-				{#each Object.entries(detail.sensitivity) as [label, value] (label)}
-					<div><span class="num">{value.toFixed(2)}</span><span class="label">H {label}</span></div>
+		<div class="tab-body">
+			{#if tab === 'signals'}
+				{#each [...detail.whyNow.triggers, ...counters] as row (row.evidenceId + row.spanStart)}
+					<article class="sig" class:against={row.contributionNats < 0}>
+						<div class="sig-head">
+							<span class="sig-title">{row.questionTitle}</span>
+							<span class="num" class:pos={row.contributionNats > 0} class:neg={row.contributionNats < 0}>
+								{signed(row.contributionNats)}
+							</span>
+						</div>
+						{#if row.spanText}<p class="quote">“{row.spanText}”</p>{/if}
+						<p class="sub dim">
+							{row.questionText}
+						</p>
+						<p class="sub dim">
+							{row.publisher} · {age(row.ageDays)} · {theme(row.theme)} · {tier(row.tier)}
+							<button class="link" onclick={() => openRow(row)}>open capture</button>
+						</p>
+					</article>
 				{/each}
-			</div>
-		</section>
+				{#if detail.whyNow.triggers.length === 0 && counters.length === 0}
+					<p class="sub dim">No signal cleared the confidence floor for this policy.</p>
+				{/if}
+			{/if}
 
-		<section class="block">
-			<button class="disclose" onclick={() => (ledgerOpen = !ledgerOpen)} aria-expanded={ledgerOpen}>
-				<span class="label">Full ledger · {scored.length}</span>
-				<span class="sub dim">{ledgerOpen ? 'hide' : 'show the arithmetic'}</span>
-			</button>
-			{#if ledgerOpen}
+			{#if tab === 'ledger'}
 				<Ledger rows={scored} onopen={openRow} />
 				<div class="sum num">
 					<div><span>logit({detail.baseRate.toFixed(2)})</span><span>{signed(detail.baseLogit)}</span></div>
@@ -347,40 +303,45 @@
 						<span>logit → fit</span><span>{signed(detail.logit)} → {fit(detail.probability)}</span>
 					</div>
 				</div>
-				{#if detail.weakestLink}
-					<p class="sub dim">
-						Weakest link — falsify here first: <span>{detail.weakestLink}</span>
-					</p>
-				{/if}
+				<div class="themes">
+					{#each detail.themes as item (item.name)}
+						<div class="theme">
+							<div class="theme-row">
+								<span>{theme(item.name)}</span>
+								<span class="num">{signed(item.total)}</span>
+							</div>
+							<div class="bar">
+								<span
+									data-capped={item.capped}
+									style="width:{Math.min(100, (Math.abs(item.total) / detail.themeCap) * 100)}%"
+								></span>
+							</div>
+						</div>
+					{/each}
+					<p class="sub dim">Cap {nats(detail.themeCap)}, derived from the Priority line.</p>
+				</div>
 			{/if}
-		</section>
 
-		<section class="block">
-			<div class="block-head">
-				<h3 class="label">Documents read · {detail.evidence.length}</h3>
+			{#if tab === 'documents'}
 				<label class="toggle">
 					<input type="checkbox" bind:checked={silentOnly} />
-					<span>silent only ({silent.length})</span>
+					<span>Only the {silent.length} that produced nothing</span>
 				</label>
-			</div>
-			<ul class="docs">
 				{#each documents as item (item.id)}
-					<li>
-						<button class="doc" onclick={() => oncapture(item.id, null)}>
-							<span class="doc-top">
-								<span class="label">{sourceKind(item.sourceKind)}</span>
-								<span class="num dim">{date(item.publishedAt ?? item.observedAt)}</span>
-							</span>
-							<span class="doc-title">{item.title ?? host(item.sourceUrl)}</span>
-							<span class="sub dim">
-								{item.publisher} · {plural(item.charLength, 'char')}
-								{#if item.signalCount > 0}· {plural(item.signalCount, 'signal')}{:else}· no signal{/if}
-							</span>
-						</button>
-					</li>
+					<button class="doc" onclick={() => oncapture(item.id, null)}>
+						<span class="doc-top">
+							<span class="label">{sourceKind(item.sourceKind)}</span>
+							<span class="num dim">{date(item.publishedAt ?? item.observedAt)}</span>
+						</span>
+						<span class="doc-title">{item.title ?? host(item.sourceUrl)}</span>
+						<span class="sub dim">
+							{item.publisher} · {plural(item.charLength, 'char')}
+							{#if item.signalCount > 0}· {plural(item.signalCount, 'signal')}{:else}· no signal{/if}
+						</span>
+					</button>
 				{/each}
-			</ul>
-		</section>
+			{/if}
+		</div>
 	{/if}
 </div>
 
@@ -390,11 +351,24 @@
 		companyName={detail.name}
 		{serviceLine}
 		onclose={() => (outreachOpen = false)}
-		ondrafted={onDrafted}
+		ondrafted={(subject) => {
+			const id = detail?.id;
+			if (!id) return;
+			recordLead({ companyId: id, serviceLine, status: 'CONTACTED', outreachSubject: subject })
+				.then((saved) => (lead = saved))
+				.catch(() => {});
+		}}
 	/>
 {/if}
 
 <style>
+	.card {
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		min-height: 0;
+	}
+
 	.head {
 		display: flex;
 		align-items: flex-start;
@@ -405,7 +379,7 @@
 	}
 
 	h2 {
-		font-size: 21px;
+		font-size: 20px;
 		line-height: 1.15;
 	}
 
@@ -429,9 +403,21 @@
 		color: var(--oxblood);
 	}
 
-	.score {
+	.veil {
+		flex: 1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 9px;
+		background: var(--paper);
+		color: var(--ink-3);
+		font-size: 13px;
+	}
+
+	.block {
 		padding: 13px 15px;
 		border-bottom: 1px solid var(--rule);
+		flex: none;
 	}
 
 	.score-row {
@@ -443,8 +429,8 @@
 
 	.score-val {
 		font-family: var(--font-display);
-		font-size: 36px;
-		font-weight: 400;
+		font-size: 34px;
+		font-weight: 600;
 		line-height: 1;
 		letter-spacing: -0.03em;
 	}
@@ -461,29 +447,6 @@
 		font-size: 12px;
 		line-height: 1.45;
 		color: var(--oxblood);
-	}
-
-	.block {
-		padding: 13px 15px;
-		border-bottom: 1px solid var(--rule);
-	}
-
-	.block h3,
-	.block .label {
-		margin-bottom: 8px;
-	}
-
-	.block-head {
-		display: flex;
-		align-items: baseline;
-		justify-content: space-between;
-		gap: 10px;
-		margin-bottom: 8px;
-	}
-
-	.block-head h3,
-	.block-head .label {
-		margin: 0;
 	}
 
 	.why {
@@ -507,10 +470,6 @@
 		gap: 10px;
 	}
 
-	.why-head .label {
-		margin: 0;
-	}
-
 	.urgency {
 		font-size: 10px;
 		font-weight: 600;
@@ -531,7 +490,7 @@
 
 	.why-headline {
 		margin-top: 6px;
-		font-size: 16px;
+		font-size: 15px;
 		line-height: 1.3;
 		color: var(--ink);
 	}
@@ -543,29 +502,21 @@
 		color: var(--ink-2);
 	}
 
-	.why-clock {
-		margin-top: 8px;
-		font-size: 11.5px;
-		color: var(--ink-3);
-	}
-
 	.actions {
 		display: flex;
 		flex-direction: column;
-		gap: 9px;
+		gap: 8px;
 	}
 
-	.stage .label {
-		margin-bottom: 5px;
-	}
-
-	.stage .seg {
+	.actions .seg {
 		width: 100%;
 	}
 
-	.stage .seg button {
+	.actions .seg button {
 		flex: 1;
 		text-align: center;
+		padding: 4px 6px;
+		font-size: 11.5px;
 	}
 
 	.row {
@@ -582,21 +533,130 @@
 		color: var(--ink-3);
 	}
 
-	.signals {
+	.summary {
+		padding: 12px 15px;
+	}
+
+	.pair {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0;
+	}
+
+	.col {
+		min-width: 0;
+	}
+
+	.col + .col {
+		border-left: 1px solid var(--rule);
+		padding-left: 12px;
+		margin-left: 12px;
+	}
+
+	.col ul {
 		list-style: none;
-		margin: 0;
+		margin: 6px 0 0;
 		padding: 0;
 		display: flex;
 		flex-direction: column;
-		gap: 10px;
+		gap: 2px;
 	}
 
-	.signals li {
-		padding-left: 9px;
-		border-left: 2px solid var(--orange-line);
+	.line {
+		display: flex;
+		align-items: baseline;
+		gap: 6px;
+		width: 100%;
+		text-align: left;
+		padding: 2px 0;
+		font-size: 12px;
+		color: var(--ink-2);
+		line-height: 1.35;
 	}
 
-	.signals li.against {
+	.line:hover .line-text {
+		color: var(--orange-deep);
+		text-decoration: underline;
+		text-underline-offset: 2px;
+	}
+
+	.dot {
+		width: 5px;
+		height: 5px;
+		flex: none;
+		transform: translateY(-1px);
+	}
+
+	.dot.pos {
+		background: var(--accent);
+	}
+
+	.dot.neg {
+		background: var(--oxblood);
+	}
+
+	.line-text {
+		flex: 1;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.line .num {
+		flex: none;
+		font-size: 11px;
+		color: var(--ink-4);
+	}
+
+	.tabs {
+		display: flex;
+		border-bottom: 1px solid var(--ink);
+		background: var(--surface);
+		flex: none;
+	}
+
+	.tabs button {
+		display: flex;
+		align-items: center;
+		gap: 5px;
+		padding: 8px 13px;
+		font-size: 12.5px;
+		color: var(--ink-3);
+		border-bottom: 2px solid transparent;
+		margin-bottom: -1px;
+		transition: color var(--ease), border-color var(--ease);
+	}
+
+	.tabs button:hover {
+		color: var(--ink);
+	}
+
+	.tabs button[aria-selected='true'] {
+		color: var(--ink);
+		font-weight: 500;
+		border-bottom-color: var(--orange);
+	}
+
+	.tabs .num {
+		font-size: 10.5px;
+		color: var(--ink-4);
+	}
+
+	.tab-body {
+		flex: 1;
+		min-height: 0;
+		overflow-y: auto;
+		padding: 13px 15px 20px;
+	}
+
+	.sig {
+		border-left: 2px solid var(--accent-line);
+		padding: 0 0 12px 10px;
+		margin-bottom: 12px;
+	}
+
+	.sig.against {
 		border-left-color: var(--oxblood-line);
 	}
 
@@ -605,6 +665,12 @@
 		align-items: baseline;
 		justify-content: space-between;
 		gap: 10px;
+	}
+
+	.sig-title {
+		font-family: var(--font-display);
+		font-size: 14px;
+		font-weight: 600;
 	}
 
 	.pos {
@@ -618,11 +684,10 @@
 	}
 
 	.quote {
-		margin-top: 3px;
-		font-family: var(--font-display);
-		font-size: 13px;
+		margin-top: 5px;
+		font-size: 12.5px;
 		font-style: italic;
-		line-height: 1.45;
+		line-height: 1.5;
 		color: var(--ink-2);
 	}
 
@@ -630,6 +695,33 @@
 		color: var(--orange-deep);
 		text-decoration: underline;
 		text-underline-offset: 2px;
+	}
+
+	.sum {
+		margin-top: 12px;
+		border-top: 1px solid var(--rule);
+		padding-top: 8px;
+		font-size: 11.5px;
+	}
+
+	.sum > div {
+		display: flex;
+		justify-content: space-between;
+		gap: 12px;
+		padding: 1px 0;
+	}
+
+	.sum .total {
+		border-top: 1px solid var(--rule);
+		margin-top: 5px;
+		padding-top: 5px;
+		font-weight: 500;
+	}
+
+	.themes {
+		margin-top: 14px;
+		border-top: 1px solid var(--rule);
+		padding-top: 10px;
 	}
 
 	.theme {
@@ -658,92 +750,13 @@
 		background: var(--ink);
 	}
 
-	.facts {
-		display: grid;
-		grid-template-columns: 1fr auto;
-		gap: 3px 10px;
-		margin: 0;
-		font-size: 12.5px;
-	}
-
-	.facts dt {
-		color: var(--ink-3);
-	}
-
-	.facts dd {
-		margin: 0;
-		text-align: right;
-	}
-
-	.sens {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 4px;
-		margin-top: 9px;
-	}
-
-	.sens > div {
-		border: 1px solid var(--rule);
-		padding: 5px 6px;
-		display: flex;
-		flex-direction: column;
-		gap: 1px;
-	}
-
-	.sens .num {
-		font-size: 13.5px;
-	}
-
-	.sens .label {
-		font-size: 9.5px;
-	}
-
-	.disclose {
-		display: flex;
-		align-items: baseline;
-		justify-content: space-between;
-		width: 100%;
-		gap: 10px;
-	}
-
-	.disclose .label {
-		margin: 0;
-	}
-
-	.sum {
-		margin-top: 10px;
-		border-top: 1px solid var(--rule);
-		padding-top: 8px;
-		font-size: 11.5px;
-	}
-
-	.sum > div {
-		display: flex;
-		justify-content: space-between;
-		gap: 12px;
-		padding: 1px 0;
-	}
-
-	.sum .total {
-		border-top: 1px solid var(--rule);
-		margin-top: 5px;
-		padding-top: 5px;
-		font-weight: 500;
-	}
-
 	.toggle {
 		display: flex;
 		align-items: center;
-		gap: 5px;
-		font-size: 11px;
+		gap: 6px;
+		font-size: 12px;
 		color: var(--ink-3);
-	}
-
-	.docs {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		border-top: 1px solid var(--rule);
+		margin-bottom: 10px;
 	}
 
 	.doc {

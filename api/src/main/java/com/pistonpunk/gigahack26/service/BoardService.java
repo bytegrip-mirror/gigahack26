@@ -14,6 +14,8 @@ import com.pistonpunk.gigahack26.repository.jpa.PolicyScoreRepository;
 import com.pistonpunk.gigahack26.repository.jpa.SignalRepository;
 import com.pistonpunk.gigahack26.web.dto.BoardRow;
 import com.pistonpunk.gigahack26.web.dto.CompanyDetail;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,12 +46,13 @@ public class BoardService {
     private final LeadService leads;
     private final ClassifierRouter router;
     private final ScoringConfig settings;
+    private final RegionService regions;
     private final Clock clock;
 
     public BoardService(CompanyRepository companies, CompanyAliasRepository aliases, EvidenceRepository evidence,
                         SignalRepository signals, PolicyScoreRepository scores, ScoreboardService scoreboard,
                         ScoringService scoringService, WhyNowService whyNow, LeadService leads,
-                        ClassifierRouter router, ScoringConfig settings, Clock clock) {
+                        ClassifierRouter router, ScoringConfig settings, RegionService regions, Clock clock) {
         this.companies = companies;
         this.aliases = aliases;
         this.evidence = evidence;
@@ -61,15 +64,23 @@ public class BoardService {
         this.leads = leads;
         this.router = router;
         this.settings = settings;
+        this.regions = regions;
         this.clock = clock;
     }
 
-    @Transactional(readOnly = true)
     public List<BoardRow> board(String serviceLine, String filter, String sort, String query) {
-        return board(serviceLine, filter, sort, query, null);
+        return board(serviceLine, filter, sort, query, null, null);
     }
 
     public List<BoardRow> board(String serviceLine, String filter, String sort, String query, String stage) {
+        return board(serviceLine, filter, sort, query, stage, null);
+    }
+
+    @Cacheable(value = "board",
+            key = "#serviceLine + '|' + #filter + '|' + #sort + '|' + #query + '|' + #stage + '|' + #region")
+    @Transactional(readOnly = true)
+    public List<BoardRow> board(String serviceLine, String filter, String sort, String query, String stage,
+                                String region) {
         List<ScoreboardService.Computed> computed = scoreboard.compute(serviceLine);
         if (computed.isEmpty()) {
             return List.of();
@@ -102,6 +113,9 @@ public class BoardService {
             }
             Lead companyLead = leadsByCompany.get(company.getId());
             if (!passesStage(companyLead, stage)) {
+                continue;
+            }
+            if (!inRegion(company, region)) {
                 continue;
             }
 
@@ -299,6 +313,7 @@ public class BoardService {
                 detail.probability(),
                 detail.band().name(),
                 detail.band().label(),
+                detail.band().shortLabel(),
                 detail.gateReason(),
                 detail.nats(),
                 detail.signalCount(),
@@ -335,6 +350,17 @@ public class BoardService {
                 row.publisher());
     }
 
+
+    private boolean inRegion(Company company, String region) {
+        if (region == null || region.isBlank() || region.equalsIgnoreCase("world")) {
+            return true;
+        }
+        java.util.Set<String> codes = regions.countriesIn(region);
+        if (codes.isEmpty()) {
+            return true;
+        }
+        return company.getCountry() != null && codes.contains(company.getCountry().toUpperCase(java.util.Locale.ROOT));
+    }
 
     private static boolean passesStage(Lead lead, String stage) {
         if (stage == null || stage.isBlank() || stage.equalsIgnoreCase("any")) {
@@ -396,7 +422,8 @@ public class BoardService {
 
     private static BoardRow withRank(BoardRow row, int rank) {
         return new BoardRow(row.id(), rank, row.name(), row.domain(), row.country(), row.hqCity(), row.industry(),
-                row.sizeBand(), row.competitor(), row.probability(), row.band(), row.bandLabel(), row.gateReason(),
+                row.sizeBand(), row.competitor(), row.probability(), row.band(), row.bandLabel(), row.bandShort(),
+                row.gateReason(),
                 row.nats(), row.signalCount(), row.themeCount(), row.evidenceCount(), row.scannedDocuments(),
                 row.silentDocuments(), row.newestSignalAt(), row.newestSignalAgeDays(), row.strongest(),
                 row.chips(), row.themes(), row.leadStatus(), row.leadStatusLabel(), row.lastContactedAt(),

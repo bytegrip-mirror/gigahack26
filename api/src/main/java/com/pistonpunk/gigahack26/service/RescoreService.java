@@ -113,6 +113,7 @@ public class RescoreService {
                 router.engineId(engineOverride));
     }
 
+    @org.springframework.cache.annotation.CacheEvict(value = "board", allEntries = true)
     @Transactional
     public RescoreResponse rescore(String serviceLine, UUID questionId, String label, String engineOverride,
                                    WeightTier tier, Polarity polarity, String theme, String instructions) {

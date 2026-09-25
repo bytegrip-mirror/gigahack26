@@ -16,6 +16,7 @@
 	import { toasts } from '$lib/toast.svelte';
 	import { duration, shortNumber, theme, tier } from '$lib/format';
 	import Tag from '$lib/components/Tag.svelte';
+	import LoadingVeil from '$lib/components/LoadingVeil.svelte';
 
 	const BLANK: PolicyInput = {
 		title: '',
@@ -211,6 +212,7 @@
 
 	<div class="panes">
 		<section class="list scroll" aria-label="Signal questions">
+			<LoadingVeil show={loading} label="Loading questions" />
 			{#if loading}
 				<p class="note"><span class="spinner"></span> Loading</p>
 			{:else}
@@ -251,6 +253,7 @@
 		</section>
 
 		<section class="editor scroll" aria-label="Question editor">
+			<LoadingVeil show={previewing && !preview} label="Scanning the corpus" />
 			<div class="block">
 				<div class="block-head">
 					<p class="label">{creating ? 'New question' : (current?.title ?? 'Question')}</p>
@@ -443,6 +446,7 @@
 	}
 
 	.list {
+		position: relative;
 		min-height: 0;
 		border-right: 1px solid var(--rule);
 		background: var(--paper);
@@ -528,6 +532,7 @@
 	}
 
 	.editor {
+		position: relative;
 		min-height: 0;
 		overflow-y: auto;
 		background: var(--surface);

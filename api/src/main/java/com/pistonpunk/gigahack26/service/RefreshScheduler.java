@@ -30,7 +30,8 @@ public class RefreshScheduler {
         this.nextRunAt = clock.instant().plusMillis(properties.intervalMs());
     }
 
-    @Scheduled(fixedDelayString = "${app.refresh.interval-ms:900000}", initialDelayString = "${app.refresh.initial-delay-ms:120000}")
+    @org.springframework.cache.annotation.CacheEvict(value = "board", allEntries = true)
+    @Scheduled(fixedDelayString = "${app.refresh.interval-ms:43200000}", initialDelayString = "${app.refresh.initial-delay-ms:120000}")
     public void refresh() {
         if (!properties.enabled()) {
             return;

@@ -58,6 +58,7 @@ public class CorpusSeeder implements ApplicationRunner {
     private final PolicyQuestionRepository questions;
     private final PolicyLibrary library;
     private final ServiceLineService serviceLines;
+    private final RegionService regions;
     private final ScoreboardService scoreboard;
     private final RescoreService rescore;
     private final ClassifierRouter router;
@@ -68,7 +69,8 @@ public class CorpusSeeder implements ApplicationRunner {
 
     public CorpusSeeder(CompanyRepository companies, CompanyAliasRepository aliases, EvidenceRepository evidence,
                         RawCaptureRepository captures, SignalRepository signals, PolicyQuestionRepository questions,
-                        PolicyLibrary library, ServiceLineService serviceLines, ScoreboardService scoreboard,
+                        PolicyLibrary library, ServiceLineService serviceLines, RegionService regions,
+                        ScoreboardService scoreboard,
                         RescoreService rescore, ClassifierRouter router,
                         CaptureStore captureStore, CorpusProperties properties, ObjectMapper mapper, Clock clock) {
         this.companies = companies;
@@ -79,6 +81,7 @@ public class CorpusSeeder implements ApplicationRunner {
         this.questions = questions;
         this.library = library;
         this.serviceLines = serviceLines;
+        this.regions = regions;
         this.scoreboard = scoreboard;
         this.rescore = rescore;
         this.router = router;
@@ -95,6 +98,7 @@ public class CorpusSeeder implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         boolean policiesChanged = library.ensureSeeded();
         serviceLines.ensureSeeded();
+        regions.ensureSeeded();
 
         if (!properties.seedOnStartup()) {
             log.info("corpus seeding is disabled");
@@ -170,6 +174,9 @@ public class CorpusSeeder implements ApplicationRunner {
             }
         }
 
+        for (Company company : rows) {
+            regions.regionForCountry(company.getCountry()).ifPresent(company::placeIn);
+        }
         companies.saveAll(rows);
         aliases.saveAll(aliasRows);
         return ids;
