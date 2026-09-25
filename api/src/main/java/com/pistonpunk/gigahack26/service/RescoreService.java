@@ -123,7 +123,7 @@ public class RescoreService {
         }
 
         List<PolicyQuestion> target = new ArrayList<>(serviceLineQuestions(serviceLine, questionId));
-        if (questionId == null && label != null && label.trim().length() >= 10) {
+        if (questionId == null && label != null && label.trim().length() >= 10 && !target.isEmpty()) {
             PolicyQuestion asked = policies.findOrCreate(serviceLine, label.trim(), tier, polarity, theme,
                     instructions);
             if (target.stream().noneMatch(question -> question.getId().equals(asked.getId()))) {
