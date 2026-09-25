@@ -38,7 +38,7 @@
 					</div>
 
 					<div class="col-q">
-						<span class="key">{row.questionKey}</span>
+						<span class="key" title={row.questionKey}>{row.questionTitle}</span>
 						<span class="sub">{row.questionText}</span>
 						<span class="formula num">
 							{tier(row.tier)} {signed(row.tierNats, 1)} × {row.authority.toFixed(2)} × {row.decay.toFixed(3)} × {row.shrink.toFixed(2)}

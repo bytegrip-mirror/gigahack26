@@ -253,7 +253,7 @@
 					{#each detail.whyNow.triggers as row (row.evidenceId + row.questionId + row.spanStart)}
 						<li>
 							<div class="sig-head">
-								<span class="key">{row.questionKey}</span>
+								<span class="key" title={row.questionKey}>{row.questionTitle}</span>
 								<span class="num pos">{signed(row.contributionNats)}</span>
 							</div>
 							{#if row.spanText}<p class="quote">“{row.spanText}”</p>{/if}
@@ -274,7 +274,7 @@
 					{#each detail.whyNow.counters as row (row.evidenceId + row.questionId + row.spanStart)}
 						<li class="against">
 							<div class="sig-head">
-								<span class="key">{row.questionKey}</span>
+								<span class="key" title={row.questionKey}>{row.questionTitle}</span>
 								<span class="num neg">{signed(row.contributionNats)}</span>
 							</div>
 							{#if row.spanText}<p class="quote">“{row.spanText}”</p>{/if}
@@ -339,7 +339,7 @@
 					<div><span>logit({detail.baseRate.toFixed(2)})</span><span>{signed(detail.baseLogit)}</span></div>
 					{#each scored as row (row.evidenceId + row.questionId + row.spanStart)}
 						<div class="dim">
-							<span>{row.questionKey}{row.themeCapped ? ' · capped' : ''}</span>
+							<span>{row.questionTitle}{row.themeCapped ? ' · capped' : ''}</span>
 							<span>{signed(row.contributionNats)}</span>
 						</div>
 					{/each}

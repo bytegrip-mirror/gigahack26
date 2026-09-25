@@ -12,6 +12,7 @@ public record LedgerRow(
         UUID evidenceId,
         UUID questionId,
         String questionKey,
+        String questionTitle,
         String questionText,
         String theme,
         WeightTier tier,

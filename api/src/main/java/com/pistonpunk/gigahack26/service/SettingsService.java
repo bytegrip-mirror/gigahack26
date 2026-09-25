@@ -58,6 +58,9 @@ public class SettingsService implements ScoringConfig {
                 watch,
                 clamp(request.rankDiscount(), 0.0, 1.0),
                 clock.instant());
+        row.reviseVoice(request.voiceTone(), request.voiceFormality(), request.voiceLength(),
+                request.voiceLanguage(), request.voiceReader(), request.voiceAsk(), request.voiceSignOff(),
+                request.voiceSignature(), request.voiceAvoid(), request.voiceNotes(), clock.instant());
         return settings.save(row);
     }
 

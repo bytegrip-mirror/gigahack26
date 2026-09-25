@@ -3,11 +3,13 @@
 		createPolicy,
 		deletePolicy,
 		fetchPolicies,
+		fetchServiceLines,
 		previewPolicy,
 		rescore,
 		updatePolicy,
 		type Policy,
 		type PolicyInput,
+		type ServiceLine,
 		type Preview
 	} from '$lib/api';
 	import { session } from '$lib/session.svelte';
@@ -16,6 +18,7 @@
 	import Tag from '$lib/components/Tag.svelte';
 
 	const BLANK: PolicyInput = {
+		title: '',
 		serviceLine: '',
 		text: '',
 		instructions: '',
@@ -29,6 +32,7 @@
 	};
 
 	let policies = $state<Policy[]>([]);
+	let serviceLines = $state<ServiceLine[]>([]);
 	let loading = $state(true);
 	let selectedId = $state<string | null>(null);
 	let draft = $state<PolicyInput>({ ...BLANK });
@@ -48,9 +52,10 @@
 		if (!line) return;
 		let cancelled = false;
 		loading = true;
-		fetchPolicies()
-			.then((result) => {
+		Promise.all([fetchPolicies(), fetchServiceLines(false)])
+			.then(([result, lines]) => {
 				if (cancelled) return;
+				serviceLines = lines;
 				policies = result;
 				loading = false;
 				if (!selectedId) {
@@ -107,6 +112,7 @@
 		creating = false;
 		dirty = false;
 		draft = {
+			title: policy.title,
 			serviceLine: policy.serviceLine,
 			text: policy.text,
 			instructions: policy.instructions,
@@ -229,6 +235,7 @@
 											<Tag variant="bare">{theme(policy.theme)}</Tag>
 											{#if !policy.active}<Tag variant="bare">off</Tag>{/if}
 										</span>
+										<span class="q-title">{policy.title}</span>
 										<span class="q-text">{policy.text}</span>
 										<span class="num sub dim">{policy.signalCount} signals · H{policy.halfLifeDays}d</span>
 									</button>
@@ -246,9 +253,17 @@
 		<section class="editor scroll" aria-label="Question editor">
 			<div class="block">
 				<div class="block-head">
-					<p class="label">{creating ? 'New question' : (current?.key ?? 'Question')}</p>
+					<p class="label">{creating ? 'New question' : (current?.title ?? 'Question')}</p>
 					{#if dirty}<Tag variant="wash">unsaved</Tag>{/if}
 				</div>
+
+				<label class="field">
+					<span class="label">Title</span>
+					<input class="input" bind:value={draft.title} oninput={() => (dirty = true)}
+						placeholder="Hiring for process excellence" />
+					<span class="sub dim">What this question is called on the board. Left empty, it is taken from the
+						question itself.</span>
+				</label>
 
 				<label class="field">
 					<span class="label">Question</span>
@@ -278,7 +293,14 @@
 				<div class="grid5">
 					<label class="field">
 						<span class="label">Service line</span>
-						<input class="input" bind:value={draft.serviceLine} oninput={() => (dirty = true)} />
+						<select class="select" bind:value={draft.serviceLine} onchange={() => (dirty = true)}>
+							{#each serviceLines as line (line.id)}
+								<option value={line.key}>{line.name}</option>
+							{/each}
+							{#if !serviceLines.some((line) => line.key === draft.serviceLine)}
+								<option value={draft.serviceLine}>{draft.serviceLine} (not configured)</option>
+							{/if}
+						</select>
 					</label>
 					<label class="field">
 						<span class="label">Weight</span>
@@ -469,8 +491,15 @@
 		gap: 4px;
 	}
 
+	.q-title {
+		font-size: 13.5px;
+		font-weight: 500;
+		color: var(--ink);
+		line-height: 1.3;
+	}
+
 	.q-text {
-		font-size: 12.5px;
+		font-size: 12px;
 		line-height: 1.4;
 		color: var(--ink-2);
 		display: -webkit-box;

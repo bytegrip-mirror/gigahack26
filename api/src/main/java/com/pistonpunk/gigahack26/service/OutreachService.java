@@ -4,13 +4,12 @@ import com.pistonpunk.gigahack26.web.dto.CompanyDetail;
 import com.pistonpunk.gigahack26.web.dto.OutreachDraft;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class OutreachService {
@@ -28,159 +27,104 @@ public class OutreachService {
             PolicyLibrary.SECURITY,
             "we close the compliance gap against a dated obligation and hand over a running capability, not a report",
             PolicyLibrary.DATA,
-            "we take one named use case to production and leave the platform your team can extend");
+            "we take one named use case to production and leave a platform your team can extend");
 
     private final BoardService board;
-    private final ClassifierRouter router;
+    private final SettingsService settings;
+    private final ServiceLineService serviceLines;
+    private final DraftWriterRouter writer;
 
-    public OutreachService(BoardService board, ClassifierRouter router) {
+    public OutreachService(BoardService board, SettingsService settings, ServiceLineService serviceLines,
+                           DraftWriterRouter writer) {
         this.board = board;
-        this.router = router;
+        this.settings = settings;
+        this.serviceLines = serviceLines;
+        this.writer = writer;
     }
 
-    public Optional<OutreachDraft> draft(java.util.UUID companyId, String serviceLine, String channel) {
-        return board.detail(companyId, serviceLine).map(detail -> compose(detail, channel));
+    public Optional<OutreachDraft> draft(UUID companyId, String serviceLine, String rawChannel) {
+        return board.detail(companyId, serviceLine).map(detail -> compose(detail, rawChannel));
     }
 
-    private OutreachDraft compose(CompanyDetail detail, String rawChannel) {
+    OutreachDraft compose(CompanyDetail detail, String rawChannel) {
         String channel = "inmail".equalsIgnoreCase(rawChannel) ? "inmail" : "email";
+        Voice voice = Voice.of(settings.current());
+
         List<LedgerRow> evidence = detail.ledger().stream()
                 .filter(row -> !row.blocking() && row.contributionNats() > 0 && row.spanText() != null)
                 .sorted(Comparator.comparingDouble(LedgerRow::contributionNats).reversed())
                 .limit(3)
                 .toList();
 
-        String persona = PERSONAS.getOrDefault(detail.serviceLine(), DEFAULT_PERSONA);
-        String proposition = PROPOSITIONS.getOrDefault(detail.serviceLine(),
-                "we take the first step of this programme off your team's plate");
+        String proposition = serviceLines.list(false).stream()
+                .filter(line -> line.key().equals(detail.serviceLine()))
+                .map(line -> line.valueProposition())
+                .filter(value -> value != null && !value.isBlank())
+                .findFirst()
+                .orElseGet(() -> PROPOSITIONS.getOrDefault(detail.serviceLine(),
+                        "we take the first step of this programme off your team's plate"));
 
         List<OutreachDraft.Citation> citations = new ArrayList<>();
         for (int i = 0; i < evidence.size(); i++) {
             LedgerRow row = evidence.get(i);
             citations.add(new OutreachDraft.Citation(
-                    "[" + (i + 1) + "]",
+                    String.valueOf(i + 1),
                     row.questionText(),
                     collapse(row.spanText()),
                     row.sourceUrl(),
                     row.publisher()));
         }
 
-        String body = channel.equals("inmail")
-                ? inmail(detail, evidence, citations, proposition)
-                : email(detail, evidence, citations, proposition);
+        List<String> findings = evidence.stream().map(OutreachService::finding).toList();
+        DraftWriter.Brief brief = new DraftWriter.Brief(
+                detail.name(),
+                detail.serviceLine(),
+                proposition,
+                PERSONAS.getOrDefault(detail.serviceLine(), DEFAULT_PERSONA),
+                findings,
+                voice,
+                channel,
+                detail.whyNow() == null ? null : detail.whyNow().headline());
+
+        DraftWriter.Composed composed = writer.write(brief, citations);
 
         return new OutreachDraft(
                 detail.id(),
                 detail.name(),
                 channel,
-                subject(detail, evidence),
-                body,
+                composed.subject(),
+                composed.body(),
                 citations,
-                persona,
+                brief.persona(),
                 proposition,
-                router.primaryEngineId());
+                composed.engine());
     }
 
-    private String subject(CompanyDetail detail, List<LedgerRow> evidence) {
-        if (evidence.isEmpty()) {
-            return detail.name() + " — a question about your current programme";
-        }
-        LedgerRow strongest = evidence.get(0);
-        return "%s — %s".formatted(detail.name(), headlineFor(strongest));
-    }
-
-    private String email(CompanyDetail detail, List<LedgerRow> evidence,
-                         List<OutreachDraft.Citation> citations, String proposition) {
-        StringBuilder body = new StringBuilder();
-        body.append("Hello,\n\n");
-        body.append(opening(detail, evidence, citations));
-        body.append("\n\n");
-        body.append("We work with teams in exactly that position: ").append(proposition).append(".\n\n");
-        body.append("If it is useful, I can walk you through how a comparable programme was scoped in three weeks "
-                + "and what it would take to do the same at ").append(detail.name()).append(".\n\n");
-        body.append("Would a 20 minute call next week work?\n\n");
-        body.append("Best regards,");
-        return body.toString();
-    }
-
-    private String inmail(CompanyDetail detail, List<LedgerRow> evidence,
-                          List<OutreachDraft.Citation> citations, String proposition) {
-        StringBuilder body = new StringBuilder();
-        body.append(opening(detail, evidence, citations));
-        body.append("\n\n");
-        body.append("We help with exactly this: ").append(proposition).append(".");
-        body.append("\n\n");
-        body.append("Worth a short conversation?");
-        return body.toString();
-    }
-
-    private String opening(CompanyDetail detail, List<LedgerRow> evidence,
-                           List<OutreachDraft.Citation> citations) {
-        if (citations.isEmpty()) {
-            return "I have been following " + detail.name()
-                    + " and I have a question about how your team is approaching "
-                    + detail.serviceLine().toLowerCase() + " this year.";
-        }
-
-        StringBuilder opening = new StringBuilder("I noticed ");
-        for (int i = 0; i < citations.size(); i++) {
-            if (i > 0) {
-                opening.append(i == citations.size() - 1 ? " and " : ", ");
-            }
-            opening.append(describe(evidence.get(i), citations.get(i)));
-        }
-        opening.append(".");
-        return opening.toString();
-    }
-
-    private String describe(LedgerRow row, OutreachDraft.Citation citation) {
-        return "%s %s, %s".formatted(shortQuestion(row), citation.marker(), age(row));
-    }
-
-    private String shortQuestion(LedgerRow row) {
-        String text = row.questionText();
-        String lowered = text.toLowerCase();
+    static String finding(LedgerRow row) {
+        String lowered = row.questionText().toLowerCase();
+        String theme = row.theme() == null ? "the programme" : row.theme().replace('-', ' ');
         if (lowered.startsWith("is the company hiring")) {
-            return "that you are hiring for " + row.theme() + " roles";
+            return "you are hiring for " + theme + " roles";
         }
         if (lowered.startsWith("has the company announced")) {
-            return "the " + row.theme() + " programme you have announced";
+            return "you have announced a " + theme + " programme";
         }
         if (lowered.startsWith("has the company appointed")) {
-            return "the recent security leadership change";
+            return "you have a new leader owning this";
         }
         if (lowered.startsWith("is the company subject")) {
-            return "the compliance obligation you are working to";
-        }
-        if (lowered.startsWith("has the company suffered")) {
-            return "the security incident that was reported";
+            return "there is a dated obligation you are working to";
         }
         if (lowered.startsWith("has the company started")) {
-            return "the " + row.theme() + " initiative you have started";
+            return "you have started a " + theme + " initiative";
         }
-        return "your published " + row.theme() + " activity";
+        if (lowered.startsWith("is the company investing")) {
+            return "you are investing in " + theme;
+        }
+        return "there is public evidence around " + theme;
     }
 
-    private String headlineFor(LedgerRow row) {
-        return "a note on your " + row.theme().replace('-', ' ').toLowerCase() + " signals";
-    }
-
-    private static String age(LedgerRow row) {
-        double days = row.ageDays();
-        if (days < 1) {
-            return "published today";
-        }
-        if (days < 30) {
-            return "published " + (int) days + " days ago";
-        }
-        return "published " + (int) (days / 30) + " months ago";
-    }
-
-    private static String collapse(String value) {
+    static String collapse(String value) {
         return value == null ? "" : value.replaceAll("\\s+", " ").trim();
-    }
-
-    static double ageDays(Instant anchor, Instant now) {
-        return Math.max(0, Duration.between(anchor, now).toHours() / 24.0);
     }
 }

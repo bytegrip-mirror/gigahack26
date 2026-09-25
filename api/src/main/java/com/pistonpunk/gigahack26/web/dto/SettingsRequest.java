@@ -13,5 +13,15 @@ public record SettingsRequest(
         double priorityThreshold,
         double nurtureThreshold,
         double watchThreshold,
-        double rankDiscount) {
+        double rankDiscount,
+        @Size(max = 40) String voiceTone,
+        @Size(max = 20) String voiceFormality,
+        @Size(max = 20) String voiceLength,
+        @Size(max = 10) String voiceLanguage,
+        @Size(max = 80) String voiceReader,
+        @Size(max = 200) String voiceAsk,
+        @Size(max = 120) String voiceSignOff,
+        @Size(max = 160) String voiceSignature,
+        @Size(max = 600) String voiceAvoid,
+        @Size(max = 2000) String voiceNotes) {
 }

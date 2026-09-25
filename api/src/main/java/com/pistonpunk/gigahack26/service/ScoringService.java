@@ -73,6 +73,7 @@ public class ScoringService {
                     source.getId(),
                     question.getId(),
                     question.getKey(),
+                    question.getTitle(),
                     question.getText(),
                     question.getTheme(),
                     question.getWeightTier(),
@@ -173,7 +174,7 @@ public class ScoringService {
 
     private LedgerRow withDiscount(LedgerRow row, int rank, double discount) {
         return new LedgerRow(
-                row.evidenceId(), row.questionId(), row.questionKey(), row.questionText(), row.theme(),
+                row.evidenceId(), row.questionId(), row.questionKey(), row.questionTitle(), row.questionText(), row.theme(),
                 row.tier(), row.polarity(), row.verdict(), row.confidence(), row.spanStart(), row.spanEnd(),
                 row.spanText(), row.rationale(), row.engine(), row.spanVerified(), row.sourceUrl(),
                 row.publisher(), row.sourceKind(), row.title(), row.anchor(), row.anchorKind(), row.ageDays(),
@@ -199,7 +200,7 @@ public class ScoringService {
                 continue;
             }
             capped.add(new LedgerRow(
-                    row.evidenceId(), row.questionId(), row.questionKey(), row.questionText(), row.theme(),
+                    row.evidenceId(), row.questionId(), row.questionKey(), row.questionTitle(), row.questionText(), row.theme(),
                     row.tier(), row.polarity(), row.verdict(), row.confidence(), row.spanStart(), row.spanEnd(),
                     row.spanText(), row.rationale(), row.engine(), row.spanVerified(), row.sourceUrl(),
                     row.publisher(), row.sourceKind(), row.title(), row.anchor(), row.anchorKind(), row.ageDays(),
@@ -324,7 +325,7 @@ public class ScoringService {
         double decay = Math.max(MIN_DECAY, Math.pow(2.0, -row.ageDays() / halfLife));
         double raw = row.tierNats() * row.authority() * decay * row.shrink();
         return new LedgerRow(
-                row.evidenceId(), row.questionId(), row.questionKey(), row.questionText(), row.theme(),
+                row.evidenceId(), row.questionId(), row.questionKey(), row.questionTitle(), row.questionText(), row.theme(),
                 row.tier(), row.polarity(), row.verdict(), row.confidence(), row.spanStart(), row.spanEnd(),
                 row.spanText(), row.rationale(), row.engine(), row.spanVerified(), row.sourceUrl(),
                 row.publisher(), row.sourceKind(), row.title(), row.anchor(), row.anchorKind(), row.ageDays(),

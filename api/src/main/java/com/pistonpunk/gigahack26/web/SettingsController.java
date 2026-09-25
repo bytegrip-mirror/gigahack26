@@ -5,6 +5,7 @@ import com.pistonpunk.gigahack26.domain.WorkspaceSettings;
 import com.pistonpunk.gigahack26.repository.jpa.CompanyRepository;
 import com.pistonpunk.gigahack26.service.PolicyLibrary;
 import com.pistonpunk.gigahack26.service.ScoreboardService;
+import com.pistonpunk.gigahack26.service.DraftWriterRouter;
 import com.pistonpunk.gigahack26.service.SettingsService;
 import com.pistonpunk.gigahack26.web.dto.SettingsRequest;
 import com.pistonpunk.gigahack26.web.dto.SettingsView;
@@ -29,11 +30,14 @@ public class SettingsController {
     private final SettingsService settings;
     private final ScoreboardService scoreboard;
     private final CompanyRepository companies;
+    private final DraftWriterRouter writers;
 
-    public SettingsController(SettingsService settings, ScoreboardService scoreboard, CompanyRepository companies) {
+    public SettingsController(SettingsService settings, ScoreboardService scoreboard, CompanyRepository companies,
+                              DraftWriterRouter writers) {
         this.settings = settings;
         this.scoreboard = scoreboard;
         this.companies = companies;
+        this.writers = writers;
     }
 
     @GetMapping
@@ -73,6 +77,17 @@ public class SettingsController {
                 row.getWatchThreshold(),
                 row.getRankDiscount(),
                 settings.effective().themeCap(),
+                row.getVoiceTone(),
+                row.getVoiceFormality(),
+                row.getVoiceLength(),
+                row.getVoiceLanguage(),
+                row.getVoiceReader(),
+                row.getVoiceAsk(),
+                row.getVoiceSignOff(),
+                row.getVoiceSignature(),
+                row.getVoiceAvoid(),
+                row.getVoiceNotes(),
+                writers.modelAvailable(),
                 row.getUpdatedAt(),
                 inScope,
                 all.size());

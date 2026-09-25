@@ -109,7 +109,7 @@ public class EvidenceController {
                     double shrink = 2.0 * signal.getConfidence() - 1.0;
                     double raw = question.signedMagnitude() * item.getSourceAuthority() * decay * shrink;
                     return new LedgerRow(
-                            item.getId(), question.getId(), question.getKey(), question.getText(),
+                            item.getId(), question.getId(), question.getKey(), question.getTitle(), question.getText(),
                             question.getTheme(), question.getWeightTier(), question.getPolarity(),
                             signal.getVerdict(), signal.getConfidence(), signal.getSpanStart(), signal.getSpanEnd(),
                             slice(text, signal.getSpanStart(), signal.getSpanEnd()), signal.getRationale(),

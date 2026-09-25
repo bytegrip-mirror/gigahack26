@@ -113,7 +113,7 @@
 								<li>
 									<div class="sig-head">
 										<span class="tag tag-wash">{tier(signal.tier)}</span>
-										<span class="key">{signal.questionKey}</span>
+										<span class="key" title={signal.questionKey}>{signal.questionTitle}</span>
 										{#if signal.blocking}<span class="tag tag-oxblood">disqualifying</span>{/if}
 										<span class="num dim">c {confidence(signal.confidence)} · chars {signal.spanStart}–{signal.spanEnd}</span>
 									</div>

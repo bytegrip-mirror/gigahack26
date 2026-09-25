@@ -59,6 +59,7 @@ export type LedgerRow = {
 	evidenceId: string;
 	questionId: string;
 	questionKey: string;
+	questionTitle: string;
 	questionText: string;
 	theme: string;
 	tier: WeightTier;
@@ -218,6 +219,7 @@ export type EvidenceDetail = {
 export type Policy = {
 	id: string;
 	key: string;
+	title: string;
 	serviceLine: string;
 	text: string;
 	instructions: string;
@@ -236,6 +238,7 @@ export type Policy = {
 };
 
 export type PolicyInput = {
+	title?: string;
 	serviceLine: string;
 	text: string;
 	instructions: string;
@@ -537,6 +540,42 @@ export function pushToHubspot(
 	});
 }
 
+export type ServiceLine = {
+	id: string;
+	key: string;
+	name: string;
+	description: string | null;
+	valueProposition: string | null;
+	sortOrder: number;
+	active: boolean;
+	questionCount: number;
+	createdAt: string;
+};
+
+export type ServiceLineInput = {
+	name: string;
+	description: string | null;
+	valueProposition: string | null;
+	sortOrder: number;
+	active: boolean;
+};
+
+export function fetchServiceLines(includeInactive = true): Promise<ServiceLine[]> {
+	return request<ServiceLine[]>(`/api/service-lines${query({ includeInactive })}`);
+}
+
+export function createServiceLine(input: ServiceLineInput): Promise<ServiceLine> {
+	return request<ServiceLine>('/api/service-lines', { method: 'POST', body: JSON.stringify(input) });
+}
+
+export function updateServiceLine(id: string, input: ServiceLineInput): Promise<ServiceLine> {
+	return request<ServiceLine>(`/api/service-lines/${id}`, { method: 'PATCH', body: JSON.stringify(input) });
+}
+
+export function deleteServiceLine(id: string): Promise<void> {
+	return request<void>(`/api/service-lines/${id}`, { method: 'DELETE' });
+}
+
 export type Settings = {
 	icpCountries: string[];
 	icpIndustries: string[];
@@ -550,6 +589,17 @@ export type Settings = {
 	watchThreshold: number;
 	rankDiscount: number;
 	themeCap: number;
+	voiceTone: string;
+	voiceFormality: string;
+	voiceLength: string;
+	voiceLanguage: string;
+	voiceReader: string;
+	voiceAsk: string;
+	voiceSignOff: string;
+	voiceSignature: string;
+	voiceAvoid: string;
+	voiceNotes: string;
+	modelWritesDrafts: boolean;
 	updatedAt: string;
 	inScope: Record<string, number>;
 	indexedCompanies: number;
@@ -560,7 +610,10 @@ export function fetchSettings(): Promise<Settings> {
 }
 
 export function saveSettings(
-	input: Omit<Settings, 'themeCap' | 'updatedAt' | 'inScope' | 'indexedCompanies'>,
+	input: Omit<
+		Settings,
+		'themeCap' | 'updatedAt' | 'inScope' | 'indexedCompanies' | 'modelWritesDrafts'
+	>,
 	serviceLine: string
 ): Promise<Settings> {
 	return request<Settings>(`/api/settings${query({ serviceLine })}`, {

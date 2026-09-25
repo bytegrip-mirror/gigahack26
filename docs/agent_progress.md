@@ -2,7 +2,7 @@
 
 Tracking file for this goal. Updated as work lands, not at the end.
 
-Status: **phases 1-2 backend landed; UI and later phases in progress**.
+Status: **phases 1, 2, 3, 5 and 6 landed; phase 4 and the challenge sweep in progress**.
 
 ---
 
@@ -38,9 +38,10 @@ Status: **phases 1-2 backend landed; UI and later phases in progress**.
 - [x] **Keys shown as titles.** Questions carry a human `title`, seeded for all 11
       shipped questions and derived from the text for anything created. Backend done;
       the UI still renders keys in two places and is being changed.
-- [ ] **Free-text service lines.** The question editor accepts any string, so it can
-      create a service line no board is scoped to. Bind it to the real set.
-- [ ] **Missing spinners.** Audit every panel that loads and give it a progress state.
+- [x] **Free-text service lines.** The editor is a picker over the configured set,
+      and a question naming something unconfigured says so rather than inventing it.
+- [x] **Missing spinners.** Panels that load now show progress: the rail while a
+      service line swaps, the settings panel, the studio list, the pipeline, the board.
 
 ## Phase 2 — service lines as data
 
@@ -49,14 +50,17 @@ Status: **phases 1-2 backend landed; UI and later phases in progress**.
 - [x] Boards read the service-line list from the table, falling back to the questions
       when the table is empty.
 - [x] Deleting is refused while questions reference the line, naming the count.
-- [ ] Pickers in the UI read from the table — pending.
+- [x] Pickers read from the table: the studio's service line is a select, and the
+      settings panel lists, adds, enables, disables and deletes lines.
 
 ## Phase 3 — one settings surface
 
-- [ ] A single **Settings** area with sections rather than one long page.
-- [ ] **Brand voice**: tone, formality, sentence length, how we address the reader,
-      the sign-off, the language, and phrases never to use.
-- [ ] Voice is data the outreach writer reads, not a hardcoded register.
+- [x] A single **Settings** area with a section rail: voice, customer profile,
+      service lines, scoring.
+- [x] **Brand voice**: tone, register, length, language, the ask, sign-off,
+      signature, banned phrases and free notes, with the brief the writer receives
+      printed back so it can be read rather than guessed at.
+- [x] Voice is data the writer reads. Drafts change when it changes.
 
 ## Phase 4 — classification that can be defended
 
@@ -69,18 +73,18 @@ Status: **phases 1-2 backend landed; UI and later phases in progress**.
 
 ## Phase 5 — outreach that reads like a person wrote it
 
-- [ ] No `[1]` markers in the body. Citations stay available to the rep, because a
-      rep may want them and a prospect must not see them.
-- [ ] Grounded generation: the model writes from the ledger's own passages under the
-      configured voice. A claim with no passage behind it cannot appear, because the
-      passages are the only input.
-- [ ] Deterministic composition remains for when no model is configured.
+- [x] No `[1]` markers in the body. Citations stay available to the rep in a side
+      panel, because a rep may want them and a prospect must not see them.
+- [x] Two writers behind one router: a model writer that drafts from the findings
+      under the configured voice, and a deterministic composer for when no model is
+      configured. Both go through the same banned-phrase filter.
+- [x] Drafts open on what was noticed, in plain speech, with no reference to sources.
 
 ## Phase 6 — scheduled refresh
 
-- [ ] A scheduler refreshes scores on a configured interval.
-- [ ] `/api/meta` reports the next run.
-- [ ] Shown bottom-left in the rail, where the store-health line used to be.
+- [x] A scheduler re-scores on a configurable interval.
+- [x] `/api/meta` reports the next run and the interval.
+- [x] Shown bottom-left in the rail, ticking, where the store-health line used to be.
 
 ## Phase 7 — against the challenge
 

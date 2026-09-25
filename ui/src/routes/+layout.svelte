@@ -106,8 +106,8 @@
 			<a href="/pipeline" aria-current={page.url.pathname.startsWith('/pipeline') ? 'page' : undefined}>
 				Pipeline
 			</a>
-			<a href="/profile" aria-current={page.url.pathname.startsWith('/profile') ? 'page' : undefined}>
-				Customer profile
+			<a href="/settings" aria-current={page.url.pathname.startsWith('/settings') ? 'page' : undefined}>
+				Settings
 			</a>
 		</nav>
 
