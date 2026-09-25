@@ -89,6 +89,7 @@ public class AdminController {
         companies.findAll().forEach(company -> names.put(company.getId(), company.getName()));
 
         AtomicInteger candidates = new AtomicInteger();
+        AtomicInteger failed = new AtomicInteger();
         AtomicInteger pairs = new AtomicInteger();
         List<Map<String, Object>> signals = new ArrayList<>();
 
@@ -111,8 +112,14 @@ public class AdminController {
                             return List.of();
                         }
                         candidates.incrementAndGet();
-                        List<ClassifierEngine.Finding> findings = deepSeek.classify(
-                                new ClassifierEngine.ClassificationRequest(companyName, question, document));
+                        List<ClassifierEngine.Finding> findings;
+                        try {
+                            findings = deepSeek.classify(
+                                    new ClassifierEngine.ClassificationRequest(companyName, question, document));
+                        } catch (com.pistonpunk.gigahack26.service.LanguageModelUnavailableException e) {
+                            failed.incrementAndGet();
+                            return List.of();
+                        }
 
                         List<Map<String, Object>> emitted = new ArrayList<>();
                         for (ClassifierEngine.Finding finding : findings) {
@@ -186,6 +193,7 @@ public class AdminController {
         result.put("struckQuotes", strikes);
         result.put("strikeRate", calls == 0 ? 0.0 : round((double) strikes / calls));
         result.put("signals", signals.size());
+        result.put("failedCalls", failed.get());
         result.put("writtenTo", written);
         if (writeError != null) {
             result.put("writeError", writeError);

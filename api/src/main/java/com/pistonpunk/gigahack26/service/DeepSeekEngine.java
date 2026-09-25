@@ -100,15 +100,17 @@ public class DeepSeekEngine implements ClassifierEngine {
             HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() != 200) {
                 log.warn("deepseek returned {}: {}", response.statusCode(), summarise(response.body()));
-                return List.of();
+                throw new LanguageModelUnavailableException("model returned " + response.statusCode());
             }
             return parse(response.body(), request, document);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            return List.of();
+            throw new LanguageModelUnavailableException("interrupted", e);
+        } catch (LanguageModelUnavailableException e) {
+            throw e;
         } catch (Exception e) {
             log.warn("deepseek call failed: {}", e.toString());
-            return List.of();
+            throw new LanguageModelUnavailableException(e.toString(), e);
         } finally {
             permits.release();
         }
@@ -182,11 +184,14 @@ public class DeepSeekEngine implements ClassifierEngine {
         JsonNode root = mapper.readTree(body);
         JsonNode content = root.path("choices").path(0).path("message").path("content");
         if (content.isMissingNode() || content.asText().isBlank()) {
-            return List.of();
+            throw new LanguageModelUnavailableException("empty completion");
         }
 
         JsonNode verdictNode = readJson(stripFence(content.asText()));
-        if (verdictNode == null || !verdictNode.path("match").asBoolean(false)) {
+        if (verdictNode == null) {
+            throw new LanguageModelUnavailableException("unparseable completion");
+        }
+        if (!verdictNode.path("match").asBoolean(false)) {
             return List.of();
         }
 
