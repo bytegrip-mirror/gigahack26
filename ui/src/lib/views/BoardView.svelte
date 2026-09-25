@@ -126,7 +126,7 @@
 		return map;
 	});
 
-	const visible = $derived(rows.filter((row) => BAND_FILTERS[filter](row.band)));
+	const visible = $derived(rows.filter((row) => (BAND_FILTERS[filter] ?? BAND_FILTERS.all)(row.band)));
 
 	const counts = $derived.by(() => {
 		const tally: Record<string, number> = {
@@ -640,7 +640,7 @@
 			<LoadingVeil show={loading} label="Scoring the board" />
 			{#if error}
 				<p class="note warn"><Icon name="alert" size={15} /> {error}</p>
-			{:else if rows.length === 0 && !loading}
+			{:else if visible.length === 0 && !loading}
 				<div class="empty">
 					<Icon name="inbox" size={22} />
 					<p>Nothing matches this filter. Widen the region, clear the stage, or ask a different question.</p>
@@ -798,7 +798,7 @@
 		{/if}
 	</div>
 
-	{#if rows.length > 0 && !error}
+	{#if sorted.length > 0 && !error}
 		<Pager total={sorted.length} page={Math.min(page, pages)} {size} onsize={(next) => (size = next)} onpage={(next) => (page = next)} />
 	{/if}
 </div>
