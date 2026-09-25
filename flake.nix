@@ -7,6 +7,6 @@
   };
   outputs = inputs:
     inputs.flake-parts.lib.mkFlake {inherit inputs;} (
-      inputs.import-tree [./nix ./api/nix ./ui/nix ./ui-mock/nix]
+      (inputs.import-tree.match ".*/nix/[^/]+\\.nix") ./.
     );
 }
