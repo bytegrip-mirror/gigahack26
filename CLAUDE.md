@@ -111,8 +111,6 @@ land.
 - **MongoDB is pinned to 7.0.** 8.0–8.3.8 exit during startup on Linux kernel
   6.19–7.0.13 (TCMalloc vs the `rseq` ABI, SERVER-121912), and this host is in
   that range. Do not bump the tag without checking the kernel.
-- **`jenkins.example` is the reference pipeline**, not a live one. It stays in the
-  repo as the source the `Jenkinsfile` was derived from.
 - The board is a client-rendered SPA: nginx falls back to `index.html` for unknown
   paths, so new routes need no server config, but anything that must be
   server-rendered needs `ssr` re-enabled in `src/routes/+layout.ts`.
