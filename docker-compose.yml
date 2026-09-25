@@ -3,7 +3,7 @@ services:
     image: postgres:16-alpine
     environment:
       POSTGRES_USER: gigahack
-      POSTGRES_PASSWORD: gigahack
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-gigahack}
       POSTGRES_DB: gigahack26
     ports:
       - '127.0.0.1:5432:5432'
@@ -19,24 +19,19 @@ services:
     image: mongo:8.0
     environment:
       MONGO_INITDB_ROOT_USERNAME: gigahack
-      MONGO_INITDB_ROOT_PASSWORD: gigahack
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-gigahack}
     ports:
       - '127.0.0.1:27017:27017'
     volumes:
       - mongo-data:/data/db
     healthcheck:
       test:
-        - CMD
-        - mongosh
-        - --quiet
-        - --username
-        - gigahack
-        - --password
-        - gigahack
-        - --authenticationDatabase
-        - admin
-        - --eval
-        - "db.adminCommand('ping').ok"
+        - CMD-SHELL
+        - >-
+          mongosh --quiet --username "$$MONGO_INITDB_ROOT_USERNAME"
+          --password "$$MONGO_INITDB_ROOT_PASSWORD"
+          --authenticationDatabase admin
+          --eval "db.adminCommand('ping').ok"
       interval: 3s
       timeout: 3s
       retries: 20
@@ -47,8 +42,8 @@ services:
       SERVER_PORT: 8080
       POSTGRES_URL: jdbc:postgresql://postgres:5432/gigahack26
       POSTGRES_USER: gigahack
-      POSTGRES_PASSWORD: gigahack
-      MONGO_URI: mongodb://gigahack:gigahack@mongo:27017/gigahack26?authSource=admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-gigahack}
+      MONGO_URI: mongodb://gigahack:${MONGO_PASSWORD:-gigahack}@mongo:27017/gigahack26?authSource=admin
       CORS_ALLOWED_ORIGINS: http://localhost:3000,http://localhost:5173
     ports:
       - '8080:8080'
