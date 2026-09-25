@@ -88,9 +88,59 @@ Status: **phases 1, 2, 3, 5 and 6 landed; phase 4 and the challenge sweep in pro
 
 ## Phase 7 — against the challenge
 
-- [ ] Walk the brief line by line; list the gaps and close them.
+Walked `docs/MAIN_CHALLENGE.md` line by line.
+
+| Brief asks for | Where it lives | State |
+| --- | --- | --- |
+| Configure ICP by market, industry, company size, geography | Settings → Customer profile | done |
+| Configure signal questions per service | Signal Studio | done |
+| Signal weights — high, medium, low | Studio, per question, in nats | done |
+| Negative signals and disqualification rules | Studio polarity; gates in Settings | done |
+| Configure the scoring logic | Settings → Scoring | done |
+| Configure service lines themselves | Settings → Service lines | done |
+| Company profiles, key people, corporate events | Corpus: registry (GLEIF LEI), filings | partial — no key people; Crunchbase is paywalled and deliberately not used |
+| Websites, newsrooms, annual reports | Corpus: news + filings, 4,050 documents | done |
+| Google News / NewsAPI / GDELT | Bing News RSS; GDELT 429s from this host | done, source substituted |
+| Career pages and job boards | Corpus: 577 job postings from public ATS boards | done |
+| LinkedIn — optional, must not be depended on | Not used anywhere | done by omission |
+| Large-scale extraction and normalisation | Span extraction over stored captures | done |
+| Dynamic prospect scoring, explainable | Additive log-odds ledger, arithmetic printed on the card | done |
+| Signal detection: incidents, leadership change, compliance, tech stack | Question library covers all four | done |
+| Outreach generation, customised value proposition | Model writer under the configured voice, per service line | done |
+| Multi-channel drafts — email, InMail | Both channels | done |
+| Dashboard | SvelteKit SPA; the brief says React but does not require it | done, stack differs |
+| CRM integration hooks | HubSpot button records intent; no token configured | deferred by the goal |
+
+Gaps worth naming, not hidden:
+
+- **No key-people data.** The brief lists it under Crunchbase, which is paywalled.
+  Nothing in the corpus identifies a named decision-maker, so the drafts address a
+  role rather than a person. Targeting a person needs a data source we do not have.
+- **The corpus is news-heavy.** Job postings are present at 577 documents but the
+  bulk is press. The taxonomy's rule that reaching the top band needs two
+  independent kinds of evidence is satisfied by 67 companies, not by most.
+- **DELIBERATE:** HubSpot and every other third-party integration stay as recorded
+  intents, per the goal.
 
 ---
+
+## Incident — 2026-09-25, production down
+
+Recording this because it was self-inflicted and it is the kind of thing that
+should not be quietly dropped from a status file.
+
+Adding `PolicyQuestion.title` and ten `voice_*` columns to `workspace_settings` as
+`NOT NULL` broke the schema update: Postgres refuses to add a NOT NULL column to a
+table that already holds rows without a default, so the column was never created
+and every query naming it failed at startup. Builds #45 and #46 failed and
+production served 404 for roughly ten minutes. The local stack was down at the same
+time, which is why the failure was not caught before pushing.
+
+Fixed by making the new columns nullable, with the getters supplying the defaults
+the screens expect; the policy sync fills the titles on the next boot. Verified by
+starting against the existing database rather than a fresh one — which is the
+check that would have caught it, and which the earlier redeploy test did cover for
+a different change and should have been run for this one.
 
 ## Open items
 

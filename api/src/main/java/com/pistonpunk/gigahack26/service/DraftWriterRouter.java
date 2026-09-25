@@ -17,13 +17,17 @@ public class DraftWriterRouter {
     }
 
     public DraftWriter.Composed write(DraftWriter.Brief brief, List<OutreachDraft.Citation> citations) {
-        if (model.available()) {
-            DraftWriter.Composed composed = model.write(brief, citations);
-            if (composed != null) {
-                return composed;
-            }
+        DraftWriter.Composed composed = template.write(brief, citations);
+        if (!model.available()) {
+            return new DraftWriter.Composed(composed.subject(), composed.body(),
+                    composed.engine() + ", no model configured");
         }
-        return template.write(brief, citations);
+        DraftWriter.Composed written = model.write(brief, citations);
+        if (written != null) {
+            return written;
+        }
+        return new DraftWriter.Composed(composed.subject(), composed.body(),
+                composed.engine() + ", model call failed");
     }
 
     public boolean modelAvailable() {
