@@ -40,37 +40,10 @@ npm run dev                        # :5173
 Deploy: push to `main`. The GitHub webhook triggers `Gigahack26/gigahack26` on
 `jen.pistonpunk.com`, which runs the root `Jenkinsfile` (~30s warm).
 
-## Running locally with Nix
+## Running from source
 
-Compose still needs a Docker daemon, which on NixOS comes from the host
-configuration rather than from the flake. What a flake is for here is the
-toolchain, so a Nix user can also run the two halves natively instead of in
-containers. Put this `flake.nix` at the repo root and run `nix develop`:
-
-```nix
-{
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-
-  outputs = { self, nixpkgs }:
-    let
-      systems = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
-      forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
-    in {
-      devShells = forAllSystems (pkgs: {
-        default = pkgs.mkShell {
-          packages = with pkgs; [ jdk25 maven nodejs_22 docker-client docker-compose ];
-        };
-      });
-    };
-}
-```
-
-Those names track what the Dockerfiles pin. On an older nixpkgs, fall back to
-`jdk` and `nodejs_20` if the versioned attributes are missing — the requirement is
-the version, not the spelling.
-
-With the shell active, take the databases from compose and run the app from
-source in a second terminal:
+Take the databases from compose and run the app from source in a second
+terminal:
 
 ```sh
 docker compose up postgres mongo     # stores only, schema created on boot
