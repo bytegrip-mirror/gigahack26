@@ -70,7 +70,8 @@ public class AdminController {
 
     @PostMapping("/signals/build")
     public ResponseEntity<Map<String, Object>> buildSignals(
-            @RequestParam(name = "sampleRate", defaultValue = "0.08") double sampleRate) {
+            @RequestParam(name = "sampleRate", defaultValue = "0.08") double sampleRate,
+            @RequestParam(name = "inline", defaultValue = "false") boolean inline) {
         if (!corpus.adminEnabled()) {
             return ResponseEntity.notFound().build();
         }
@@ -151,6 +152,7 @@ public class AdminController {
         overlay.put("signals", signals);
 
         String written = null;
+        String writeError = null;
         try {
             Path path = Path.of(corpus.signalsPath());
             if (path.getParent() != null) {
@@ -160,7 +162,8 @@ public class AdminController {
                     StandardCharsets.UTF_8);
             written = path.toAbsolutePath().toString();
         } catch (Exception e) {
-            log.warn("could not write the overlay: {}", e.toString());
+            writeError = e.toString();
+            log.warn("could not write the overlay to {}: {}", corpus.signalsPath(), writeError);
         }
 
         Map<String, Object> result = new LinkedHashMap<>();
@@ -171,7 +174,13 @@ public class AdminController {
         result.put("strikeRate", calls == 0 ? 0.0 : round((double) strikes / calls));
         result.put("signals", signals.size());
         result.put("writtenTo", written);
+        if (writeError != null) {
+            result.put("writeError", writeError);
+        }
         result.put("tookMs", (System.nanoTime() - started) / 1_000_000);
+        if (inline) {
+            result.put("overlay", overlay);
+        }
         return ResponseEntity.ok(result);
     }
 

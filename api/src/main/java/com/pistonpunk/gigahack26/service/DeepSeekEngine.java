@@ -28,6 +28,7 @@ public class DeepSeekEngine implements ClassifierEngine {
     private final ClassifierProperties properties;
     private final ObjectMapper mapper;
     private final HttpClient client;
+    private final java.util.concurrent.Semaphore permits;
     private final java.util.concurrent.atomic.AtomicLong calls = new java.util.concurrent.atomic.AtomicLong();
     private final java.util.concurrent.atomic.AtomicLong struck = new java.util.concurrent.atomic.AtomicLong();
 
@@ -51,6 +52,7 @@ public class DeepSeekEngine implements ClassifierEngine {
                 .connectTimeout(Duration.ofSeconds(8))
                 .followRedirects(HttpClient.Redirect.NORMAL)
                 .build();
+        this.permits = new java.util.concurrent.Semaphore(Math.max(1, properties.deepseek().concurrency()));
     }
 
     @Override
@@ -78,6 +80,13 @@ public class DeepSeekEngine implements ClassifierEngine {
         }
 
         try {
+            permits.acquire();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return List.of();
+        }
+
+        try {
             calls.incrementAndGet();
             String payload = buildPayload(request, document);
             HttpRequest httpRequest = HttpRequest.newBuilder()
@@ -100,6 +109,8 @@ public class DeepSeekEngine implements ClassifierEngine {
         } catch (Exception e) {
             log.warn("deepseek call failed: {}", e.toString());
             return List.of();
+        } finally {
+            permits.release();
         }
     }
 

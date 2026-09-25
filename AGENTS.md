@@ -32,7 +32,7 @@ scores it — expect roughly a minute before the board fills. Set
 API (from `api/`):
 
 ```sh
-./gradlew test                                 # 27 tests
+./gradlew test                                 # 28 tests
 ./gradlew test --tests ScoringServiceTest      # one class
 ./gradlew test --tests 'ScoringServiceTest.aCompanyWithNoEvidenceScoresExactlyAtTheBaseRate'
 ./gradlew bootRun                              # needs Postgres and Mongo reachable
