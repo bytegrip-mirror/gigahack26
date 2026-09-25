@@ -101,12 +101,13 @@ are environment-overridable (`SCORING_*`), so recalibrating is a restart.
 
 **The two engines trade recall for precision, measurably.** On the same thirteen
 documents the local rubric engine produced 19 signals and the language model
-produced 3. The local engine is the reason the board has 2,015 signals across 227
-companies; the model reads a document properly and rejects most of what the cue
-lists accept — it disqualified Siemens by reading Siemens' own automation content
-and concluding the company builds automation rather than buys it. That is why the
-engine is a per-request choice and why the seeded board is local: an LLM-only board
-is honest and sparse, and the demo needs both.
+produced 3. The local engine is why the board carries roughly two thousand signals
+across a few hundred companies; the model reads a document properly and rejects
+most of what the cue lists accept — it disqualified Siemens by reading Siemens' own
+automation content and concluding the company builds automation rather than buys
+it. That is why the engine is a per-request choice and why the seeded board is
+local: an LLM-only board is honest and sparse, and the demo needs both. Treat any
+specific count in this file as a measurement from one corpus, not an invariant.
 
 **A signal question is the unit of configuration.** `policy_question` carries the
 plain-language `text`, an `instructions` rubric, a `weight_tier`, a `polarity`
