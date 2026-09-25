@@ -87,6 +87,7 @@ public class PolicyService {
         return questions.save(new PolicyQuestion(
                 UUID.randomUUID(),
                 key,
+                titleFor(text),
                 serviceLine,
                 text,
                 orEmpty(instructions),
@@ -98,6 +99,23 @@ public class PolicyService {
                 List.of(),
                 true,
                 clock.instant()));
+    }
+
+    private static String titleFor(PolicyRequest request) {
+        String explicit = request.title();
+        return explicit == null || explicit.isBlank() ? titleFor(request.text()) : explicit.trim();
+    }
+
+    private static String titleFor(String text) {
+        String cleaned = orEmpty(text).trim();
+        if (cleaned.isEmpty()) {
+            return "Untitled question";
+        }
+        if (cleaned.length() <= 70) {
+            return cleaned;
+        }
+        int cut = cleaned.lastIndexOf(' ', 67);
+        return cleaned.substring(0, cut > 40 ? cut : 67).trim() + "…";
     }
 
     private static String themeFor(String text) {
@@ -124,6 +142,7 @@ public class PolicyService {
         PolicyQuestion question = new PolicyQuestion(
                 UUID.randomUUID(),
                 uniqueKey(request.serviceLine(), request.text()),
+                titleFor(request),
                 request.serviceLine().trim(),
                 request.text().trim(),
                 orEmpty(request.instructions()),
@@ -142,6 +161,7 @@ public class PolicyService {
     public Optional<PolicyView> update(UUID id, PolicyRequest request) {
         return questions.findById(id).map(question -> {
             question.revise(
+                    titleFor(request),
                     request.text().trim(),
                     orEmpty(request.instructions()),
                     request.weightTier() == null ? question.getWeightTier() : request.weightTier(),
@@ -173,6 +193,7 @@ public class PolicyService {
         PolicyQuestion probe = new PolicyQuestion(
                 UUID.randomUUID(),
                 "preview",
+                titleFor(text == null ? "" : text),
                 serviceLine,
                 text == null ? "" : text,
                 orEmpty(instructions),
@@ -180,7 +201,7 @@ public class PolicyService {
                 polarity == null ? Polarity.POSITIVE : polarity,
                 theme == null || theme.isBlank() ? "custom" : theme,
                 DecayClass.STRUCTURAL,
-                cuesFor(new PolicyRequest(serviceLine, text == null ? "" : text, instructions, tier, polarity,
+                cuesFor(new PolicyRequest(serviceLine, null, text == null ? "" : text, instructions, tier, polarity,
                         theme, null, null, null, null)),
                 List.of(),
                 true,
@@ -255,6 +276,7 @@ public class PolicyService {
         return new PolicyView(
                 question.getId(),
                 question.getKey(),
+                question.getTitle(),
                 question.getServiceLine(),
                 question.getText(),
                 question.getInstructions(),

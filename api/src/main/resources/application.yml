@@ -57,6 +57,10 @@ app:
     competitor-gate: ${ICP_COMPETITOR_GATE:true}
     icp-industries: ${ICP_INDUSTRIES:}
     icp-countries: ${ICP_COUNTRIES:MD,RO,DE,FR,IT,ES,PT,NL,BE,LU,AT,CH,PL,CZ,SK,HU,BG,RS,UA,TR,GB,IE,SE,NO,DK,FI,GR,HR,SI,EE,LV,LT,US,CA}
+  refresh:
+    enabled: ${REFRESH_ENABLED:true}
+    interval-ms: ${REFRESH_INTERVAL_MS:900000}
+    initial-delay-ms: ${REFRESH_INITIAL_DELAY_MS:120000}
   corpus:
     raw-path: ${CORPUS_RAW_PATH:corpus/raw.json}
     signals-path: ${CORPUS_SIGNALS_PATH:corpus/signals.json}

@@ -11,6 +11,7 @@ import java.util.UUID;
 public record PolicyView(
         UUID id,
         String key,
+        String title,
         String serviceLine,
         String text,
         String instructions,

@@ -54,7 +54,7 @@ class LocalRubricEngineTest {
         String document = "We are recruiting a process mining lead for an internship programme in the summer.";
         PolicyQuestion question = question(Polarity.POSITIVE, List.of("process mining"));
         PolicyQuestion withCounter = new PolicyQuestion(
-                question.getId(), question.getKey(), question.getServiceLine(), question.getText(),
+                question.getId(), question.getKey(), question.getTitle(), question.getServiceLine(), question.getText(),
                 question.getInstructions(), question.getWeightTier(), question.getPolarity(), question.getTheme(),
                 question.getDecayClass(), question.getCues(), List.of("internship", "summer"), true,
                 Instant.parse("2026-09-25T00:00:00Z"));
@@ -70,7 +70,7 @@ class LocalRubricEngineTest {
 
     @Test
     void aDisqualifyingQuestionReturnsTheBuildVerdict() {
-        PolicyQuestion question = new PolicyQuestion(UUID.randomUUID(), "build", PolicyLibrary.AUTOMATION,
+        PolicyQuestion question = new PolicyQuestion(UUID.randomUUID(), "build", "Build", PolicyLibrary.AUTOMATION,
                 "Is the company building this in-house?", "Counts: in-house development.",
                 WeightTier.HIGH, Polarity.DISQUALIFYING, "automation", DecayClass.STRUCTURAL,
                 List.of("in-house automation", "centre of excellence"), List.of(), true,
@@ -87,7 +87,7 @@ class LocalRubricEngineTest {
 
     @Test
     void aQuestionTypedColdWithNoCuesStillMatchesOnItsOwnWording() {
-        PolicyQuestion question = new PolicyQuestion(UUID.randomUUID(), "cold", PolicyLibrary.AUTOMATION,
+        PolicyQuestion question = new PolicyQuestion(UUID.randomUUID(), "cold", "Cold", PolicyLibrary.AUTOMATION,
                 "Is the company consolidating shared service centres into a captive operation?",
                 "", WeightTier.HIGH, Polarity.POSITIVE, "custom", DecayClass.STRUCTURAL,
                 List.of(), List.of(), true, Instant.parse("2026-09-25T00:00:00Z"));
@@ -111,7 +111,7 @@ class LocalRubricEngineTest {
     }
 
     private PolicyQuestion question(Polarity polarity, List<String> cues) {
-        return new PolicyQuestion(UUID.randomUUID(), "q", PolicyLibrary.AUTOMATION,
+        return new PolicyQuestion(UUID.randomUUID(), "q", "Q", PolicyLibrary.AUTOMATION,
                 "Is the company hiring for automation roles?", "Counts: automation hiring.",
                 WeightTier.HIGH, polarity, "automation", DecayClass.HIRING, cues, List.of(), true,
                 Instant.parse("2026-09-25T00:00:00Z"));

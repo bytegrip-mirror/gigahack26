@@ -57,6 +57,7 @@ public class CorpusSeeder implements ApplicationRunner {
     private final SignalRepository signals;
     private final PolicyQuestionRepository questions;
     private final PolicyLibrary library;
+    private final ServiceLineService serviceLines;
     private final ScoreboardService scoreboard;
     private final RescoreService rescore;
     private final ClassifierRouter router;
@@ -67,7 +68,8 @@ public class CorpusSeeder implements ApplicationRunner {
 
     public CorpusSeeder(CompanyRepository companies, CompanyAliasRepository aliases, EvidenceRepository evidence,
                         RawCaptureRepository captures, SignalRepository signals, PolicyQuestionRepository questions,
-                        PolicyLibrary library, ScoreboardService scoreboard, RescoreService rescore, ClassifierRouter router,
+                        PolicyLibrary library, ServiceLineService serviceLines, ScoreboardService scoreboard,
+                        RescoreService rescore, ClassifierRouter router,
                         CaptureStore captureStore, CorpusProperties properties, ObjectMapper mapper, Clock clock) {
         this.companies = companies;
         this.aliases = aliases;
@@ -76,6 +78,7 @@ public class CorpusSeeder implements ApplicationRunner {
         this.signals = signals;
         this.questions = questions;
         this.library = library;
+        this.serviceLines = serviceLines;
         this.scoreboard = scoreboard;
         this.rescore = rescore;
         this.router = router;
@@ -91,6 +94,7 @@ public class CorpusSeeder implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         boolean policiesChanged = library.ensureSeeded();
+        serviceLines.ensureSeeded();
 
         if (!properties.seedOnStartup()) {
             log.info("corpus seeding is disabled");

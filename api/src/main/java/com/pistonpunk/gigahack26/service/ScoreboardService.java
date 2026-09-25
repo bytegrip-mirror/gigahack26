@@ -32,17 +32,20 @@ public class ScoreboardService {
     private final SignalRepository signals;
     private final PolicyQuestionRepository questions;
     private final PolicyScoreRepository scores;
+    private final com.pistonpunk.gigahack26.repository.jpa.ServiceLineRepository lines;
     private final ScoringService scoring;
     private final Clock clock;
 
     public ScoreboardService(CompanyRepository companies, EvidenceRepository evidence, SignalRepository signals,
                              PolicyQuestionRepository questions, PolicyScoreRepository scores,
+                             com.pistonpunk.gigahack26.repository.jpa.ServiceLineRepository lines,
                              ScoringService scoring, Clock clock) {
         this.companies = companies;
         this.evidence = evidence;
         this.signals = signals;
         this.questions = questions;
         this.scores = scores;
+        this.lines = lines;
         this.scoring = scoring;
         this.clock = clock;
     }
@@ -107,6 +110,12 @@ public class ScoreboardService {
     }
 
     public List<String> serviceLines() {
+        List<String> configured = lines.findByActiveTrueOrderBySortOrderAscNameAsc().stream()
+                .map(com.pistonpunk.gigahack26.domain.ServiceLine::getKey)
+                .toList();
+        if (!configured.isEmpty()) {
+            return configured;
+        }
         List<String> fromQuestions = questions.findAll().stream()
                 .map(PolicyQuestion::getServiceLine)
                 .distinct()

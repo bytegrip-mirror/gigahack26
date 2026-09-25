@@ -305,6 +305,9 @@ export type Meta = {
 	degraded: boolean;
 	bands: Record<string, number>;
 	stages: Record<string, number>;
+	nextRefreshAt: string | null;
+	lastRefreshAt: string | null;
+	refreshIntervalMs: number;
 	captures: number;
 	scoring: {
 		baseRate: number;

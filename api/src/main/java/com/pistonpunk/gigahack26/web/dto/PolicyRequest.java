@@ -10,6 +10,7 @@ import java.util.List;
 
 public record PolicyRequest(
         @NotBlank @Size(max = 80) String serviceLine,
+        @Size(max = 200) String title,
         @NotBlank @Size(max = 400) String text,
         @Size(max = 4000) String instructions,
         WeightTier weightTier,

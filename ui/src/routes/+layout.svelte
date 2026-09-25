@@ -17,8 +17,24 @@
 	let status = $state<Status | null>(null);
 	let loading = $state(true);
 	let counts = $state<Record<string, number>>({});
+	let switching = $state(false);
+	let now = $state(Date.now());
 
 	const healthy = $derived(status !== null && status.postgres === 'up' && status.mongo === 'up');
+
+	$effect(() => {
+		const timer = setInterval(() => (now = Date.now()), 1000);
+		return () => clearInterval(timer);
+	});
+
+	const countdown = $derived.by(() => {
+		const target = meta?.nextRefreshAt ? new Date(meta.nextRefreshAt).getTime() : null;
+		if (target === null) return '—';
+		const seconds = Math.max(0, Math.round((target - now) / 1000));
+		if (seconds < 60) return `${seconds}s`;
+		const minutes = Math.round(seconds / 60);
+		return minutes < 60 ? `${minutes}m` : `${Math.round(minutes / 60)}h`;
+	});
 	const lines = $derived(meta?.serviceLines ?? []);
 
 	$effect(() => {
@@ -64,8 +80,11 @@
 	function chooseLine(line: string) {
 		if (line === session.serviceLine) return;
 		session.set(line);
-		meta = null;
-		fetchMeta(line).then((result) => (meta = result));
+		switching = true;
+		fetchMeta(line)
+			.then((result) => (meta = result))
+			.catch(() => toasts.push('That service line could not be loaded.', 'error'))
+			.finally(() => (switching = false));
 	}
 </script>
 
@@ -100,10 +119,13 @@
 						<button
 							class="line"
 							aria-current={line === session.serviceLine ? 'true' : undefined}
+							disabled={switching}
 							onclick={() => chooseLine(line)}
 						>
 							<span class="line-name">{line}</span>
-							{#if counts[line] !== undefined}
+							{#if switching && line === session.serviceLine}
+								<span class="spinner"></span>
+							{:else if counts[line] !== undefined}
 								<span class="num line-count">{counts[line]}</span>
 							{/if}
 						</button>
@@ -124,14 +146,13 @@
 		{/if}
 
 		<div class="rail-foot">
-			{#if status}
-				<p class="stores">
+			{#if meta?.nextRefreshAt}
+				<p class="refresh">
 					<span class="dot" class:ok={healthy} class:bad={!healthy}></span>
-					postgres {status.postgres} · mongo {status.mongo}
+					next refresh <span class="num">{countdown}</span>
 				</p>
-				<p class="label engine">{status.engine}</p>
 			{:else if loading}
-				<p class="stores"><span class="spinner"></span> connecting</p>
+				<p class="refresh"><span class="spinner"></span> connecting</p>
 			{/if}
 		</div>
 	</aside>
@@ -295,7 +316,7 @@
 		gap: 5px;
 	}
 
-	.stores {
+	.refresh {
 		display: flex;
 		align-items: center;
 		gap: 6px;
@@ -316,13 +337,6 @@
 
 	.dot.bad {
 		background: var(--oxblood);
-	}
-
-	.engine {
-		font-size: 9.5px;
-		color: var(--ink-4);
-		overflow: hidden;
-		text-overflow: ellipsis;
 	}
 
 	main {

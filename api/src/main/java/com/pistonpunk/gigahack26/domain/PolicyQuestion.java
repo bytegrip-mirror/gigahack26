@@ -26,6 +26,9 @@ public class PolicyQuestion {
     @Column(name = "question_key", nullable = false, unique = true, length = 80)
     private String key;
 
+    @Column(nullable = false, length = 200)
+    private String title;
+
     @Column(name = "service_line", nullable = false, length = 80)
     private String serviceLine;
 
@@ -72,12 +75,14 @@ public class PolicyQuestion {
     protected PolicyQuestion() {
     }
 
-    public PolicyQuestion(UUID id, String key, String serviceLine, String text, String instructions,
+    public PolicyQuestion(UUID id, String key, String title, String serviceLine, String text, String instructions,
                           WeightTier weightTier, Polarity polarity, String theme, DecayClass decayClass,
                           List<String> cues, List<String> counterCues, boolean active, Instant createdAt) {
         this.id = id;
         this.key = key;
+        this.title = title;
         this.serviceLine = serviceLine;
+        this.title = title;
         this.text = text;
         this.instructions = instructions;
         this.weightTier = weightTier;
@@ -97,6 +102,10 @@ public class PolicyQuestion {
 
     public String getKey() {
         return key;
+    }
+
+    public String getTitle() {
+        return title == null || title.isBlank() ? text : title;
     }
 
     public String getServiceLine() {
@@ -147,9 +156,10 @@ public class PolicyQuestion {
         return updatedAt;
     }
 
-    public void revise(String text, String instructions, WeightTier weightTier, Polarity polarity,
+    public void revise(String title, String text, String instructions, WeightTier weightTier, Polarity polarity,
                        String theme, DecayClass decayClass, List<String> cues, List<String> counterCues,
                        boolean active, Instant now) {
+        this.title = title;
         this.text = text;
         this.instructions = instructions;
         this.weightTier = weightTier;

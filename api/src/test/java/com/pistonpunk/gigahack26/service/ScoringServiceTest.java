@@ -217,7 +217,7 @@ class ScoringServiceTest {
     @Test
     void aDecayedSignalContributesLessThanAFreshOne() {
         PolicyQuestion hiring = question("h", Polarity.POSITIVE, WeightTier.HIGH, "automation");
-        hiring = new PolicyQuestion(hiring.getId(), hiring.getKey(), hiring.getServiceLine(), hiring.getText(),
+        hiring = new PolicyQuestion(hiring.getId(), hiring.getKey(), hiring.getTitle(), hiring.getServiceLine(), hiring.getText(),
                 hiring.getInstructions(), hiring.getWeightTier(), Polarity.POSITIVE, hiring.getTheme(),
                 DecayClass.HIRING, hiring.getCues(), hiring.getCounterCues(), true, hiring.getCreatedAt());
 
@@ -244,7 +244,7 @@ class ScoringServiceTest {
     }
 
     private PolicyQuestion question(String key, Polarity polarity, WeightTier tier, String theme) {
-        return new PolicyQuestion(UUID.randomUUID(), key, PolicyLibrary.AUTOMATION, "Question " + key,
+        return new PolicyQuestion(UUID.randomUUID(), key, "Question " + key, PolicyLibrary.AUTOMATION, "Question " + key,
                 "Rubric for " + key, tier, polarity, theme, DecayClass.STRUCTURAL,
                 List.of("cue"), List.of(), true, NOW);
     }

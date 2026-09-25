@@ -30,6 +30,11 @@ public class PolicyLibrary {
 
     @Transactional
     public boolean ensureSeeded() {
+        return ensureSeeded(true);
+    }
+
+    @Transactional
+    public boolean ensureSeeded(boolean syncExisting) {
         boolean changed = false;
         for (Definition definition : definitions()) {
             Optional<PolicyQuestion> existing = questions.findByKey(definition.key());
@@ -41,6 +46,7 @@ public class PolicyLibrary {
             PolicyQuestion question = existing.get();
             changed |= differs(question, definition);
             question.revise(
+                    definition.title(),
                     definition.text(),
                     definition.instructions(),
                     definition.tier(),
@@ -66,7 +72,7 @@ public class PolicyLibrary {
                 || !question.getCounterCues().equals(definition.counterCues());
     }
 
-    public record Definition(String key, String serviceLine, String text, String instructions,
+    public record Definition(String key, String title, String serviceLine, String text, String instructions,
                              WeightTier tier, Polarity polarity, String theme, DecayClass decayClass,
                              List<String> cues, List<String> counterCues) {
     }
@@ -75,6 +81,7 @@ public class PolicyLibrary {
         return new PolicyQuestion(
                 UUID.randomUUID(),
                 definition.key(),
+                definition.title(),
                 definition.serviceLine(),
                 definition.text(),
                 definition.instructions(),
@@ -91,7 +98,7 @@ public class PolicyLibrary {
     public static List<Definition> definitions() {
         return List.of(
                 new Definition(
-                        "automation.programme", AUTOMATION,
+                        "automation.programme", "An announced efficiency programme", AUTOMATION,
                         "Has the company announced an efficiency, cost-reduction or process-optimisation programme with a quantified target?",
                         """
                         Counts: a named programme, a stated financial or headcount target, or a public commitment to \
@@ -112,7 +119,7 @@ public class PolicyLibrary {
                                 "simplify operations", "operational efficiency programme", "reduce operating costs"),
                         List.of("no plans to", "already completed")),
                 new Definition(
-                        "automation.hiring", AUTOMATION,
+                        "automation.hiring", "Hiring for process excellence", AUTOMATION,
                         "Is the company hiring for automation, RPA, process-mining or process-excellence roles that select, govern or manage automation rather than build it?",
                         """
                         Counts: roles whose job is to choose, govern, roll out or manage automation across the business \
@@ -134,7 +141,7 @@ public class PolicyLibrary {
                                 "shared services", "continuous improvement"),
                         List.of("internship", "intern,", "unpaid", "student worker")),
                 new Definition(
-                        "automation.insourcing", AUTOMATION,
+                        "automation.insourcing", "Building automation in-house", AUTOMATION,
                         "Is the company building automation capability in-house — an internal automation centre of excellence, an in-house platform, or its own automation product?",
                         """
                         Counts: the company states it develops automation itself, runs an internal automation factory \
@@ -149,7 +156,7 @@ public class PolicyLibrary {
                                 "we build our own", "developed in-house", "own rpa"),
                         List.of("delivery partner", "systems integrator", "third-party provider", "outsourced")),
                 new Definition(
-                        "automation.vendor_lock", AUTOMATION,
+                        "automation.vendor_lock", "Already committed to an automation vendor", AUTOMATION,
                         "Does the company already run a multi-year automation programme with a named vendor, which would make switching unlikely?",
                         """
                         Counts: a signed multi-year agreement, a named strategic partner for automation, or a \
@@ -164,7 +171,7 @@ public class PolicyLibrary {
                                 "named as the preferred"),
                         List.of("evaluating", "request for proposal", "tender", "proof of concept")),
                 new Definition(
-                        "security.leadership", SECURITY,
+                        "security.leadership", "A new security leader", SECURITY,
                         "Has the company appointed a new CISO, head of security or equivalent security leader?",
                         """
                         Counts: a named appointment or promotion into a role that owns security for the whole \
@@ -181,7 +188,7 @@ public class PolicyLibrary {
                                 "information security officer", "cyber security lead"),
                         List.of("internship", "advisory board")),
                 new Definition(
-                        "security.compliance", SECURITY,
+                        "security.compliance", "A named compliance obligation", SECURITY,
                         "Is the company subject to a named regulatory obligation or deadline it must meet — NIS2, DORA, ISO 27001, PCI DSS?",
                         """
                         Counts: a named regulation or framework with a deadline, an audit requirement, or a \
@@ -198,7 +205,7 @@ public class PolicyLibrary {
                                 "cyber resilience act", "security certification", "iso/iec 27001"),
                         List.of("what is nis2", "explainer", "guide to")),
                 new Definition(
-                        "security.incident", SECURITY,
+                        "security.incident", "A reported security incident", SECURITY,
                         "Has the company suffered a breach, attack or security enforcement action?",
                         """
                         Counts: a reported breach, ransomware incident, data leak, regulatory fine or enforcement \
@@ -215,7 +222,7 @@ public class PolicyLibrary {
                                 "vulnerability", "patch", "security failure", "regulator fined"),
                         List.of("how to protect", "avoid becoming")),
                 new Definition(
-                        "security.insourcing", SECURITY,
+                        "security.insourcing", "Building security operations in-house", SECURITY,
                         "Is the company building its own security operations capability in-house?",
                         """
                         Counts: the company says it runs or is building its own security operations centre, or an \
@@ -228,7 +235,7 @@ public class PolicyLibrary {
                                 "internal security operations", "we handle security ourselves"),
                         List.of("managed security provider", "outsourced security")),
                 new Definition(
-                        "data.initiative", DATA,
+                        "data.initiative", "A data or AI initiative", DATA,
                         "Has the company started a data, analytics or AI initiative with a named use case?",
                         """
                         Counts: a named AI or data programme, a named use case in production or pilot, or a stated \
@@ -246,7 +253,7 @@ public class PolicyLibrary {
                                 "ai capabilities", "generative ai"),
                         List.of("what is artificial intelligence", "explainer")),
                 new Definition(
-                        "data.hiring", DATA,
+                        "data.hiring", "Hiring data or ML staff", DATA,
                         "Is the company hiring data, analytics or machine-learning staff?",
                         """
                         Counts: open roles for data engineering, analytics engineering, data science or machine \
@@ -260,7 +267,7 @@ public class PolicyLibrary {
                                 "data analyst", "business intelligence", "data platform engineer"),
                         List.of("internship", "for our client", "client site")),
                 new Definition(
-                        "data.governance", DATA,
+                        "data.governance", "A data governance programme", DATA,
                         "Is the company running a data governance, quality or master-data programme?",
                         """
                         Counts: a named governance or data-quality programme, a master data management initiative, \
