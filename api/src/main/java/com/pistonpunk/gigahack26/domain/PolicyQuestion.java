@@ -12,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -83,8 +84,8 @@ public class PolicyQuestion {
         this.polarity = polarity;
         this.theme = theme;
         this.decayClass = decayClass;
-        this.cues = List.copyOf(cues);
-        this.counterCues = List.copyOf(counterCues);
+        this.cues = new ArrayList<>(cues);
+        this.counterCues = new ArrayList<>(counterCues);
         this.active = active;
         this.createdAt = createdAt;
         this.updatedAt = createdAt;
@@ -155,8 +156,8 @@ public class PolicyQuestion {
         this.polarity = polarity;
         this.theme = theme;
         this.decayClass = decayClass;
-        this.cues = List.copyOf(cues);
-        this.counterCues = List.copyOf(counterCues);
+        this.cues = new ArrayList<>(cues);
+        this.counterCues = new ArrayList<>(counterCues);
         this.active = active;
         this.updatedAt = now;
     }

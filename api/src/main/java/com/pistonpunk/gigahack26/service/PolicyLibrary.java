@@ -29,14 +29,17 @@ public class PolicyLibrary {
     }
 
     @Transactional
-    public void ensureSeeded() {
+    public boolean ensureSeeded() {
+        boolean changed = false;
         for (Definition definition : definitions()) {
             Optional<PolicyQuestion> existing = questions.findByKey(definition.key());
             if (existing.isEmpty()) {
                 questions.save(toEntity(definition));
+                changed = true;
                 continue;
             }
             PolicyQuestion question = existing.get();
+            changed |= differs(question, definition);
             question.revise(
                     definition.text(),
                     definition.instructions(),
@@ -50,6 +53,17 @@ public class PolicyLibrary {
                     clock.instant());
             questions.save(question);
         }
+        return changed;
+    }
+
+    private static boolean differs(PolicyQuestion question, Definition definition) {
+        return !question.getText().equals(definition.text())
+                || !question.getTheme().equals(definition.theme())
+                || question.getWeightTier() != definition.tier()
+                || question.getPolarity() != definition.polarity()
+                || question.getDecayClass() != definition.decayClass()
+                || !question.getCues().equals(definition.cues())
+                || !question.getCounterCues().equals(definition.counterCues());
     }
 
     public record Definition(String key, String serviceLine, String text, String instructions,
@@ -115,9 +129,9 @@ public class PolicyLibrary {
                                 "business process analyst", "blue prism", "uipath", "power automate",
                                 "automation specialist", "automation consultant", "workflow automation",
                                 "process improvement", "lean six sigma", "operations excellence",
-                                "digital transformation", "business process", "process lead", "transformation office",
-                                "change management", "continuous improvement", "operational excellence manager",
-                                "automation lead", "head of automation", "shared services"),
+                                "process lead", "transformation office", "operational excellence manager",
+                                "automation lead", "head of automation", "digital transformation",
+                                "shared services", "continuous improvement"),
                         List.of("internship", "intern,", "unpaid", "student worker")),
                 new Definition(
                         "automation.insourcing", AUTOMATION,
@@ -229,7 +243,7 @@ public class PolicyLibrary {
                                 "data-driven", "analytics platform", "copilot rollout", "ai pilot",
                                 "ai agents", "ai agent", "agentic", "large language model", "genai", "gen ai",
                                 "ai transformation", "ai roadmap", "ai investment", "ai platform", "data strategy",
-                                "digital strategy", "ai capabilities", "ai solutions", "ai tools"),
+                                "ai capabilities", "generative ai"),
                         List.of("what is artificial intelligence", "explainer")),
                 new Definition(
                         "data.hiring", DATA,

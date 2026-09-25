@@ -58,6 +58,7 @@ public class CorpusSeeder implements ApplicationRunner {
     private final PolicyQuestionRepository questions;
     private final PolicyLibrary library;
     private final ScoreboardService scoreboard;
+    private final RescoreService rescore;
     private final ClassifierRouter router;
     private final CaptureStore captureStore;
     private final CorpusProperties properties;
@@ -66,7 +67,7 @@ public class CorpusSeeder implements ApplicationRunner {
 
     public CorpusSeeder(CompanyRepository companies, CompanyAliasRepository aliases, EvidenceRepository evidence,
                         RawCaptureRepository captures, SignalRepository signals, PolicyQuestionRepository questions,
-                        PolicyLibrary library, ScoreboardService scoreboard, ClassifierRouter router,
+                        PolicyLibrary library, ScoreboardService scoreboard, RescoreService rescore, ClassifierRouter router,
                         CaptureStore captureStore, CorpusProperties properties, ObjectMapper mapper, Clock clock) {
         this.companies = companies;
         this.aliases = aliases;
@@ -76,6 +77,7 @@ public class CorpusSeeder implements ApplicationRunner {
         this.questions = questions;
         this.library = library;
         this.scoreboard = scoreboard;
+        this.rescore = rescore;
         this.router = router;
         this.captureStore = captureStore;
         this.properties = properties;
@@ -88,15 +90,18 @@ public class CorpusSeeder implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        library.ensureSeeded();
+        boolean policiesChanged = library.ensureSeeded();
 
         if (!properties.seedOnStartup()) {
             log.info("corpus seeding is disabled");
             return;
         }
         if (companies.count() > 0 && !properties.forceReseed()) {
-            log.info("corpus already present ({} companies, {} evidence); skipping seed",
+            log.info("corpus already present ({} companies, {} evidence); skipping the crawl seed",
                     companies.count(), evidence.count());
+            if (policiesChanged) {
+                refreshSignals();
+            }
             return;
         }
 
@@ -117,6 +122,21 @@ public class CorpusSeeder implements ApplicationRunner {
 
         log.info("seeded {} companies and {} evidence units in {} ms",
                 companies.count(), evidence.count(), (System.nanoTime() - started) / 1_000_000);
+    }
+
+    private void refreshSignals() {
+        long started = System.nanoTime();
+        List<PolicyQuestion> active = questions.findByActiveTrue();
+        log.info("the shipped policy set changed; re-classifying {} documents against {} questions",
+                evidence.count(), active.size());
+        signals.deleteAll();
+        RescoreService.Outcome outcome = rescore.reclassify(active, false, null);
+        for (String serviceLine : scoreboard.serviceLines()) {
+            scoreboard.rescore(serviceLine);
+        }
+        log.info("refreshed {} signals in {} ms ({} documents scanned)",
+                outcome.signalsProduced(), (System.nanoTime() - started) / 1_000_000,
+                outcome.documentsScanned());
     }
 
     private Map<String, UUID> persistCompanies(List<CorpusFiles.RawCompany> raw) {
