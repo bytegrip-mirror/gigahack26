@@ -24,9 +24,9 @@ fills the remaining width.
 │ brand    ├────────────────────────────────────────────────────────────┤
 │ search   │ .panes                                                     │
 │ nav      │  ┌──────────────────────────┬─────────────────────────┐    │
-│ lines    │  │ .list  (scrolls)         │ .detail (scrolls)       │    │
-│ corpus   │  │  the ranked table        │  the scorecard          │    │
-│          │  └──────────────────────────┴─────────────────────────┘    │
+│ corpus   │  │ .list  (scrolls)         │ .detail (scrolls)       │    │
+│          │  │  the ranked table        │  the scorecard          │    │
+│ region   │  └──────────────────────────┴─────────────────────────┘    │
 │ refresh  ├────────────────────────────────────────────────────────────┤
 │          │ .pager       1–50 of 578 · page size · prev/next           │
 └──────────┴────────────────────────────────────────────────────────────┘
@@ -109,9 +109,14 @@ one `Menu` away, and every row carries the same `⋯` in the last column.
 | Screen | Primary | In the `⋯` |
 | --- | --- | --- |
 | Board | *Ask a question* | export the board, copy a link, clear filters, re-score; per row: open the scorecard, open the quoted capture, copy a link, export the row, set the lead stage |
+| Company pane | *Generate outreach*, then *Push to HubSpot* | copy the summary, open the website, count as a lead, count as rejected, close |
 | Pipeline | per-row *advance to the next stage* | open on the board, copy a link, export the row, move to any stage; screen-level: export the pipeline, open the board |
 | Signal Studio | *New question* | export every question, duplicate, delete; per row: edit, duplicate, turn on/off, copy the key, delete |
 | Settings | *Save and re-score* | read the writer brief; per service line: enable/disable, delete |
+
+Both buttons on the company pane are full width and stacked: the outreach draft is
+the work, and the HubSpot push is the hand-off, so it carries the HubSpot mark
+and says plainly when no token is configured rather than appearing to sync.
 
 The company pane has its own hierarchy: the header carries identity, a tab strip
 sits directly under it — **Overview** (the default), **Ledger** *(n)* and
@@ -125,7 +130,32 @@ toolbar with a dark bar holding the selection count, *Set stage*, *Export*,
 *Copy links* and a clear button. Bulk stage changes fire one `recordLead` per
 company and report how many landed.
 
-## 5. Density and alignment
+## 5. Scope, region, and where each control lives
+
+Two settings reach across screens, and each sits where its effect is visible.
+This is deliberate: a control that silently does nothing on the screen you are
+looking at is worse than no control.
+
+**Service line** scopes the board, the pipeline and the studio's default for a
+new question. The switcher is therefore the **first control in the toolbar of
+the board and the pipeline** — the same component in the same position, reading
+and writing one session value so the two never disagree — and it never appears
+on Settings or in the rail. The workspace settings row is global, so that screen
+does not pretend to be scoped: saving re-scores **every** service line.
+
+**Region** filters the board by market. It is workspace-wide chrome rather than a
+per-view filter, so it lives in the **rail footer**, bottom-left, labelled *Board
+region* to say what it applies to. The board states the active region in its
+subtitle, so the effect is legible from the screen it changes.
+
+The studio is a library, not a scoped view: it lists every question grouped by
+service line, with the session's line first, and offers no scope control at all.
+
+The board's band counts are tallied from the rows in hand, not read from the
+server's per-line totals, so the Priority metric always counts the Priority
+companies the region filter has left on screen.
+
+## 6. Density and alignment
 
 Dense data is a table, never a grid of cards.
 
@@ -142,7 +172,7 @@ Dense data is a table, never a grid of cards.
   Themes below 1380px, Docs and Newest below 1180px, then the split gives way to
   an overlay at 1100px.
 
-## 6. Adding to a screen
+## 7. Adding to a screen
 
 - **A column** — add a `Th` with an `id`, `width` and `className`, add the
   matching `td`, and add the `id` to the sort switch. Give it a hide rule in the
@@ -151,7 +181,12 @@ Dense data is a table, never a grid of cards.
   topbar. Otherwise it is a `MenuItem`.
 - **A row action** — append to the view's `rowMenu`/`menuFor` builder, with
   `separatorBefore` on the first item of a new group and `danger` on anything
-  destructive.
+  destructive. An action that is the point of the screen is a button instead,
+  the way *Push to HubSpot* is on the company pane.
+- **A chip field on the board** — the row carries six signals, not three, so the
+  *Top evidence* cell can name three **distinct** reasons. It runs them through
+  `reasons()`, which keeps the strongest signal per question, because one
+  question firing on six documents is one reason, not six.
 - **A panel** — `.panel` + `.panel-head`, then `.metrics` for numbers and
   `.facts` for key/value pairs. Prose belongs behind a disclosure, not in the
   default view.

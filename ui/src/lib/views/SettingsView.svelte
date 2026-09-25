@@ -11,7 +11,6 @@
 		type ServiceLine,
 		type Settings
 	} from '$lib/api';
-	import { session } from '$lib/session.svelte';
 	import { workspace } from '$lib/workspace.svelte';
 	import { toasts } from '$lib/toast.svelte';
 	import { shortNumber } from '$lib/format';
@@ -47,7 +46,6 @@
 	let newLine = $state({ name: '', valueProposition: '' });
 	let lineBusy = $state<string | null>(null);
 
-	const serviceLine = $derived(session.serviceLine);
 	const bands = $derived(workspace.meta?.bands ?? {});
 	const dirty = $derived(
 		settings !== null &&
@@ -59,7 +57,6 @@
 	);
 
 	$effect(() => {
-		if (!serviceLine) return;
 		let cancelled = false;
 		loading = true;
 		Promise.all([fetchSettings(), fetchServiceLines(true), fetchRegionCountries()])
@@ -111,16 +108,17 @@
 		if (!draft) return;
 		saving = true;
 		try {
-			const saved = await saveSettings(
-				{ ...draft, icpCountries: parse(countries), icpIndustries: parse(industries) },
-				serviceLine
-			);
+			const saved = await saveSettings({
+				...draft,
+				icpCountries: parse(countries),
+				icpIndustries: parse(industries)
+			});
 			settings = saved;
 			draft = { ...saved };
 			countries = saved.icpCountries.join(', ');
 			industries = saved.icpIndustries.join(', ');
 			workspace.reload();
-			toasts.push('Saved. The board re-scored.', 'success');
+			toasts.push('Saved. Every service line re-scored.', 'success');
 		} catch (cause) {
 			toasts.push((cause as Error).message, 'error');
 		} finally {
@@ -231,8 +229,8 @@
 		<div class="ident">
 			<h1 class="dsp">Settings</h1>
 			<p class="sub num">
-				{shortNumber(settings?.indexedCompanies ?? 0)} companies indexed · {lines.length} service lines ·
-				{serviceLine}
+				{shortNumber(settings?.indexedCompanies ?? 0)} companies indexed · {lines.length} service lines · applies to
+				all of them
 			</p>
 		</div>
 		<div class="topbar-tools">

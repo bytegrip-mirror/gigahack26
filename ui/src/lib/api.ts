@@ -10,7 +10,9 @@ export type SourceKind = 'JOB_POSTING' | 'NEWS' | 'REGISTRY' | 'FILING';
 export type Chip = {
 	evidenceId: string;
 	questionKey: string;
+	questionTitle: string;
 	question: string;
+	title: string | null;
 	theme: string;
 	tier: WeightTier;
 	polarity: Polarity;
@@ -638,10 +640,9 @@ export function saveSettings(
 	input: Omit<
 		Settings,
 		'themeCap' | 'updatedAt' | 'inScope' | 'indexedCompanies' | 'modelWritesDrafts'
-	>,
-	serviceLine: string
+	>
 ): Promise<Settings> {
-	return request<Settings>(`/api/settings${query({ serviceLine })}`, {
+	return request<Settings>('/api/settings', {
 		method: 'PUT',
 		body: JSON.stringify({
 			...input,

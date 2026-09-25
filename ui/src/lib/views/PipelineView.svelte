@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { fetchLeads, fetchLeadTally, recordLead, type LeadTally, type LeadView } from '$lib/api';
 	import { session } from '$lib/session.svelte';
+	import { workspace } from '$lib/workspace.svelte';
 	import { toasts } from '$lib/toast.svelte';
 	import { age, fit, host, plural } from '$lib/format';
 	import { copy, csv, save } from '$lib/export';
@@ -176,6 +177,22 @@
 	</header>
 
 	<div class="toolbar">
+		<Menu
+			text={serviceLine}
+			icon="layers"
+			align="start"
+			label="Service line"
+			title="Which service line's leads this shows"
+			items={workspace.lines.map((line) => ({
+				id: line,
+				label: line,
+				checked: line === serviceLine
+			}))}
+			onselect={(line) => workspace.select(line)}
+		/>
+		{#if workspace.switching}<span class="spinner"></span>{/if}
+		<span class="sep"></span>
+
 		<label class="search">
 			<span class="sr-only">Filter leads</span>
 			<Icon name="search" size={14} />

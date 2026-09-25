@@ -50,7 +50,6 @@
 	let previewing = $state(false);
 	let applying = $state(false);
 	let query = $state('');
-	let scope = $state<'line' | 'all'>('line');
 
 	const serviceLine = $derived(session.serviceLine);
 	const current = $derived(policies.find((policy) => policy.id === selectedId) ?? null);
@@ -220,9 +219,8 @@
 
 	const matched = $derived.by(() => {
 		const needle = query.trim().toLowerCase();
-		const base = scope === 'line' ? policies.filter((p) => p.serviceLine === serviceLine) : policies;
-		if (!needle) return base;
-		return base.filter((policy) =>
+		if (!needle) return policies;
+		return policies.filter((policy) =>
 			`${policy.title} ${policy.text} ${policy.theme} ${policy.serviceLine}`.toLowerCase().includes(needle)
 		);
 	});
@@ -234,10 +232,13 @@
 			list.push(policy);
 			map.set(policy.serviceLine, list);
 		}
-		return [...map.entries()].sort(([a], [b]) => a.localeCompare(b));
+		return [...map.entries()].sort(([a], [b]) => {
+			if (a === serviceLine) return -1;
+			if (b === serviceLine) return 1;
+			return a.localeCompare(b);
+		});
 	});
 
-	const elsewhere = $derived(policies.filter((policy) => policy.serviceLine !== serviceLine).length);
 	const scored = $derived(policies.filter((policy) => policy.active && policy.signalCount > 0).length);
 
 	function exportPolicies() {
@@ -328,14 +329,6 @@
 					<Icon name="search" size={14} />
 					<input class="input input-sm" placeholder="Filter questions" bind:value={query} />
 				</label>
-				<div class="seg scope" role="tablist" aria-label="Scope">
-					<button role="tab" aria-selected={scope === 'line'} title={serviceLine} onclick={() => (scope = 'line')}>
-						{serviceLine}
-					</button>
-					<button role="tab" aria-selected={scope === 'all'} onclick={() => (scope = 'all')}>
-						All lines
-					</button>
-				</div>
 			</div>
 
 			<div class="q-list scroll">
@@ -379,9 +372,6 @@
 							</ul>
 						</div>
 					{/each}
-					{#if scope === 'line' && elsewhere > 0}
-						<p class="sub dim pad">{elsewhere} more on other service lines.</p>
-					{/if}
 					{#if matched.length === 0 && !loading}
 						<p class="sub dim pad">No question matches “{query}”.</p>
 					{/if}
@@ -560,20 +550,6 @@
 		padding: var(--sp-2);
 		border-bottom: 1px solid var(--rule);
 		flex: none;
-	}
-
-	.scope {
-		width: 100%;
-	}
-
-	.scope button {
-		flex: 1;
-		justify-content: center;
-		min-width: 0;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		display: block;
-		font-size: var(--fs-sm);
 	}
 
 	.search {

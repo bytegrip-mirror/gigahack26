@@ -44,7 +44,9 @@ public record BoardRow(
     public record Chip(
             String evidenceId,
             String questionKey,
+            String questionTitle,
             String question,
+            String title,
             String theme,
             WeightTier tier,
             Polarity polarity,

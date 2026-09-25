@@ -9,9 +9,11 @@
 	import { workspace } from '$lib/workspace.svelte';
 	import { command } from '$lib/command.svelte';
 	import { shortNumber } from '$lib/format';
+	import { regionChoices, regionLabel } from '$lib/regions';
 	import Logo from '$lib/components/Logo.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import Metric from '$lib/components/Metric.svelte';
+	import Menu from '$lib/components/Menu.svelte';
 	import CommandPalette from '$lib/components/CommandPalette.svelte';
 
 	let { children } = $props();
@@ -85,29 +87,6 @@
 			{/each}
 		</nav>
 
-		<section class="block">
-			<p class="label">Service lines</p>
-			<ul class="lines">
-				{#each workspace.lines as line (line)}
-					<li>
-						<button
-							class="line"
-							aria-current={line === selected ? 'true' : undefined}
-							disabled={workspace.switching}
-							onclick={() => workspace.select(line)}
-						>
-							<span class="line-name">{line}</span>
-							{#if workspace.switching && line === selected}
-								<span class="spinner"></span>
-							{:else}
-								<span class="num line-count" title="Companies in Priority">{workspace.counts[line] ?? '—'}</span>
-							{/if}
-						</button>
-					</li>
-				{/each}
-			</ul>
-		</section>
-
 		{#if workspace.status}
 			<section class="block">
 				<p class="label">Corpus</p>
@@ -120,6 +99,24 @@
 		{/if}
 
 		<div class="rail-foot">
+			<div class="region">
+				<p class="label">Board region</p>
+				<Menu
+					text={regionLabel(workspace.regions, session.region)}
+					icon="target"
+					align="start"
+					block
+					label="Board region"
+					title="Which markets the board ranks. The board shows the choice."
+					items={regionChoices(workspace.regions).map((choice) => ({
+						id: choice.key,
+						label: choice.label,
+						checked: choice.key === session.region
+					}))}
+					onselect={(key) => session.setRegion(key)}
+				/>
+			</div>
+
 			{#if workspace.meta?.nextRefreshAt}
 				<p class="refresh" title="The board re-scores itself on this interval">
 					<span class="dot" class:ok={healthy} class:bad={!healthy}></span>
@@ -284,51 +281,6 @@
 		margin-bottom: var(--sp-2);
 	}
 
-	.lines {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-	}
-
-	.line {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: var(--sp-2);
-		width: 100%;
-		padding: 4px 0 4px var(--sp-2);
-		border-left: 2px solid transparent;
-		font-size: var(--fs-md);
-		color: var(--ink-2);
-		text-align: left;
-		transition: color var(--ease), border-color var(--ease);
-	}
-
-	.line:hover:not(:disabled) {
-		color: var(--ink);
-	}
-
-	.line[aria-current='true'] {
-		border-left-color: var(--orange);
-		color: var(--ink);
-		font-weight: 500;
-	}
-
-	.line:disabled {
-		cursor: default;
-	}
-
-	.line-name {
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	.line-count {
-		font-size: var(--fs-sm);
-		color: var(--ink-3);
-		flex: none;
-	}
 
 	.corpus {
 		display: grid;
@@ -351,7 +303,18 @@
 		padding: var(--sp-3);
 		display: flex;
 		flex-direction: column;
+		gap: var(--sp-2);
+		border-top: 1px solid var(--rule);
+	}
+
+	.region {
+		display: flex;
+		flex-direction: column;
 		gap: var(--sp-1);
+	}
+
+	.region .label {
+		display: block;
 	}
 
 	.refresh {

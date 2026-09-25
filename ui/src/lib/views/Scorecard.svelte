@@ -15,6 +15,7 @@
 	import ScoreMeter from '$lib/components/ScoreMeter.svelte';
 	import Ledger from '$lib/components/Ledger.svelte';
 	import OutreachModal from '$lib/components/OutreachModal.svelte';
+	import Hubspot from '$lib/components/Hubspot.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import Menu from '$lib/components/Menu.svelte';
 	import Metric from '$lib/components/Metric.svelte';
@@ -50,7 +51,6 @@
 	let error = $state<string | null>(null);
 	let loading = $state(true);
 	let tab = $state('overview');
-	let showReasoning = $state(false);
 	let outreachOpen = $state(false);
 	let silentOnly = $state(false);
 	let lead = $state<LeadView | null>(null);
@@ -149,7 +149,6 @@
 	}
 
 	const overflow: MenuItem[] = $derived([
-		{ id: 'crm', label: lead?.crmSyncedAt ? 'Re-push to HubSpot' : 'Push to HubSpot', icon: 'external' },
 		{ id: 'summary', label: 'Copy the summary', icon: 'copy' },
 		{ id: 'source', label: 'Open the website', icon: 'link', disabled: !detail?.domain },
 		{ id: 'accept', label: 'Count as a qualified lead', icon: 'check', separatorBefore: true },
@@ -158,8 +157,7 @@
 	]);
 
 	async function runOverflow(id: string) {
-		if (id === 'crm') await pushCrm();
-		else if (id === 'summary') await copySummary();
+		if (id === 'summary') await copySummary();
 		else if (id === 'source' && detail?.domain) window.open(`https://${detail.domain}`, '_blank', 'noopener');
 		else if (id === 'accept') await judge('ACCEPT');
 		else if (id === 'reject') await judge('REJECT');
@@ -240,7 +238,7 @@
 					<h3 class="label">Why now</h3>
 					<span class="urgency" data-urgency={detail.whyNow.urgency}>{detail.whyNow.urgencyLabel}</span>
 				</div>
-				<p class="why-headline dsp">{detail.whyNow.headline}</p>
+				<p class="why-text">{detail.whyNow.narrative || detail.whyNow.headline}</p>
 				<dl class="facts why-facts">
 					{#if triggers[0]}
 						<dt>Strongest signal</dt>
@@ -260,17 +258,6 @@
 					<dt>Documents read</dt>
 					<dd class="num">{detail.scannedDocuments} · {detail.silentDocuments} silent</dd>
 				</dl>
-				{#if detail.whyNow.narrative}
-					<div class="reasoning">
-						<button class="disclosure" aria-expanded={showReasoning} onclick={() => (showReasoning = !showReasoning)}>
-							<Icon name={showReasoning ? 'chevronDown' : 'chevronRight'} size={13} />
-							{showReasoning ? 'Hide the reasoning' : 'Read the reasoning'}
-						</button>
-						{#if showReasoning}
-							<p class="why-text">{detail.whyNow.narrative}</p>
-						{/if}
-					</div>
-				{/if}
 			</section>
 
 			<section class="panel">
@@ -300,6 +287,20 @@
 					<Icon name="mail" size={15} />
 					Generate outreach
 				</button>
+				<button
+					class="btn btn-block"
+					disabled={busy === 'crm'}
+					title={detail.crmConfigured
+						? 'Push this company to HubSpot'
+						: 'No HubSpot token is configured, so the push is recorded as an intent'}
+					onclick={pushCrm}
+				>
+					{#if busy === 'crm'}<span class="spinner"></span>{:else}<Hubspot size={17} />{/if}
+					{lead?.crmSyncedAt ? 'Re-push to HubSpot' : 'Push to HubSpot'}
+				</button>
+				{#if !detail.crmConfigured}
+					<p class="sub dim">No HubSpot token on this deployment — the push is recorded, not sent.</p>
+				{/if}
 			</section>
 
 			<section class="panel">
@@ -514,12 +515,6 @@
 		color: var(--orange);
 	}
 
-	.why-headline {
-		font-size: var(--fs-lg);
-		line-height: 1.3;
-		color: var(--ink);
-	}
-
 	.why-facts {
 		margin-top: var(--sp-1);
 		font-size: var(--fs-base);
@@ -527,23 +522,6 @@
 
 	.why-facts dt {
 		color: var(--ink-3);
-	}
-
-	.reasoning {
-		border-top: 1px solid var(--rule);
-		padding-top: var(--sp-1);
-	}
-
-	.disclosure {
-		display: inline-flex;
-		align-items: center;
-		gap: 4px;
-		font-size: var(--fs-sm);
-		color: var(--ink-3);
-	}
-
-	.disclosure:hover {
-		color: var(--ink);
 	}
 
 	.why-text {

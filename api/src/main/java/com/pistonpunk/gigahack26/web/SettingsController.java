@@ -3,7 +3,6 @@ package com.pistonpunk.gigahack26.web;
 import com.pistonpunk.gigahack26.domain.Company;
 import com.pistonpunk.gigahack26.domain.WorkspaceSettings;
 import com.pistonpunk.gigahack26.repository.jpa.CompanyRepository;
-import com.pistonpunk.gigahack26.service.PolicyLibrary;
 import com.pistonpunk.gigahack26.service.ScoreboardService;
 import com.pistonpunk.gigahack26.service.DraftWriterRouter;
 import com.pistonpunk.gigahack26.service.SettingsService;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
@@ -47,10 +45,9 @@ public class SettingsController {
 
     @PutMapping
     @org.springframework.cache.annotation.CacheEvict(value = "board", allEntries = true)
-    public SettingsView update(@Valid @RequestBody SettingsRequest request,
-                               @RequestParam(name = "serviceLine", required = false) String serviceLine) {
+    public SettingsView update(@Valid @RequestBody SettingsRequest request) {
         WorkspaceSettings saved = settings.update(request);
-        scoreboard.rescore(line(serviceLine));
+        scoreboard.rescoreAll();
         return view(saved);
     }
 
@@ -109,7 +106,4 @@ public class SettingsController {
                 .toList();
     }
 
-    private static String line(String serviceLine) {
-        return serviceLine == null || serviceLine.isBlank() ? PolicyLibrary.AUTOMATION : serviceLine;
-    }
 }

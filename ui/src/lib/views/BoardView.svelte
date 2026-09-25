@@ -6,6 +6,7 @@
 		recordLead,
 		rescore,
 		type BoardRow,
+		type Chip,
 		type Engine,
 		type Move,
 		type Polarity,
@@ -15,7 +16,8 @@
 	import { session } from '$lib/session.svelte';
 	import { workspace } from '$lib/workspace.svelte';
 	import { toasts } from '$lib/toast.svelte';
-	import { ageShort, duration, fit, shortNumber, theme } from '$lib/format';
+	import { ageShort, duration, fit, shortNumber, signed, theme } from '$lib/format';
+	import { regionLabel } from '$lib/regions';
 	import { copy, csv, save } from '$lib/export';
 	import Tag from '$lib/components/Tag.svelte';
 	import ScoreMeter from '$lib/components/ScoreMeter.svelte';
@@ -64,6 +66,14 @@
 		DISQUALIFIED: 4
 	};
 
+	const BAND_FILTERS: Record<string, (band: string) => boolean> = {
+		all: () => true,
+		hot: (band) => band === 'PRIORITY' || band === 'NURTURE',
+		priority: (band) => band === 'PRIORITY',
+		rejected: (band) => band === 'DISQUALIFIED',
+		thin: (band) => band === 'THIN'
+	};
+
 	const LEAD_STAGES = [
 		{ id: 'CONTACTED', label: 'Contacted' },
 		{ id: 'REPLIED', label: 'Replied' },
@@ -100,17 +110,15 @@
 
 	const meta = $derived(workspace.meta);
 	const serviceLine = $derived(session.serviceLine);
-	const bands = $derived(meta?.bands ?? {});
-	const regionLabel = $derived.by(() => {
-		for (const continent of meta?.regions ?? []) {
-			if (continent.key === session.region) return continent.name;
-			for (const child of continent.children) {
-				if (child.key === session.region) return `${child.name}`;
-			}
-		}
-		return 'Worldwide';
-	});
 	const filtered = $derived(session.region !== 'world' || stage !== '' || query !== '');
+	const scopeItems = $derived(
+		workspace.lines.map((line) => ({
+			id: line,
+			label: line,
+			hint: workspace.counts[line] === undefined ? '' : String(workspace.counts[line]),
+			checked: line === serviceLine
+		}))
+	);
 
 	const movements = $derived.by(() => {
 		const map = new Map<string, Move>();
@@ -118,8 +126,24 @@
 		return map;
 	});
 
+	const visible = $derived(rows.filter((row) => BAND_FILTERS[filter](row.band)));
+
+	const counts = $derived.by(() => {
+		const tally: Record<string, number> = {
+			ALL: rows.length,
+			PRIORITY: 0,
+			NURTURE: 0,
+			WATCH: 0,
+			THIN: 0,
+			DISQUALIFIED: 0
+		};
+		for (const row of rows) tally[row.band] = (tally[row.band] ?? 0) + 1;
+		tally.HOT = tally.PRIORITY + tally.NURTURE;
+		return tally;
+	});
+
 	const sorted = $derived.by(() => {
-		const list = [...rows];
+		const list = [...visible];
 		const sign = dir === 'asc' ? 1 : -1;
 		list.sort((a, b) => {
 			switch (sort) {
@@ -152,7 +176,6 @@
 
 	$effect(() => {
 		const line = serviceLine;
-		const activeFilter = filter;
 		const search = query;
 		const activeStage = stage;
 		const activeRegion = session.region;
@@ -164,7 +187,7 @@
 			() => {
 				fetchBoard({
 					serviceLine: line,
-					filter: activeFilter,
+					filter: 'all',
 					sort: 'score',
 					q: search,
 					stage: activeStage,
@@ -232,6 +255,19 @@
 	const allPicked = $derived(current.length > 0 && current.every((row) => picked.has(row.id)));
 	const somePicked = $derived(current.some((row) => picked.has(row.id)));
 
+	function reasons(row: BoardRow): Chip[] {
+		const seen = new Map<string, Chip>();
+		for (const chip of row.chips) {
+			const held = seen.get(chip.questionKey);
+			if (!held || Math.abs(chip.contribution) > Math.abs(held.contribution)) {
+				seen.set(chip.questionKey, chip);
+			}
+		}
+		return [...seen.values()]
+			.sort((a, b) => Math.abs(b.contribution) - Math.abs(a.contribution))
+			.slice(0, 3);
+	}
+
 	function partial(node: HTMLInputElement, value: boolean) {
 		node.indeterminate = value;
 		return {
@@ -268,11 +304,9 @@
 				: `Marked ${done} of ${ids.length} ${label}. The rest failed.`,
 			done === ids.length ? 'success' : 'warn'
 		);
-		const line = serviceLine;
-		const activeFilter = filter;
 		rows = await fetchBoard({
-			serviceLine: line,
-			filter: activeFilter,
+			serviceLine,
+			filter: 'all',
 			sort: 'score',
 			q: query,
 			stage,
@@ -429,16 +463,17 @@
 <div class="view">
 	<header class="topbar">
 		<div class="ident">
-			<h1 class="dsp">{serviceLine || 'Board'}</h1>
+			<h1 class="dsp">Board</h1>
 			<p class="sub num">
-				{shortNumber(bands.ALL ?? rows.length)} companies · {regionLabel}{#if stage} · {STAGES.find((s) => s.id === stage)?.label}{/if}
+				{shortNumber(rows.length)} companies · {regionLabel(meta?.regions ?? [], session.region)}{#if stage}
+					· {STAGES.find((s) => s.id === stage)?.label}{/if}
 			</p>
 		</div>
 
 		{#if meta}
 			<div class="metrics">
-				<Metric value={shortNumber(bands.PRIORITY ?? 0)} label="Priority" tone="hot" title="Companies above the Priority line" />
-				<Metric value={shortNumber(bands.HOT ?? 0)} label="Hot" title="Priority and Nurture together" />
+				<Metric value={shortNumber(counts.PRIORITY ?? 0)} label="Priority" tone="hot" title="Companies above the Priority line, in view" />
+				<Metric value={shortNumber(counts.HOT ?? 0)} label="Hot" title="Priority and Nurture together, in view" />
 				<Metric value={shortNumber(meta.captures)} label="Captures" title="Stored documents the board was scored against" />
 			</div>
 		{/if}
@@ -559,6 +594,18 @@
 		</div>
 	{:else}
 		<div class="toolbar">
+			<Menu
+				text={serviceLine}
+				icon="layers"
+				align="start"
+				label="Service line"
+				title="What the board is ranked for"
+				items={scopeItems}
+				onselect={(line) => workspace.select(line)}
+			/>
+			{#if workspace.switching}<span class="spinner"></span>{/if}
+			<span class="sep"></span>
+
 			<div class="seg" role="tablist" aria-label="Filter">
 				{#each FILTERS as option (option.id)}
 					<button role="tab" aria-selected={filter === option.id} onclick={() => (filter = option.id)}>
@@ -574,22 +621,6 @@
 			</label>
 
 			<span class="spacer"></span>
-
-			<label class="sr-only" for="region">Region</label>
-			<select
-				id="region"
-				class="select select-sm region"
-				value={session.region}
-				onchange={(event) => session.setRegion(event.currentTarget.value)}
-			>
-				<option value="world">Worldwide</option>
-				{#each meta?.regions ?? [] as continent (continent.key)}
-					<option value={continent.key}>{continent.name} — all</option>
-					{#each continent.children as child (child.key)}
-						<option value={child.key}>　{continent.name} › {child.name}</option>
-					{/each}
-				{/each}
-			</select>
 
 			<label class="sr-only" for="stage">Lead stage</label>
 			<select id="stage" class="select select-sm" bind:value={stage}>
@@ -633,7 +664,7 @@
 							<Th id="name" label="Company" sort={sort} {dir} onsort={sortBy} width="21%" />
 							<Th id="fit" label="Fit" sort={sort} {dir} onsort={sortBy} align="right" width="128px" title="Probability this company is worth calling" />
 							<Th id="band" label="Band" sort={sort} {dir} onsort={sortBy} align="center" width="96px" />
-							<th class="c-sig" scope="col">Strongest signal</th>
+							<th class="c-sig" scope="col">Top evidence</th>
 							<Th id="themes" label="Themes" sort={sort} {dir} onsort={sortBy} width="142px" className="c-th" />
 							<Th id="docs" label="Docs" sort={sort} {dir} onsort={sortBy} align="right" width="56px" className="c-doc" />
 							<Th id="newest" label="Newest" sort={sort} {dir} onsort={sortBy} align="right" width="66px" className="c-age" />
@@ -702,12 +733,20 @@
 									{/if}
 								</td>
 								<td class="c-sig">
-									{#if row.strongest}
-										<span class="q" class:hot={row.urgency === 'ACT_NOW'} title={row.whyNow ?? ''}>
-											{row.strongest.question}
-										</span>
-										<span class="quote">“{row.strongest.quote}”</span>
-										<span class="sub dim">{row.strongest.publisher} · {ageShort(row.newestSignalAgeDays)}</span>
+									{#if row.chips.length > 0}
+										{@const top = reasons(row)}
+										<ul class="evidence" class:hot={row.urgency === 'ACT_NOW'}>
+											{#each top as chip (chip.questionKey)}
+												<li title={`${chip.publisher}${chip.title ? ` · ${chip.title}` : ''}`}>
+													<span class="dot" data-polarity={chip.polarity}></span>
+													<span class="ev-title">{chip.questionTitle}</span>
+													<span class="num ev-amt">{signed(chip.contribution, 2)}</span>
+												</li>
+											{/each}
+										</ul>
+										{#if row.signalCount > top.length}
+											<span class="sub dim num">{row.signalCount - top.length} more signals</span>
+										{/if}
 									{:else}
 										<span class="sub dim">no signal cleared the floor</span>
 									{/if}
@@ -875,10 +914,6 @@
 		box-shadow: none;
 	}
 
-	.region {
-		max-width: 190px;
-	}
-
 	.bulk-hint {
 		color: var(--ink-4);
 	}
@@ -902,9 +937,8 @@
 		display: none;
 	}
 
-	.panes.split .c-sig .quote {
-		-webkit-line-clamp: 1;
-		line-clamp: 1;
+	.panes.split .c-sig .evidence li:nth-child(n + 3) {
+		display: none;
 	}
 
 	.panes.split .c-co .sub {
@@ -1019,34 +1053,56 @@
 		color: var(--oxblood);
 	}
 
-	.q {
-		display: -webkit-box;
-		-webkit-line-clamp: 1;
-		line-clamp: 1;
-		-webkit-box-orient: vertical;
+	.evidence {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+	}
+
+	.evidence li {
+		display: flex;
+		align-items: baseline;
+		gap: var(--sp-1);
+		min-width: 0;
+	}
+
+	.evidence .dot {
+		width: 5px;
+		height: 5px;
+		flex: none;
+		transform: translateY(-1px);
+		background: var(--accent);
+	}
+
+	.evidence .dot[data-polarity='NEGATIVE'] {
+		background: var(--oxblood);
+	}
+
+	.evidence .dot[data-polarity='DISQUALIFYING'] {
+		background: var(--oxblood);
+	}
+
+	.ev-title {
+		flex: 1;
+		min-width: 0;
 		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 		font-size: var(--fs-base);
-		line-height: 1.35;
 		color: var(--ink-2);
 	}
 
-	.q.hot {
-		color: var(--orange-ink);
-		font-weight: 500;
+	.evidence.hot .ev-title {
+		color: var(--ink);
 	}
 
-	.quote {
-		display: -webkit-box;
-		-webkit-line-clamp: 2;
-		line-clamp: 2;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
-		margin-top: 2px;
-		font-family: var(--font-display);
-		font-size: var(--fs-base);
-		font-style: italic;
-		line-height: 1.4;
-		color: var(--ink);
+	.ev-amt {
+		flex: none;
+		font-size: var(--fs-micro);
+		color: var(--ink-4);
 	}
 
 	.tags {

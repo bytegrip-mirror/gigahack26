@@ -291,7 +291,7 @@ public class BoardService {
                 .sorted(Comparator.comparingDouble((LedgerRow row) -> Math.abs(row.contributionNats())).reversed())
                 .toList();
 
-        List<BoardRow.Chip> chips = ranked.stream().limit(3).map(BoardService::toChip).toList();
+        List<BoardRow.Chip> chips = ranked.stream().limit(6).map(BoardService::toChip).toList();
         BoardRow.Chip strongest = chips.isEmpty() ? null : chips.get(0);
         WhyNowService.Brief why = whyNow.brief(detail, settings.effective());
 
@@ -338,7 +338,9 @@ public class BoardService {
         return new BoardRow.Chip(
                 row.evidenceId().toString(),
                 row.questionKey(),
+                row.questionTitle(),
                 row.questionText(),
+                row.title(),
                 row.theme(),
                 row.tier(),
                 row.polarity(),

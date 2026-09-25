@@ -7,10 +7,11 @@
 		items,
 		onselect,
 		label = 'More actions',
-		icon = 'more',
+		icon,
 		text = '',
 		size = 'md',
 		align = 'end',
+		block = false,
 		disabled = false,
 		title = ''
 	}: {
@@ -21,6 +22,7 @@
 		text?: string;
 		size?: 'sm' | 'md';
 		align?: 'start' | 'end';
+		block?: boolean;
 		disabled?: boolean;
 		title?: string;
 	} = $props();
@@ -98,6 +100,7 @@
 <button
 	bind:this={trigger}
 	class="menu-trigger {text ? (size === 'sm' ? 'btn btn-sm' : 'btn') : size === 'sm' ? 'icon-btn icon-btn-sm' : 'icon-btn'}"
+	class:block
 	type="button"
 	aria-haspopup="menu"
 	aria-expanded={open}
@@ -110,10 +113,11 @@
 	}}
 >
 	{#if text}
-		{text}
+		{#if icon}<Icon name={icon} size={size === 'sm' ? 14 : 15} />{/if}
+		<span class="trigger-text">{text}</span>
 		<Icon name="chevronDown" size={13} />
 	{:else}
-		<Icon name={icon} size={size === 'sm' ? 14 : 16} />
+		<Icon name={icon ?? 'more'} size={size === 'sm' ? 14 : 16} />
 	{/if}
 </button>
 
@@ -149,3 +153,20 @@
 		{/if}
 	</div>
 {/if}
+
+<style>
+	.trigger-text {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.menu-trigger.block {
+		width: 100%;
+	}
+
+	.menu-trigger.block .trigger-text {
+		flex: 1;
+		text-align: left;
+	}
+</style>
