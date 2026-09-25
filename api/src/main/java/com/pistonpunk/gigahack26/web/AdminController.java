@@ -111,9 +111,11 @@ public class AdminController {
                             return List.of();
                         }
                         candidates.incrementAndGet();
+                        List<ClassifierEngine.Finding> findings = deepSeek.classify(
+                                new ClassifierEngine.ClassificationRequest(companyName, question, document));
+
                         List<Map<String, Object>> emitted = new ArrayList<>();
-                        for (ClassifierEngine.Finding finding : deepSeek.classify(
-                                new ClassifierEngine.ClassificationRequest(companyName, question, document))) {
+                        for (ClassifierEngine.Finding finding : findings) {
                             int start = Math.max(0, Math.min(finding.spanStart(), document.length()));
                             int end = Math.max(start, Math.min(finding.spanEnd(), document.length()));
                             if (end - start < 2) {
@@ -127,6 +129,17 @@ public class AdminController {
                             entry.put("quote", document.substring(start, end));
                             entry.put("rationale", finding.rationale());
                             emitted.add(entry);
+                        }
+
+                        if (emitted.isEmpty()) {
+                            Map<String, Object> rejected = new LinkedHashMap<>();
+                            rejected.put("evidenceKey", item.getKey());
+                            rejected.put("questionKey", question.getKey());
+                            rejected.put("verdict", "NONE");
+                            rejected.put("confidence", 0.0);
+                            rejected.put("quote", null);
+                            rejected.put("rationale", "The model read this document and found no signal");
+                            emitted.add(rejected);
                         }
                         return emitted;
                     }));

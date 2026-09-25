@@ -232,6 +232,9 @@ public class CorpusSeeder implements ApplicationRunner {
 
         Overlay over = overlay.get(item.getKey() + "|" + question.getKey());
         if (over != null) {
+            if (over.verdict() == Verdict.NONE) {
+                return List.of();
+            }
             Optional<SpanLocator.Span> span = SpanLocator.locate(document, over.quote());
             if (span.isEmpty()) {
                 struck.incrementAndGet();
