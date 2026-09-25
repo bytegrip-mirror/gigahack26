@@ -3,156 +3,131 @@
 	import '@fontsource-variable/space-grotesk';
 	import '@fontsource-variable/archivo';
 
-	import { untrack } from 'svelte';
 	import { page } from '$app/state';
-	import { fetchMeta, fetchStatus, type Meta, type Status } from '$lib/api';
 	import { session } from '$lib/session.svelte';
 	import { toasts } from '$lib/toast.svelte';
+	import { workspace } from '$lib/workspace.svelte';
+	import { command } from '$lib/command.svelte';
 	import { shortNumber } from '$lib/format';
 	import Logo from '$lib/components/Logo.svelte';
+	import Icon from '$lib/components/Icon.svelte';
+	import Metric from '$lib/components/Metric.svelte';
+	import CommandPalette from '$lib/components/CommandPalette.svelte';
 
 	let { children } = $props();
 
-	let meta = $state<Meta | null>(null);
-	let status = $state<Status | null>(null);
-	let loading = $state(true);
-	let counts = $state<Record<string, number>>({});
-	let switching = $state(false);
 	let now = $state(Date.now());
 
-	const healthy = $derived(status !== null && status.postgres === 'up' && status.mongo === 'up');
+	const healthy = $derived(
+		workspace.status !== null &&
+			workspace.status.postgres === 'up' &&
+			workspace.status.mongo === 'up'
+	);
 
-	$effect(() => {
-		const timer = setInterval(() => (now = Date.now()), 1000);
-		return () => clearInterval(timer);
-	});
+	const nav = [
+		{ href: '/', label: 'Board', icon: 'board' },
+		{ href: '/studio', label: 'Signal Studio', icon: 'studio' },
+		{ href: '/pipeline', label: 'Pipeline', icon: 'pipeline' },
+		{ href: '/settings', label: 'Settings', icon: 'settings' }
+	] as const;
+
+	function active(href: string): boolean {
+		return href === '/' ? page.url.pathname === '/' : page.url.pathname.startsWith(href);
+	}
+
+	const selected = $derived(session.serviceLine);
 
 	const countdown = $derived.by(() => {
-		const target = meta?.nextRefreshAt ? new Date(meta.nextRefreshAt).getTime() : null;
+		const target = workspace.meta?.nextRefreshAt ? new Date(workspace.meta.nextRefreshAt).getTime() : null;
 		if (target === null) return '—';
 		const seconds = Math.max(0, Math.round((target - now) / 1000));
 		if (seconds < 60) return `${seconds}s`;
 		const minutes = Math.round(seconds / 60);
 		return minutes < 60 ? `${minutes}m` : `${Math.round(minutes / 60)}h`;
 	});
-	const lines = $derived(meta?.serviceLines ?? []);
 
 	$effect(() => {
-		let cancelled = false;
-		const stored = untrack(() => session.serviceLine);
-		Promise.all([fetchMeta(stored || undefined), fetchStatus()])
-			.then(([metaResult, statusResult]) => {
-				if (cancelled) return;
-				meta = metaResult;
-				status = statusResult;
-				loading = false;
-				if (!stored) session.set(metaResult.defaultServiceLine);
-				if (metaResult.degraded) {
-					toasts.push(
-						'The language model is unreachable, so re-scores run on the local rubric engine. They stay instant and offline.',
-						'warn'
-					);
-				}
-			})
-			.catch(() => {
-				if (!cancelled) loading = false;
-			});
-		return () => {
-			cancelled = true;
-		};
+		const timer = setInterval(() => (now = Date.now()), 1000);
+		return () => clearInterval(timer);
 	});
 
 	$effect(() => {
-		const available = lines;
-		if (available.length === 0) return;
-		let cancelled = false;
-		Promise.all(available.map((line) => fetchMeta(line).then((m) => [line, m.bands.PRIORITY ?? 0] as const)))
-			.then((pairs) => {
-				if (cancelled) return;
-				counts = Object.fromEntries(pairs);
-			})
-			.catch(() => {});
-		return () => {
-			cancelled = true;
-		};
+		const line = session.serviceLine;
+		if (workspace.meta?.serviceLine === line) return;
+		workspace.load(line || null).catch(() => (workspace.loading = false));
 	});
-
-	function chooseLine(line: string) {
-		if (line === session.serviceLine) return;
-		session.set(line);
-		switching = true;
-		fetchMeta(line)
-			.then((result) => (meta = result))
-			.catch(() => toasts.push('That service line could not be loaded.', 'error'))
-			.finally(() => (switching = false));
-	}
 </script>
 
 <div class="app">
 	<aside class="rail">
-		<a class="brand" href="/">
-			<Logo size={19} />
-			<span class="wordmark">
-				<strong class="dsp">Signal Desk</strong>
-				<span class="label">Orange Systems</span>
-			</span>
-		</a>
+		<div class="rail-top">
+			<a class="brand" href="/">
+				<Logo size={19} />
+				<span class="wordmark">
+					<strong class="dsp">Signal Desk</strong>
+					<span class="label">Orange Systems</span>
+				</span>
+			</a>
+
+			<button class="searchbox" type="button" onclick={() => command.show()}>
+				<Icon name="search" size={15} />
+				<span class="searchbox-text">Search</span>
+				<kbd>⌘K</kbd>
+			</button>
+		</div>
 
 		<nav aria-label="Views">
-			<a href="/" aria-current={page.url.pathname === '/' ? 'page' : undefined}>Board</a>
-			<a href="/studio" aria-current={page.url.pathname.startsWith('/studio') ? 'page' : undefined}>
-				Signal Studio
-			</a>
-			<a href="/pipeline" aria-current={page.url.pathname.startsWith('/pipeline') ? 'page' : undefined}>
-				Pipeline
-			</a>
-			<a href="/settings" aria-current={page.url.pathname.startsWith('/settings') ? 'page' : undefined}>
-				Settings
-			</a>
+			{#each nav as item (item.href)}
+				<a href={item.href} aria-current={active(item.href) ? 'page' : undefined}>
+					<Icon name={item.icon} size={16} />
+					<span class="nav-label">{item.label}</span>
+				</a>
+			{/each}
 		</nav>
 
-		<div class="block">
+		<section class="block">
 			<p class="label">Service lines</p>
-			<ul>
-				{#each lines as line (line)}
+			<ul class="lines">
+				{#each workspace.lines as line (line)}
 					<li>
 						<button
 							class="line"
-							aria-current={line === session.serviceLine ? 'true' : undefined}
-							disabled={switching}
-							onclick={() => chooseLine(line)}
+							aria-current={line === selected ? 'true' : undefined}
+							disabled={workspace.switching}
+							onclick={() => workspace.select(line)}
 						>
 							<span class="line-name">{line}</span>
-							{#if switching && line === session.serviceLine}
+							{#if workspace.switching && line === selected}
 								<span class="spinner"></span>
-							{:else if counts[line] !== undefined}
-								<span class="num line-count">{counts[line]}</span>
+							{:else}
+								<span class="num line-count" title="Companies in Priority">{workspace.counts[line] ?? '—'}</span>
 							{/if}
 						</button>
 					</li>
 				{/each}
 			</ul>
-		</div>
+		</section>
 
-		{#if status}
-			<div class="block">
+		{#if workspace.status}
+			<section class="block">
 				<p class="label">Corpus</p>
-				<dl class="facts">
-					<dt>Companies</dt><dd class="num">{shortNumber(status.companies)}</dd>
-					<dt>Documents</dt><dd class="num">{shortNumber(status.evidence)}</dd>
-					<dt>Signals</dt><dd class="num">{shortNumber(status.signals)}</dd>
-				</dl>
-			</div>
+				<div class="corpus">
+					<Metric value={shortNumber(workspace.status.companies)} label="Companies" />
+					<Metric value={shortNumber(workspace.status.evidence)} label="Documents" />
+					<Metric value={shortNumber(workspace.status.signals)} label="Signals" />
+				</div>
+			</section>
 		{/if}
 
 		<div class="rail-foot">
-			{#if meta?.nextRefreshAt}
-				<p class="refresh">
+			{#if workspace.meta?.nextRefreshAt}
+				<p class="refresh" title="The board re-scores itself on this interval">
 					<span class="dot" class:ok={healthy} class:bad={!healthy}></span>
-					next refresh <span class="num">{countdown}</span>
+					<span class="label">Refresh</span>
+					<span class="num">{countdown}</span>
 				</p>
-			{:else if loading}
-				<p class="refresh"><span class="spinner"></span> connecting</p>
+			{:else if workspace.loading}
+				<p class="refresh"><span class="spinner"></span> <span class="label">Connecting</span></p>
 			{/if}
 		</div>
 	</aside>
@@ -170,6 +145,8 @@
 		</div>
 	{/each}
 </div>
+
+<CommandPalette serviceLines={workspace.lines} regions={workspace.regions} />
 
 <style>
 	.app {
@@ -191,13 +168,17 @@
 		display: none;
 	}
 
+	.rail-top {
+		border-bottom: 1px solid var(--rule);
+		padding-bottom: var(--sp-2);
+	}
+
 	.brand {
 		display: flex;
 		align-items: center;
-		gap: 9px;
-		padding: 14px 14px 15px;
+		gap: var(--sp-2);
+		padding: var(--sp-3) var(--sp-3) var(--sp-2);
 		color: var(--ink);
-		border-bottom: 1px solid var(--rule);
 	}
 
 	.brand:hover {
@@ -212,24 +193,62 @@
 	}
 
 	.wordmark strong {
-		font-size: 17px;
+		font-size: var(--fs-xl);
 		line-height: 1.1;
 	}
 
 	.wordmark .label {
-		font-size: 9.5px;
+		font-size: var(--fs-micro);
+	}
+
+	.searchbox {
+		display: flex;
+		align-items: center;
+		gap: var(--sp-2);
+		margin: 0 var(--sp-3);
+		padding: 0 var(--sp-2);
+		height: var(--ctl);
+		width: calc(100% - var(--sp-5));
+		border: 1px solid var(--rule-strong);
+		border-radius: 2px;
+		background: var(--surface);
+		color: var(--ink-3);
+		font-size: var(--fs-base);
+		transition: border-color var(--ease), color var(--ease);
+	}
+
+	.searchbox:hover {
+		border-color: var(--ink-3);
+		color: var(--ink);
+	}
+
+	.searchbox-text {
+		flex: 1;
+		text-align: left;
+	}
+
+	kbd {
+		border: 1px solid var(--rule);
+		border-radius: 2px;
+		padding: 0 3px;
+		font-family: var(--font-ui);
+		font-size: var(--fs-micro);
+		color: var(--ink-4);
 	}
 
 	nav {
 		display: flex;
 		flex-direction: column;
-		padding: 6px 0;
+		padding: var(--sp-1) 0;
 		border-bottom: 1px solid var(--rule);
 	}
 
 	nav a {
-		padding: 7px 14px 7px 13px;
-		font-size: 13.5px;
+		display: flex;
+		align-items: center;
+		gap: var(--sp-2);
+		padding: 6px var(--sp-3) 6px 11px;
+		font-size: var(--fs-md);
 		color: var(--ink-2);
 		border-left: 2px solid transparent;
 		transition: background var(--ease), color var(--ease);
@@ -247,16 +266,25 @@
 		font-weight: 500;
 	}
 
+	nav a :global(.icon) {
+		color: var(--ink-3);
+	}
+
+	nav a[aria-current='page'] :global(.icon) {
+		color: var(--orange-deep);
+	}
+
 	.block {
-		padding: 13px 14px;
+		padding: var(--sp-3);
 		border-bottom: 1px solid var(--rule);
 	}
 
 	.block .label {
-		margin-bottom: 8px;
+		display: block;
+		margin-bottom: var(--sp-2);
 	}
 
-	.block ul {
+	.lines {
 		list-style: none;
 		margin: 0;
 		padding: 0;
@@ -264,19 +292,19 @@
 
 	.line {
 		display: flex;
-		align-items: baseline;
+		align-items: center;
 		justify-content: space-between;
-		gap: 8px;
+		gap: var(--sp-2);
 		width: 100%;
-		padding: 5px 0 5px 9px;
+		padding: 4px 0 4px var(--sp-2);
 		border-left: 2px solid transparent;
-		font-size: 13px;
+		font-size: var(--fs-md);
 		color: var(--ink-2);
 		text-align: left;
 		transition: color var(--ease), border-color var(--ease);
 	}
 
-	.line:hover {
+	.line:hover:not(:disabled) {
 		color: var(--ink);
 	}
 
@@ -286,41 +314,51 @@
 		font-weight: 500;
 	}
 
+	.line:disabled {
+		cursor: default;
+	}
+
+	.line-name {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
 	.line-count {
-		font-size: 11.5px;
+		font-size: var(--fs-sm);
 		color: var(--ink-3);
+		flex: none;
 	}
 
-	.facts {
+	.corpus {
 		display: grid;
-		grid-template-columns: 1fr auto;
-		gap: 3px 10px;
-		margin: 0;
-		font-size: 12.5px;
+		grid-template-columns: 1fr 1fr;
+		gap: var(--sp-2) var(--sp-3);
 	}
 
-	.facts dt {
-		color: var(--ink-3);
+	.corpus :global(.metric) {
+		padding: 0;
+		border-left: 0;
+		min-width: 0;
 	}
 
-	.facts dd {
-		margin: 0;
-		text-align: right;
+	.corpus :global(.metric-val) {
+		font-size: var(--fs-lg);
 	}
 
 	.rail-foot {
 		margin-top: auto;
-		padding: 12px 14px 14px;
+		padding: var(--sp-3);
 		display: flex;
 		flex-direction: column;
-		gap: 5px;
+		gap: var(--sp-1);
 	}
 
 	.refresh {
 		display: flex;
 		align-items: center;
-		gap: 6px;
-		font-size: 11.5px;
+		gap: var(--sp-1);
+		font-size: var(--fs-sm);
 		color: var(--ink-3);
 	}
 
@@ -348,24 +386,24 @@
 
 	.toasts {
 		position: fixed;
-		right: 16px;
-		bottom: 16px;
+		right: var(--sp-4);
+		bottom: var(--sp-4);
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
-		z-index: 200;
+		gap: var(--sp-1);
+		z-index: var(--z-toast);
 		max-width: 400px;
 	}
 
 	.toast {
 		display: flex;
 		align-items: flex-start;
-		gap: 10px;
+		gap: var(--sp-2);
 		background: var(--ink);
 		color: var(--paper);
 		border-radius: 2px;
-		padding: 9px 10px;
-		font-size: 12.5px;
+		padding: var(--sp-2) 10px;
+		font-size: var(--fs-base);
 		line-height: 1.4;
 	}
 
@@ -390,16 +428,31 @@
 		.rail {
 			flex-direction: row;
 			align-items: center;
-			gap: 10px;
+			gap: var(--sp-2);
 			overflow-x: auto;
 			border-right: 0;
 			border-bottom: 1px solid var(--rule);
 		}
-		.brand {
+		.rail-top {
+			display: flex;
+			align-items: center;
 			border-bottom: 0;
-			padding: 10px 12px;
+			padding: 0;
+			flex: none;
+		}
+		.brand {
+			padding: var(--sp-2) var(--sp-3);
 		}
 		.wordmark .label {
+			display: none;
+		}
+		.searchbox {
+			width: var(--ctl);
+			margin: 0 var(--sp-2) 0 0;
+			justify-content: center;
+		}
+		.searchbox-text,
+		kbd {
 			display: none;
 		}
 		nav {
@@ -410,18 +463,16 @@
 		nav a {
 			border-left: 0;
 			border-bottom: 2px solid transparent;
-			padding: 10px 10px 8px;
+			padding: var(--sp-2);
 		}
 		nav a[aria-current='page'] {
 			border-left-color: transparent;
 			border-bottom-color: var(--orange);
 		}
-		.block {
-			border-bottom: 0;
-			padding: 0;
+		.nav-label {
+			display: none;
 		}
-		.block .label,
-		.block ul,
+		.block,
 		.rail-foot {
 			display: none;
 		}

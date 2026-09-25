@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { apiBase, fetchEvidence, type EvidenceDetail } from '$lib/api';
 	import { confidence, date, host, plural, sourceKind, tier, timestamp } from '$lib/format';
+	import Icon from './Icon.svelte';
 
 	let {
 		evidenceId,
@@ -78,7 +79,9 @@
 				<p class="label">Stored capture</p>
 				<h2 class="dsp">{detail?.title ?? 'Reading'}</h2>
 			</div>
-			<button class="btn btn-quiet btn-sm" onclick={onclose} aria-label="Close">✕</button>
+			<button class="icon-btn" onclick={onclose} aria-label="Close the capture" title="Close">
+				<Icon name="close" size={16} />
+			</button>
 		</header>
 
 		<div class="body scroll">
@@ -135,11 +138,11 @@
 					<pre>{#if !capture.whole && !whole && capture.before}<span class="fade">…</span>{/if}{capture.before}{#if capture.span}<mark class="span">{capture.span}</mark>{/if}{capture.after}{#if capture.truncated}<span class="fade">…</span>{/if}</pre>
 					<p class="sub dim">
 						{#if capture.span}
-							Highlighted text is a byte range of this capture — characters {focus?.start}–{focus?.end}. The
-							quote is a slice of what the crawler stored, not text a model wrote.
+							Characters {focus?.start}–{focus?.end} of the stored capture. The quote is a slice of what the
+							crawler fetched, not text a model wrote.
 						{:else}
-							No signal cleared the floor for this document under the current policy. It is kept so you can
-							see what was read and rejected.
+							No signal cleared the floor for this document under the current policy. It is kept so you can see
+							what was read and rejected.
 						{/if}
 					</p>
 				</section>
@@ -190,13 +193,13 @@
 		display: flex;
 		align-items: flex-start;
 		justify-content: space-between;
-		gap: 12px;
-		padding: 12px 15px;
+		gap: var(--sp-3);
+		padding: var(--sp-3);
 		border-bottom: 1px solid var(--ink);
 	}
 
 	h2 {
-		font-size: 18px;
+		font-size: var(--fs-xl);
 		line-height: 1.25;
 		margin-top: 2px;
 	}
@@ -204,15 +207,15 @@
 	.body {
 		flex: 1;
 		min-height: 0;
-		padding: 14px 15px 20px;
+		padding: var(--sp-4);
 		overflow-y: auto;
 	}
 
 	footer {
 		display: flex;
 		justify-content: flex-end;
-		gap: 6px;
-		padding: 10px 15px;
+		gap: var(--sp-2);
+		padding: var(--sp-2) var(--sp-3);
 		border-top: 1px solid var(--rule);
 		background: var(--paper);
 	}
@@ -220,8 +223,8 @@
 	.note {
 		display: flex;
 		align-items: center;
-		gap: 8px;
-		font-size: 13px;
+		gap: var(--sp-2);
+		font-size: var(--fs-md);
 		color: var(--ink-3);
 	}
 
@@ -232,9 +235,9 @@
 	.meta {
 		display: grid;
 		grid-template-columns: 96px 1fr;
-		gap: 4px 12px;
-		margin: 0 0 16px;
-		font-size: 12.5px;
+		gap: var(--sp-1) var(--sp-3);
+		margin: 0 0 var(--sp-4);
+		font-size: var(--fs-base);
 	}
 
 	.meta dt {
@@ -247,13 +250,13 @@
 	}
 
 	section + section {
-		margin-top: 16px;
-		padding-top: 14px;
+		margin-top: var(--sp-4);
+		padding-top: var(--sp-3);
 		border-top: 1px solid var(--rule);
 	}
 
 	section h3 {
-		margin-bottom: 8px;
+		margin-bottom: var(--sp-2);
 	}
 
 	.signals {
@@ -262,34 +265,34 @@
 		padding: 0;
 		display: flex;
 		flex-direction: column;
-		gap: 10px;
+		gap: var(--sp-3);
 	}
 
 	.signals li {
-		padding-left: 10px;
+		padding-left: var(--sp-3);
 		border-left: 2px solid var(--orange-line);
 	}
 
 	.sig-head {
 		display: flex;
 		align-items: center;
-		gap: 7px;
+		gap: var(--sp-2);
 		flex-wrap: wrap;
 	}
 
-		.sig-head .num {
-		font-size: 10.5px;
+	.sig-head .num {
+		font-size: var(--fs-micro);
 	}
 
 	.sig-q {
-		margin-top: 4px;
-		font-size: 12.5px;
+		margin-top: var(--sp-1);
+		font-size: var(--fs-base);
 		line-height: 1.4;
 		color: var(--ink-2);
 	}
 
 	.sub {
-		font-size: 11.5px;
+		font-size: var(--fs-sm);
 		line-height: 1.45;
 		margin-top: 3px;
 	}
@@ -298,15 +301,15 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		margin-bottom: 8px;
+		margin-bottom: var(--sp-2);
 	}
 
 	pre {
 		margin: 0;
-		padding: 12px;
+		padding: var(--sp-3);
 		background: var(--paper);
 		border: 1px solid var(--rule);
-		font-size: 12px;
+		font-size: var(--fs-base);
 		line-height: 1.7;
 		white-space: pre-wrap;
 		word-break: break-word;

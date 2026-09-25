@@ -3,24 +3,31 @@
 	import { pushState } from '$app/navigation';
 	import {
 		fetchBoard,
-		fetchMeta,
+		recordLead,
 		rescore,
 		type BoardRow,
 		type Engine,
-		type Meta,
 		type Move,
 		type Polarity,
 		type Rescore,
 		type WeightTier
 	} from '$lib/api';
 	import { session } from '$lib/session.svelte';
+	import { workspace } from '$lib/workspace.svelte';
 	import { toasts } from '$lib/toast.svelte';
-	import { ageShort, duration, fit, host, shortNumber, theme } from '$lib/format';
+	import { ageShort, duration, fit, shortNumber, theme } from '$lib/format';
+	import { copy, csv, save } from '$lib/export';
 	import Tag from '$lib/components/Tag.svelte';
 	import ScoreMeter from '$lib/components/ScoreMeter.svelte';
 	import CaptureSheet from '$lib/components/CaptureSheet.svelte';
 	import Scorecard from '$lib/views/Scorecard.svelte';
 	import LoadingVeil from '$lib/components/LoadingVeil.svelte';
+	import Icon from '$lib/components/Icon.svelte';
+	import Menu from '$lib/components/Menu.svelte';
+	import type { MenuItem } from '$lib/components/menu';
+	import Metric from '$lib/components/Metric.svelte';
+	import Pager from '$lib/components/Pager.svelte';
+	import Th from '$lib/components/Th.svelte';
 
 	let { initialSelected = null }: { initialSelected?: string | null } = $props();
 
@@ -42,14 +49,6 @@
 		{ id: 'REJECTED', label: 'Rejected' }
 	];
 
-	const SORTS = [
-		{ id: 'score', label: 'Fit' },
-		{ id: 'themes', label: 'Themes' },
-		{ id: 'recent', label: 'Newest' },
-		{ id: 'evidence', label: 'Documents' },
-		{ id: 'name', label: 'Name' }
-	];
-
 	const ASKS = [
 		'Is the company building automation capability in-house rather than buying it?',
 		'Has the company announced a cost-reduction programme with a quantified headcount target?',
@@ -57,16 +56,36 @@
 		'Has the company appointed a new security leader in the last two quarters?'
 	];
 
-	let meta = $state<Meta | null>(null);
+	const BAND_ORDER: Record<string, number> = {
+		PRIORITY: 0,
+		NURTURE: 1,
+		WATCH: 2,
+		THIN: 3,
+		DISQUALIFIED: 4
+	};
+
+	const LEAD_STAGES = [
+		{ id: 'CONTACTED', label: 'Contacted' },
+		{ id: 'REPLIED', label: 'Replied' },
+		{ id: 'QUALIFIED', label: 'Qualified' },
+		{ id: 'REJECTED', label: 'Rejected' }
+	];
+
 	let rows = $state<BoardRow[]>([]);
 	let loading = $state(true);
 	let error = $state<string | null>(null);
 
 	let filter = $state('all');
-	let sort = $state('score');
 	let stage = $state('');
 	let query = $state('');
 	let selected = $state<string | null>(untrack(() => initialSelected));
+
+	let sort = $state('rank');
+	let dir = $state<'asc' | 'desc'>('asc');
+	let size = $state(50);
+	let page = $state(1);
+	let picked = $state<Set<string>>(new Set());
+	let busy = $state(false);
 
 	let askOpen = $state(false);
 	let questionText = $state('');
@@ -79,50 +98,61 @@
 
 	let capture = $state<{ id: string; focus: { start: number; end: number } | null } | null>(null);
 
+	const meta = $derived(workspace.meta);
 	const serviceLine = $derived(session.serviceLine);
-	const movements = $derived.by(() => {
-		const map = new Map<string, Move>();
-		outcome?.moves.forEach((move) => map.set(move.companyId, move));
-		return map;
-	});
 	const bands = $derived(meta?.bands ?? {});
 	const regionLabel = $derived.by(() => {
 		for (const continent of meta?.regions ?? []) {
 			if (continent.key === session.region) return continent.name;
 			for (const child of continent.children) {
-				if (child.key === session.region) return `${continent.name} › ${child.name}`;
+				if (child.key === session.region) return `${child.name}`;
 			}
 		}
 		return 'Worldwide';
 	});
+	const filtered = $derived(session.region !== 'world' || stage !== '' || query !== '');
 
-	function countFor(id: string) {
-		if (id === 'all') return bands.ALL ?? rows.length;
-		if (id === 'hot') return bands.HOT ?? 0;
-		if (id === 'priority') return bands.PRIORITY ?? 0;
-		if (id === 'rejected') return bands.DISQUALIFIED ?? 0;
-		if (id === 'thin') return bands.THIN ?? 0;
-		return 0;
-	}
-
-	$effect(() => {
-		const line = serviceLine;
-		if (!line) return;
-		let cancelled = false;
-		fetchMeta(line)
-			.then((result) => {
-				if (!cancelled) meta = result;
-			})
-			.catch(() => {});
-		return () => {
-			cancelled = true;
-		};
+	const movements = $derived.by(() => {
+		const map = new Map<string, Move>();
+		outcome?.moves.forEach((move) => map.set(move.companyId, move));
+		return map;
 	});
+
+	const sorted = $derived.by(() => {
+		const list = [...rows];
+		const sign = dir === 'asc' ? 1 : -1;
+		list.sort((a, b) => {
+			switch (sort) {
+				case 'name':
+					return sign * a.name.localeCompare(b.name);
+				case 'fit':
+					return sign * (a.probability - b.probability);
+				case 'band':
+					return sign * ((BAND_ORDER[a.band] ?? 9) - (BAND_ORDER[b.band] ?? 9));
+				case 'themes':
+					return sign * (a.themeCount - b.themeCount || a.probability - b.probability);
+				case 'docs':
+					return sign * (a.evidenceCount - b.evidenceCount);
+				case 'newest':
+					return (
+						sign *
+						((a.newestSignalAgeDays ?? Number.POSITIVE_INFINITY) -
+							(b.newestSignalAgeDays ?? Number.POSITIVE_INFINITY))
+					);
+				default:
+					return sign * (a.rank - b.rank);
+			}
+		});
+		return list;
+	});
+
+	const effective = $derived(size === 0 ? Math.max(sorted.length, 1) : size);
+	const pages = $derived(Math.max(1, Math.ceil(sorted.length / effective)));
+	const current = $derived(sorted.slice((Math.min(page, pages) - 1) * effective, Math.min(page, pages) * effective));
 
 	$effect(() => {
 		const line = serviceLine;
 		const activeFilter = filter;
-		const activeSort = sort;
 		const search = query;
 		const activeStage = stage;
 		const activeRegion = session.region;
@@ -135,7 +165,7 @@
 				fetchBoard({
 					serviceLine: line,
 					filter: activeFilter,
-					sort: activeSort,
+					sort: 'score',
 					q: search,
 					stage: activeStage,
 					region: activeRegion
@@ -145,6 +175,7 @@
 						rows = result;
 						loading = false;
 						error = null;
+						picked = new Set();
 					})
 					.catch((cause) => {
 						if (cancelled) return;
@@ -161,6 +192,17 @@
 	});
 
 	$effect(() => {
+		void filter;
+		void query;
+		void stage;
+		void session.region;
+		void sort;
+		void dir;
+		void size;
+		page = 1;
+	});
+
+	$effect(() => {
 		if (!rescoring) return;
 		const started = performance.now();
 		const timer = setInterval(() => (elapsed = performance.now() - started), 90);
@@ -170,6 +212,114 @@
 	function select(id: string | null) {
 		selected = id;
 		pushState(id ? `/?co=${id}` : '/', {});
+	}
+
+	function sortBy(id: string) {
+		if (sort === id) {
+			dir = dir === 'asc' ? 'desc' : 'asc';
+			return;
+		}
+		sort = id;
+		dir = id === 'name' || id === 'rank' ? 'asc' : 'desc';
+	}
+
+	function togglePick(id: string) {
+		const next = new Set(picked);
+		next.has(id) ? next.delete(id) : next.add(id);
+		picked = next;
+	}
+
+	const allPicked = $derived(current.length > 0 && current.every((row) => picked.has(row.id)));
+	const somePicked = $derived(current.some((row) => picked.has(row.id)));
+
+	function partial(node: HTMLInputElement, value: boolean) {
+		node.indeterminate = value;
+		return {
+			update: (next: boolean) => {
+				node.indeterminate = next;
+			}
+		};
+	}
+
+	function toggleAll() {
+		const next = new Set(picked);
+		if (allPicked) current.forEach((row) => next.delete(row.id));
+		else current.forEach((row) => next.add(row.id));
+		picked = next;
+	}
+
+	function clearFilters() {
+		query = '';
+		stage = '';
+		session.setRegion('world');
+	}
+
+	async function mark(ids: string[], status: string, label: string) {
+		if (ids.length === 0 || !serviceLine) return;
+		busy = true;
+		const results = await Promise.allSettled(
+			ids.map((companyId) => recordLead({ companyId, serviceLine, status }))
+		);
+		busy = false;
+		const done = results.filter((result) => result.status === 'fulfilled').length;
+		toasts.push(
+			done === ids.length
+				? `Marked ${done} ${done === 1 ? 'company' : 'companies'} ${label}.`
+				: `Marked ${done} of ${ids.length} ${label}. The rest failed.`,
+			done === ids.length ? 'success' : 'warn'
+		);
+		const line = serviceLine;
+		const activeFilter = filter;
+		rows = await fetchBoard({
+			serviceLine: line,
+			filter: activeFilter,
+			sort: 'score',
+			q: query,
+			stage,
+			region: session.region
+		});
+		workspace.loadCounts();
+	}
+
+	function exportRows(list: BoardRow[], name: string) {
+		save(
+			name,
+			csv(
+				[
+					'rank',
+					'company',
+					'domain',
+					'country',
+					'industry',
+					'size',
+					'fit',
+					'band',
+					'themes',
+					'documents',
+					'newest_signal',
+					'strongest_quote',
+					'publisher',
+					'lead_stage'
+				],
+				list.map((row) => [
+					row.rank,
+					row.name,
+					row.domain,
+					row.country,
+					row.industry,
+					row.sizeBand,
+					fit(row.probability),
+					row.band,
+					row.themes.join(' | '),
+					row.evidenceCount,
+					ageShort(row.newestSignalAgeDays),
+					row.strongest?.quote ?? '',
+					row.strongest?.publisher ?? '',
+					row.leadStatus ?? 'NEW'
+				])
+			)
+		);
+		toasts.push(`Exported ${list.length} rows.`, 'success');
 	}
 
 	async function runAsk() {
@@ -195,7 +345,7 @@
 				`${result.movedRows} rows moved in ${duration(result.tookMs)}. The question is now policy.`,
 				'success'
 			);
-			fetchMeta(serviceLine).then((result) => (meta = result));
+			workspace.reload();
 		} catch (cause) {
 			toasts.push((cause as Error).message, 'error');
 		} finally {
@@ -203,69 +353,102 @@
 		}
 	}
 
-	function clearOutcome() {
-		outcome = null;
-		questionText = '';
+	async function copyLink() {
+		const ok = await copy(window.location.href);
+		toasts.push(ok ? 'Link copied.' : 'This browser blocked the clipboard.', ok ? 'success' : 'warn');
 	}
+
+	const secondary: MenuItem[] = $derived([
+		{ id: 'export-all', label: 'Export the board as CSV', icon: 'download', hint: shortNumber(sorted.length) },
+		{ id: 'copy-link', label: 'Copy a link to this view', icon: 'link' },
+		{
+			id: 'clear',
+			label: 'Clear filters',
+			icon: 'filter',
+			disabled: !filtered,
+			separatorBefore: true
+		},
+		{ id: 'rescore', label: 'Re-score on the local engine', icon: 'refresh' }
+	]);
+
+	async function runSecondary(id: string) {
+		if (id === 'export-all') exportRows(sorted, `board-${serviceLine.toLowerCase().replace(/\s+/g, '-')}.csv`);
+		else if (id === 'copy-link') copyLink();
+		else if (id === 'clear') clearFilters();
+		else if (id === 'rescore') {
+			try {
+				const result = await rescore({ serviceLine, engine: 'local' });
+				rows = result.board;
+				toasts.push(`Re-scored ${shortNumber(result.documentsScanned)} documents in ${duration(result.tookMs)}.`, 'success');
+				workspace.reload();
+			} catch (cause) {
+				toasts.push((cause as Error).message, 'error');
+			}
+		}
+	}
+
+	function rowMenu(row: BoardRow): MenuItem[] {
+		return [
+			{ id: 'open', label: 'Open scorecard', icon: 'eye' },
+			row.strongest
+				? { id: 'capture', label: 'Open the quoted capture', icon: 'external' }
+				: { id: 'capture', label: 'No quoted capture', icon: 'external', disabled: true },
+			{ id: 'link', label: 'Copy link to this company', icon: 'link' },
+			{ id: 'export', label: 'Export this row', icon: 'download' },
+			...LEAD_STAGES.map((entry, index) => ({
+				id: `lead-${entry.id}`,
+				label: `Mark ${entry.label.toLowerCase()}`,
+				icon: row.leadStatus === entry.id ? ('check' as const) : undefined,
+				separatorBefore: index === 0
+			}))
+		];
+	}
+
+	async function runRow(row: BoardRow, id: string) {
+		if (id === 'open') select(row.id);
+		else if (id === 'capture' && row.strongest) capture = { id: row.strongest.evidenceId, focus: { start: row.strongest.spanStart, end: row.strongest.spanEnd } };
+		else if (id === 'link') {
+			const ok = await copy(`${window.location.origin}/?co=${row.id}`);
+			toasts.push(ok ? `Link to ${row.name} copied.` : 'This browser blocked the clipboard.', ok ? 'success' : 'warn');
+		} else if (id === 'export') exportRows([row], `${row.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.csv`);
+		else if (id.startsWith('lead-')) {
+			const status = id.slice(5);
+			const label = LEAD_STAGES.find((entry) => entry.id === status)?.label.toLowerCase() ?? '';
+			await mark([row.id], status, label);
+		}
+	}
+
+	const bulkItems: MenuItem[] = LEAD_STAGES.map((entry, index) => ({
+		id: entry.id,
+		label: `Mark ${entry.label.toLowerCase()}`,
+		icon: 'check',
+		separatorBefore: index === 0
+	}));
 </script>
 
 <div class="view">
 	<header class="topbar">
 		<div class="ident">
 			<h1 class="dsp">{serviceLine || 'Board'}</h1>
-			<p class="label">
-				{shortNumber(bands.ALL ?? rows.length)} ranked · {shortNumber(meta?.captures ?? 0)} captures{#if session.region !== 'world'}
-					· {regionLabel}{/if}
+			<p class="sub num">
+				{shortNumber(bands.ALL ?? rows.length)} companies · {regionLabel}{#if stage} · {STAGES.find((s) => s.id === stage)?.label}{/if}
 			</p>
 		</div>
 
-		<div class="tools">
-			<div class="seg" role="tablist" aria-label="Filter">
-				{#each FILTERS as option (option.id)}
-					<button
-						role="tab"
-						aria-selected={filter === option.id}
-						onclick={() => (filter = option.id)}
-					>
-						{option.label} <span class="num">{countFor(option.id)}</span>
-					</button>
-				{/each}
+		{#if meta}
+			<div class="metrics">
+				<Metric value={shortNumber(bands.PRIORITY ?? 0)} label="Priority" tone="hot" title="Companies above the Priority line" />
+				<Metric value={shortNumber(bands.HOT ?? 0)} label="Hot" title="Priority and Nurture together" />
+				<Metric value={shortNumber(meta.captures)} label="Captures" title="Stored documents the board was scored against" />
 			</div>
+		{/if}
 
-			<input class="input search" placeholder="Filter by name, country, industry" bind:value={query} />
-
-			<label class="sr-only" for="region">Region</label>
-			<select id="region" class="select region" value={session.region} onchange={(event) => {
-				session.setRegion(event.currentTarget.value);
-			}}>
-				<option value="world">Worldwide</option>
-				{#each meta?.regions ?? [] as continent (continent.key)}
-					<option value={continent.key}>{continent.name} — all</option>
-					{#each continent.children as child (child.key)}
-						<option value={child.key}>　{continent.name} › {child.name}</option>
-					{/each}
-				{/each}
-			</select>
-
-			<label class="sr-only" for="stage">Lead stage</label>
-			<select id="stage" class="select" bind:value={stage}>
-				{#each STAGES as option (option.id)}
-					<option value={option.id}>
-						{option.label}{option.id === 'worked' && meta ? ` (${meta.stages.TOTAL ?? 0})` : ''}
-					</option>
-				{/each}
-			</select>
-
-			<label class="sr-only" for="sort">Sort</label>
-			<select id="sort" class="select" bind:value={sort}>
-				{#each SORTS as option (option.id)}
-					<option value={option.id}>{option.label}</option>
-				{/each}
-			</select>
-
-			<button class="btn btn-primary" onclick={() => (askOpen = !askOpen)}>
+		<div class="topbar-tools">
+			<button class="btn btn-primary" onclick={() => (askOpen = !askOpen)} aria-expanded={askOpen}>
+				<Icon name="target" size={15} />
 				{askOpen ? 'Close' : 'Ask a question'}
 			</button>
+			<Menu items={secondary} onselect={runSecondary} label="More board actions" />
 		</div>
 	</header>
 
@@ -281,25 +464,20 @@
 						bind:value={questionText}
 						placeholder="Is the company consolidating shared service centres into a captive operation?"
 					></textarea>
-					<div class="chips">
-						{#each ASKS as suggestion (suggestion)}
-							<button class="tag" onclick={() => (questionText = suggestion)}>{suggestion}</button>
-						{/each}
-					</div>
 				</div>
 
 				<div class="ask-opts">
 					<label class="field">
 						<span class="label">Weight</span>
-						<select class="select" bind:value={weightTier}>
-							<option value="HIGH">High · 1.5 nats</option>
+						<select class="select select-sm" bind:value={weightTier}>
+							<option value="HIGH">High · 1.5</option>
 							<option value="MEDIUM">Medium · 0.7</option>
 							<option value="LOW">Low · 0.3</option>
 						</select>
 					</label>
 					<label class="field">
 						<span class="label">Polarity</span>
-						<select class="select" bind:value={polarity}>
+						<select class="select select-sm" bind:value={polarity}>
 							<option value="POSITIVE">Positive</option>
 							<option value="NEGATIVE">Counter</option>
 							<option value="DISQUALIFYING">Disqualifying</option>
@@ -307,42 +485,121 @@
 					</label>
 					<label class="field">
 						<span class="label">Engine</span>
-						<select class="select" bind:value={engine}>
+						<select class="select select-sm" bind:value={engine}>
 							<option value="local">Local rubric</option>
 							<option value="deepseek" disabled={!meta?.languageModelAvailable}>
-								Language model{meta?.languageModelAvailable ? '' : ' — not configured'}
+								Model{meta?.languageModelAvailable ? '' : ' — off'}
 							</option>
 						</select>
 					</label>
+					<Menu
+						text="Examples"
+						size="sm"
+						align="start"
+						label="Example questions"
+						items={ASKS.map((ask, index) => ({ id: String(index), label: ask }))}
+						onselect={(id) => (questionText = ASKS[Number(id)])}
+					/>
 					<button
 						class="btn btn-primary"
 						onclick={runAsk}
 						disabled={rescoring || questionText.trim().length < 12}
 					>
 						{#if rescoring}<span class="spinner"></span>{/if}
-						{rescoring ? duration(elapsed) : 'Score'}
+						{rescoring ? duration(elapsed) : 'Score the board'}
 					</button>
 				</div>
 
 				{#if rescoring}
-					<p class="label pulsing">
-						Classifying {shortNumber(meta?.captures ?? 0)} documents. The counter is wall clock.
+					<p class="label pulsing ask-note">
+						Classifying {shortNumber(meta?.captures ?? 0)} documents
 					</p>
+				{:else}
+					<p class="sub dim ask-note">Scored on the corpus as it stands. No model call is needed.</p>
 				{/if}
 			{:else}
 				<div class="result">
-					<div class="result-head">
-						<span class="num big">{outcome.movedRows}</span>
-						<span class="label">rows moved{outcome.changedTop === 1 ? ' · leader changed' : ''}</span>
-					</div>
-					<div class="result-stats">
-						<span><span class="num">{duration(outcome.tookMs)}</span> <span class="label">elapsed</span></span>
-						<span><span class="num">{shortNumber(outcome.documentsScanned)}</span> <span class="label">documents</span></span>
-						<span><span class="num">{shortNumber(outcome.signalsProduced)}</span> <span class="label">signals</span></span>
+					<div class="metrics">
+						<Metric value={outcome.movedRows} label="Rows moved" tone="hot" />
+						<Metric value={duration(outcome.tookMs)} label="Elapsed" />
+						<Metric value={shortNumber(outcome.documentsScanned)} label="Documents" />
+						<Metric value={shortNumber(outcome.signalsProduced)} label="Signals" />
 					</div>
 					<p class="result-q dsp">“{outcome.question}”</p>
-					<button class="btn btn-quiet btn-sm" onclick={clearOutcome}>Reset</button>
+					<button class="btn btn-sm" onclick={() => { outcome = null; questionText = ''; }}>
+						Reset the board
+					</button>
 				</div>
+			{/if}
+		</div>
+	{/if}
+
+	{#if picked.size > 0}
+		<div class="bulkbar">
+			<span class="count"><span class="num">{picked.size}</span> selected</span>
+			<span class="bulk-hint">·</span>
+			<Menu items={bulkItems} onselect={(id) => mark([...picked], id, LEAD_STAGES.find((s) => s.id === id)?.label.toLowerCase() ?? '')} text="Set stage" size="sm" align="start" label="Set lead stage for the selection" />
+			<button class="btn btn-sm" onclick={() => exportRows(sorted.filter((row) => picked.has(row.id)), 'selection.csv')}>
+				<Icon name="download" size={14} /> Export
+			</button>
+			<button
+				class="btn btn-sm"
+				onclick={async () => {
+					const ok = await copy([...picked].map((id) => `${window.location.origin}/?co=${id}`).join('\n'));
+					toasts.push(ok ? `Copied ${picked.size} links.` : 'This browser blocked the clipboard.', ok ? 'success' : 'warn');
+				}}
+			>
+				<Icon name="link" size={14} /> Copy links
+			</button>
+			{#if busy}<span class="spinner"></span>{/if}
+			<span class="spacer"></span>
+			<button class="icon-btn" aria-label="Clear the selection" title="Clear the selection" onclick={() => (picked = new Set())}>
+				<Icon name="close" size={16} />
+			</button>
+		</div>
+	{:else}
+		<div class="toolbar">
+			<div class="seg" role="tablist" aria-label="Filter">
+				{#each FILTERS as option (option.id)}
+					<button role="tab" aria-selected={filter === option.id} onclick={() => (filter = option.id)}>
+						{option.label}
+					</button>
+				{/each}
+			</div>
+
+			<label class="search">
+				<span class="sr-only">Filter by name, country or industry</span>
+				<Icon name="search" size={14} />
+				<input class="input input-sm" placeholder="Name, country, industry" bind:value={query} />
+			</label>
+
+			<span class="spacer"></span>
+
+			<label class="sr-only" for="region">Region</label>
+			<select
+				id="region"
+				class="select select-sm region"
+				value={session.region}
+				onchange={(event) => session.setRegion(event.currentTarget.value)}
+			>
+				<option value="world">Worldwide</option>
+				{#each meta?.regions ?? [] as continent (continent.key)}
+					<option value={continent.key}>{continent.name} — all</option>
+					{#each continent.children as child (child.key)}
+						<option value={child.key}>　{continent.name} › {child.name}</option>
+					{/each}
+				{/each}
+			</select>
+
+			<label class="sr-only" for="stage">Lead stage</label>
+			<select id="stage" class="select select-sm" bind:value={stage}>
+				{#each STAGES as option (option.id)}
+					<option value={option.id}>{option.label}</option>
+				{/each}
+			</select>
+
+			{#if filtered}
+				<button class="btn btn-sm btn-quiet" onclick={clearFilters}>Clear</button>
 			{/if}
 		</div>
 	{/if}
@@ -351,36 +608,57 @@
 		<section class="list scroll" aria-label="Ranked companies">
 			<LoadingVeil show={loading} label="Scoring the board" />
 			{#if error}
-				<p class="note warn">{error}</p>
-			{:else if loading && rows.length === 0}
-				<p class="note"><span class="spinner"></span> Reading the board</p>
-			{:else if rows.length === 0}
-				<p class="note">Nothing matches this filter.</p>
+				<p class="note warn"><Icon name="alert" size={15} /> {error}</p>
+			{:else if rows.length === 0 && !loading}
+				<div class="empty">
+					<Icon name="inbox" size={22} />
+					<p>Nothing matches this filter. Widen the region, clear the stage, or ask a different question.</p>
+				</div>
 			{:else}
 				<table class="grid">
 					<thead>
 						<tr>
-							<th class="c-rank">{outcome ? 'Was' : '#'}</th>
-							{#if outcome}<th class="c-rank">Now</th>{/if}
-							<th class="c-co">Company</th>
-							<th class="c-fit">Fit</th>
-							<th class="c-sig">Strongest signal</th>
-							<th class="c-th">Themes</th>
-							<th class="c-doc">Docs</th>
-							<th class="c-age">Newest</th>
+							<th class="c-chk" scope="col">
+								<span class="chk">
+									<input
+										type="checkbox"
+										checked={allPicked}
+										use:partial={!allPicked && somePicked}
+										aria-label="Select every company on this page"
+										onchange={toggleAll}
+									/>
+								</span>
+							</th>
+							<Th id="rank" label="#" sort={sort} {dir} onsort={sortBy} align="right" width="58px" title="Fit rank — the order the ledger produces" />
+							<Th id="name" label="Company" sort={sort} {dir} onsort={sortBy} width="21%" />
+							<Th id="fit" label="Fit" sort={sort} {dir} onsort={sortBy} align="right" width="128px" title="Probability this company is worth calling" />
+							<Th id="band" label="Band" sort={sort} {dir} onsort={sortBy} align="center" width="96px" />
+							<th class="c-sig" scope="col">Strongest signal</th>
+							<Th id="themes" label="Themes" sort={sort} {dir} onsort={sortBy} width="142px" className="c-th" />
+							<Th id="docs" label="Docs" sort={sort} {dir} onsort={sortBy} align="right" width="56px" className="c-doc" />
+							<Th id="newest" label="Newest" sort={sort} {dir} onsort={sortBy} align="right" width="66px" className="c-age" />
+							<th class="c-act" scope="col"><span class="sr-only">Actions</span></th>
 						</tr>
 					</thead>
 					<tbody>
-						{#each rows as row (row.id)}
+						{#each current as row (row.id)}
 							{@const move = movements.get(row.id)}
 							<tr
 								class:active={selected === row.id}
 								class:rejected={row.band === 'DISQUALIFIED'}
+								class:pickedrow={picked.has(row.id)}
 								onclick={() => select(row.id)}
 							>
-								{#if outcome}
-									<td class="num c-rank dim">{move ? move.beforeRank : '—'}</td>
-								{/if}
+								<td class="c-chk" onclick={(event) => event.stopPropagation()}>
+									<span class="chk">
+										<input
+											type="checkbox"
+											checked={picked.has(row.id)}
+											aria-label={`Select ${row.name}`}
+											onchange={() => togglePick(row.id)}
+										/>
+									</span>
+								</td>
 								<td class="num c-rank">
 									{row.rank}
 									{#if move && move.delta !== 0}
@@ -392,9 +670,10 @@
 								<td class="c-co">
 									<span class="co">{row.name}</span>
 									<span class="sub">
-										{#if row.domain}<span class="domain">{row.domain}</span> · {/if}{row.country ?? '—'}{#if row.hqCity} · {row.hqCity}{/if}
+										{#if row.domain}<span class="domain">{row.domain}</span> · {/if}{row.country ?? '—'}
+										{#if row.industry}· {row.industry}{/if}
+										{#if row.sizeBand}· {row.sizeBand}{/if}
 									</span>
-									<span class="sub dim">{row.industry ?? 'unclassified'}{#if row.sizeBand} · {row.sizeBand}{/if}</span>
 									{#if row.leadStatus && row.leadStatus !== 'NEW'}
 										<span class="stage-tag" data-stage={row.leadStatus}>
 											{row.leadStatusLabel}{#if row.contactCount > 1} ×{row.contactCount}{/if}
@@ -402,10 +681,7 @@
 									{/if}
 								</td>
 								<td class="c-fit">
-									<div class="fitrow">
-										<span class="num fitval">{fit(row.probability)}</span>
-										<Tag band={row.band} title={row.gateReason ?? row.bandLabel}>{row.bandShort}</Tag>
-									</div>
+									<span class="num fitval">{fit(row.probability)}</span>
 									{#if meta}
 										<ScoreMeter
 											probability={row.probability}
@@ -418,17 +694,20 @@
 											}}
 										/>
 									{/if}
+								</td>
+								<td class="m">
+									<Tag band={row.band} title={row.gateReason ?? row.bandLabel}>{row.bandShort}</Tag>
 									{#if row.gateReason}
-										<span class="gate">{row.gateReason}</span>
+										<span class="gate" title={row.gateReason}>removed</span>
 									{/if}
 								</td>
 								<td class="c-sig">
 									{#if row.strongest}
-										<span class="q" class:hot={row.urgency === 'ACT_NOW'}>{row.whyNow}</span>
-										<span class="quote">“{row.strongest.quote}”</span>
-										<span class="sub dim">
-											{row.strongest.publisher} · {ageShort(row.newestSignalAgeDays)}
+										<span class="q" class:hot={row.urgency === 'ACT_NOW'} title={row.whyNow ?? ''}>
+											{row.strongest.question}
 										</span>
+										<span class="quote">“{row.strongest.quote}”</span>
+										<span class="sub dim">{row.strongest.publisher} · {ageShort(row.newestSignalAgeDays)}</span>
 									{:else}
 										<span class="sub dim">no signal cleared the floor</span>
 									{/if}
@@ -443,16 +722,24 @@
 										{/if}
 									</div>
 									{#if row.themeCount >= 2}
-										<span class="corrob">corroborated</span>
+										<span class="corrob" title="Two independent kinds of evidence — what the Priority band requires">corroborated</span>
 									{/if}
 								</td>
 								<td class="num c-doc">
 									{row.evidenceCount}
 									{#if row.silentDocuments > 0}
-										<span class="sub dim">{row.silentDocuments} silent</span>
+										<span class="sub dim" title="Documents read that produced no signal">{row.silentDocuments} silent</span>
 									{/if}
 								</td>
-								<td class="c-age sub">{ageShort(row.newestSignalAgeDays)}</td>
+								<td class="num c-age">{ageShort(row.newestSignalAgeDays)}</td>
+								<td class="c-act" onclick={(event) => event.stopPropagation()}>
+									<Menu
+										items={rowMenu(row)}
+										onselect={(id) => runRow(row, id)}
+										size="sm"
+										label={`Actions for ${row.name}`}
+									/>
+								</td>
 							</tr>
 						{/each}
 					</tbody>
@@ -471,197 +758,159 @@
 			</aside>
 		{/if}
 	</div>
+
+	{#if rows.length > 0 && !error}
+		<Pager total={sorted.length} page={Math.min(page, pages)} {size} onsize={(next) => (size = next)} onpage={(next) => (page = next)} />
+	{/if}
 </div>
 
 {#if capture}
-	<CaptureSheet
-		evidenceId={capture.id}
-		focus={capture.focus}
-		onclose={() => (capture = null)}
-	/>
+	<CaptureSheet evidenceId={capture.id} focus={capture.focus} onclose={() => (capture = null)} />
 {/if}
 
 <style>
-	.view {
-		display: flex;
-		flex-direction: column;
-		height: 100%;
-		min-height: 0;
-	}
-
-	.topbar {
-		display: flex;
-		align-items: flex-end;
-		justify-content: space-between;
-		gap: 20px;
-		padding: 11px 16px 12px;
-		border-bottom: 1px solid var(--ink);
-		background: var(--surface);
-		flex-wrap: wrap;
-	}
-
-	h1 {
-		font-size: 23px;
-		line-height: 1.1;
-	}
-
-	.ident .label {
-		margin-top: 3px;
-	}
-
-	.tools {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		flex-wrap: wrap;
-	}
-
-	.tools :global(.seg button .num) {
+	.topbar .sub {
 		color: var(--ink-3);
-		font-size: 10.5px;
 	}
 
-	.tools :global(.seg button[aria-selected='true'] .num) {
-		color: var(--orange);
+	.metrics {
+		margin-left: auto;
 	}
 
-	.search {
-		width: 210px;
-	}
-
-	.tools .select {
-		width: auto;
-		min-width: 104px;
-	}
-
-	.tools #stage {
-		min-width: 118px;
-	}
-
-	.tools #region {
-		min-width: 190px;
+	.topbar-tools {
+		margin-left: var(--sp-4);
 	}
 
 	.ask {
+		position: relative;
 		display: flex;
 		align-items: flex-end;
-		gap: 14px;
-		padding: 12px 16px;
+		gap: var(--sp-3);
+		padding: var(--sp-3) var(--sp-4);
 		background: var(--orange-wash);
 		border-bottom: 1px solid var(--orange-line);
-		flex-wrap: wrap;
+		flex: none;
 	}
 
 	.ask-input {
 		flex: 1;
-		min-width: 300px;
+		min-width: 260px;
 		display: flex;
 		flex-direction: column;
-		gap: 5px;
+		gap: var(--sp-1);
 	}
 
 	.ask-input .textarea {
 		background: var(--surface);
 	}
 
-	.chips {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 5px;
-	}
-
-	.chips .tag {
-		cursor: pointer;
-		background: transparent;
-		border-color: var(--orange-line);
-		color: var(--orange-ink);
-	}
-
-	.chips .tag:hover {
-		background: var(--surface);
-	}
-
 	.ask-opts {
 		display: flex;
 		align-items: flex-end;
-		gap: 8px;
+		gap: var(--sp-2);
+		flex: none;
 	}
 
-	.field {
-		display: flex;
-		flex-direction: column;
-		gap: 4px;
+	.ask-opts .field .select {
+		min-width: 108px;
 	}
 
-	.field .select {
-		min-width: 118px;
+	.ask-note {
+		position: absolute;
+		right: var(--sp-4);
+		bottom: 3px;
 	}
 
 	.result {
 		display: flex;
 		align-items: center;
-		gap: 20px;
-		flex: 1;
-		flex-wrap: wrap;
+		gap: var(--sp-5);
+		width: 100%;
 	}
 
-	.result-head {
-		display: flex;
-		align-items: baseline;
-		gap: 7px;
-	}
-
-	.big {
-		font-size: 26px;
-		font-weight: 500;
-		line-height: 1;
-	}
-
-	.result-stats {
-		display: flex;
-		gap: 14px;
-	}
-
-	.result-stats > span {
-		display: flex;
-		align-items: baseline;
-		gap: 4px;
-	}
-
-	.result-stats .num {
-		font-size: 13px;
+	.result .metrics {
+		margin-left: 0;
 	}
 
 	.result-q {
-		font-size: 16px;
 		flex: 1;
-		min-width: 200px;
+		min-width: 0;
+		font-size: var(--fs-lg);
 		color: var(--ink-2);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.toolbar .select {
+		width: auto;
+		min-width: 112px;
+	}
+
+	.search {
+		display: flex;
+		align-items: center;
+		gap: var(--sp-1);
+		width: 268px;
+		padding-left: var(--sp-2);
+		border: 1px solid var(--rule-strong);
+		border-radius: 2px;
+		background: var(--surface);
+		color: var(--ink-3);
+	}
+
+	.search:focus-within {
+		border-color: var(--orange);
+		box-shadow: 0 0 0 2px var(--orange-wash);
+	}
+
+	.search .input {
+		border: 0;
+		background: transparent;
+		box-shadow: none;
+		padding-left: 0;
+	}
+
+	.search .input:focus {
+		box-shadow: none;
+	}
+
+	.region {
+		max-width: 190px;
+	}
+
+	.bulk-hint {
+		color: var(--ink-4);
 	}
 
 	.panes {
+		position: relative;
 		flex: 1;
 		min-height: 0;
-		display: grid;
-		grid-template-columns: minmax(0, 1fr);
 	}
 
 	.panes.split {
-		grid-template-columns: minmax(0, 1fr) clamp(460px, 40%, 700px);
+		grid-template-columns: minmax(0, 1fr) clamp(440px, 38%, 660px);
 	}
 
-	.panes.split .c-doc {
+	.panes.split .c-th,
+	.panes.split .c-doc,
+	.panes.split .c-age,
+	.panes.split :global(th.c-th),
+	.panes.split :global(th.c-doc),
+	.panes.split :global(th.c-age) {
 		display: none;
 	}
 
-	.panes.split .q {
-		-webkit-line-clamp: 2;
-		line-clamp: 2;
-	}
-
-	.panes.split .quote {
+	.panes.split .c-sig .quote {
 		-webkit-line-clamp: 1;
 		line-clamp: 1;
+	}
+
+	.panes.split .c-co .sub {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	.list {
@@ -674,23 +923,6 @@
 		min-height: 0;
 		border-left: 1px solid var(--ink);
 		background: var(--surface);
-	}
-
-	.note {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		padding: 18px 16px;
-		font-size: 13px;
-		color: var(--ink-3);
-	}
-
-	.note.warn {
-		color: var(--oxblood);
-	}
-
-	table.grid {
-		table-layout: fixed;
 	}
 
 	tbody tr {
@@ -707,6 +939,10 @@
 		box-shadow: inset 3px 0 0 var(--orange);
 	}
 
+	tbody tr.pickedrow {
+		background: var(--sunken);
+	}
+
 	tbody tr.rejected .co {
 		color: var(--ink-3);
 	}
@@ -717,42 +953,29 @@
 		color: var(--ink-3);
 	}
 
+	.c-chk {
+		width: 36px;
+		padding-right: 0;
+	}
+
 	.c-rank {
-		width: 52px;
-		text-align: right;
-		font-size: 12.5px;
+		font-size: var(--fs-base);
 		color: var(--ink-3);
 	}
 
-	.c-co {
-		width: 22%;
-	}
-
 	.c-fit {
-		width: 144px;
+		vertical-align: top;
 	}
 
-	.c-sig {
-		width: auto;
-	}
-
-	.c-th {
-		width: 152px;
-	}
-
-	.c-doc {
-		width: 58px;
-		text-align: right;
-	}
-
-	.c-age {
-		width: 62px;
+	.c-act {
+		width: 36px;
+		padding-left: 0;
 	}
 
 	.co {
 		display: block;
 		font-family: var(--font-display);
-		font-size: 15.5px;
+		font-size: var(--fs-lg);
 		font-weight: 500;
 		line-height: 1.2;
 		letter-spacing: -0.01em;
@@ -760,17 +983,15 @@
 
 	.sub {
 		display: block;
-		font-size: 11.5px;
+		font-size: var(--fs-sm);
 		color: var(--ink-3);
 		line-height: 1.4;
-		margin-top: 1px;
 	}
 
 	.delta {
 		display: inline-block;
-		margin-left: 5px;
-		font-size: 10px;
-		font-family: var(--font-ui);
+		margin-left: 4px;
+		font-size: var(--fs-micro);
 	}
 
 	.delta[data-dir='up'] {
@@ -781,32 +1002,37 @@
 		color: var(--oxblood);
 	}
 
-	.fitrow {
-		display: flex;
-		align-items: center;
-		gap: 7px;
-		margin-bottom: 5px;
-	}
-
 	.fitval {
-		font-size: 17px;
+		display: block;
+		font-size: var(--fs-xl);
 		font-weight: 500;
-		line-height: 1;
+		line-height: 1.1;
+		margin-bottom: 3px;
 	}
 
 	.gate {
 		display: block;
-		margin-top: 5px;
-		font-size: 11px;
-		line-height: 1.35;
+		margin-top: 3px;
+		font-size: var(--fs-micro);
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
 		color: var(--oxblood);
 	}
 
 	.q {
-		display: block;
-		font-size: 12.5px;
+		display: -webkit-box;
+		-webkit-line-clamp: 1;
+		line-clamp: 1;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		font-size: var(--fs-base);
 		line-height: 1.35;
 		color: var(--ink-2);
+	}
+
+	.q.hot {
+		color: var(--orange-ink);
+		font-weight: 500;
 	}
 
 	.quote {
@@ -815,9 +1041,9 @@
 		line-clamp: 2;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
-		margin-top: 3px;
+		margin-top: 2px;
 		font-family: var(--font-display);
-		font-size: 13px;
+		font-size: var(--fs-base);
 		font-style: italic;
 		line-height: 1.4;
 		color: var(--ink);
@@ -829,10 +1055,16 @@
 		gap: 4px;
 	}
 
+	.tags :global(.tag) {
+		max-width: 100%;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
 	.stage-tag {
 		display: inline-block;
-		margin-top: 4px;
-		font-size: 10px;
+		margin-top: 3px;
+		font-size: var(--fs-micro);
 		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.07em;
@@ -857,50 +1089,98 @@
 		color: var(--orange-ink);
 	}
 
-	.q.hot {
-		color: var(--orange-ink);
-		font-weight: 500;
-	}
-
-	.tags :global(.tag) {
-		max-width: 100%;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-
 	.corrob {
 		display: block;
-		margin-top: 5px;
-		font-size: 10px;
+		margin-top: 3px;
+		font-size: var(--fs-micro);
 		font-weight: 600;
 		text-transform: uppercase;
-		letter-spacing: 0.08em;
+		letter-spacing: 0.06em;
 		color: var(--accent);
+		white-space: nowrap;
 	}
 
-	.corrob::before {
-		content: '✓ ';
-	}
-
-	@media (max-width: 1240px) {
-		.panes.split {
-			grid-template-columns: minmax(0, 1fr) 430px;
-		}
+	@media (max-width: 1380px) {
 		.c-th,
-		.c-age {
+		:global(th.c-th) {
 			display: none;
 		}
 	}
 
-	@media (max-width: 1000px) {
+	@media (max-width: 1180px) {
+		.c-doc,
+		.c-age,
+		:global(th.c-doc),
+		:global(th.c-age) {
+			display: none;
+		}
+		.panes.split {
+			grid-template-columns: minmax(0, 1fr) 400px;
+		}
+	}
+
+	@media (max-width: 1024px) {
+		.metrics {
+			display: none;
+		}
+		.ask {
+			flex-wrap: wrap;
+		}
+		.ask-note {
+			position: static;
+		}
+	}
+
+	@media (max-width: 760px) {
+		.topbar {
+			flex-wrap: wrap;
+			gap: var(--sp-3);
+		}
+		.topbar-tools {
+			margin-left: 0;
+		}
+		.toolbar {
+			flex-wrap: wrap;
+		}
+		.toolbar .spacer {
+			display: none;
+		}
+		.toolbar .seg {
+			flex: 1 1 100%;
+			overflow-x: auto;
+		}
+		.search {
+			flex: 1 1 100%;
+			order: -1;
+		}
+		.toolbar .select {
+			flex: 1 1 0;
+			min-width: 0;
+		}
+		.list {
+			overflow-x: auto;
+		}
+		table.grid {
+			min-width: 700px;
+		}
+		:global(.pager) {
+			padding: var(--sp-2);
+			gap: var(--sp-2);
+		}
+	}
+
+	@media (max-width: 1100px) {
 		.panes.split {
 			grid-template-columns: minmax(0, 1fr);
 		}
-		.detail {
-			display: none;
-		}
-		.c-sig {
-			display: none;
+		.panes.split .detail {
+			position: absolute;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			width: min(560px, 100%);
+			z-index: 3;
+			border-left: 1px solid var(--ink);
 		}
 	}
 </style>

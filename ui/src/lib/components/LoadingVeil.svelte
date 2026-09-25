@@ -17,7 +17,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		gap: 9px;
+		gap: var(--sp-2);
 		background: color-mix(in oklab, var(--paper) 78%, transparent);
 		backdrop-filter: blur(1px);
 		color: var(--ink-3);
@@ -25,6 +25,6 @@
 	}
 
 	.veil-label {
-		font-size: 12.5px;
+		font-size: var(--fs-base);
 	}
 </style>

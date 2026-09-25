@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { LedgerRow } from '$lib/api';
 	import { age, confidence, date, host, odds, precise, signed, sourceKind, tier } from '$lib/format';
+	import Icon from './Icon.svelte';
 
 	let {
 		rows,
@@ -31,35 +32,40 @@
 				<div class="row-main">
 					<div class="col-src">
 						<span class="src">{row.title ?? host(row.sourceUrl)}</span>
-						<span class="sub">
-							{row.publisher} · <a href={row.sourceUrl} target="_blank" rel="noreferrer noopener">{sourceKind(row.sourceKind)}</a>
-						</span>
-						<span class="sub dim num">{date(row.anchor)} · {age(row.ageDays)}</span>
-					</div>
-
-					<div class="col-q">
-						<span class="key" title={row.questionKey}>{row.questionTitle}</span>
-						<span class="sub">{row.questionText}</span>
-						<span class="formula num">
-							{tier(row.tier)} {signed(row.tierNats, 1)} × {row.authority.toFixed(2)} × {row.decay.toFixed(3)} × {row.shrink.toFixed(2)}
-							{#if row.groupRank > 0}<span class="mark">rank {row.groupRank + 1} ×{row.discount}</span>{/if}
-							{#if row.themeCapped}<span class="mark">capped</span>{/if}
-						</span>
+						<div class="src-line">
+							<span class="sub">
+								{row.publisher} · <a href={row.sourceUrl} target="_blank" rel="noreferrer noopener">{sourceKind(row.sourceKind)}</a>
+								· {date(row.anchor)} · {age(row.ageDays)}
+							</span>
+							<button class="verbatim" onclick={() => toggle(row)} aria-expanded={expanded}>
+								<Icon name={expanded ? 'chevronDown' : 'chevronRight'} size={12} />
+								{expanded ? 'Hide' : 'Verbatim'}
+							</button>
+						</div>
 					</div>
 
 					<div class="col-amt">
 						<span class="num amt" class:neg={row.contributionNats < 0}>{signed(row.contributionNats)}</span>
 						<span class="sub dim num">{odds(row.contributionNats)}</span>
-						<button class="btn btn-quiet btn-sm" onclick={() => toggle(row)} aria-expanded={expanded}>
-							{expanded ? 'Less' : 'Verbatim'}
-						</button>
 					</div>
 				</div>
+
+				<div class="col-q">
+					<span class="q-title" title={row.questionKey}>{row.questionTitle}</span>
+					<span class="q-text">{row.questionText}</span>
+				</div>
+
+				<span class="formula num">
+					{tier(row.tier)} {signed(row.tierNats, 1)} × {row.authority.toFixed(2)} × {row.decay.toFixed(3)} × {row.shrink.toFixed(2)}
+					{#if row.groupRank > 0}<span class="mark">rank {row.groupRank + 1} ×{row.discount}</span>{/if}
+					{#if row.blocking}<span class="mark">disqualifying</span>{/if}
+					{#if row.themeCapped}<span class="mark">capped</span>{/if}
+				</span>
 
 				{#if expanded}
 					<div class="detail">
 						{#if row.spanText}<blockquote>“{row.spanText}”</blockquote>{/if}
-						<div class="detail-actions">
+						<div class="detail-foot">
 							<button class="btn btn-sm" onclick={() => onopen(row)}>Open capture</button>
 							<a class="btn btn-sm" href={row.sourceUrl} target="_blank" rel="noreferrer noopener">Open source</a>
 							<span class="sub dim num">chars {row.spanStart}–{row.spanEnd}</span>
@@ -82,7 +88,7 @@
 
 	.ledger > li {
 		border-bottom: 1px solid var(--rule);
-		padding: 9px 0;
+		padding: var(--sp-2) 0;
 	}
 
 	.ledger > li.blocking {
@@ -91,37 +97,79 @@
 
 	.row-main {
 		display: grid;
-		grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) 88px;
-		gap: 12px;
+		grid-template-columns: minmax(0, 1fr) auto;
+		gap: var(--sp-2);
+		align-items: start;
 	}
 
 	.col-amt {
 		text-align: right;
+		flex: none;
 	}
 
 	.src {
 		display: block;
-		font-size: 12.5px;
+		font-size: var(--fs-base);
 		font-weight: 500;
 		line-height: 1.35;
 	}
 
-	.sub {
-		display: block;
-		font-size: 11px;
-		line-height: 1.45;
-		color: var(--ink-2);
+	.src-line {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: var(--sp-2);
 		margin-top: 2px;
 	}
 
-	
+	.sub {
+		display: block;
+		font-size: var(--fs-sm);
+		line-height: 1.45;
+		color: var(--ink-3);
+	}
+
+	.verbatim {
+		display: inline-flex;
+		align-items: center;
+		gap: 2px;
+		font-size: var(--fs-micro);
+		color: var(--ink-3);
+		flex: none;
+	}
+
+	.verbatim:hover {
+		color: var(--ink);
+		text-decoration: underline;
+		text-underline-offset: 2px;
+	}
+
+	.col-q {
+		margin-top: var(--sp-1);
+	}
+
+	.q-title {
+		display: block;
+		font-size: var(--fs-base);
+		font-weight: 500;
+		line-height: 1.35;
+		color: var(--ink);
+	}
+
+	.q-text {
+		display: block;
+		font-size: var(--fs-sm);
+		line-height: 1.45;
+		color: var(--ink-3);
+		margin-top: 1px;
+	}
 
 	.formula {
 		display: block;
-		margin-top: 5px;
-		font-size: 10px;
+		margin-top: var(--sp-1);
+		font-size: var(--fs-micro);
 		line-height: 1.5;
-		padding: 3px 6px;
+		padding: 2px 6px;
 		background: var(--paper);
 		border: 1px solid var(--rule);
 		color: var(--ink-2);
@@ -129,51 +177,48 @@
 
 	.mark {
 		color: var(--orange-ink);
-		margin-left: 4px;
+		margin-left: var(--sp-1);
 	}
 
 	.amt {
 		display: block;
-		font-size: 13px;
+		font-size: var(--fs-md);
 		font-weight: 500;
+		line-height: 1.2;
 	}
 
 	.amt.neg {
 		color: var(--oxblood);
 	}
 
-	.col-amt .btn {
-		margin-top: 5px;
-	}
-
 	.detail {
-		margin-top: 9px;
-		padding: 10px 12px;
+		margin-top: var(--sp-2);
+		padding: var(--sp-2) var(--sp-3);
 		background: var(--paper);
 		border-left: 2px solid var(--orange);
 	}
 
 	blockquote {
-		margin: 0 0 8px;
-		padding-left: 10px;
+		margin: 0 0 var(--sp-2);
+		padding-left: var(--sp-2);
 		border-left: 2px solid var(--orange);
 		font-family: var(--font-display);
-		font-size: 13.5px;
+		font-size: var(--fs-md);
 		line-height: 1.5;
 		color: var(--ink);
 		max-height: 150px;
 		overflow: auto;
 	}
 
-	.detail-actions {
+	.detail-foot {
 		display: flex;
 		align-items: center;
-		gap: 6px;
+		gap: var(--sp-1);
 		flex-wrap: wrap;
 	}
 
 	.empty {
-		font-size: 12.5px;
+		font-size: var(--fs-base);
 		color: var(--ink-3);
 	}
 </style>

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { fetchOutreach, type Outreach } from '$lib/api';
 	import { host } from '$lib/format';
+	import Icon from './Icon.svelte';
 
 	let {
 		companyId,
@@ -90,7 +91,9 @@
 						InMail
 					</button>
 				</div>
-				<button class="btn btn-quiet btn-sm" onclick={onclose} aria-label="Close">✕</button>
+				<button class="icon-btn" onclick={onclose} aria-label="Close the draft" title="Close">
+					<Icon name="close" size={16} />
+				</button>
 			</div>
 		</header>
 
@@ -169,29 +172,29 @@
 		display: flex;
 		align-items: flex-start;
 		justify-content: space-between;
-		gap: 14px;
-		padding: 11px 14px;
+		gap: var(--sp-4);
+		padding: var(--sp-3);
 		border-bottom: 1px solid var(--ink);
 	}
 
 	.head-tools {
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		gap: var(--sp-2);
 	}
 
 	.body {
 		flex: 1;
 		min-height: 0;
 		overflow-y: auto;
-		padding: 16px 14px;
+		padding: var(--sp-4);
 	}
 
 	footer {
 		display: flex;
 		justify-content: flex-end;
-		gap: 6px;
-		padding: 10px 14px;
+		gap: var(--sp-2);
+		padding: var(--sp-2) var(--sp-3);
 		border-top: 1px solid var(--rule);
 		background: var(--paper);
 	}
@@ -199,8 +202,8 @@
 	.note {
 		display: flex;
 		align-items: center;
-		gap: 8px;
-		font-size: 13px;
+		gap: var(--sp-2);
+		font-size: var(--fs-md);
 		color: var(--ink-3);
 	}
 
@@ -211,22 +214,22 @@
 	.cols {
 		display: grid;
 		grid-template-columns: minmax(0, 1.55fr) minmax(240px, 1fr);
-		gap: 22px;
+		gap: var(--sp-5);
 	}
 
 	.draft .subject {
-		font-size: 17px;
+		font-size: var(--fs-lg);
 		margin: 3px 0 0;
 	}
 
 	.mt {
-		margin-top: 14px;
+		margin-top: var(--sp-4);
 	}
 
 	pre {
 		margin: 3px 0 0;
 		font-family: var(--font-ui);
-		font-size: 13px;
+		font-size: var(--fs-md);
 		line-height: 1.6;
 		white-space: pre-wrap;
 		word-break: break-word;
@@ -234,39 +237,39 @@
 
 	.cites {
 		border-left: 1px solid var(--rule);
-		padding-left: 18px;
+		padding-left: var(--sp-4);
 		display: flex;
 		flex-direction: column;
-		gap: 12px;
+		gap: var(--sp-3);
 	}
 
 	.cite {
 		border-top: 1px solid var(--rule);
-		padding-top: 8px;
+		padding-top: var(--sp-2);
 	}
 
 	.cite-head {
 		display: flex;
 		align-items: baseline;
-		gap: 7px;
+		gap: var(--sp-2);
 	}
 
 	.marker {
-		font-size: 11px;
+		font-size: var(--fs-micro);
 		color: var(--orange-ink);
 	}
 
 	.quote {
-		margin-top: 4px;
+		margin-top: var(--sp-1);
 		font-family: var(--font-display);
-		font-size: 13px;
+		font-size: var(--fs-md);
 		font-style: italic;
 		line-height: 1.45;
 		color: var(--ink-2);
 	}
 
 	.sub {
-		font-size: 11.5px;
+		font-size: var(--fs-sm);
 		line-height: 1.45;
 		color: var(--ink-3);
 		margin-top: 2px;
@@ -281,7 +284,7 @@
 			border-left: 0;
 			border-top: 1px solid var(--rule);
 			padding-left: 0;
-			padding-top: 14px;
+			padding-top: var(--sp-4);
 		}
 	}
 </style>

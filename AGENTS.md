@@ -260,6 +260,10 @@ themselves. What follows from it, and must be respected:
 - No comments in code. Names and structure carry the meaning.
 - Commits: imperative subject, a body that says what broke or why, no
   `Co-Authored-By` trailer.
+- The interface has an architecture: the shell, the spacing and type scale, the
+  shared components and the action hierarchy on every screen are written down in
+  `docs/ui-architecture.md`. Read it before adding a screen, a column or an
+  action; views use the tokens in `ui/src/app.css` rather than inventing sizes.
 - Design tokens live in `ui/src/app.css`. The palette has exactly three roles:
   `--orange` is the primary and is spent on one action per screen and on the
   score; ink and paper carry every piece of structure; `--accent` (viridian) is

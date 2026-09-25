@@ -2,7 +2,6 @@
 	import {
 		createServiceLine,
 		deleteServiceLine,
-		fetchMeta,
 		fetchRegionCountries,
 		fetchServiceLines,
 		fetchSettings,
@@ -13,16 +12,22 @@
 		type Settings
 	} from '$lib/api';
 	import { session } from '$lib/session.svelte';
+	import { workspace } from '$lib/workspace.svelte';
 	import { toasts } from '$lib/toast.svelte';
 	import { shortNumber } from '$lib/format';
 	import Tag from '$lib/components/Tag.svelte';
 	import LoadingVeil from '$lib/components/LoadingVeil.svelte';
+	import Icon from '$lib/components/Icon.svelte';
+	import Menu from '$lib/components/Menu.svelte';
+	import Metric from '$lib/components/Metric.svelte';
+	import type { MenuItem } from '$lib/components/menu';
+	import type { IconName } from '$lib/components/icons';
 
-	const SECTIONS = [
-		{ id: 'voice', label: 'Voice and style', hint: 'How drafts read' },
-		{ id: 'profile', label: 'Customer profile', hint: 'Who counts as a prospect' },
-		{ id: 'lines', label: 'Service lines', hint: 'What we sell' },
-		{ id: 'scoring', label: 'Scoring', hint: 'Where the bands sit' }
+	const SECTIONS: { id: string; label: string; hint: string; icon: IconName }[] = [
+		{ id: 'voice', label: 'Voice and style', hint: 'How drafts read', icon: 'mail' },
+		{ id: 'profile', label: 'Customer profile', hint: 'Who counts as a prospect', icon: 'target' },
+		{ id: 'lines', label: 'Service lines', hint: 'What we sell', icon: 'layers' },
+		{ id: 'scoring', label: 'Scoring', hint: 'Where the bands sit', icon: 'sliders' }
 	];
 
 	const TONES = ['direct', 'consultative', 'warm', 'matter-of-fact'];
@@ -35,7 +40,6 @@
 	let draft = $state<Settings | null>(null);
 	let lines = $state<ServiceLine[]>([]);
 	let regionCountries = $state<RegionCountry[]>([]);
-	let bands = $state<Record<string, number>>({});
 	let loading = $state(true);
 	let saving = $state(false);
 	let countries = $state('');
@@ -44,6 +48,7 @@
 	let lineBusy = $state<string | null>(null);
 
 	const serviceLine = $derived(session.serviceLine);
+	const bands = $derived(workspace.meta?.bands ?? {});
 	const dirty = $derived(
 		settings !== null &&
 			draft !== null &&
@@ -57,15 +62,14 @@
 		if (!serviceLine) return;
 		let cancelled = false;
 		loading = true;
-		Promise.all([fetchSettings(), fetchServiceLines(true), fetchMeta(serviceLine), fetchRegionCountries()])
-			.then(([config, lineList, meta, countryRows]) => {
+		Promise.all([fetchSettings(), fetchServiceLines(true), fetchRegionCountries()])
+			.then(([config, lineList, countryRows]) => {
 				if (cancelled) return;
 				settings = config;
 				draft = { ...config };
 				countries = config.icpCountries.join(', ');
 				industries = config.icpIndustries.join(', ');
 				lines = lineList;
-				bands = meta.bands;
 				regionCountries = countryRows;
 			})
 			.catch((cause) => toasts.push((cause as Error).message, 'error'))
@@ -115,8 +119,8 @@
 			draft = { ...saved };
 			countries = saved.icpCountries.join(', ');
 			industries = saved.icpIndustries.join(', ');
-			bands = (await fetchMeta(serviceLine)).bands;
-			toasts.push('Saved.', 'success');
+			workspace.reload();
+			toasts.push('Saved. The board re-scored.', 'success');
 		} catch (cause) {
 			toasts.push((cause as Error).message, 'error');
 		} finally {
@@ -166,6 +170,7 @@
 				active: !line.active
 			});
 			lines = await fetchServiceLines(true);
+			workspace.reload();
 		} catch (cause) {
 			toasts.push((cause as Error).message, 'error');
 		} finally {
@@ -186,6 +191,25 @@
 		}
 	}
 
+	function lineMenu(line: ServiceLine): MenuItem[] {
+		return [
+			{ id: 'toggle', label: line.active ? 'Disable — hide it everywhere' : 'Enable', icon: line.active ? 'close' : 'check' },
+			{
+				id: 'delete',
+				label: line.questionCount > 0 ? `Delete — blocked by ${line.questionCount} questions` : 'Delete',
+				icon: 'trash',
+				danger: true,
+				disabled: line.questionCount > 0,
+				separatorBefore: true
+			}
+		];
+	}
+
+	async function runLine(line: ServiceLine, id: string) {
+		if (id === 'toggle') await toggleLine(line);
+		else if (id === 'delete') await removeLine(line);
+	}
+
 	const voicePreview = $derived.by(() => {
 		if (!draft) return '';
 		const parts = [
@@ -204,16 +228,28 @@
 
 <div class="view">
 	<header class="topbar">
-		<div>
+		<div class="ident">
 			<h1 class="dsp">Settings</h1>
-			<p class="label">Everything the board and the writer read, in one place.</p>
+			<p class="sub num">
+				{shortNumber(settings?.indexedCompanies ?? 0)} companies indexed · {lines.length} service lines ·
+				{serviceLine}
+			</p>
 		</div>
-		<div class="row">
-			{#if dirty}<button class="btn" onclick={discard}>Discard</button>{/if}
-			<button class="btn btn-primary" onclick={save} disabled={saving || !dirty}>
-				{#if saving}<span class="spinner"></span>{/if}
-				{dirty ? 'Save and re-score' : 'Saved'}
-			</button>
+		<div class="topbar-tools">
+			{#if dirty}
+				<button class="btn" onclick={discard} disabled={saving}>Discard</button>
+				<button class="btn btn-primary" onclick={save} disabled={saving}>
+					{#if saving}<span class="spinner"></span>{/if}
+					{saving ? 'Saving' : 'Save and re-score'}
+				</button>
+			{:else}
+				<span class="saved"><Icon name="check" size={14} /> Saved</span>
+			{/if}
+			<Menu
+				items={[{ id: 'voice', label: 'Read the writer brief', icon: 'mail' }]}
+				onselect={() => (section = 'voice')}
+				label="More settings actions"
+			/>
 		</div>
 	</header>
 
@@ -229,21 +265,26 @@
 						aria-current={section === option.id ? 'true' : undefined}
 						onclick={() => (section = option.id)}
 					>
-						<span class="section-label">{option.label}</span>
-						<span class="section-hint">{option.hint}</span>
+						<Icon name={option.icon} size={15} />
+						<span class="section-text">
+							<span class="section-label">{option.label}</span>
+							<span class="section-hint">{option.hint}</span>
+						</span>
 					</button>
 				{/each}
+				{#if dirty}
+					<p class="unsaved"><Icon name="alert" size={13} /> Unsaved changes</p>
+				{/if}
 			</nav>
 
 			<div class="body scroll">
 				{#if section === 'voice'}
-					<section class="block">
-						<h2 class="dsp">Voice and style</h2>
-						<p class="sub">
-							This is the brief the writer works from. It applies to every draft, and it is the reason two
-							companies with the same score read differently.
-						</p>
-						<div class="pair">
+					<section class="panel">
+						<div class="panel-head">
+							<h2 class="dsp">Voice and style</h2>
+							<span class="sub dim">applies to every draft</span>
+						</div>
+						<div class="fields">
 							<label class="field">
 								<span class="label">Tone</span>
 								<select class="select" bind:value={draft.voiceTone}>
@@ -273,7 +314,7 @@
 							<span class="label">The ask</span>
 							<input class="input" bind:value={draft.voiceAsk} />
 						</label>
-						<div class="pair">
+						<div class="fields">
 							<label class="field">
 								<span class="label">Sign-off</span>
 								<input class="input" bind:value={draft.voiceSignOff} />
@@ -286,7 +327,7 @@
 						<label class="field">
 							<span class="label">Never use these words</span>
 							<input class="input" bind:value={draft.voiceAvoid} placeholder="leverage, synergy, circle back" />
-							<span class="sub dim">Comma separated. Applied to every draft, including generated ones.</span>
+							<span class="sub dim">Comma separated, applied to every draft.</span>
 						</label>
 						<label class="field">
 							<span class="label">Anything else the writer should know</span>
@@ -294,9 +335,9 @@
 						</label>
 					</section>
 
-					<section class="block">
-						<h3 class="label">The brief the writer receives</h3>
-						<p class="brief num">{voicePreview}</p>
+					<section class="panel">
+						<div class="panel-head"><h3 class="label">The brief the writer receives</h3></div>
+						<p class="brief">{voicePreview}</p>
 						<p class="sub dim">
 							{draft.modelWritesDrafts
 								? 'A language model is configured, so drafts are written from the evidence under this brief.'
@@ -306,12 +347,11 @@
 				{/if}
 
 				{#if section === 'profile'}
-					<section class="block">
-						<h2 class="dsp">Where we sell</h2>
-						<p class="sub">
-							A company outside these markets leaves the queue with the reason shown, whatever its score.
-							Empty means every market.
-						</p>
+					<section class="panel">
+						<div class="panel-head">
+							<h2 class="dsp">Where we sell</h2>
+							<span class="sub dim">{draft.geographyGate ? 'gate on' : 'gate off'}</span>
+						</div>
 						<div class="field">
 							<span class="label">Add a whole region</span>
 							<div class="chips">
@@ -322,10 +362,10 @@
 								{/each}
 							</div>
 						</div>
-
 						<label class="field">
 							<span class="label">Countries</span>
 							<textarea class="textarea" rows="2" bind:value={countries}></textarea>
+							<span class="sub dim">Empty means every market.</span>
 						</label>
 						<div class="chips">
 							{#each parse(countries).slice(0, 24) as code (code)}<Tag>{code}</Tag>{/each}
@@ -335,13 +375,13 @@
 						</div>
 						<label class="check">
 							<input type="checkbox" bind:checked={draft.geographyGate} />
-							<span>Remove companies outside these markets</span>
+							<span>Remove companies outside these markets — the reason is shown on the card</span>
 						</label>
 					</section>
 
-					<section class="block">
-						<h2 class="dsp">Who we sell to</h2>
-						<div class="pair">
+					<section class="panel">
+						<div class="panel-head"><h2 class="dsp">Who we sell to</h2></div>
+						<div class="fields">
 							<label class="field">
 								<span class="label">Minimum employees</span>
 								<input class="input" type="number" min="0" bind:value={draft.icpMinEmployees} />
@@ -361,23 +401,29 @@
 								<span>Remove competitors — firms that sell what we sell</span>
 							</label>
 						</div>
-						<dl class="facts">
-							<dt>Companies indexed</dt><dd class="num">{shortNumber(settings?.indexedCompanies ?? 0)}</dd>
-							<dt>Inside the geography</dt><dd class="num">{shortNumber(settings?.inScope?.inGeography ?? 0)}</dd>
-							<dt>Above the size floor, or unknown</dt>
-							<dd class="num">{shortNumber(settings?.inScope?.aboveSizeFloor ?? 0)}</dd>
-							<dt>Flagged as competitors</dt><dd class="num">{shortNumber(settings?.inScope?.competitors ?? 0)}</dd>
-						</dl>
+					</section>
+
+					<section class="panel">
+						<div class="panel-head"><h3 class="label">What that leaves</h3></div>
+						<div class="metrics">
+							<Metric value={shortNumber(settings?.indexedCompanies ?? 0)} label="Indexed" />
+							<Metric value={shortNumber(settings?.inScope?.inGeography ?? 0)} label="In geography" />
+							<Metric value={shortNumber(settings?.inScope?.aboveSizeFloor ?? 0)} label="Above the floor" />
+							<Metric
+								value={shortNumber(settings?.inScope?.competitors ?? 0)}
+								label="Competitors"
+								tone={(settings?.inScope?.competitors ?? 0) > 0 ? 'bad' : null}
+							/>
+						</div>
 					</section>
 				{/if}
 
 				{#if section === 'lines'}
-					<section class="block">
-						<h2 class="dsp">What we sell</h2>
-						<p class="sub">
-							A service line scopes the board, the questions and the leads. The value proposition is what the
-							writer says we do about it.
-						</p>
+					<section class="panel">
+						<div class="panel-head">
+							<h2 class="dsp">What we sell</h2>
+							<span class="sub dim">{lines.length} configured</span>
+						</div>
 						<ul class="lines">
 							{#each lines as line (line.id)}
 								<li>
@@ -386,58 +432,50 @@
 										<div class="line-tools">
 											<Tag variant="bare">{line.questionCount} questions</Tag>
 											<Tag variant={line.active ? 'accent' : 'bare'}>{line.active ? 'active' : 'off'}</Tag>
-											<button class="btn btn-sm" disabled={lineBusy === line.id} onclick={() => toggleLine(line)}>
-												{line.active ? 'Disable' : 'Enable'}
-											</button>
-											<button
-												class="btn btn-sm danger"
-												disabled={lineBusy === line.id || line.questionCount > 0}
-												title={line.questionCount > 0 ? 'Move or delete its questions first' : 'Delete'}
-												onclick={() => removeLine(line)}
-											>
-												Delete
-											</button>
+											{#if lineBusy === line.id}<span class="spinner"></span>{/if}
+											<Menu
+												items={lineMenu(line)}
+												onselect={(id) => runLine(line, id)}
+												size="sm"
+												label={`Actions for ${line.name}`}
+											/>
 										</div>
 									</div>
-									{#if line.valueProposition}
-										<p class="sub">{line.valueProposition}</p>
-									{:else}
-										<p class="sub dim">No value proposition yet — the writer falls back to a generic one.</p>
-									{/if}
+									<p class="sub">
+										{line.valueProposition ?? 'No value proposition yet — the writer falls back to a generic one.'}
+									</p>
 								</li>
 							{/each}
 						</ul>
 					</section>
 
-					<section class="block">
-						<h3 class="label">Add a service line</h3>
-						<div class="pair">
+					<section class="panel">
+						<div class="panel-head"><h3 class="label">Add a service line</h3></div>
+						<div class="fields">
 							<label class="field">
 								<span class="label">Name</span>
 								<input class="input" bind:value={newLine.name} placeholder="Managed Detection and Response" />
 							</label>
 							<label class="field">
 								<span class="label">Value proposition</span>
-								<input
-									class="input"
-									bind:value={newLine.valueProposition}
-									placeholder="we run the SOC so your team keeps the context"
-								/>
+								<input class="input" bind:value={newLine.valueProposition} placeholder="we run the SOC so your team keeps the context" />
 							</label>
 						</div>
-						<button class="btn btn-ink" disabled={lineBusy === 'new'} onclick={addLine}>Add service line</button>
+						<div>
+							<button class="btn btn-ink" disabled={lineBusy === 'new'} onclick={addLine}>
+								<Icon name="plus" size={15} /> Add service line
+							</button>
+						</div>
 					</section>
 				{/if}
 
 				{#if section === 'scoring'}
-					<section class="block">
-						<h2 class="dsp">Where the bands sit</h2>
-						<p class="sub">
-							The base rate is the share of the pool worth calling. Bands are cut from the score the ledger
-							produces. The theme cap follows the Priority line, so one kind of evidence reaches it and never
-							passes it.
-						</p>
-						<div class="pair">
+					<section class="panel">
+						<div class="panel-head">
+							<h2 class="dsp">Where the bands sit</h2>
+							<span class="sub dim num">cap {draft.themeCap.toFixed(3)} nats</span>
+						</div>
+						<div class="fields">
 							<label class="field">
 								<span class="label">Base rate</span>
 								<input class="input" type="number" step="0.01" min="0.01" max="0.9" bind:value={draft.baseRate} />
@@ -455,16 +493,21 @@
 								<input class="input" type="number" step="0.01" bind:value={draft.watchThreshold} />
 							</label>
 						</div>
-						<p class="sub">
-							Theme cap, derived: <span class="num">{draft.themeCap.toFixed(3)}</span> nats.
+						<p class="sub dim">
+							The base rate is the share of the pool worth calling. The theme cap follows the Priority line, so one
+							kind of evidence reaches it and never passes it.
 						</p>
-						<dl class="facts">
-							<dt>Priority</dt><dd class="num">{bands.PRIORITY ?? 0}</dd>
-							<dt>Nurture</dt><dd class="num">{bands.NURTURE ?? 0}</dd>
-							<dt>Watch</dt><dd class="num">{bands.WATCH ?? 0}</dd>
-							<dt>Insufficient evidence</dt><dd class="num">{bands.THIN ?? 0}</dd>
-							<dt>Rejected</dt><dd class="num">{bands.DISQUALIFIED ?? 0}</dd>
-						</dl>
+					</section>
+
+					<section class="panel">
+						<div class="panel-head"><h3 class="label">The board right now</h3></div>
+						<div class="metrics">
+							<Metric value={bands.PRIORITY ?? 0} label="Priority" tone="hot" />
+							<Metric value={bands.NURTURE ?? 0} label="Nurture" />
+							<Metric value={bands.WATCH ?? 0} label="Watch" />
+							<Metric value={bands.THIN ?? 0} label="Thin" />
+							<Metric value={bands.DISQUALIFIED ?? 0} label="Rejected" />
+						</div>
 					</section>
 				{/if}
 			</div>
@@ -473,62 +516,39 @@
 </div>
 
 <style>
-	.view {
-		display: flex;
-		flex-direction: column;
-		height: 100%;
-		min-height: 0;
-	}
-
-	.topbar {
-		display: flex;
-		align-items: flex-end;
-		justify-content: space-between;
-		gap: 20px;
-		padding: 11px 16px 12px;
-		border-bottom: 1px solid var(--ink);
-		background: var(--surface);
-		flex-wrap: wrap;
-	}
-
-	h1 {
-		font-size: 23px;
-		line-height: 1.1;
-	}
-
-	.topbar .label {
-		margin-top: 3px;
-	}
-
-	.row {
-		display: flex;
-		gap: 6px;
-	}
-
 	.panes {
-		position: relative;
-		flex: 1;
-		min-height: 0;
-		display: grid;
-		grid-template-columns: 226px minmax(0, 1fr);
+		grid-template-columns: 232px minmax(0, 1fr);
+	}
+
+	.saved {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--sp-1);
+		font-size: var(--fs-base);
+		color: var(--accent);
 	}
 
 	.sections {
 		border-right: 1px solid var(--rule);
 		background: var(--paper);
-		padding: 10px 0;
+		padding: var(--sp-2) 0;
 		display: flex;
 		flex-direction: column;
 	}
 
 	.section-link {
 		display: flex;
-		flex-direction: column;
-		gap: 1px;
+		align-items: flex-start;
+		gap: var(--sp-2);
 		text-align: left;
-		padding: 8px 14px 8px 12px;
+		padding: var(--sp-2) var(--sp-3) var(--sp-2) 10px;
 		border-left: 2px solid transparent;
 		transition: background var(--ease), border-color var(--ease);
+	}
+
+	.section-link :global(.icon) {
+		color: var(--ink-3);
+		margin-top: 1px;
 	}
 
 	.section-link:hover {
@@ -540,8 +560,15 @@
 		border-left-color: var(--orange);
 	}
 
+	.section-text {
+		display: flex;
+		flex-direction: column;
+		gap: 1px;
+		min-width: 0;
+	}
+
 	.section-label {
-		font-size: 13.5px;
+		font-size: var(--fs-md);
 		color: var(--ink-2);
 	}
 
@@ -551,70 +578,52 @@
 	}
 
 	.section-hint {
-		font-size: 11px;
+		font-size: var(--fs-micro);
 		color: var(--ink-4);
+	}
+
+	.unsaved {
+		display: flex;
+		align-items: center;
+		gap: var(--sp-1);
+		margin-top: auto;
+		padding: var(--sp-3);
+		font-size: var(--fs-sm);
+		color: var(--orange-ink);
 	}
 
 	.body {
 		min-height: 0;
-		overflow-y: auto;
 		background: var(--surface);
 	}
 
-	.block {
-		padding: 16px 20px 20px;
-		border-bottom: 1px solid var(--rule);
-		display: flex;
-		flex-direction: column;
-		gap: 11px;
-		max-width: 940px;
+	.panel {
+		max-width: 900px;
 	}
 
-	.block:last-child {
-		border-bottom: 0;
+	.panel-head h2 {
+		font-size: var(--fs-xl);
 	}
 
-	h2 {
-		font-size: 19px;
-		line-height: 1.2;
-	}
-
-	.sub {
-		font-size: 12.5px;
-		line-height: 1.55;
+	.brief {
+		font-size: var(--fs-base);
+		line-height: 1.6;
+		padding: var(--sp-2) var(--sp-3);
+		background: var(--paper);
+		border-left: 2px solid var(--orange);
 		color: var(--ink-2);
-	}
-
-	.field {
-		display: flex;
-		flex-direction: column;
-		gap: 4px;
-	}
-
-	.pair {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-		gap: 12px;
 	}
 
 	.checks {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
-	}
-
-	.check {
-		display: flex;
-		align-items: flex-start;
-		gap: 7px;
-		font-size: 12.5px;
-		color: var(--ink-2);
+		gap: var(--sp-1);
 	}
 
 	.chips {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 4px;
+		gap: var(--sp-1);
 	}
 
 	.region-pick {
@@ -628,33 +637,6 @@
 		background: var(--surface);
 	}
 
-	.facts {
-		display: grid;
-		grid-template-columns: 1fr auto;
-		gap: 4px 10px;
-		margin: 0;
-		font-size: 12.5px;
-		max-width: 420px;
-	}
-
-	.facts dt {
-		color: var(--ink-3);
-	}
-
-	.facts dd {
-		margin: 0;
-		text-align: right;
-	}
-
-	.brief {
-		font-size: 12.5px;
-		line-height: 1.6;
-		padding: 10px 12px;
-		background: var(--paper);
-		border-left: 2px solid var(--orange);
-		color: var(--ink-2);
-	}
-
 	.lines {
 		list-style: none;
 		margin: 0;
@@ -663,7 +645,7 @@
 	}
 
 	.lines li {
-		padding: 10px 0;
+		padding: var(--sp-2) 0;
 		border-bottom: 1px solid var(--rule);
 	}
 
@@ -671,36 +653,21 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: 12px;
-		flex-wrap: wrap;
+		gap: var(--sp-3);
 	}
 
 	.line-name {
 		font-family: var(--font-display);
-		font-size: 16px;
+		font-size: var(--fs-lg);
 	}
 
 	.line-tools {
 		display: flex;
 		align-items: center;
-		gap: 6px;
+		gap: var(--sp-1);
 	}
 
-	.danger {
-		color: var(--oxblood);
-		border-color: var(--oxblood-line);
-	}
-
-	.note {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		padding: 18px 16px;
-		font-size: 13px;
-		color: var(--ink-3);
-	}
-
-	@media (max-width: 860px) {
+	@media (max-width: 900px) {
 		.panes {
 			grid-template-columns: minmax(0, 1fr);
 			grid-template-rows: auto minmax(0, 1fr);
@@ -712,7 +679,8 @@
 			overflow-x: auto;
 			padding: 0;
 		}
-		.section-hint {
+		.section-hint,
+		.unsaved {
 			display: none;
 		}
 	}

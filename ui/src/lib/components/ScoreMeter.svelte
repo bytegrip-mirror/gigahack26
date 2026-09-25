@@ -90,7 +90,7 @@
 	.scale .label {
 		position: absolute;
 		transform: translateX(-50%);
-		font-size: 9.5px;
+		font-size: var(--fs-micro);
 		letter-spacing: 0.06em;
 		color: var(--ink-4);
 		white-space: nowrap;

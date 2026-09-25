@@ -3,8 +3,13 @@
 	import { session } from '$lib/session.svelte';
 	import { toasts } from '$lib/toast.svelte';
 	import { age, fit, host, plural } from '$lib/format';
+	import { copy, csv, save } from '$lib/export';
 	import Tag from '$lib/components/Tag.svelte';
 	import LoadingVeil from '$lib/components/LoadingVeil.svelte';
+	import Icon from '$lib/components/Icon.svelte';
+	import Menu from '$lib/components/Menu.svelte';
+	import Metric from '$lib/components/Metric.svelte';
+	import type { MenuItem } from '$lib/components/menu';
 
 	const STAGES = [
 		{ id: 'CONTACTED', label: 'Contacted' },
@@ -23,6 +28,7 @@
 	let tally = $state<LeadTally | null>(null);
 	let loading = $state(true);
 	let busy = $state<string | null>(null);
+	let query = $state('');
 
 	const serviceLine = $derived(session.serviceLine);
 
@@ -46,10 +52,18 @@
 		};
 	});
 
+	const matched = $derived.by(() => {
+		const needle = query.trim().toLowerCase();
+		if (!needle) return leads;
+		return leads.filter((lead) =>
+			`${lead.company} ${lead.domain ?? ''} ${lead.outreachSubject ?? ''}`.toLowerCase().includes(needle)
+		);
+	});
+
 	const grouped = $derived(
 		STAGES.map((stage) => ({
 			...stage,
-			rows: leads.filter((lead) => lead.status === stage.id)
+			rows: matched.filter((lead) => lead.status === stage.id)
 		}))
 	);
 
@@ -57,12 +71,15 @@
 		return iso ? Math.max(0, (Date.now() - new Date(iso).getTime()) / 86_400_000) : null;
 	}
 
-	async function advance(lead: LeadView) {
-		const next = NEXT[lead.status];
-		if (!next) return;
+	function stageLabel(status: string): string {
+		return STAGES.find((stage) => stage.id === status)?.label.toLowerCase() ?? status.toLowerCase();
+	}
+
+	async function move(lead: LeadView, status: string) {
+		if (status === lead.status) return;
 		busy = lead.id;
 		try {
-			await recordLead({ companyId: lead.companyId, serviceLine, status: next });
+			await recordLead({ companyId: lead.companyId, serviceLine, status });
 			leads = await fetchLeads(serviceLine);
 			tally = await fetchLeadTally(serviceLine);
 		} catch (cause) {
@@ -71,34 +88,120 @@
 			busy = null;
 		}
 	}
+
+	function menuFor(lead: LeadView): MenuItem[] {
+		return [
+			{ id: 'open', label: 'Open on the board', icon: 'board' },
+			{ id: 'link', label: 'Copy a link to this company', icon: 'link' },
+			{ id: 'export', label: 'Export this row', icon: 'download' },
+			...STAGES.map((stage, index) => ({
+				id: `stage-${stage.id}`,
+				label: `${lead.status === stage.id ? 'Currently ' : 'Move to '}${stage.label.toLowerCase()}`,
+				icon: lead.status === stage.id ? ('check' as const) : undefined,
+				danger: stage.id === 'REJECTED',
+				separatorBefore: index === 0
+			}))
+		];
+	}
+
+	async function runRow(lead: LeadView, id: string) {
+		if (id === 'open') window.location.assign(`/?co=${lead.companyId}`);
+		else if (id === 'link') {
+			const ok = await copy(`${window.location.origin}/?co=${lead.companyId}`);
+			toasts.push(ok ? `Link to ${lead.company} copied.` : 'This browser blocked the clipboard.', ok ? 'success' : 'warn');
+		} else if (id === 'export') {
+			save(
+				`${lead.company.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.csv`,
+				csv(
+					['company', 'domain', 'service_line', 'stage', 'fit', 'band', 'contacts', 'last_contacted', 'channel', 'subject'],
+					[
+						[
+							lead.company,
+							lead.domain,
+							lead.serviceLine,
+							lead.statusLabel,
+							lead.probability === null ? '' : fit(lead.probability),
+							lead.band,
+							lead.contactCount,
+							lead.lastContactedAt,
+							lead.channel,
+							lead.outreachSubject
+						]
+					]
+				)
+			);
+		} else if (id.startsWith('stage-')) await move(lead, id.slice(6));
+	}
+
+	function exportAll() {
+		save(
+			`pipeline-${serviceLine.toLowerCase().replace(/\s+/g, '-')}.csv`,
+			csv(
+				['company', 'domain', 'stage', 'fit', 'band', 'contacts', 'last_contacted', 'channel', 'subject'],
+				leads.map((lead) => [
+					lead.company,
+					lead.domain,
+					lead.statusLabel,
+					lead.probability === null ? '' : fit(lead.probability),
+					lead.band,
+					lead.contactCount,
+					lead.lastContactedAt,
+					lead.channel,
+					lead.outreachSubject
+				])
+			)
+		);
+		toasts.push(`Exported ${leads.length} leads.`, 'success');
+	}
 </script>
 
 <div class="view">
 	<header class="topbar">
-		<div>
+		<div class="ident">
 			<h1 class="dsp">Pipeline</h1>
-			<p class="label">
-				Everything this team has touched, and where it stands. Advance a stage here; the board follows.
+			<p class="sub num">
+				{plural(leads.length, 'company', 'companies')} worked on {serviceLine}
 			</p>
 		</div>
+
 		{#if tally}
-			<div class="tally">
-				<span><span class="num">{tally.CONTACTED}</span> <span class="label">contacted</span></span>
-				<span><span class="num">{tally.REPLIED}</span> <span class="label">replied</span></span>
-				<span><span class="num">{tally.QUALIFIED}</span> <span class="label">qualified</span></span>
-				<span><span class="num">{tally.REJECTED}</span> <span class="label">rejected</span></span>
+			<div class="metrics">
+				<Metric value={tally.CONTACTED} label="Contacted" />
+				<Metric value={tally.REPLIED} label="Replied" tone={tally.REPLIED > 0 ? 'hot' : null} />
+				<Metric value={tally.QUALIFIED} label="Qualified" tone={tally.QUALIFIED > 0 ? 'good' : null} />
+				<Metric value={tally.REJECTED} label="Rejected" />
 			</div>
 		{/if}
+
 	</header>
+
+	<div class="toolbar">
+		<label class="search">
+			<span class="sr-only">Filter leads</span>
+			<Icon name="search" size={14} />
+			<input class="input input-sm" placeholder="Company or subject" bind:value={query} />
+		</label>
+		<span class="spacer"></span>
+		<span class="sub dim num">{matched.length} of {leads.length} shown</span>
+		<Menu
+			items={[
+				{ id: 'export', label: 'Export the pipeline as CSV', icon: 'download' },
+				{ id: 'board', label: 'Open the board', icon: 'board' }
+			]}
+			onselect={(id) => (id === 'export' ? exportAll() : window.location.assign('/'))}
+			label="More pipeline actions"
+		/>
+	</div>
 
 	{#if loading && leads.length === 0}
 		<p class="note"><span class="spinner"></span> Reading the pipeline</p>
 	{:else if leads.length === 0}
 		<div class="empty">
+			<Icon name="pipeline" size={22} />
 			<h2 class="dsp">Nothing has been worked yet</h2>
 			<p class="sub">
-				Open a company on the board and record a stage — or generate an outreach draft, which marks it contacted
-				for you. Everything you touch shows up here with the evidence still attached.
+				Open a company on the board and set a stage, or generate an outreach draft — which marks the company
+				contacted for you. Everything you touch lands here with its evidence still attached.
 			</p>
 			<a class="btn btn-ink" href="/">Go to the board</a>
 		</div>
@@ -112,119 +215,104 @@
 							<h2 class="label">{stage.label}</h2>
 							<span class="num">{stage.rows.length}</span>
 						</header>
-						<ul>
-							{#each stage.rows as lead (lead.id)}
-								<li>
-									<div class="row-top">
-										<a class="name dsp" href="/?co={lead.companyId}">{lead.company}</a>
-										{#if lead.probability !== null}
-											<span class="fit-col">
-												<span class="num">{fit(lead.probability)}</span>
-												<Tag band={lead.band}>{lead.band}</Tag>
-											</span>
-										{/if}
-									</div>
-									<p class="sub dim">
-										{#if lead.domain}{host(lead.domain)} · {/if}{lead.serviceLine}
-									</p>
-									<p class="sub">
-										{#if lead.lastContactedAt}
-											{age(daysSince(lead.lastContactedAt))} · {plural(lead.contactCount, 'contact')}
-											{#if lead.channel}· {lead.channel}{/if}
-										{:else}
-											<span class="dim">not contacted yet</span>
-										{/if}
-									</p>
-									{#if lead.outreachSubject}
-										<p class="subject">“{lead.outreachSubject}”</p>
-									{/if}
-									{#if NEXT[lead.status]}
-										<button class="btn btn-sm advance" disabled={busy === lead.id} onclick={() => advance(lead)}>
-											{#if busy === lead.id}<span class="spinner"></span>{/if}
-											Mark {STAGES.find((s) => s.id === NEXT[lead.status])?.label.toLowerCase()}
-										</button>
-									{/if}
-								</li>
-							{/each}
-						</ul>
+						<table class="grid">
+							<thead>
+								<tr>
+									<th scope="col" class="c-co">Company</th>
+									<th scope="col" class="c-fit">Fit</th>
+									<th scope="col" class="c-band">Band</th>
+									<th scope="col" class="c-contact">Last contact</th>
+									<th scope="col" class="c-subject">Draft subject</th>
+									<th scope="col" class="c-act"><span class="sr-only">Actions</span></th>
+								</tr>
+							</thead>
+							<tbody>
+								{#each stage.rows as lead (lead.id)}
+									<tr>
+										<td class="c-co">
+											<a class="co" href="/?co={lead.companyId}">{lead.company}</a>
+											<span class="sub">{lead.domain ? host(lead.domain) : '—'} · {lead.serviceLine}</span>
+										</td>
+										<td class="c-fit num">
+											{lead.probability === null ? '—' : fit(lead.probability)}
+										</td>
+										<td class="c-band m">
+											{#if lead.band}<Tag band={lead.band}>{lead.band}</Tag>{:else}—{/if}
+										</td>
+										<td class="c-contact">
+											{#if lead.lastContactedAt}
+												<span class="num">{age(daysSince(lead.lastContactedAt))}</span>
+												<span class="sub">{plural(lead.contactCount, 'contact')}{lead.channel ? ` · ${lead.channel}` : ''}</span>
+											{:else}
+												<span class="sub dim">not contacted yet</span>
+											{/if}
+										</td>
+										<td class="c-subject">
+											{#if lead.outreachSubject}
+												<span class="subject">“{lead.outreachSubject}”</span>
+											{:else}
+												<span class="sub dim">no draft yet</span>
+											{/if}
+										</td>
+										<td class="c-act">
+											<div class="row-tools">
+												{#if NEXT[lead.status]}
+													<button
+														class="btn btn-sm"
+														disabled={busy === lead.id}
+														title={`Mark ${stageLabel(NEXT[lead.status])}`}
+														onclick={() => move(lead, NEXT[lead.status])}
+													>
+														{#if busy === lead.id}<span class="spinner"></span>{:else}<Icon name="chevronRight" size={13} />{/if}
+														{stageLabel(NEXT[lead.status])}
+													</button>
+												{/if}
+												<Menu
+													items={menuFor(lead)}
+													onselect={(id) => runRow(lead, id)}
+													size="sm"
+													label={`Actions for ${lead.company}`}
+												/>
+											</div>
+										</td>
+									</tr>
+								{/each}
+							</tbody>
+						</table>
 					</section>
 				{/if}
 			{/each}
+			{#if matched.length === 0}
+				<p class="note">Nothing in the pipeline matches “{query}”.</p>
+			{/if}
 		</div>
 	{/if}
 </div>
 
 <style>
-	.view {
-		display: flex;
-		flex-direction: column;
-		height: 100%;
-		min-height: 0;
-	}
-
-	.topbar {
-		display: flex;
-		align-items: flex-end;
-		justify-content: space-between;
-		gap: 20px;
-		padding: 11px 16px 12px;
-		border-bottom: 1px solid var(--ink);
-		background: var(--surface);
-		flex-wrap: wrap;
-	}
-
-	h1 {
-		font-size: 23px;
-		line-height: 1.1;
-	}
-
-	.topbar .label {
-		margin-top: 3px;
-		max-width: 64ch;
-	}
-
-	.tally {
-		display: flex;
-		gap: 16px;
-	}
-
-	.tally > span {
-		display: flex;
-		align-items: baseline;
-		gap: 4px;
-	}
-
-	.tally .num {
-		font-size: 16px;
-		font-weight: 500;
-	}
-
 	.panes {
 		position: relative;
+		display: block;
 		flex: 1;
 		min-height: 0;
 		overflow-y: auto;
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-		align-content: start;
 	}
 
-	.stage {
-		border-right: 1px solid var(--rule);
-		border-bottom: 1px solid var(--rule);
+	.stage + .stage {
+		border-top: 1px solid var(--ink);
 	}
 
 	.stage-head {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: 10px;
-		padding: 10px 14px;
+		gap: var(--sp-3);
+		padding: var(--sp-2) var(--sp-4);
 		border-bottom: 1px solid var(--rule);
 		background: var(--paper);
 		position: sticky;
 		top: 0;
-		z-index: 1;
+		z-index: var(--z-sticky);
 	}
 
 	.stage[data-stage='QUALIFIED'] .stage-head {
@@ -240,86 +328,130 @@
 		box-shadow: inset 3px 0 0 var(--orange);
 	}
 
-	.stage ul {
-		list-style: none;
-		margin: 0;
-		padding: 0;
+	.c-co {
+		width: 30%;
 	}
 
-	.stage li {
-		padding: 11px 14px 13px;
-		border-bottom: 1px solid var(--rule);
-		display: flex;
-		flex-direction: column;
-		gap: 2px;
-		align-items: flex-start;
-	}
-
-	.row-top {
-		display: flex;
-		align-items: baseline;
-		justify-content: space-between;
-		gap: 10px;
-	}
-
-	.name {
-		font-size: 15px;
+	.co {
+		display: block;
+		font-family: var(--font-display);
+		font-size: var(--fs-lg);
+		font-weight: 500;
 		color: var(--ink);
+		line-height: 1.2;
 	}
 
-	.name:hover {
+	.co:hover {
 		text-decoration: underline;
 	}
 
 	.sub {
-		font-size: 11.5px;
-		line-height: 1.4;
+		display: block;
+		font-size: var(--fs-sm);
+		color: var(--ink-3);
+		margin-top: 1px;
 	}
 
-	.fit-col {
-		display: flex;
-		align-items: center;
-		gap: 6px;
-		flex: none;
+	.c-fit {
+		width: 68px;
+		font-size: var(--fs-lg);
 	}
 
-	.fit-col .num {
-		font-size: 14px;
+	.c-band {
+		width: 96px;
 	}
 
-	.advance {
-		margin-top: 8px;
+	.c-contact {
+		width: 150px;
+	}
+
+	.c-subject {
+		width: auto;
 	}
 
 	.subject {
-		margin-top: 6px;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
 		font-family: var(--font-display);
-		font-size: 12.5px;
+		font-size: var(--fs-base);
 		font-style: italic;
-		color: var(--ink-3);
+		color: var(--ink-2);
 	}
 
-	.note {
+	.c-act {
+		width: 156px;
+	}
+
+	.row-tools {
 		display: flex;
 		align-items: center;
-		gap: 8px;
-		padding: 18px 16px;
-		font-size: 13px;
+		justify-content: flex-end;
+		gap: var(--sp-1);
+	}
+
+	.search {
+		display: flex;
+		align-items: center;
+		gap: var(--sp-1);
+		width: 280px;
+		padding-left: var(--sp-2);
+		border: 1px solid var(--rule-strong);
+		border-radius: 2px;
+		background: var(--surface);
 		color: var(--ink-3);
 	}
 
-	.empty {
-		margin: 40px auto;
-		max-width: 520px;
-		padding: 22px;
-		border: 1px solid var(--rule);
-		display: flex;
-		flex-direction: column;
-		gap: 10px;
-		align-items: flex-start;
+	.search:focus-within {
+		border-color: var(--orange);
+		box-shadow: 0 0 0 2px var(--orange-wash);
 	}
 
-	.empty h2 {
-		font-size: 22px;
+	.search .input {
+		border: 0;
+		background: transparent;
+		padding-left: 0;
+	}
+
+	.search .input:focus {
+		box-shadow: none;
+	}
+
+	@media (max-width: 760px) {
+		.metrics {
+			flex: 1 1 100%;
+			padding-top: var(--sp-2);
+			border-top: 1px solid var(--rule);
+		}
+		.toolbar {
+			flex-wrap: wrap;
+		}
+		.search {
+			width: 100%;
+		}
+		.panes table.grid {
+			min-width: 520px;
+		}
+		.panes {
+			overflow-x: auto;
+		}
+	}
+
+	@media (max-width: 1180px) {
+		.c-subject {
+			display: none;
+		}
+	}
+
+	@media (max-width: 1000px) {
+		.c-band,
+		.c-contact {
+			display: none;
+		}
+		.c-act {
+			width: 130px;
+		}
 	}
 </style>
