@@ -88,6 +88,26 @@ floor leaves the queue with a stated reason while its score is still computed an
 shown. The card prints the whole derivation, so a juror can check it with a
 calculator.
 
+**The bands are calibrated to the corpus, and the cap enforces the top one.** The
+theme cap is *derived* from the Priority line (`priorityLogit − baseLogit`), not
+tuned, so whatever the threshold is, a single saturated theme lands exactly on it
+and no further. With Priority at 0.55 a one-theme company therefore stops at
+0.550 and sits in Nurture, which is why **every company in Priority has two
+independent themes** — a property you can read straight off the board, since the
+single-theme leaders are all pinned at exactly 0.550. The thresholds themselves
+came from the observed score distribution over the 578-company corpus rather than
+from intuition; re-derive them the same way if the corpus changes shape. All four
+are environment-overridable (`SCORING_*`), so recalibrating is a restart.
+
+**The two engines trade recall for precision, measurably.** On the same thirteen
+documents the local rubric engine produced 19 signals and the language model
+produced 3. The local engine is the reason the board has 2,015 signals across 227
+companies; the model reads a document properly and rejects most of what the cue
+lists accept — it disqualified Siemens by reading Siemens' own automation content
+and concluding the company builds automation rather than buys it. That is why the
+engine is a per-request choice and why the seeded board is local: an LLM-only board
+is honest and sparse, and the demo needs both.
+
 **A signal question is the unit of configuration.** `policy_question` carries the
 plain-language `text`, an `instructions` rubric, a `weight_tier`, a `polarity`
 (`POSITIVE`, `NEGATIVE`, `DISQUALIFYING`), a `theme`, a `decay_class` that fixes its
