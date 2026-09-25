@@ -214,8 +214,18 @@ themselves. What follows from it, and must be respected:
 - No comments in code. Names and structure carry the meaning.
 - Commits: imperative subject, a body that says what broke or why, no
   `Co-Authored-By` trailer.
-- Design tokens live in `ui/src/app.css`; stay on the Orange light palette —
-  `--orange` `#ff7900` on white and warm neutrals, with the `Inter` / `IBM Plex Mono`
-  pairing. There is no dark mode.
-- The board must survive a 1024×768 projector: nothing load-bearing below 13px,
-  and nothing that only appears on hover.
+- Design tokens live in `ui/src/app.css`. The palette has exactly three roles:
+  `--orange` is the primary and is spent on one action per screen and on the
+  score; ink and paper carry every piece of structure; `--accent` (viridian) is
+  spent only on the corroboration mark. Semantic oxblood is for rejection and
+  negative weights, and nothing else. No gradients, no shadows — hierarchy comes
+  from rules and weight. Radii stay between 0 and 2px.
+- Type is three roles, not one: `--font-display` (Newsreader) for page titles,
+  company names and quoted evidence, `--font-ui` (Archivo) for interface text,
+  `--font-mono` (IBM Plex Mono) for every number. Do not set a number in the
+  display face or prose in the mono one.
+- The shell is fixed-height with independently scrolling panes: a rail, then a
+  view that splits into list and detail. Nothing scrolls the document itself, and
+  selection lives in the URL so a company stays linkable.
+- Every row of the board must survive a 1024×768 projector: nothing load-bearing
+  below 11px, and nothing that only appears on hover.
