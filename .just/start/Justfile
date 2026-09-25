@@ -14,5 +14,5 @@ api *FLAGS:
     cd api && ./gradlew bootRun {{FLAGS}}
 
 ui *FLAGS:
-    [ -d ui/node_modules ] || npm --prefix ui ci
-    npm --prefix ui run dev {{FLAGS}}
+    [ -d ui/node_modules ] || pnpm -C ui install --frozen-lockfile
+    pnpm -C ui run dev {{FLAGS}}

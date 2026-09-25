@@ -11,4 +11,4 @@ default:
 
 [private]
 ui-deps:
-    [ -d ui/node_modules ] || npm --prefix ui ci
+    [ -d ui/node_modules ] || pnpm -C ui install --frozen-lockfile

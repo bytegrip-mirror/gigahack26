@@ -4,4 +4,4 @@ lint: ui-deps
     alejandra -q -c .
     rumdl check .
     cd api && ./gradlew -q compileJava
-    npm --prefix ui run check
+    pnpm -C ui run check

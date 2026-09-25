@@ -66,10 +66,10 @@ pipeline {
                 sh '''
                     docker run --rm \
                         -v "$(pwd)/ui":/src \
-                        -v gigahack26-node-modules:/src/node_modules \
+                        -v gigahack26-ui-pnpm-modules:/src/node_modules \
                         -w /src \
                         node:22-alpine \
-                        sh -c "npm ci && npm run check"
+                        sh -c "corepack enable && CI=true pnpm install --frozen-lockfile && pnpm run check"
                 '''
             }
         }

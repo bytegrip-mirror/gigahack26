@@ -1,5 +1,5 @@
 {
   perSystem = {pkgs, ...}: {
-    shellPackages = with pkgs; [nodejs_22 prettier];
+    shellPackages = with pkgs; [nodejs_22 pnpm prettier];
   };
 }

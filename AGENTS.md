@@ -49,10 +49,10 @@ docker run --rm -v "$PWD":/src -v gigahack26-gradle-cache:/root/.gradle -w /src 
 UI (from `ui/`):
 
 ```sh
-npm run check                      # svelte-check, must be 0 errors
-npm run build                      # static site into build/
-PUBLIC_API_URL=http://localhost:8080 npm run build
-npm run dev                        # :5173
+pnpm run check                       # svelte-check, must be 0 errors
+pnpm run build                       # static site into build/
+PUBLIC_API_URL=http://localhost:8080 pnpm run build
+pnpm run dev                         # :5173
 ```
 
 Deploy: push to `main`. The GitHub webhook triggers `Gigahack26/gigahack26` on
@@ -165,7 +165,7 @@ touching one and not the other is the default failure mode.
 | New corpus field | `CorpusFiles`, `CorpusSeeder`, `tools/build_corpus.py`, and re-seed |
 
 Verify with the gates CI runs, not just the one you touched: `./gradlew test` and
-`npm run check`, then `docker compose up --build` for the local path, then a push
+`pnpm run check`, then `docker compose up --build` for the local path, then a push
 and a real request against the live host. The pipeline verifies the deployment
 itself — it waits for `/api/status` to report both stores `up` and fetches the
 board and the API through Traefik over TLS — so **a green build now means the app
