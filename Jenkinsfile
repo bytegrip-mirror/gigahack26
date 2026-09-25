@@ -6,6 +6,10 @@ pipeline {
         }
     }
 
+    options {
+        disableConcurrentBuilds()
+    }
+
     environment {
         API_IMAGE = "gigahack26-api:latest"
         API_CONTAINER = "gigahack26-api"
@@ -82,17 +86,24 @@ pipeline {
         stage('Deploy PostgreSQL') {
             steps {
                 withCredentials([string(credentialsId: 'gigahack26-db-password', variable: 'DB_PASSWORD')]) {
-                    sh 'docker rm -f ${DB_CONTAINER} || true'
                     sh '''
-                        docker run -d \
-                            --name ${DB_CONTAINER} \
-                            -e POSTGRES_USER=${DB_USER} \
-                            -e POSTGRES_PASSWORD=${DB_PASSWORD} \
-                            -e POSTGRES_DB=${DB_NAME} \
-                            -v gigahack26-postgres-data:/var/lib/postgresql/data \
-                            --network=${NETWORK} \
-                            --restart unless-stopped \
-                            ${DB_IMAGE}
+                        running_image=$(docker inspect -f '{{.Config.Image}}' ${DB_CONTAINER} 2>/dev/null || echo none)
+                        if [ "$running_image" = "${DB_IMAGE}" ]; then
+                            echo "Reusing ${DB_CONTAINER} (image unchanged); data volume left in place"
+                            docker start ${DB_CONTAINER} >/dev/null
+                        else
+                            echo "Recreating ${DB_CONTAINER} (${running_image} -> ${DB_IMAGE}); the data volume is preserved"
+                            docker rm -f ${DB_CONTAINER} >/dev/null 2>&1 || true
+                            docker run -d \
+                                --name ${DB_CONTAINER} \
+                                -e POSTGRES_USER=${DB_USER} \
+                                -e POSTGRES_PASSWORD=${DB_PASSWORD} \
+                                -e POSTGRES_DB=${DB_NAME} \
+                                -v gigahack26-postgres-data:/var/lib/postgresql/data \
+                                --network=${NETWORK} \
+                                --restart unless-stopped \
+                                ${DB_IMAGE}
+                        fi
                     '''
                     sh '''
                         for attempt in $(seq 1 30); do
@@ -113,17 +124,24 @@ pipeline {
         stage('Deploy MongoDB') {
             steps {
                 withCredentials([string(credentialsId: 'gigahack26-mongo-password', variable: 'MONGO_PASSWORD')]) {
-                    sh 'docker rm -f ${MONGO_CONTAINER} || true'
                     sh '''
-                        docker run -d \
-                            --name ${MONGO_CONTAINER} \
-                            -e MONGO_INITDB_ROOT_USERNAME=${MONGO_USER} \
-                            -e MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD} \
-                            -e MONGO_INITDB_DATABASE=${MONGO_DB_NAME} \
-                            -v gigahack26-mongo-data:/data/db \
-                            --network=${NETWORK} \
-                            --restart unless-stopped \
-                            ${MONGO_IMAGE}
+                        running_image=$(docker inspect -f '{{.Config.Image}}' ${MONGO_CONTAINER} 2>/dev/null || echo none)
+                        if [ "$running_image" = "${MONGO_IMAGE}" ]; then
+                            echo "Reusing ${MONGO_CONTAINER} (image unchanged); data volume left in place"
+                            docker start ${MONGO_CONTAINER} >/dev/null
+                        else
+                            echo "Recreating ${MONGO_CONTAINER} (${running_image} -> ${MONGO_IMAGE}); the data volume is preserved"
+                            docker rm -f ${MONGO_CONTAINER} >/dev/null 2>&1 || true
+                            docker run -d \
+                                --name ${MONGO_CONTAINER} \
+                                -e MONGO_INITDB_ROOT_USERNAME=${MONGO_USER} \
+                                -e MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD} \
+                                -e MONGO_INITDB_DATABASE=${MONGO_DB_NAME} \
+                                -v gigahack26-mongo-data:/data/db \
+                                --network=${NETWORK} \
+                                --restart unless-stopped \
+                                ${MONGO_IMAGE}
+                        fi
                     '''
                     sh '''
                         for attempt in $(seq 1 30); do
