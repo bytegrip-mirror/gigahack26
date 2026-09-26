@@ -50,6 +50,7 @@ public class PersonSeeder implements ApplicationRunner {
 
     private static final Logger log = LoggerFactory.getLogger(PersonSeeder.class);
     private static final String ORIGIN = "demo-seed";
+    private static final String MENTION = "corpus-mention";
 
     /** Enough to fill the People screen properly without burying the board in them. */
     private static final int TARGET = 100;
@@ -177,7 +178,55 @@ public class PersonSeeder implements ApplicationRunner {
         if (added > 0) {
             log.info("placed {} people with their signals", added);
         }
+        int filled = backfill(now);
+        if (filled > 0) {
+            log.info("gave {} people with nothing said a signal", filled);
+        }
         return added;
+    }
+
+    /**
+     * People read out of the corpus arrive with a name and a role and nothing
+     * they have said, so the People screen showed a signal on a dozen of a
+     * thousand. Each one gets the document that named them, which is true, and
+     * up to two written lines, which are marked as such. The random source is
+     * keyed on the person, so a restart writes the same lines.
+     */
+    private int backfill(Instant now) {
+        List<Person> all = people.findAll();
+        Set<UUID> spoken = new HashSet<>();
+        for (PersonSignal signal : signals.findByPersonIdIn(all.stream().map(Person::getId).toList())) {
+            spoken.add(signal.getPersonId());
+        }
+        Map<UUID, Company> byId = new LinkedHashMap<>();
+        for (Company company : companies.findAll()) {
+            byId.put(company.getId(), company);
+        }
+        List<PersonSignal> rows = new ArrayList<>();
+        int filled = 0;
+        for (Person person : all) {
+            Company company = byId.get(person.getCompanyId());
+            if (spoken.contains(person.getId()) || company == null) {
+                continue;
+            }
+            Random random = new Random(SEED ^ ((long) company.getKey().hashCode() << 32 | person.getName().hashCode()));
+            if (person.getSourceUrl() != null && !person.getSourceUrl().isBlank()) {
+                rows.add(new PersonSignal(UUID.randomUUID(), person.getId(), "NEWS", "SMALL",
+                        "Named as " + person.getRole() + " in "
+                                + (person.getPublisher() == null || person.getPublisher().isBlank()
+                                        ? "a stored document" : person.getPublisher()) + ".",
+                        person.getSourceUrl(), person.getPublisher(), person.getPublishedAt(), MENTION, now));
+            }
+            int count = 1 + random.nextInt(2);
+            for (int i = 0; i < count; i++) {
+                Said said = say(random, company, now);
+                rows.add(new PersonSignal(UUID.randomUUID(), person.getId(), said.kind(), said.strength(),
+                        said.text(), null, said.publisher(), said.publishedAt(), ORIGIN, now));
+            }
+            filled++;
+        }
+        signals.saveAll(rows);
+        return filled;
     }
 
     private int fromFile(Map<UUID, Set<String>> held, Map<UUID, UUID> anchors, Instant now) {
