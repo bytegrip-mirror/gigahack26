@@ -108,6 +108,7 @@
 	let stage = $state('');
 	let query = $state('');
 	let selected = $state<string | null>(untrack(() => initialSelected));
+	let echoed = untrack(() => initialSelected) ?? null;
 
 	let sort = $state('rank');
 	let dir = $state<'asc' | 'desc'>('asc');
@@ -259,7 +260,9 @@
 
 	$effect(() => {
 		const wanted = initialSelected ?? null;
-		if (wanted !== selected) selected = wanted;
+		if (wanted === echoed) return;
+		echoed = wanted;
+		selected = wanted;
 	});
 
 	$effect(() => {
@@ -359,6 +362,7 @@
 
 	function select(id: string | null) {
 		selected = id;
+		echoed = id;
 		pushState(id ? `/?co=${id}&line=${encodeURIComponent(lineOf(id))}` : '/', {});
 	}
 
@@ -1065,6 +1069,12 @@
 								</td>
 								<td class="c-co">
 									<span class="co">{row.name}</span>
+									{#if row.evidenceCount === 0}
+										<span
+											class="blind"
+											title="No document was ever captured for this company. Nothing can be said either way — a gap in the crawl, not a finding."
+										>no evidence</span>
+									{/if}
 									<span class="sub">
 										{#if allLines}<span class="line-tag">{row.serviceLine}</span> · {/if}{#if row.domain}<span class="domain">{row.domain}</span> · {/if}{row.country ?? '—'}
 										{#if row.industry}· {row.industry}{/if}
@@ -1541,11 +1551,15 @@
 	}
 
 	.blind {
+		display: inline-block;
+		margin-left: var(--sp-2);
+		padding: 0 var(--sp-1);
 		font-size: var(--fs-micro);
 		letter-spacing: 0.06em;
 		text-transform: uppercase;
 		color: var(--ink-3);
-		border-bottom: 1px dotted var(--rule-strong);
+		border: 1px dotted var(--rule-strong);
+		border-radius: 2px;
 		cursor: help;
 	}
 
