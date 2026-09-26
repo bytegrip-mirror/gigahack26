@@ -28,6 +28,13 @@
 	--color-oxblood-line: #cd3c14;
 	--color-warning: #ffcc00;
 
+	/* The two ends of the Fit meter, pale at the watch line and deep at the
+	   Priority line. Not `--color-warning`: that is a status colour and stays
+	   reserved, and this ramp is a magnitude. The dark-mode pair lives in
+	   base.css and deliberately runs the other way — see FitBar.svelte. */
+	--fit-lo: hsl(48 100% 66%);
+	--fit-hi: hsl(22 100% 34%);
+
 	/* Boosted greys: black text, `$gray-900` to `$gray-600` for the steps down,
 	   `$gray-500`/`$gray-400` for control and table borders, white surfaces. */
 	--color-ink: #000000;

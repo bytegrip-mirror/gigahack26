@@ -17,7 +17,7 @@
 	import { session } from '$lib/session.svelte';
 	import { workspace } from '$lib/workspace.svelte';
 	import { toasts } from '$lib/toast.svelte';
-	import { ageShort, duration, fit, fitTone, fitWord, precise, shortNumber } from '$lib/format';
+	import { ageShort, duration, fit, fitMeter, fitTone, fitWord, precise, shortNumber } from '$lib/format';
 	import { regionLabel } from '$lib/regions';
 	import { copy, csv, save } from '$lib/export';
 	import Tag from '$lib/components/Tag.svelte';
@@ -976,7 +976,7 @@
 							<Th id="rank" label="#" sort={sort} {dir} onsort={sortBy} align="right" width="58px" title="Position on the board: highest fit first, companies out of the queue at the end" />
 							<th class="c-mark" scope="col"><span class="sr-only">Company mark</span></th>
 							<Th id="name" label="Company" sort={sort} {dir} onsort={sortBy} width="30%" />
-							<Th id="fit" label="Fit" sort={sort} {dir} onsort={sortBy} width="118px" title="How strong the evidence is, and whether the queue will act on it" />
+							<Th id="fit" label="Fit" sort={sort} {dir} onsort={sortBy} width="136px" title="How strong the evidence is, and whether the queue will act on it" />
 							<th class="c-stage" scope="col" title="Where the lead stands: new, contacted, replied, qualified or rejected">Stage</th>
 							<th class="c-sig" scope="col">Signals</th>
 							<th class="c-trend" scope="col" title="When the signals arrived over the last year">Trend</th>
@@ -1030,14 +1030,17 @@
 											Unproven
 										</span>
 									{:else}
-										<span
-											class="fitval dsp"
-											data-tone={fitTone(row.probability, thresholds)}
-											title={meta
-												? `Fit ${fit(row.probability)} — ${fitWord(row.probability, thresholds).toLowerCase()} evidence. A company in your market scores ${fit(meta.scoring.baseRate)} with no evidence at all.`
-												: `Fit ${fit(row.probability)}`}
-										>{fitWord(row.probability, thresholds)}</span>
-										<FitBar probability={row.probability} tone={fitTone(row.probability, thresholds)} />
+										<span class="fitline">
+											<span
+												class="fitval dsp"
+												data-tone={fitTone(row.probability, thresholds)}
+												title={meta
+													? `Fit ${fit(row.probability)} — ${fitWord(row.probability, thresholds).toLowerCase()} evidence. A company in your market scores ${fit(meta.scoring.baseRate)} with no evidence at all.`
+													: `Fit ${fit(row.probability)}`}
+											>{fitWord(row.probability, thresholds)}</span>
+											<span class="fitnum num" title="The reading itself">{fit(row.probability)}</span>
+										</span>
+										<FitBar value={fitMeter(row.probability, thresholds)} />
 										{#if row.themeCount === 1 && row.probability >= thresholds.priority}
 											<span class="one-theme" title="The evidence is at the Priority line and stops there: one theme is all they have, and a single topic is capped so it cannot carry a company on its own.">
 												capped · one theme
@@ -1349,6 +1352,23 @@
 		font-size: var(--text-sm);
 		color: var(--color-ink-3);
 		line-height: 1.4;
+	}
+
+	/* The word and the reading on one line: the word is what a rep says out loud
+	   and the number is what they check it against. */
+	.fitline {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: var(--spacing-2);
+	}
+
+	/* Right-aligned against the cell edge, so the readings form a column of their
+	   own down the board and a rep can scan the numbers without the words. */
+	.fitnum {
+		font-size: var(--text-sm);
+		color: var(--color-ink-2);
+		white-space: nowrap;
 	}
 
 	.fitval {

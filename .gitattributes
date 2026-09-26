@@ -1,0 +1,6 @@
+# The Gradle wrapper is a shell script, and a machine with core.autocrlf=true
+# checks it out with CRLF line endings — at which point the kernel reads
+# "#!/bin/sh\r" and the container build dies with "./gradlew: not found".
+# Keep the scripts that get executed as scripts on LF whatever the platform.
+gradlew text eol=lf
+*.sh text eol=lf

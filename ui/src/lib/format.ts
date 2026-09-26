@@ -27,6 +27,24 @@ export function fitTone(probability: number, thresholds: Thresholds): string {
 	return 'weak';
 }
 
+/**
+ * How far a reading has travelled from the watch line to the Priority line, 0 to
+ * 1 — the one number the Fit bar is drawn from.
+ *
+ * The bar's length and its colour both come from this, so the mark says one
+ * thing twice rather than two things at once. Drawing the length from the raw
+ * probability instead put the two channels on different scales: a company at
+ * 0.41 filled 41% of the track while its colour sat halfway up the ramp, and
+ * because a queue's readings cluster between the thresholds and rarely approach
+ * 1, every bar ended short of the end of its own rail and every bar wore a
+ * shade from the top half of the ramp. Both wrong, and both invisible until
+ * the column was looked at.
+ */
+export function fitMeter(probability: number, thresholds: Thresholds): number {
+	const span = Math.max(0.01, thresholds.priority - thresholds.watch);
+	return Math.max(0, Math.min(1, (probability - thresholds.watch) / span));
+}
+
 export function precise(value: number): string {
 	return value.toFixed(4);
 }

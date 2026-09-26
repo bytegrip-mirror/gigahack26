@@ -19,6 +19,12 @@
 		--color-orange-wash: #3d1d00;
 		--color-accent-wash: #0f3310;
 		--color-oxblood-wash: #3a1106;
+
+		/* The Fit meter runs dim amber to bright orange here, not pale to deep:
+		   the same "further along is more" reading, in the direction a dark ground
+		   allows. Both ends clear 3:1 against the surface and the track. */
+		--fit-lo: hsl(38 50% 44%);
+		--fit-hi: hsl(30 100% 60%);
 	}
 
 	*,
