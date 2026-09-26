@@ -536,7 +536,7 @@
 												{#if !policy.active}<Tag variant="bare">off</Tag>{/if}
 												{#if policy.polarity !== 'POSITIVE'}
 													<Tag variant={policy.polarity === 'DISQUALIFYING' ? 'oxblood' : 'default'}>
-														{policy.polarity === 'DISQUALIFYING' ? 'removes them' : 'against them'}
+														{policy.polarity === 'DISQUALIFYING' ? 'removes' : 'counts against'}
 													</Tag>
 												{/if}
 												<span class="q-theme">{theme(policy.theme)}</span>
@@ -642,9 +642,9 @@
 							<label class="field">
 								<span class="label">Polarity</span>
 								<select class="select" bind:value={draft.polarity} onchange={() => (dirty = true)}>
-									<option value="POSITIVE">Counts for them</option>
-									<option value="NEGATIVE">Counts against them</option>
-									<option value="DISQUALIFYING">Removes them from the queue</option>
+									<option value="POSITIVE">Counts for the company</option>
+									<option value="NEGATIVE">Counts against the company</option>
+									<option value="DISQUALIFYING">Removes the company from the queue</option>
 								</select>
 							</label>
 							<label class="field">

@@ -143,9 +143,9 @@ the filter; a polarity was "Counter" in the editor, "counter" on the row and
 | `PRIORITY` / `NURTURE` / `WATCH` | Priority / Nurture / Watch |
 | `THIN` | Unproven |
 | `DISQUALIFIED` | Out of the queue |
-| `POSITIVE` polarity | counts for them |
-| `NEGATIVE` polarity | counts against them |
-| `DISQUALIFYING` polarity | removes them from the queue |
+| `POSITIVE` polarity | Counts for the company |
+| `NEGATIVE` polarity | Counts against the company |
+| `DISQUALIFYING` polarity | Removes the company from the queue |
 | lead stage `REJECTED` | Rejected — a rep's decision, not the board's |
 
 A group of readings is deduplicated by question before it is printed, in the

@@ -938,8 +938,8 @@
 						<span class="label">Polarity</span>
 						<select class="select select-sm" bind:value={polarity}>
 							<option value="POSITIVE">Counts for the company</option>
-							<option value="NEGATIVE">Counts against</option>
-							<option value="DISQUALIFYING">Removes the company</option>
+							<option value="NEGATIVE">Counts against the company</option>
+							<option value="DISQUALIFYING">Removes the company from the queue</option>
 						</select>
 					</label>
 					<label class="field">

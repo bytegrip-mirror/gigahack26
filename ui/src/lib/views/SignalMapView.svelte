@@ -7,16 +7,26 @@
 	import Tag from '$lib/components/Tag.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 
-	const THEME_X = 16;
-	const QUESTION_X = 300;
-	const COMPANY_X = 700;
-	const QUESTION_W = 260;
-	const COMPANY_W = 288;
 	const ROW = 48;
 	const NODE_H = 34;
 	const SHOWN_COMPANIES = 16;
-	const TITLE_CHARS = 38;
-	const WIDTH = COMPANY_X + COMPANY_W + 16;
+
+	const WIDE = { themeX: 16, questionX: 300, questionW: 260, companyX: 700, companyW: 288 };
+	const NARROW = { themeX: 12, questionX: 196, questionW: 214, companyX: 448, companyW: 288 };
+
+	let narrow = $state(false);
+
+	$effect(() => {
+		const query = window.matchMedia('(max-width: 1180px)');
+		narrow = query.matches;
+		const update = () => (narrow = query.matches);
+		query.addEventListener('change', update);
+		return () => query.removeEventListener('change', update);
+	});
+
+	const geom = $derived(narrow ? NARROW : WIDE);
+	const WIDTH = $derived(geom.companyX + geom.companyW + 16);
+	const TITLE_CHARS = $derived(Math.floor(geom.questionW / 6.3));
 
 	type Question = {
 		key: string;
@@ -160,8 +170,8 @@
 	const height = $derived(ROW * 2.2 + Math.max(questions.length, companies.length) * ROW);
 
 	function curve(fromY: number, toY: number): string {
-		const mid = (QUESTION_X + QUESTION_W + COMPANY_X) / 2;
-		return `M${QUESTION_X + QUESTION_W} ${fromY} C${mid} ${fromY} ${mid} ${toY} ${COMPANY_X} ${toY}`;
+		const mid = (geom.questionX + geom.questionW + geom.companyX) / 2;
+		return `M${geom.questionX + geom.questionW} ${fromY} C${mid} ${fromY} ${mid} ${toY} ${geom.companyX} ${toY}`;
 	}
 
 	function clip(value: string): string {
@@ -207,8 +217,8 @@
 
 	<div class="toolbar">
 		<span class="legend">
-			<span class="legend-item"><span class="swatch swatch-for"></span> asks for the thing</span>
-			<span class="legend-item"><span class="swatch swatch-against"></span> counts against them</span>
+			<span class="legend-item"><span class="swatch swatch-for"></span> counts for the company</span>
+			<span class="legend-item"><span class="swatch swatch-against"></span> counts against the company</span>
 			<span class="legend-item"><span class="swatch swatch-line"></span> a question that found them</span>
 		</span>
 		<span class="spacer"></span>
@@ -251,7 +261,7 @@
 								<td><Tag>{theme(question.theme)}</Tag></td>
 								<td>
 									<Tag variant={question.polarity === 'POSITIVE' ? 'wash' : 'oxblood'}>
-										{question.polarity === 'POSITIVE' ? 'for them' : 'against them'}
+										{question.polarity === 'POSITIVE' ? 'for' : 'against'}
 									</Tag>
 								</td>
 								<td class="m num">{question.companies.size}</td>
@@ -272,9 +282,9 @@
 					<title>How each question reaches the companies it found</title>
 
 					<g class="axes">
-						<text x={THEME_X} y="14">THEME</text>
-						<text x={QUESTION_X} y="14">QUESTION</text>
-						<text x={COMPANY_X} y="14">COMPANY</text>
+						<text x={geom.themeX} y="14">THEME</text>
+						<text x={geom.questionX} y="14">QUESTION</text>
+						<text x={geom.companyX} y="14">COMPANY</text>
 					</g>
 
 					<g class="edges">
@@ -297,19 +307,19 @@
 						{#each groups as group (group.name)}
 							{@const spot = layout.themeY.get(group.name)}
 							{#if spot}
-								<text class="theme-name" x={THEME_X} y={spot.at + 4}>
+								<text class="theme-name" x={geom.themeX} y={spot.at + 4}>
 									{theme(group.name)}<tspan class="theme-count" dx="6">{group.keys.length}</tspan>
 								</text>
 								<path
 									class="bracket"
-									d={`M${QUESTION_X - 12} ${spot.first} H${QUESTION_X - 22} V${spot.last} H${QUESTION_X - 12}`}
+									d={`M${geom.questionX - 12} ${spot.first} H${geom.questionX - 22} V${spot.last} H${geom.questionX - 12}`}
 								/>
 								{#each group.keys as key (key)}
 									<line
 										class="bracket"
-										x1={QUESTION_X - 22}
+										x1={geom.questionX - 22}
 										y1={layout.questionY.get(key) ?? 0}
-										x2={QUESTION_X}
+										x2={geom.questionX}
 										y2={layout.questionY.get(key) ?? 0}
 									/>
 								{/each}
@@ -336,14 +346,14 @@
 								<rect
 									class="q-bar"
 									class:against={question.polarity !== 'POSITIVE'}
-									x={QUESTION_X}
+									x={geom.questionX}
 									y={qy - NODE_H / 2}
-									width={QUESTION_W}
+									width={geom.questionW}
 									height={NODE_H}
 									rx="2"
 								/>
-								<text class="q-title" x={QUESTION_X + 12} y={qy - 1}>{clip(question.title)}</text>
-								<text class="q-count" x={QUESTION_X + 12} y={qy + 13}>
+								<text class="q-title" x={geom.questionX + 12} y={qy - 1}>{clip(question.title)}</text>
+								<text class="q-count" x={geom.questionX + 12} y={qy + 13}>
 									{question.companies.size} {question.companies.size === 1 ? 'company' : 'companies'}
 								</text>
 							</g>
@@ -368,23 +378,23 @@
 								<rect
 									class="c-pill"
 									data-band={company.band}
-									x={COMPANY_X}
+									x={geom.companyX}
 									y={cy - NODE_H / 2}
-									width={COMPANY_W}
+									width={geom.companyW}
 									height={NODE_H}
 									rx="2"
 								/>
 								{#if company.domain && files[company.domain.toLowerCase()]}
 									<image
 										href={`/logos/${files[company.domain.toLowerCase()]}`}
-										x={COMPANY_X + 8}
+										x={geom.companyX + 8}
 										y={cy - 9}
 										width="18"
 										height="18"
 									/>
 								{/if}
-								<text class="c-name" x={COMPANY_X + 34} y={cy + 4}>{clip(company.name)}</text>
-								<text class="c-count" x={COMPANY_X + COMPANY_W - 10} y={cy + 4} text-anchor="end">
+								<text class="c-name" x={geom.companyX + 34} y={cy + 4}>{clip(company.name)}</text>
+								<text class="c-count" x={geom.companyX + geom.companyW - 10} y={cy + 4} text-anchor="end">
 									{company.questions.length}×
 								</text>
 							</g>
