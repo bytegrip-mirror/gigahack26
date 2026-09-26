@@ -1321,7 +1321,9 @@
 
 	.c-trend {
 		width: 180px;
-		vertical-align: top;
+		/* Bottom, not top: the trace has an x-axis at its foot, and a row three
+		   lines tall left that axis floating in the middle of the cell. */
+		vertical-align: bottom;
 	}
 
 	.c-star {

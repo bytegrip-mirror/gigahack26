@@ -16,6 +16,7 @@
 	import CompanyMark from '$lib/components/CompanyMark.svelte';
 	import OutreachModal from '$lib/components/OutreachModal.svelte';
 	import Hubspot from '$lib/components/Hubspot.svelte';
+	import SignalTimeline from '$lib/components/SignalTimeline.svelte';
 	import Star from '$lib/components/Star.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import Menu from '$lib/components/Menu.svelte';
@@ -65,7 +66,17 @@
 	$effect(() => {
 		const id = companyId;
 		const line = serviceLine;
-		if (!id || !line) return;
+		if (!id || !line) {
+			/*
+			 * Without a service line there is nothing to ask for. Returning here used
+			 * to leave `loading` true, so the pane span its veil forever with nothing
+			 * said — a screen that looks busy is worse than one that says why it is
+			 * not.
+			 */
+			loading = false;
+			if (id && !line) error = 'This company has not been scored for a service line yet.';
+			return;
+		}
 		let cancelled = false;
 		loading = true;
 		fetchCompany(id, line)
@@ -314,6 +325,13 @@
 						<span class="urgency" data-urgency={detail.whyNow.urgency}>{detail.whyNow.urgencyLabel}</span>
 					</div>
 					<p class="why-text">{detail.whyNow.narrative || detail.whyNow.headline}</p>
+				</section>
+
+				<section class="panel">
+					<div class="panel-head">
+						<h3 class="label">When the signals arrived</h3>
+					</div>
+					<SignalTimeline rows={detail.ledger} note="height is what each was worth to the score" />
 				</section>
 
 				<section class="panel">
