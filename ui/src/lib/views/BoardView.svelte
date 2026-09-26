@@ -2,12 +2,14 @@
 	import { untrack } from 'svelte';
 	import { pushState } from '$app/navigation';
 	import {
+		addBookmark,
 		ask,
 		fetchBoard,
 		fetchBookmarks,
 		deriveCues,
 		readAsk,
 		recordLead,
+		removeBookmark,
 		rescore,
 		type AskOutcome,
 		type AskReading,
@@ -609,7 +611,60 @@
 		icon: 'check',
 		separatorBefore: index === 0
 	}));
+
+	const typingIn = (target: EventTarget | null) => {
+		const node = target as HTMLElement | null;
+		const tag = node?.tagName;
+		return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || node?.isContentEditable === true;
+	};
+
+	function step(delta: number) {
+		const list = sorted;
+		if (list.length === 0) return;
+		const at = selected ? list.findIndex((row) => row.id === selected) : -1;
+		const next = at < 0 ? (delta > 0 ? 0 : list.length - 1) : Math.min(list.length - 1, Math.max(0, at + delta));
+		const row = list[next];
+		if (!row) return;
+		select(row.id);
+		const index = list.filter((candidate) => lineOf(candidate.id) === row.serviceLine).indexOf(row);
+		const pageFor = Math.floor(index / (size || list.length));
+		if (size && pageFor + 1 !== page) page = pageFor + 1;
+		requestAnimationFrame(() => {
+			document.querySelector(`tr[data-company="${row.id}"]`)?.scrollIntoView({ block: 'nearest' });
+		});
+	}
+
+	function onKey(event: KeyboardEvent) {
+		if (event.metaKey || event.ctrlKey || event.altKey) return;
+		const inField = typingIn(event.target);
+		if (event.key === '/' && !inField) {
+			event.preventDefault();
+			(document.querySelector('.toolbar input[type="search"]') as HTMLInputElement | null)?.focus();
+			return;
+		}
+		if (inField) return;
+		if (event.key === 'j' || event.key === 'ArrowDown') {
+			event.preventDefault();
+			step(1);
+		} else if (event.key === 'k' || event.key === 'ArrowUp') {
+			event.preventDefault();
+			step(-1);
+		} else if (event.key === 'Enter' && !selected) {
+			event.preventDefault();
+			step(1);
+		} else if (event.key === 'Escape' && selected) {
+			event.preventDefault();
+			select(null);
+		} else if (event.key === 's' && selected) {
+			event.preventDefault();
+			const id = selected;
+			if (saved.has(id)) removeBookmark(id, lineOf(id)).then(loadSaved);
+			else addBookmark(id, lineOf(id)).then(loadSaved);
+		}
+	}
 </script>
+
+<svelte:window onkeydown={onKey} />
 
 <div class="view" class:split={selected !== null}>
 	<div class="main">
@@ -802,7 +857,12 @@
 			<label class="search">
 				<span class="sr-only">Filter by name, country or industry</span>
 				<Icon name="search" size={14} />
-				<input class="input input-sm" placeholder="Name, country, industry" bind:value={query} />
+				<input
+					class="input input-sm"
+					type="search"
+					placeholder="Name, country, industry"
+					bind:value={query}
+				/>
 			</label>
 
 			<span class="spacer"></span>
@@ -860,6 +920,7 @@
 						{#each current as row (row.id)}
 							{@const move = movements.get(row.id)}
 							<tr
+								data-company={row.id}
 								class:active={selected === row.id}
 								class:rejected={row.band === 'DISQUALIFIED'}
 								class:pickedrow={picked.has(row.id)}
@@ -952,9 +1013,13 @@
 									{/if}
 								</td>
 								<td class="num c-doc">
-									{row.evidenceCount}
-									{#if row.silentDocuments > 0}
-										<span class="sub dim" title="Documents read that produced no signal">{row.silentDocuments} silent</span>
+									{#if row.evidenceCount === 0}
+										<span class="blind" title="No document was ever captured for this company. Nothing can be said either way — this is a gap in the crawl, not a finding.">no evidence</span>
+									{:else}
+										{row.evidenceCount}
+										{#if row.silentDocuments > 0}
+											<span class="sub dim" title="Documents read that produced no signal">{row.silentDocuments} silent</span>
+										{/if}
 									{/if}
 								</td>
 								<td class="num c-age">{ageShort(row.newestSignalAgeDays)}</td>
@@ -1313,6 +1378,15 @@
 		gap: var(--sp-2);
 		padding: var(--sp-2) var(--sp-3);
 		border-top: 1px solid var(--rule);
+	}
+
+	.blind {
+		font-size: var(--fs-micro);
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--ink-3);
+		border-bottom: 1px dotted var(--rule-strong);
+		cursor: help;
 	}
 
 	.gate {

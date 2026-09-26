@@ -109,6 +109,14 @@ One finding did point at something real, and it is fixed: `/api/ask/read` is
 called on every keystroke and was loading all 578 companies from Postgres each
 time. It now reads a 30-second snapshot.
 
+A later review flagged `GET /api/telemetry` — signal counts per engine, the
+share of companies with evidence, cache size and reuse — as unscoped. It carries
+strictly less than `/api/companies` already serves to anyone, and no personal
+data, so it is held to the same posture rather than given a half-measure of auth:
+there is no role to check against and adding one would break the only
+interaction the demo depends on. Recorded here so the decision is visible rather
+than silent.
+
 One is a genuine, accepted trade-off rather than a bug: **bookmarks are shared,
 mutable state with no owner.** A visitor to the public demo can add or clear
 them. That is the same exposure as the rest of the product — anyone who can reach
