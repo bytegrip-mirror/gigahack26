@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
@@ -26,7 +27,9 @@ import java.util.UUID;
 @RequestMapping("/api/icp-profiles")
 public class IcpProfileController {
 
-    public record Request(String name, String countries, String industries, int minEmployees, boolean active) {
+    public record Request(String name, String color, String countries, String regions, String industries,
+                          int minEmployees, String sizeBands, boolean excludeCompetitors, boolean untouchedOnly,
+                          boolean active) {
     }
 
     private final IcpProfileService service;
@@ -42,6 +45,24 @@ public class IcpProfileController {
         List<Company> all = companies.findAll();
         Map<UUID, Long> sizes = service.sizes(all);
         return service.list().stream().map(profile -> view(profile, sizes.getOrDefault(profile.getId(), 0L))).toList();
+    }
+
+    /**
+     * What the criteria would hold before they are saved. The editor's count and
+     * the board's rows come from the same predicate, so they cannot disagree.
+     */
+    @GetMapping("/preview")
+    public IcpProfileService.Match preview(@RequestParam(name = "countries", required = false) String countries,
+                                           @RequestParam(name = "regions", required = false) String regions,
+                                           @RequestParam(name = "industries", required = false) String industries,
+                                           @RequestParam(name = "minEmployees", defaultValue = "0") int minEmployees,
+                                           @RequestParam(name = "sizeBands", required = false) String sizeBands,
+                                           @RequestParam(name = "excludeCompetitors", defaultValue = "false")
+                                           boolean excludeCompetitors,
+                                           @RequestParam(name = "untouchedOnly", defaultValue = "false")
+                                           boolean untouchedOnly) {
+        return service.preview(new IcpProfileService.Draft(null, null, countries, regions, industries,
+                minEmployees, sizeBands, excludeCompetitors, untouchedOnly, true));
     }
 
     @PostMapping
@@ -66,17 +87,23 @@ public class IcpProfileController {
     }
 
     private static IcpProfileService.Draft draft(Request request) {
-        return new IcpProfileService.Draft(request.name(), request.countries(), request.industries(),
-                request.minEmployees(), request.active());
+        return new IcpProfileService.Draft(request.name(), request.color(), request.countries(), request.regions(),
+                request.industries(), request.minEmployees(), request.sizeBands(), request.excludeCompetitors(),
+                request.untouchedOnly(), request.active());
     }
 
     private static IcpProfileView view(IcpProfile profile, long companies) {
         return new IcpProfileView(
                 profile.getId(),
                 profile.getName(),
+                profile.getColor(),
                 split(profile.getCountries()),
+                split(profile.getRegions()),
                 split(profile.getIndustries()),
                 profile.getMinEmployees(),
+                split(profile.getSizeBands()),
+                profile.excludesCompetitors(),
+                profile.untouchedOnly(),
                 profile.isActive(),
                 profile.getSortOrder(),
                 companies);

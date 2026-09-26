@@ -32,6 +32,7 @@
 		{ href: '/', label: 'Companies', icon: 'board' },
 		{ href: '/people', label: 'People', icon: 'building' },
 		{ href: '/pipeline', label: 'Pipeline', icon: 'pipeline' },
+		{ href: '/icp', label: 'ICP Studio', icon: 'target' },
 		{ href: '/studio', label: 'Signal Studio', icon: 'studio' },
 		{ href: '/signals', label: 'Signal map', icon: 'target' },
 		{ href: '/market', label: 'Market', icon: 'board' },

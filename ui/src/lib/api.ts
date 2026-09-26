@@ -840,9 +840,14 @@ export function fetchTelemetry(): Promise<Telemetry> {
 export type IcpProfile = {
 	id: string;
 	name: string;
+	color: string | null;
 	countries: string[];
+	regions: string[];
 	industries: string[];
 	minEmployees: number;
+	sizeBands: string[];
+	excludeCompetitors: boolean;
+	untouchedOnly: boolean;
 	active: boolean;
 	sortOrder: number;
 	companies: number;
@@ -850,11 +855,34 @@ export type IcpProfile = {
 
 export type IcpProfileInput = {
 	name: string;
+	color: string | null;
 	countries: string;
+	regions: string;
 	industries: string;
 	minEmployees: number;
+	sizeBands: string;
+	excludeCompetitors: boolean;
+	untouchedOnly: boolean;
 	active: boolean;
 };
+
+export type IcpMatch = { companies: number; sample: string[] };
+
+export function previewIcpProfile(
+	input: Omit<IcpProfileInput, 'name' | 'color' | 'active'>
+): Promise<IcpMatch> {
+	return request<IcpMatch>(
+		`/api/icp-profiles/preview${query({
+			countries: input.countries,
+			regions: input.regions,
+			industries: input.industries,
+			minEmployees: input.minEmployees,
+			sizeBands: input.sizeBands,
+			excludeCompetitors: input.excludeCompetitors,
+			untouchedOnly: input.untouchedOnly
+		})}`
+	);
+}
 
 export function fetchIcpProfiles(): Promise<IcpProfile[]> {
 	return request<IcpProfile[]>('/api/icp-profiles');

@@ -7,10 +7,6 @@
 		fetchPrecision,
 		markCompetitor,
 		fetchBoard,
-		fetchIcpProfiles,
-		createIcpProfile,
-		updateIcpProfile,
-		deleteIcpProfile,
 		fetchSettings,
 		fetchTelemetry,
 		saveSettings,
@@ -18,8 +14,6 @@
 		type RegionCountry,
 		type ServiceLine,
 		type Settings,
-		type IcpProfile,
-		type IcpProfileInput,
 		type Telemetry
 	} from '$lib/api';
 	import { workspace } from '$lib/workspace.svelte';
@@ -63,10 +57,7 @@
 	let blacklist = $state<string[]>([]);
 	const exclusions = $derived(settings?.exclusions ?? []);
 	let blacklistDraft = $state('');
-	let profiles = $state<IcpProfile[]>([]);
-	let profileDraft = $state<IcpProfileInput>({ name: '', countries: '', industries: '', minEmployees: 0, active: true });
-	let editingProfile = $state<string | null>(null);
-	let profileBusy = $state<string | null>(null);
+	let rowBusy = $state<string | null>(null);
 	let newLine = $state({ name: '', valueProposition: '' });
 	let lineBusy = $state<string | null>(null);
 
@@ -125,69 +116,8 @@
 		return [...grouped.entries()].map(([key, group]) => ({ key, name: label(key), codes: group.codes }));
 	}
 
-	function reloadProfiles() {
-		return fetchIcpProfiles()
-			.then((list) => (profiles = list))
-			.catch(() => {});
-	}
-
-	function editProfile(profile: IcpProfile) {
-		editingProfile = profile.id;
-		profileDraft = {
-			name: profile.name,
-			countries: profile.countries.join(', '),
-			industries: profile.industries.join(', '),
-			minEmployees: profile.minEmployees,
-			active: profile.active
-		};
-	}
-
-	function resetProfile() {
-		editingProfile = null;
-		profileDraft = { name: '', countries: '', industries: '', minEmployees: 0, active: true };
-	}
-
-	async function saveProfile() {
-		if (profileDraft.name.trim().length < 2) {
-			toasts.push('Give the profile a name a rep would recognise.', 'warn');
-			return;
-		}
-		profileBusy = 'save';
-		try {
-			if (editingProfile) await updateIcpProfile(editingProfile, profileDraft);
-			else await createIcpProfile(profileDraft);
-			await reloadProfiles();
-			resetProfile();
-			workspace.reload();
-			toasts.push('Saved. The board carries it now.', 'success');
-		} catch (cause) {
-			toasts.push((cause as Error).message, 'error');
-		} finally {
-			profileBusy = null;
-		}
-	}
-
-	async function toggleProfile(profile: IcpProfile) {
-		profileBusy = profile.id;
-		try {
-			await updateIcpProfile(profile.id, {
-				name: profile.name,
-				countries: profile.countries.join(','),
-				industries: profile.industries.join(','),
-				minEmployees: profile.minEmployees,
-				active: !profile.active
-			});
-			await reloadProfiles();
-			workspace.reload();
-		} catch (cause) {
-			toasts.push((cause as Error).message, 'error');
-		} finally {
-			profileBusy = null;
-		}
-	}
-
 	async function bringBack(company: { id: string; name: string }) {
-		profileBusy = company.id;
+		rowBusy = company.id;
 		try {
 			await markCompetitor(company.id, false);
 			await refreshSettings();
@@ -196,7 +126,7 @@
 		} catch (cause) {
 			toasts.push((cause as Error).message, 'error');
 		} finally {
-			profileBusy = null;
+			rowBusy = null;
 		}
 	}
 
@@ -205,21 +135,6 @@
 		settings = fresh;
 		draft = { ...fresh };
 		blacklist = [...(fresh.blacklist ?? [])];
-	}
-
-	async function removeProfile(profile: IcpProfile) {
-		profileBusy = profile.id;
-		try {
-			await deleteIcpProfile(profile.id);
-			await reloadProfiles();
-			if (editingProfile === profile.id) resetProfile();
-			workspace.reload();
-			toasts.push('Profile deleted. No company changed.', 'success');
-		} catch (cause) {
-			toasts.push((cause as Error).message, 'error');
-		} finally {
-			profileBusy = null;
-		}
 	}
 
 	function addBlacklist() {
@@ -513,91 +428,13 @@
 				{#if section === 'profile'}
 					<section class="panel">
 						<div class="panel-head">
-							<h2 class="dsp">Customer profiles</h2>
-							<span class="sub dim">
-								{profiles.filter((p) => p.active).length} of {profiles.length} on
-							</span>
+							<h2 class="dsp">Books of business</h2>
 						</div>
 						<p class="sub dim">
-							A named book of business — the countries, industries and size you sell into. A company shows
-							the profile it belongs to on the board, and the board filters by it. Switching one off takes
-							it out of both.
+							The named profiles — their titles, colours and filters — are made and kept in the
+							<a class="link" href="/icp">ICP Studio</a>. What is switched on there is what the board
+							shows.
 						</p>
-
-						{#if profiles.length > 0}
-							<ul class="profiles">
-								{#each profiles as profile (profile.id)}
-									<li>
-										<span class="p-name">
-											{profile.name}
-											{#if !profile.active}<span class="p-off">off</span>{/if}
-										</span>
-										<span class="sub dim p-where">
-											{profile.countries.length > 0 ? profile.countries.join(', ') : 'everywhere'}{profile.industries.length > 0
-												? ` · ${profile.industries.join(', ')}`
-												: ''}{profile.minEmployees > 0 ? ` · ${profile.minEmployees}+ staff` : ''}
-										</span>
-										<span class="p-count num">{profile.companies} companies</span>
-										<button
-											class="btn btn-sm btn-quiet"
-											disabled={profileBusy === profile.id}
-											onclick={() => editProfile(profile)}
-										>
-											Edit
-										</button>
-										<button
-											class="btn btn-sm btn-quiet"
-											disabled={profileBusy === profile.id}
-											onclick={() => toggleProfile(profile)}
-										>
-											{profile.active ? 'Turn off' : 'Turn on'}
-										</button>
-										<button
-											class="btn btn-sm btn-quiet"
-											disabled={profileBusy === profile.id}
-											title="Deleting a profile changes no company — it only stops being a way to group them"
-											onclick={() => removeProfile(profile)}
-										>
-											<Icon name="trash" size={13} />
-										</button>
-									</li>
-								{/each}
-							</ul>
-						{/if}
-
-						<div class="profile-form">
-							<div class="fields">
-								<label class="field">
-									<span class="label">Name</span>
-									<input class="input" bind:value={profileDraft.name} placeholder="DACH industrials" />
-								</label>
-								<label class="field">
-									<span class="label">Countries</span>
-									<input class="input" bind:value={profileDraft.countries} placeholder="DE, AT, CH" />
-								</label>
-								<label class="field">
-									<span class="label">Industries</span>
-									<input class="input" bind:value={profileDraft.industries} placeholder="Manufacturing, Logistics" />
-								</label>
-								<label class="field">
-									<span class="label">Minimum employees</span>
-									<input class="input" type="number" min="0" bind:value={profileDraft.minEmployees} />
-								</label>
-							</div>
-							<div class="profile-actions">
-								<label class="check">
-									<input type="checkbox" bind:checked={profileDraft.active} />
-									<span>On</span>
-								</label>
-								<span class="spacer"></span>
-								{#if editingProfile}
-									<button class="btn btn-sm" onclick={resetProfile}>Cancel</button>
-								{/if}
-								<button class="btn btn-sm btn-ink" disabled={profileBusy === 'save'} onclick={saveProfile}>
-									{editingProfile ? 'Save the profile' : 'Add the profile'}
-								</button>
-							</div>
-						</div>
 					</section>
 
 					<section class="panel">
@@ -716,7 +553,7 @@
 										class="chip"
 										type="button"
 										title={`Bring ${company.name} back into the queue`}
-										disabled={profileBusy === company.id}
+										disabled={rowBusy === company.id}
 										onclick={() => bringBack(company)}
 									>
 										{company.name}<Icon name="close" size={11} />
@@ -734,7 +571,7 @@
 										class="chip"
 										type="button"
 										title={`Bring ${company.name} back into the queue`}
-										disabled={profileBusy === company.id}
+										disabled={rowBusy === company.id}
 										onclick={() => bringBack(company)}
 									>
 										{company.name}<Icon name="close" size={11} />
@@ -1178,67 +1015,6 @@
 	.blacklist-add .input {
 		flex: 1;
 		max-width: 340px;
-	}
-
-	.profiles {
-		list-style: none;
-		margin: var(--spacing-2) 0 0;
-		padding: 0;
-		border-top: 1px solid var(--color-rule);
-	}
-
-	.profiles li {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-2);
-		padding: var(--spacing-2) 0;
-		border-bottom: 1px solid var(--color-rule);
-	}
-
-	.p-name {
-		font-family: var(--font-display);
-		font-size: var(--text-md);
-		font-weight: 600;
-		min-width: 150px;
-	}
-
-	.p-off {
-		margin-left: var(--spacing-1);
-		font-family: var(--font-ui);
-		font-size: var(--text-micro);
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.08em;
-		color: var(--color-ink-4);
-	}
-
-	.p-where {
-		flex: 1;
-		min-width: 0;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	.p-count {
-		flex: none;
-		font-size: var(--text-sm);
-		color: var(--color-ink-3);
-	}
-
-	.profile-form {
-		margin-top: var(--spacing-3);
-	}
-
-	.profile-actions {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-2);
-		margin-top: var(--spacing-2);
-	}
-
-	.profile-actions .spacer {
-		margin-left: auto;
 	}
 
 	.against-label {

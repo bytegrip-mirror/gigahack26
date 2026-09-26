@@ -1,4 +1,11 @@
-import { fetchIcpProfiles, fetchMeta, fetchStatus, type Meta, type Status } from '$lib/api';
+import {
+	fetchIcpProfiles,
+	fetchMeta,
+	fetchStatus,
+	type IcpProfile,
+	type Meta,
+	type Status
+} from '$lib/api';
 import { session } from '$lib/session.svelte';
 import { toasts } from '$lib/toast.svelte';
 
@@ -9,7 +16,15 @@ class Workspace {
 	loading = $state(true);
 	switching = $state(false);
 	savedRevision = $state(0);
-	profileNames = $state<string[]>([]);
+	/**
+	 * The profiles that are switched on, whole rather than by name.
+	 *
+	 * The board labels every row with the profile it falls into and that label
+	 * carries the profile's colour, so the name alone is not enough to draw one.
+	 * Holding the record here also means a profile edited anywhere is one reload
+	 * away from every screen that shows it.
+	 */
+	profiles = $state<IcpProfile[]>([]);
 	#token = 0;
 
 	/**
@@ -24,16 +39,15 @@ class Workspace {
 		this.savedRevision += 1;
 	}
 
-	get profiles(): string[] {
-		return this.profileNames;
+	get profileNames(): string[] {
+		return this.profiles.map((profile) => profile.name);
 	}
 
 	async loadProfiles() {
 		try {
-			const list = await fetchIcpProfiles();
-			this.profileNames = list.filter((profile) => profile.active).map((profile) => profile.name);
+			this.profiles = (await fetchIcpProfiles()).filter((profile) => profile.active);
 		} catch {
-			this.profileNames = [];
+			this.profiles = [];
 		}
 	}
 

@@ -6,10 +6,22 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+/**
+ * A book of business, described the way a rep would describe it: where they sell,
+ * to whom, how big, and who to keep out.
+ *
+ * The columns added after the first release are nullable and read through
+ * null-safe getters. Hibernate widens a table with a new column empty, so a
+ * primitive here would fail to hold the null it leaves behind — the fault that
+ * once made every person unreadable.
+ */
 @Entity
 @Table(name = "icp_profile")
 public class IcpProfile {
@@ -20,14 +32,31 @@ public class IcpProfile {
     @Column(nullable = false, length = 120)
     private String name;
 
+    @Column(length = 32)
+    private String color;
+
     @Column(nullable = false, length = 1000)
     private String countries;
+
+    /** Region keys — "dach", "nordics", a whole continent. Expanded to countries
+     * when the profile is matched and read alongside the ones named outright. */
+    @Column(length = 1000)
+    private String regions;
 
     @Column(nullable = false, length = 1000)
     private String industries;
 
     @Column(name = "min_employees", nullable = false)
     private int minEmployees;
+
+    @Column(name = "size_bands", length = 400)
+    private String sizeBands;
+
+    @Column(name = "exclude_competitors")
+    private Boolean excludeCompetitors;
+
+    @Column(name = "untouched_only")
+    private Boolean untouchedOnly;
 
     @Column(nullable = false)
     private boolean active;
@@ -41,13 +70,19 @@ public class IcpProfile {
     protected IcpProfile() {
     }
 
-    public IcpProfile(UUID id, String name, String countries, String industries, int minEmployees,
+    public IcpProfile(UUID id, String name, String color, String countries, String regions, String industries,
+                      int minEmployees, String sizeBands, boolean excludeCompetitors, boolean untouchedOnly,
                       boolean active, int sortOrder, Instant createdAt) {
         this.id = id;
         this.name = name;
+        this.color = color;
         this.countries = countries;
+        this.regions = regions;
         this.industries = industries;
         this.minEmployees = minEmployees;
+        this.sizeBands = sizeBands;
+        this.excludeCompetitors = excludeCompetitors;
+        this.untouchedOnly = untouchedOnly;
         this.active = active;
         this.sortOrder = sortOrder;
         this.createdAt = createdAt;
@@ -61,16 +96,36 @@ public class IcpProfile {
         return name;
     }
 
+    public String getColor() {
+        return color;
+    }
+
     public String getCountries() {
-        return countries;
+        return countries == null ? "" : countries;
+    }
+
+    public String getRegions() {
+        return regions == null ? "" : regions;
     }
 
     public String getIndustries() {
-        return industries;
+        return industries == null ? "" : industries;
     }
 
     public int getMinEmployees() {
         return minEmployees;
+    }
+
+    public String getSizeBands() {
+        return sizeBands == null ? "" : sizeBands;
+    }
+
+    public boolean excludesCompetitors() {
+        return excludeCompetitors != null && excludeCompetitors;
+    }
+
+    public boolean untouchedOnly() {
+        return untouchedOnly != null && untouchedOnly;
     }
 
     public boolean isActive() {
@@ -85,38 +140,80 @@ public class IcpProfile {
         return createdAt;
     }
 
-    public void revise(String name, String countries, String industries, int minEmployees, boolean active,
-                       int sortOrder) {
+    /**
+     * The countries this profile names outright, shouted. The regions it also
+     * named are expanded by the caller, which owns the taxonomy, and folded in
+     * before this is asked whether a company is covered.
+     */
+    public Set<String> namedCountries() {
+        return codes(countries);
+    }
+
+    /**
+     * Whether a company is in this book of business.
+     *
+     * `geography` and `worked` are passed in rather than derived here: the first
+     * needs the region taxonomy and the second a lead, and neither belongs to a
+     * profile. Keeping the test in one place means the count the Studio promises
+     * and the rows the board draws cannot come from two different rules.
+     */
+    public boolean covers(Company company, Set<String> geography, boolean worked) {
+        if (!geography.isEmpty() && (company.getCountry() == null
+                || !geography.contains(company.getCountry().toUpperCase(Locale.ROOT)))) {
+            return false;
+        }
+        Set<String> wanted = words(industries);
+        if (!wanted.isEmpty() && (company.getIndustry() == null
+                || !wanted.contains(company.getIndustry().toLowerCase(Locale.ROOT)))) {
+            return false;
+        }
+        Set<String> bands = words(sizeBands);
+        if (!bands.isEmpty() && (company.getSizeBand() == null
+                || !bands.contains(company.getSizeBand().toLowerCase(Locale.ROOT)))) {
+            return false;
+        }
+        if (company.getEmployees() != null && company.getEmployees() < minEmployees) {
+            return false;
+        }
+        if (excludesCompetitors() && company.isCompetitor()) {
+            return false;
+        }
+        return !untouchedOnly() || !worked;
+    }
+
+    private static Set<String> codes(String value) {
+        return split(value, Locale.ROOT).stream().map(entry -> entry.toUpperCase(Locale.ROOT))
+                .collect(Collectors.toUnmodifiableSet());
+    }
+
+    private static Set<String> words(String value) {
+        return split(value, Locale.ROOT).stream().map(entry -> entry.toLowerCase(Locale.ROOT))
+                .collect(Collectors.toUnmodifiableSet());
+    }
+
+    private static List<String> split(String value, Locale locale) {
+        if (value == null || value.isBlank()) {
+            return List.of();
+        }
+        return Arrays.stream(value.split(","))
+                .map(String::trim)
+                .filter(entry -> !entry.isEmpty())
+                .toList();
+    }
+
+    public void revise(String name, String color, String countries, String regions, String industries,
+                       int minEmployees, String sizeBands, boolean excludeCompetitors, boolean untouchedOnly,
+                       boolean active, int sortOrder) {
         this.name = name;
+        this.color = color;
         this.countries = countries;
+        this.regions = regions;
         this.industries = industries;
         this.minEmployees = minEmployees;
+        this.sizeBands = sizeBands;
+        this.excludeCompetitors = excludeCompetitors;
+        this.untouchedOnly = untouchedOnly;
         this.active = active;
         this.sortOrder = sortOrder;
-    }
-
-    public boolean covers(Company company) {
-        return coversCountry(company.getCountry()) && coversIndustry(company.getIndustry())
-                && (company.getEmployees() == null || company.getEmployees() >= minEmployees);
-    }
-
-    private boolean coversCountry(String country) {
-        Set<String> wanted = listed(countries);
-        return wanted.isEmpty() || (country != null && wanted.contains(country.toLowerCase(Locale.ROOT)));
-    }
-
-    private boolean coversIndustry(String industry) {
-        Set<String> wanted = listed(industries);
-        return wanted.isEmpty() || (industry != null && wanted.contains(industry.toLowerCase(Locale.ROOT)));
-    }
-
-    private static Set<String> listed(String value) {
-        if (value == null || value.isBlank()) {
-            return Set.of();
-        }
-        return java.util.Arrays.stream(value.split(","))
-                .map(entry -> entry.trim().toLowerCase(Locale.ROOT))
-                .filter(entry -> !entry.isEmpty())
-                .collect(java.util.stream.Collectors.toUnmodifiableSet());
     }
 }

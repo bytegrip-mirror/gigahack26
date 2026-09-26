@@ -209,9 +209,10 @@ one `Menu` away, and every row carries the same `⋯` in the last column.
 
 | Screen | Primary | In the `⋯` |
 | --- | --- | --- |
-| Board | *Ask a question* | export the board, copy a link, clear filters, re-score; per row: open the scorecard, open the quoted capture, copy a link, export the row, set the lead stage |
+| Board | — every action is in the `⋯` | export the board, copy a link, clear filters, re-score; per row: open the scorecard, open the quoted capture, copy a link, export the row, set the lead stage |
 | Company pane | *Generate outreach*, then *Push to HubSpot* | copy the summary, open the website, count as a lead, count as rejected, close |
 | Pipeline | per-row *advance to the next stage* | open on the board, copy a link, export the row, move to any stage; screen-level: export the pipeline, open the board |
+| ICP Studio | *New profile* | per row: open it, switch it on or off, delete it; on the open profile: save, discard |
 | Signal Studio | *New question* | export every question, duplicate, delete; per row: edit, duplicate, turn on/off, copy the key, delete |
 | Signal map | *Table* (a reading, not an action) | — |
 
@@ -376,6 +377,23 @@ what stops the edges from braiding.
 
 Every node is a link: a question opens in the Studio, a company opens its
 scorecard. Hovering dims everything not connected to the node under the cursor.
+
+**The ICP Studio keeps the books of business.** A profile is a title, a colour and
+a set of filters — where the companies are, what they do, how big they are, and
+who to keep out — and the board shows the union of the profiles switched on, every
+row carrying a label after Latest saying which book it falls into. The list is on
+the left and the open profile on the right, in the same two panes the Signal
+Studio uses. The last panel counts what the filters would hold before anything is
+saved; that count and the board's rows come from one predicate on the server, so
+the screen cannot promise a number the board will not show.
+
+**A profile's colour is the one place the palette admits a hue that means
+nothing.** Everywhere else colour is a role — orange is the action and the fit,
+viridian the corroboration mark, oxblood rejection — and the signal map separates
+themes by position for exactly this reason. A profile is the deliberate exception:
+the operator picks it, it means only "this book and not that one", and it is drawn
+as a filled dot inside the label, so a choice that is pale, dark or loud still
+leaves the name beside it legible.
 The `Table` toggle is the same data as rows, which is the accessible view and the
 one to reach for when the map is too dense to read a name off.
 

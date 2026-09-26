@@ -103,7 +103,7 @@
 
 	let filter = $state('to-call');
 	let engineFilter = $state<'all' | 'model' | 'local'>('all');
-	let profileFilter = $state('');
+	let profileFilter = $state<Set<string>>(new Set());
 	let stage = $state('');
 	let query = $state('');
 	let selected = $state<string | null>(untrack(() => initialSelected));
@@ -134,12 +134,22 @@
 	});
 
 	const narrowed = $derived(
-		session.region !== 'world' || stage !== '' || query !== '' || filter !== 'to-call'
+		session.region !== 'world' ||
+			stage !== '' ||
+			query !== '' ||
+			filter !== 'to-call' ||
+			engineFilter !== 'all' ||
+			profileFilter.size > 0
 	);
 	const activeFilters = $derived(
-		(stage === '' ? 0 : 1) + (engineFilter === 'all' ? 0 : 1) + (profileFilter === '' ? 0 : 1)
+		(stage === '' ? 0 : 1) + (engineFilter === 'all' ? 0 : 1) + profileFilter.size
 	);
 	const profiles = $derived(workspace.profiles);
+
+	/** A row carries the profile's name; the colour is whatever the profile wears. */
+	function colorOf(name: string): string {
+		return workspace.profiles.find((profile) => profile.name === name)?.color ?? 'var(--color-ink-4)';
+	}
 	const STAGE_LABEL = $derived(STAGES.find((option) => option.id === stage)?.label ?? 'Any lead stage');
 	const ENGINE_LABEL = $derived(
 		engineFilter === 'all' ? 'Any engine' : engineFilter === 'model' ? 'Read by the model' : 'Matched by the rules'
@@ -154,13 +164,15 @@
 		})),
 		...(profiles.length > 0
 			? [
-					{ id: 'head-icp', label: 'Customer profile', heading: true, separatorBefore: true },
-					{ id: 'icp:', label: 'Any profile', checked: profileFilter === '' },
-					...profiles.map((name) => ({
-						id: `icp:${name}`,
-						label: name,
-						checked: profileFilter === name
-					}))
+					{ id: 'head-icp', label: 'Books of business', heading: true, separatorBefore: true },
+					...profiles.map((profile) => ({
+						id: `icp:${profile.id}`,
+						label: profile.name,
+						checked: profileFilter.has(profile.name)
+					})),
+					...(profileFilter.size > 0
+						? [{ id: 'icp-clear', label: 'Show every profile', icon: 'close' as const }]
+						: [])
 				]
 			: []),
 		{ id: 'head-engine', label: 'Read by', heading: true, separatorBefore: true },
@@ -173,11 +185,31 @@
 		).map((option) => ({ id: `engine:${option.id}`, label: option.label, checked: engineFilter === option.id }))
 	]);
 
+	/**
+	 * Split on the first colon only. Splitting on every one threw away the rest of
+	 * the name, which made a profile called "DACH: mid-market" impossible to pick.
+	 */
 	function runFilter(id: string) {
-		const [kind, value] = id.split(':');
+		const at = id.indexOf(':');
+		const kind = at === -1 ? id : id.slice(0, at);
+		const value = at === -1 ? '' : id.slice(at + 1);
 		if (kind === 'stage') stage = value;
-		else if (kind === 'icp') profileFilter = value;
-		else engineFilter = value as 'all' | 'model' | 'local';
+		else if (kind === 'icp') toggleProfile(value);
+		else if (kind === 'icp-clear') {
+			profileFilter = new Set();
+			page = 1;
+		} else engineFilter = value as 'all' | 'model' | 'local';
+	}
+
+	/** Several books at once, and switching on none shows everything again. */
+	function toggleProfile(id: string) {
+		const profile = profiles.find((entry) => entry.id === id);
+		if (!profile) return;
+		const next = new Set(profileFilter);
+		if (next.has(profile.name)) next.delete(profile.name);
+		else next.add(profile.name);
+		profileFilter = next;
+		page = 1;
 	}
 	const allLines = $derived(session.allLines);
 	const scopeItems = $derived([
@@ -207,7 +239,9 @@
 		const wanted = VIEWS[filter] ?? VIEWS.everyone;
 		return rows.filter((row) => {
 			const passesBand =
-				wanted(row) && passesStage(row) && (profileFilter === '' || row.profiles.includes(profileFilter));
+				wanted(row) &&
+				passesStage(row) &&
+				(profileFilter.size === 0 || row.profiles.some((name) => profileFilter.has(name)));
 			const passesEngine =
 				engineFilter === 'all' ||
 				(row.engine !== null &&
@@ -449,7 +483,7 @@
 		stage = '';
 		filter = 'to-call';
 		engineFilter = 'all';
-		profileFilter = '';
+		profileFilter = new Set();
 		session.setRegion('world');
 	}
 
@@ -945,6 +979,7 @@
 							<th class="c-trend" scope="col"><span class="sr-only">Signal trend over the last year</span></th>
 							<Th id="docs" label="Docs" sort={sort} {dir} onsort={sortBy} align="right" width="56px" className="c-doc" />
 							<Th id="newest" label="Latest" sort={sort} {dir} onsort={sortBy} align="right" width="66px" className="c-age" />
+							<th class="c-icp" scope="col"><span class="sr-only">Book of business</span></th>
 							<th class="c-star" scope="col"><span class="sr-only">Saved</span></th>
 							<th class="c-act" scope="col"><span class="sr-only">Actions</span></th>
 						</tr>
@@ -986,9 +1021,6 @@
 											{row.leadStatusLabel}{#if row.contactCount > 1} ×{row.contactCount}{/if}
 										</span>
 									{/if}
-									{#each row.profiles as name (name)}
-										<span class="profile-tag" title="The customer profile this company falls into">{name}</span>
-									{/each}
 								</td>
 								<td class="c-fit">
 									{#if row.band === 'DISQUALIFIED'}
@@ -1052,6 +1084,18 @@
 									{/if}
 								</td>
 								<td class="num c-age">{ageShort(row.newestSignalAgeDays)}</td>
+								<td class="c-icp">
+									{#each row.profiles as name (name)}
+										<span
+											class="profile-tag"
+											style={`--profile:${colorOf(name)}`}
+											title="The book of business this company falls into"
+										>
+											<span class="profile-dot" style={`background:${colorOf(name)}`}></span>
+											<span class="profile-name">{name}</span>
+										</span>
+									{/each}
+								</td>
 								<td class="c-star">
 								<Star
 									companyId={row.id}
@@ -1439,17 +1483,45 @@
 		font-weight: 500;
 	}
 
+	.c-icp {
+		width: 150px;
+		vertical-align: top;
+	}
+
+	/* The colour is the point, so it stays when the name cannot: at the width a
+	 * selected row leaves, the dot is all there is room for. */
+	.view.split .c-icp {
+		width: 48px;
+	}
+
+	.view.split .profile-name {
+		display: none;
+	}
+
+	.view.split .profile-tag {
+		padding: 1px 3px;
+	}
+
 	.profile-tag {
-		display: inline-block;
-		margin: 3px 0 0 var(--spacing-1);
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		margin: 0 3px 3px 0;
 		font-size: var(--text-micro);
 		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.07em;
 		padding: 1px 5px;
-		border: 1px solid var(--color-accent-line);
-		background: var(--color-accent-wash);
-		color: var(--color-accent);
+		border: 1px solid var(--profile, var(--color-accent-line));
+		color: var(--color-ink-2);
+	}
+
+	.profile-dot {
+		width: 7px;
+		height: 7px;
+		flex: none;
+		border-radius: 50%;
+		border: 1px solid var(--color-rule-strong);
 	}
 
 	.stage-tag {
