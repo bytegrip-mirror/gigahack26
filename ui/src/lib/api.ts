@@ -50,7 +50,7 @@ export type BoardRow = {
 	strongest: Chip | null;
 	chips: Chip[];
 	themes: string[];
-	engine: string;
+	engine: string | null;
 	leadStatus: string | null;
 	leadStatusLabel: string | null;
 	lastContactedAt: string | null;

@@ -307,7 +307,7 @@ public class BoardService {
                 .entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
-                .orElse(router.localEngineId());
+                .orElse(null);
         WhyNowService.Brief why = whyNow.brief(detail, settings.effective());
 
         Instant newest = detail.rows().stream()
