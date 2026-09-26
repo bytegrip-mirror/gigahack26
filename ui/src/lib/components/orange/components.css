@@ -12,6 +12,24 @@
    utilities layer so Tailwind's own utilities and the element rules below can
    override it. */
 @layer utilities {
+	/* Boosted's dark surface: black ground, white ink. The tokens swap inside the
+	   element, so every shared class under it inverts without a second rule. */
+	.on-ink {
+		--color-ink: #ffffff;
+		--color-ink-2: #eeeeee;
+		--color-ink-3: #cccccc;
+		--color-ink-4: #999999;
+		--color-paper: #000000;
+		--color-surface: #000000;
+		--color-sunken: #333333;
+		--color-rule: #333333;
+		--color-rule-strong: #666666;
+		--color-orange-deep: #ff7900;
+		--color-orange-ink: #ff7900;
+		background: var(--color-paper);
+		color: var(--color-ink);
+	}
+
 	.dsp {
 		font-family: var(--font-display);
 		font-weight: 700;

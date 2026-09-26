@@ -57,7 +57,6 @@
 			{ href: '/', label: 'Board', icon: 'board', keys: 'board companies queue' },
 			{ href: '/icp', label: 'ICP Studio', icon: 'studio', keys: 'icp profiles segment book of business filters' },
 			{ href: '/pipeline', label: 'Pipeline', icon: 'pipeline', keys: 'pipeline leads stages' },
-			{ href: '/market', label: 'Market', icon: 'board', keys: 'market demand countries industries map' },
 			{ href: '/settings', label: 'Settings', icon: 'settings', keys: 'settings profile voice scoring pipeline' }
 		];
 		for (const view of views) {

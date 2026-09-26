@@ -33,7 +33,9 @@ fills the remaining width.
 └──────────┴────────────────────────────────────────────────────────────┘
 ```
 
-The rail reads top-down as identity, navigation, then the facts about the corpus
+The rail is black. It carries the `on-ink` class from the Orange library, which
+swaps the ink and paper tokens, so the centre pane is the brightest area on the
+screen. The rail reads top-down as identity, navigation, then the facts about the corpus
 and the two workspace-wide settings, pushed to the bottom together so they sit in
 the same place on every screen.
 
@@ -216,7 +218,6 @@ one `Menu` away, and every row carries the same `⋯` in the last column.
 | Company pane | *Generate outreach*, then *Push to HubSpot* | copy the summary, open the website, count as a lead, count as rejected, close |
 | Pipeline | per-row *advance to the next stage* | open on the board, copy a link, export the row, move to any stage; screen-level: export the pipeline, open the board |
 | ICP Studio | *New profile* | per row: open it, switch it on or off, delete it; on the open profile: save, discard |
-| Signal map | *Table* (a reading, not an action) | — |
 
 | Settings | *Save and re-score* | read the writer brief; per service line: enable/disable, delete |
 
@@ -326,30 +327,11 @@ subtitle, so the effect is legible from the screen it changes.
 
 The signal questions themselves no longer have a screen. They are seeded from
 `PolicyLibrary` and read by the scorer; the interface shows their effect — on the
-board, and as the shape of the Signal map — and does not offer to author them.
+board — and does not offer to author them.
 
 The board's band counts are tallied from the rows in hand, not read from the
 server's per-line totals, so the Priority metric always counts the Priority
 companies the region filter has left on screen.
-
-**The Signal map shows how a question becomes a company.** Three columns — theme,
-question, company — with an edge from each question to each company it found. It
-is the one screen that shows the shape of the framework rather than a list of its
-results: a question that found 53 companies draws a bar 53 wide, and a company
-standing under three questions is visibly the reason the board calls it.
-
-Two rules keep it legible. **Themes are separated by position, not by hue** — the
-palette has three roles and a sixth categorical hue would be a different design
-system — so colour carries meaning instead: ink for a question that counts for the
-company, oxblood for one that counts against, and the same two on the edges that
-leave them. And **the company column holds the top 16 by how many questions found
-them**, not all 124, with the count in the toolbar saying what is below the cut.
-The column is ordered by the average height of the questions feeding it, which is
-what stops the edges from braiding.
-
-Every company node is a link and opens its scorecard; a question is a label, not
-a destination, now that there is nowhere to edit one. Hovering dims everything
-not connected to the node under the cursor.
 
 **The ICP Studio keeps the books of business.** A profile is a name, a colour and
 a set of criteria — geography, industries, company size, exclusions — and the
@@ -381,11 +363,8 @@ the three roles the palette reserves.
 
 **A profile's colour is the one place the palette admits a hue that means
 nothing.** Everywhere else colour is a role — orange is the action and the fit,
-viridian the corroboration mark, oxblood rejection — and the signal map separates
-themes by position for exactly this reason. A profile is the deliberate exception:
+green the corroboration mark, oxblood rejection. A profile is the deliberate exception:
 the operator picks it, and it means only "this book and not that one".
-The `Table` toggle is the same data as rows, which is the accessible view and the
-one to reach for when the map is too dense to read a name off.
 
 **The Market screen groups the corpus; it does not grade it.** It answers "where is
 the demand" by country, industry or headcount, and the columns are counts a rep

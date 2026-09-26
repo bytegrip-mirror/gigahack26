@@ -31,8 +31,6 @@
 		{ href: '/people', label: 'People', icon: 'building' },
 		{ href: '/pipeline', label: 'Pipeline', icon: 'pipeline' },
 		{ href: '/icp', label: 'ICP Studio', icon: 'studio' },
-		{ href: '/signals', label: 'Signal map', icon: 'target' },
-		{ href: '/market', label: 'Market', icon: 'board' },
 		{ href: '/settings', label: 'Settings', icon: 'settings' }
 	] as const;
 
@@ -72,7 +70,7 @@
 </script>
 
 <div class="app">
-	<aside class="rail">
+	<aside class="rail on-ink">
 		<div class="rail-top">
 			<a class="brand" href="/">
 				<Logo size={19} />
@@ -169,8 +167,6 @@
 	}
 
 	.rail {
-		border-right: 1px solid var(--color-rule);
-		background: var(--color-paper);
 		display: flex;
 		flex-direction: column;
 		overflow-y: auto;
