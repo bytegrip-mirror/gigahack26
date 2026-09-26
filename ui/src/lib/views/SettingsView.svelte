@@ -1,4 +1,5 @@
 <script lang="ts">
+	import NotificationBell from '$lib/components/NotificationBell.svelte';
 	import {
 		createServiceLine,
 		deleteServiceLine,
@@ -329,6 +330,7 @@
 				onselect={() => (section = 'voice')}
 				label="More settings actions"
 			/>
+			<NotificationBell />
 		</div>
 	</header>
 

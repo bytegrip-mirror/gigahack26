@@ -1,5 +1,12 @@
 <script lang="ts">
-	import { fetchIcpProfiles, fetchPeople, fetchTelemetry, type IcpProfile, type Telemetry } from '$lib/api';
+	import NotificationBell from '$lib/components/NotificationBell.svelte';
+	import {
+		fetchIcpProfiles,
+		fetchPeople,
+		fetchTelemetry,
+		type IcpProfile,
+		type Telemetry
+	} from '$lib/api';
 	import { workspace } from '$lib/workspace.svelte';
 	import { session } from '$lib/session.svelte';
 	import { shortNumber } from '$lib/format';
@@ -101,6 +108,7 @@
 				<Icon name="board" size={15} />
 				Open the board
 			</a>
+			<NotificationBell />
 		</div>
 	</header>
 

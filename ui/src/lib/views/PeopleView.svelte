@@ -1,4 +1,5 @@
 <script lang="ts">
+	import NotificationBell from '$lib/components/NotificationBell.svelte';
 	import {
 		enrichPeople,
 		extractPeople,
@@ -309,6 +310,7 @@
 				Fill in profiles
 			</button>
 			<Menu items={overflow} onselect={runOverflow} label="More on people" />
+			<NotificationBell />
 		</div>
 	</header>
 

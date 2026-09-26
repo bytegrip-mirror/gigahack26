@@ -157,7 +157,7 @@ public class PersonController {
             people.forget();
         }
         int added = people.extract(all);
-        int seeded = reset ? seeder.seed() : 0;
+        int seeded = seeder.seed();
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("added", added);
         body.put("seeded", seeded);
