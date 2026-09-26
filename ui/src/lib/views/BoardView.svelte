@@ -51,12 +51,12 @@
 }: { initialSelected?: string | null; initialLine?: string | null } = $props();
 
 	const FILTERS = [
-		{ id: 'to-call', label: 'To call', title: 'Worth calling, and nobody has worked them yet. Set the lead stage under Filters to see the ones already worked.' },
+		{ id: 'to-call', label: 'To call', title: 'Worth calling: above the evidence floor and still in the queue.' },
 		{ id: 'priority', label: 'Priority', title: 'Above the Priority line' },
 		{ id: 'thin', label: 'Unproven', title: 'No document answers your questions about them' },
 		{ id: 'rejected', label: 'Out of the queue', title: 'Removed by a gate or the blacklist' },
 		{ id: 'saved', label: 'Saved', title: 'Bookmarked' },
-		{ id: 'everyone', label: 'Everyone', title: 'Every company we hold, whatever the queue decided and whoever has worked them' }
+		{ id: 'everyone', label: 'Everyone', title: 'Every company we hold, whatever the queue decided — still only the ones nobody has worked. Set the lead stage under Filters to bring the worked ones back.' }
 	];
 
 	const WEAK_OPENERS = new Set([
@@ -91,13 +91,28 @@
 	}
 
 	const VIEWS: Record<string, (row: BoardRow) => boolean> = {
-		'to-call': (row) => row.band !== 'DISQUALIFIED' && row.band !== 'THIN' && !worked(row),
+		'to-call': (row) => row.band !== 'DISQUALIFIED' && row.band !== 'THIN',
 		priority: (row) => row.band === 'PRIORITY',
 		thin: (row) => row.band === 'THIN',
 		rejected: (row) => row.band === 'DISQUALIFIED',
 		saved: (row) => saved.has(row.id),
 		everyone: () => true
 	};
+
+	/**
+	 * The board is the work you have not done yet.
+	 *
+	 * A company somebody has already rung, or qualified, or turned down, belongs to
+	 * the pipeline — that is what the pipeline is for, and leaving them here meant
+	 * every view, including `Everyone`, quietly mixed the two together. The lead
+	 * stage under Filters is the way back: name a stage and the board shows exactly
+	 * those.
+	 */
+	function passesStage(row: BoardRow): boolean {
+		if (stage === '' || stage === 'untouched') return !worked(row);
+		if (stage === 'worked') return worked(row);
+		return row.leadStatus === stage;
+	}
 
 	const LEAD_STAGES = [
 		{ id: 'CONTACTED', label: 'Contacted' },
@@ -158,9 +173,14 @@
 
 	const subtitle = $derived.by(() => {
 		const total = shortNumber(rows.length);
-		if (filter === 'everyone') return `${total} companies we hold`;
+		if (stage !== '' && stage !== 'untouched') {
+			return `${shortNumber(sorted.length)} ${STAGES.find((entry) => entry.id === stage)?.label.toLowerCase() ?? ''} of ${total}`;
+		}
+		if (filter === 'everyone') {
+			return `${shortNumber(sorted.length)} of ${total} companies, the ones not yet worked`;
+		}
 		const view = FILTERS.find((option) => option.id === filter)?.label.toLowerCase() ?? 'companies';
-		return `${shortNumber(sorted.length)} ${view} of ${total}`;
+		return `${shortNumber(sorted.length)} ${view} of ${total} not yet worked`;
 	});
 
 	const narrowed = $derived(
@@ -242,7 +262,8 @@
 	const visible = $derived.by(() => {
 		const wanted = VIEWS[filter] ?? VIEWS.everyone;
 		return rows.filter((row) => {
-			const passesBand = wanted(row) && (profileFilter === '' || row.profiles.includes(profileFilter));
+			const passesBand =
+				wanted(row) && passesStage(row) && (profileFilter === '' || row.profiles.includes(profileFilter));
 			const passesEngine =
 				engineFilter === 'all' ||
 				(row.engine !== null &&
@@ -302,7 +323,7 @@
 			filter: 'all',
 			sort: 'score',
 			q: query,
-			stage,
+			stage: '',
 			region: session.region
 		};
 		const lines = allLines ? (workspace.lines.length > 0 ? workspace.lines : [serviceLine]) : [serviceLine];
@@ -1305,8 +1326,8 @@
 				<div class="empty">
 					<Icon name="inbox" size={22} />
 					<p>
-						Nothing here. To call leaves out everyone you have already worked — set the lead stage under
-						Filters to bring them back, or widen the region.
+						Nothing here. This board leaves out everyone you have already worked — they are in the Pipeline.
+						Set the lead stage under Filters to bring them back, or widen the region.
 					</p>
 				</div>
 			{:else}
