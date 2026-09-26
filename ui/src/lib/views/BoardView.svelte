@@ -40,7 +40,7 @@
 }: { initialSelected?: string | null; initialLine?: string | null } = $props();
 
 	const FILTERS = [
-		{ id: 'to-call', label: 'To call', title: 'Worth calling: above the evidence floor and still in the queue.' },
+		{ id: 'to-call', label: 'To contact', title: 'Worth calling: above the evidence floor and still in the queue.' },
 		{ id: 'priority', label: 'Priority', title: 'Above the Priority line' },
 		{ id: 'thin', label: 'Unproven', title: 'No document answers your questions about them' },
 		{ id: 'rejected', label: 'Out of the queue', title: 'Removed by a gate or the blacklist' },

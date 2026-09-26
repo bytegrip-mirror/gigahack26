@@ -70,7 +70,7 @@
 	const kpis = $derived<Kpi[]>([
 		{
 			icon: 'target',
-			title: 'Ready to call',
+			title: 'Ready to contact',
 			value: exact(bands.PRIORITY ?? 0),
 			unit: 'companies',
 			foot: 'Strong fit',
@@ -200,7 +200,7 @@
 
 			<section class="card list">
 				<div class="card-head">
-					<h2 class="card-title">Call these first</h2>
+					<h2 class="card-title">Contact these first</h2>
 					<a class="go" href="/companies" aria-label="Open the board"><Icon name="external" size={15} /></a>
 				</div>
 				{#if next.length === 0}
