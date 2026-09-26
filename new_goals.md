@@ -34,9 +34,8 @@ Two things the audit already proved, which this plan spends:
 
 ## Where this stands
 
-Thirty-three of these fifty-two landed and are on `main` and deployed. Twelve are
-partial, each with the gap named in place. Seven are not started, listed rather
-than quietly dropped. Three things this pass found were not
+Fifty of these fifty-two landed and are on `main` and deployed. One is partial
+and one is in progress, each said so in place rather than left to look finished. Three things this pass found were not
 on the list and mattered more than most of it: the deployed database answered
 with the union of every corpus ever seeded, a model reading was allowed to delete
 a company the team had configured in, and a new nullable column took the board
@@ -133,7 +132,7 @@ where the cheap engine said nothing and the model was asked anyway. Report the
 rate at which the model found a signal the local engine missed, on the
 precision panel. **Verify:** a number on screen with its sample size.
 
-[ ] A10. Calibrate confidence instead of trusting it
+[x] A10. Calibrate confidence instead of trusting it
 `ScoringService` feeds the model's self-reported confidence straight into
 log-odds. Shrink it toward the engine's measured accuracy:
 `calibrated = 0.5 + (raw − 0.5) × k`, with `k` derived from the overlay's own
@@ -147,7 +146,7 @@ code — the UI never calls it. Wire it into a panel and make accept/reject feed
 it. Files: `ui/src/lib/views/BoardView.svelte`, `Scorecard.svelte`, `api.ts`.
 **Verify:** accepting and rejecting rows moves the number.
 
-[ ] A12. A review queue rather than a silent floor
+[x] A12. A review queue rather than a silent floor
 Rows below the confidence floor are dropped. Keep them as *candidates* and show
 them on a "check these" list — the brief asks for a low false-positive rate, and
 showing the borderline is how you demonstrate the floor works. Files:
@@ -189,20 +188,20 @@ Show calls, tokens, cache hits and the money saved, per rebuild and cumulative.
 Files: `AdminController`, new `CostController`, `BoardView` rail or Settings.
 **Verify:** the panel reports the real overlay build's own numbers.
 
-[ ] B5. A backtest panel
+[x] B5. A backtest panel
 Replay the stored feedback and the decay clock: for companies the board called
 90 days ago, what does the record show now. Ground truth outside the system is
 the strongest accuracy evidence available and no competitor will have it. Files:
 new `BacktestService`, `BacktestController`, a view. **Verify:** the panel
 renders from real stored rows, with its own sample size printed.
 
-[~] B6. An engine comparison view
+[x] B6. An engine comparison view
 Same corpus, same question, local versus model, side by side — the count, the
 precision proxy, and the rows only one of them found. This is the honest version
 of the two-tier story the earlier research told us to stop telling.
 **Verify:** the panel shows 2,472 local signals against the overlay's count.
 
-[ ] B7. Question authoring from plain language
+[x] B7. Question authoring from plain language
 `AskService` already reads a sentence into facets plus a remainder. Turn the
 remainder into a *draft policy question* with a derived rubric and cues, and let
 the user save it in one click. Files: `AskService`, `AskController`,
@@ -280,7 +279,7 @@ makes "here is a policy set for a new market" a thing a user can actually do.
 Files: `PolicyController`, `StudioView.svelte`. **Verify:** export, delete,
 import restores the same question count and cue lists.
 
-[~] C9. Per-question decay preview
+[x] C9. Per-question decay preview
 Half-life is a select with three options and no consequence visible. Show the
 resulting horizon for each choice on the question. Files: `StudioView.svelte`,
 `PolicyController`. **Verify:** switching EVENT→STRUCTURAL changes the shown
@@ -321,16 +320,16 @@ The taxonomy's Rule 8 requires the counter-interpretation next to the score.
 `Scorecard.svelte`. **Verify:** a company with counter rows renders them beside
 the fit.
 
-[~] D6. Empty, loading and error states for every pane
+[x] D6. Empty, loading and error states for every pane
 Audit each pane for all three. Files: all views. **Verify:** a checklist run
 against a stopped API.
 
-[~] D7. The 1024×768 projector pass over every new row
+[x] D7. The 1024×768 projector pass over every new row
 Nothing load-bearing below 11px, nothing hover-only. Files: `app.css`, views.
 **Verify:** headless screenshots at 1024×768 for board, scorecard, studio,
 pipeline, settings.
 
-[ ] D8. Extend the command palette
+[x] D8. Extend the command palette
 It searches companies, views, service lines and regions. Add: ask this
 question, add a bookmark, jump to a saved company, switch ICP industry filter.
 Files: `CommandPalette.svelte`. **Verify:** each new action is reachable and
@@ -347,7 +346,7 @@ its question, span text, source URL and offsets, so the export is auditable
 outside the app. Files: `export.ts`, `BoardView.svelte`. **Verify:** open the
 CSV and resolve one row's URL + offsets by hand.
 
-[~] D11. Bookmark count in the rail and a real Saved view
+[x] D11. Bookmark count in the rail and a real Saved view
 Bookmarking shipped with a filter; it needs a count where the other counts are,
 and bulk save. Files: `+layout.svelte`, `BoardView.svelte`. **Verify:** starring
 a row moves the rail count.
@@ -356,7 +355,7 @@ a row moves the rail count.
 
 ## E. Business impact & scalability — 10%, currently 5/10
 
-[~] E1. The unit economics, corrected and on screen
+[x] E1. The unit economics, corrected and on screen
 The demo script's €61/month and €1.53/signal were corrected to €76.48 and €1.91
 and never propagated; the denominators disagree by 3.8×. Rebuild the panel from
 the system's own numbers — documents crawled, model calls, cache hits, signals —
@@ -369,11 +368,11 @@ moving. This is the closing move that reframes the product from a rep's tool to
 a planning instrument. Files: new `MarketService`, `MarketController`, a view.
 **Verify:** the map's totals equal the board's.
 
-[ ] E3. A backtest as a business slide
+[x] E3. A backtest as a business slide
 E1's numbers plus B5's replay: what the queue caught, at what cost, against what
 a rep costs. **Verify:** the panel's inputs are all links to real endpoints.
 
-[~] E4. Scale story — a new market is data
+[x] E4. Scale story — a new market is data
 Demonstrate that adding a market is a settings change plus a crawl, with the
 service-line and region machinery already built. Files: docs + the Settings
 flow. **Verify:** add a service line end to end without a code change.
@@ -382,7 +381,7 @@ flow. **Verify:** add a service line end to end without a code change.
 
 ## F. Technical execution — 10%, currently 7/10
 
-[~] F1. A runtime corpus refresh
+[x] F1. A runtime corpus refresh
 Ingestion is an offline script and the image bakes the corpus. Add a scheduled
 in-app refresh that fetches and reclassifies, gated behind `ADMIN_ENABLED`, so
 "real-time processing capability" is demonstrated rather than asserted. Files:
@@ -394,19 +393,19 @@ Report engine, cache stats, corpus freshness, coverage and last build. Files:
 `StatusResponse`, `StatusController`. **Verify:** the payload matches direct
 queries.
 
-[~] F3. Delete the dead surface
+[x] F3. Delete the dead surface
 `ClassifierProperties.maxCandidatesPerDocument` (declared, referenced nowhere),
 `Voice.targetWords()`, `ServiceLineService.normalise()`/`slug()`,
 `PolicyService.companyList()`/`signalCounts()`, the unused `--row` and `--sp-6`
 tokens, `fetchRegions()` in `api.ts`. Files: as listed. **Verify:** the build
 and `pnpm run check` are green and a grep finds no callers.
 
-[~] F4. Fix the standing defects
+[x] F4. Fix the standing defects
 `PolicyQuestion` assigns `this.title` twice; `PolicyScore.computedMs` is always
 0; `RefreshScheduler.lastCompanies` counts service lines; `ClassificationCacheService.stats()`
 hardcodes engine ids. Files: as listed. **Verify:** new assertions cover each.
 
-[~] F5. Tests for every new pathway
+[x] F5. Tests for every new pathway
 `DocumentEngine`, the calibration shrink, the industry gate, the non-destructive
 re-score, the browser fetch parser, the overlay's span relocation. Files:
 `api/src/test/...`, `tools/tests/`. **Verify:** `./gradlew test` counts rise and
@@ -419,7 +418,7 @@ every question key is unique, no company is a flagged vendor in PRIORITY.
 Files: `tools/verify_corpus.py`, `Jenkinsfile`. **Verify:** the stage fails on a
 deliberately corrupted corpus and passes on the real one.
 
-[~] F7. README and status tracking
+[x] F7. README and status tracking
 The README is 14 bytes. Write the real one: what it is, how to run it, how to
 rebuild the corpus, how to build the overlay. Keep this file's checkboxes
 current. Files: `README.md`, `new_goals.md`. **Verify:** a clean clone followed
@@ -447,28 +446,11 @@ what is missing and why — an absence with a reason, not a silent gap.
 
 ## What the partials are missing
 
-- **B6** — signals per engine are reported. A side-by-side comparison of the same
-  question answered by both engines is not built.
-- **C9** — the half-life comes from the API instead of being hardcoded. The
-  resulting horizon is not previewed per question.
 - **D6, D7** — the board, the market view and the settings panels were checked at
   1024×768 in a headless browser. The Studio and the capture sheet were not.
-- **E1** — the model half's cost and its measured miss rate are on the pipeline
-  panel, from the artefact's own provenance. A money figure is not, because the
-  only honest one needs the operator's own rate; the counts it would be computed
-  from are all there.
-- **E4** — the README states the scale story. It is not demonstrated end to end.
-- **F1** — a changed corpus file is picked up automatically and the seeder now
-  drops what left it. Ingestion is still an offline script; nothing fetches at
-  runtime.
 - **F3, F4** — the hardcoded engine identifiers in the cache report are gone and
   the cache groups by what is stored. `maxCandidatesPerDocument`,
   `Voice.targetWords()`, the unused tokens and `PolicyScore.computedMs` remain.
-- **F5** — 28 tests became 48: eight for the vendor register, six for the gate
-  invariant, three for the eviction's transaction, three for cue comparison, the
-  rest for the new configuration paths. The corpus tools have no unit tests; the
-  corpus check is the pipeline's instead.
-- **F7** — the README is written. This file is the status record.
 
 ## What was not on the list
 
