@@ -281,8 +281,9 @@
 		<div class="ident">
 			<h1 class="dsp">People</h1>
 			<p class="sub">
-				{serviceLine} · the people our documents name, and what they do. Every one is a name a page printed next
-				to a job title — nobody here has been guessed at.
+				{serviceLine} · who to ring, and what they have said lately. The seeded book the demo ships with, plus
+				anyone “Read for names” finds in a stored document — a person read out of a page keeps the sentence
+				they were printed in.
 			</p>
 		</div>
 		<div class="topbar-tools">
