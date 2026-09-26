@@ -750,15 +750,15 @@
 	.saved {
 		display: inline-flex;
 		align-items: center;
-		gap: var(--sp-1);
-		font-size: var(--fs-base);
-		color: var(--accent);
+		gap: var(--spacing-1);
+		font-size: var(--text-base);
+		color: var(--color-accent);
 	}
 
 	.sections {
-		border-right: 1px solid var(--rule);
-		background: var(--paper);
-		padding: var(--sp-2) 0;
+		border-right: 1px solid var(--color-rule);
+		background: var(--color-paper);
+		padding: var(--spacing-2) 0;
 		display: flex;
 		flex-direction: column;
 	}
@@ -766,25 +766,25 @@
 	.section-link {
 		display: flex;
 		align-items: flex-start;
-		gap: var(--sp-2);
+		gap: var(--spacing-2);
 		text-align: left;
-		padding: var(--sp-2) var(--sp-3) var(--sp-2) 10px;
+		padding: var(--spacing-2) var(--spacing-3) var(--spacing-2) 10px;
 		border-left: 2px solid transparent;
 		transition: background var(--ease), border-color var(--ease);
 	}
 
 	.section-link :global(.icon) {
-		color: var(--ink-3);
+		color: var(--color-ink-3);
 		margin-top: 1px;
 	}
 
 	.section-link:hover {
-		background: var(--surface);
+		background: var(--color-surface);
 	}
 
 	.section-link[aria-current='true'] {
-		background: var(--surface);
-		border-left-color: var(--orange);
+		background: var(--color-surface);
+		border-left-color: var(--color-orange);
 	}
 
 	.section-text {
@@ -795,33 +795,33 @@
 	}
 
 	.section-label {
-		font-size: var(--fs-md);
-		color: var(--ink-2);
+		font-size: var(--text-md);
+		color: var(--color-ink-2);
 	}
 
 	.section-link[aria-current='true'] .section-label {
-		color: var(--ink);
+		color: var(--color-ink);
 		font-weight: 500;
 	}
 
 	.section-hint {
-		font-size: var(--fs-micro);
-		color: var(--ink-4);
+		font-size: var(--text-micro);
+		color: var(--color-ink-4);
 	}
 
 	.unsaved {
 		display: flex;
 		align-items: center;
-		gap: var(--sp-1);
+		gap: var(--spacing-1);
 		margin-top: auto;
-		padding: var(--sp-3);
-		font-size: var(--fs-sm);
-		color: var(--orange-ink);
+		padding: var(--spacing-3);
+		font-size: var(--text-sm);
+		color: var(--color-orange-ink);
 	}
 
 	.body {
 		min-height: 0;
-		background: var(--surface);
+		background: var(--color-surface);
 	}
 
 	.panel {
@@ -829,69 +829,69 @@
 	}
 
 	.panel-head h2 {
-		font-size: var(--fs-xl);
+		font-size: var(--text-xl);
 	}
 
 	.brief {
-		font-size: var(--fs-base);
+		font-size: var(--text-base);
 		line-height: 1.6;
-		padding: var(--sp-2) var(--sp-3);
-		background: var(--paper);
-		border-left: 2px solid var(--orange);
-		color: var(--ink-2);
+		padding: var(--spacing-2) var(--spacing-3);
+		background: var(--color-paper);
+		border-left: 2px solid var(--color-orange);
+		color: var(--color-ink-2);
 	}
 
 	.checks {
 		display: flex;
 		flex-direction: column;
-		gap: var(--sp-1);
+		gap: var(--spacing-1);
 	}
 
 	.chips {
 		display: flex;
 		flex-wrap: wrap;
-		gap: var(--sp-1);
+		gap: var(--spacing-1);
 	}
 
 	.region-pick {
 		cursor: pointer;
-		border-color: var(--orange-line);
-		background: var(--orange-wash);
-		color: var(--orange-ink);
+		border-color: var(--color-orange-line);
+		background: var(--color-orange-wash);
+		color: var(--color-orange-ink);
 	}
 
 	.region-pick:hover {
-		background: var(--surface);
+		background: var(--color-surface);
 	}
 
 	.lines {
 		list-style: none;
 		margin: 0;
 		padding: 0;
-		border-top: 1px solid var(--rule);
+		border-top: 1px solid var(--color-rule);
 	}
 
 	.lines li {
-		padding: var(--sp-2) 0;
-		border-bottom: 1px solid var(--rule);
+		padding: var(--spacing-2) 0;
+		border-bottom: 1px solid var(--color-rule);
 	}
 
 	.line-head {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: var(--sp-3);
+		gap: var(--spacing-3);
 	}
 
 	.line-name {
 		font-family: var(--font-display);
-		font-size: var(--fs-lg);
+		font-size: var(--text-lg);
 	}
 
 	.line-tools {
 		display: flex;
 		align-items: center;
-		gap: var(--sp-1);
+		gap: var(--spacing-1);
 	}
 
 	@media (max-width: 900px) {
@@ -902,7 +902,7 @@
 		.sections {
 			flex-direction: row;
 			border-right: 0;
-			border-bottom: 1px solid var(--rule);
+			border-bottom: 1px solid var(--color-rule);
 			overflow-x: auto;
 			padding: 0;
 		}
@@ -910,5 +910,4 @@
 		.unsaved {
 			display: none;
 		}
-	}
-</style>
+	}</style>

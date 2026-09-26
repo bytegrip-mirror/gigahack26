@@ -779,7 +779,7 @@
 							</div>
 
 							{#if preview.matches.length > 0}
-								<table class="grid">
+								<table class="tbl">
 									<thead>
 										<tr>
 											<th scope="col" class="c-name">Company</th>
@@ -872,20 +872,20 @@
 		display: flex;
 		flex-direction: column;
 		gap: 2px;
-		margin-top: var(--sp-2);
+		margin-top: var(--spacing-2);
 	}
 
 	.decay-step {
 		display: grid;
 		grid-template-columns: 44px 1fr 34px;
 		align-items: center;
-		gap: var(--sp-2);
+		gap: var(--spacing-2);
 	}
 
 	.decay-bar {
 		display: block;
 		height: 5px;
-		background: var(--sunken);
+		background: var(--color-sunken);
 		border-radius: 1px;
 		overflow: hidden;
 	}
@@ -893,36 +893,36 @@
 	.decay-bar span {
 		display: block;
 		height: 100%;
-		background: var(--orange);
+		background: var(--color-orange);
 	}
 
 	.chip {
 		display: inline-flex;
 		align-items: center;
 		gap: 4px;
-		padding: 2px var(--sp-2);
-		border: 1px solid var(--rule);
+		padding: 2px var(--spacing-2);
+		border: 1px solid var(--color-rule);
 		border-radius: 2px;
-		background: var(--surface);
+		background: var(--color-surface);
 		font: inherit;
-		font-size: var(--fs-sm);
+		font-size: var(--text-sm);
 		cursor: pointer;
 	}
 
 	.chip:hover {
-		border-color: var(--ink-3);
+		border-color: var(--color-ink-3);
 	}
 
 	.chip-bad {
-		border-color: var(--oxblood-line);
-		background: var(--oxblood-wash);
-		color: var(--oxblood);
+		border-color: var(--color-oxblood-line);
+		background: var(--color-oxblood-wash);
+		color: var(--color-oxblood);
 	}
 
 	.cue-add {
 		display: flex;
-		gap: var(--sp-2);
-		margin-top: var(--sp-2);
+		gap: var(--spacing-2);
+		margin-top: var(--spacing-2);
 	}
 
 	.cue-add .input {
@@ -939,34 +939,34 @@
 		display: flex;
 		flex-direction: column;
 		min-height: 0;
-		border-right: 1px solid var(--rule);
-		background: var(--paper);
+		border-right: 1px solid var(--color-rule);
+		background: var(--color-paper);
 	}
 
 	.q-toolbar {
 		display: flex;
 		flex-direction: column;
-		gap: var(--sp-2);
-		padding: var(--sp-2);
-		border-bottom: 1px solid var(--rule);
+		gap: var(--spacing-2);
+		padding: var(--spacing-2);
+		border-bottom: 1px solid var(--color-rule);
 		flex: none;
 	}
 
 	.search {
 		display: flex;
 		align-items: center;
-		gap: var(--sp-1);
+		gap: var(--spacing-1);
 		flex: 1;
 		min-width: 0;
-		padding-left: var(--sp-2);
-		border: 1px solid var(--rule-strong);
+		padding-left: var(--spacing-2);
+		border: 1px solid var(--color-rule-strong);
 		border-radius: 2px;
-		background: var(--surface);
-		color: var(--ink-3);
+		background: var(--color-surface);
+		color: var(--color-ink-3);
 	}
 
 	.search:focus-within {
-		border-color: var(--orange);
+		border-color: var(--color-orange);
 	}
 
 	.search .input {
@@ -983,12 +983,12 @@
 	}
 
 	.group + .group {
-		border-top: 1px solid var(--rule);
+		border-top: 1px solid var(--color-rule);
 	}
 
 	.group-head {
 		display: block;
-		padding: var(--sp-2) var(--sp-3) 4px;
+		padding: var(--spacing-2) var(--spacing-3) 4px;
 	}
 
 	.group ul {
@@ -1001,13 +1001,13 @@
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) auto;
 		align-items: start;
-		border-bottom: 1px solid var(--rule);
-		background: var(--paper);
-		padding-right: var(--sp-1);
+		border-bottom: 1px solid var(--color-rule);
+		background: var(--color-paper);
+		padding-right: var(--spacing-1);
 	}
 
 	.group li:hover {
-		background: var(--surface);
+		background: var(--color-surface);
 	}
 
 	.q {
@@ -1016,30 +1016,30 @@
 		gap: 3px;
 		width: 100%;
 		text-align: left;
-		padding: var(--sp-2) var(--sp-2) var(--sp-2) 11px;
+		padding: var(--spacing-2) var(--spacing-2) var(--spacing-2) 11px;
 		border-left: 2px solid transparent;
 		transition: border-color var(--ease);
 	}
 
 	.group li:has(.q[aria-current='true']) {
-		background: var(--surface);
+		background: var(--color-surface);
 	}
 
 	.q[aria-current='true'] {
-		border-left-color: var(--orange);
+		border-left-color: var(--color-orange);
 	}
 
 	.q-title {
-		font-size: var(--fs-md);
+		font-size: var(--text-md);
 		font-weight: 500;
-		color: var(--ink);
+		color: var(--color-ink);
 		line-height: 1.3;
 	}
 
 	.q-text {
-		font-size: var(--fs-sm);
+		font-size: var(--text-sm);
 		line-height: 1.4;
-		color: var(--ink-3);
+		color: var(--color-ink-3);
 		display: -webkit-box;
 		-webkit-line-clamp: 2;
 		line-clamp: 2;
@@ -1056,30 +1056,30 @@
 	}
 
 	.q-meta .num {
-		font-size: var(--fs-micro);
+		font-size: var(--text-micro);
 	}
 
 	.pad {
-		padding: var(--sp-3);
+		padding: var(--spacing-3);
 	}
 
 	.pad.empty {
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
-		gap: var(--sp-2);
+		gap: var(--spacing-2);
 	}
 
 	.pending {
 		display: flex;
 		align-items: center;
 		flex-wrap: wrap;
-		gap: var(--sp-2);
-		padding: var(--sp-2) var(--sp-4);
-		border-top: 1px solid var(--rule-strong);
-		background: var(--orange-wash);
-		color: var(--orange-ink);
-		font-size: var(--fs-sm);
+		gap: var(--spacing-2);
+		padding: var(--spacing-2) var(--spacing-4);
+		border-top: 1px solid var(--color-rule-strong);
+		background: var(--color-orange-wash);
+		color: var(--color-orange-ink);
+		font-size: var(--text-sm);
 		flex: none;
 	}
 
@@ -1091,7 +1091,7 @@
 		display: flex;
 		flex-direction: column;
 		min-height: 0;
-		background: var(--surface);
+		background: var(--color-surface);
 	}
 
 	.editor-body {
@@ -1103,10 +1103,10 @@
 	.editor-foot {
 		display: flex;
 		align-items: center;
-		gap: var(--sp-2);
-		padding: var(--sp-2) var(--sp-4);
-		border-top: 1px solid var(--ink);
-		background: var(--paper);
+		gap: var(--spacing-2);
+		padding: var(--spacing-2) var(--spacing-4);
+		border-top: 1px solid var(--color-ink);
+		background: var(--color-paper);
 		flex: none;
 	}
 
@@ -1115,22 +1115,22 @@
 	}
 
 	.panel {
-		padding: var(--sp-4);
+		padding: var(--spacing-4);
 	}
 
 	.preview-body {
 		position: relative;
 		display: flex;
 		flex-direction: column;
-		gap: var(--sp-2);
+		gap: var(--spacing-2);
 	}
 
 	.panel-head {
-		margin-bottom: var(--sp-1);
+		margin-bottom: var(--spacing-1);
 	}
 
 	.panel-head h2 {
-		font-size: var(--fs-xl);
+		font-size: var(--text-xl);
 	}
 
 	.c-docs {
@@ -1143,10 +1143,10 @@
 
 	.small-quote {
 		font-family: var(--font-display);
-		font-size: var(--fs-base);
+		font-size: var(--text-base);
 		font-style: italic;
 		line-height: 1.4;
-		color: var(--ink-2);
+		color: var(--color-ink-2);
 	}
 
 	@media (max-width: 1000px) {
@@ -1156,7 +1156,6 @@
 		}
 		.questions {
 			border-right: 0;
-			border-bottom: 1px solid var(--rule);
+			border-bottom: 1px solid var(--color-rule);
 		}
-	}
-</style>
+	}</style>

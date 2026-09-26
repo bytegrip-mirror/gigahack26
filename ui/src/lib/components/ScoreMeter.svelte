@@ -42,16 +42,16 @@
 	.track {
 		position: relative;
 		height: 5px;
-		background: var(--sunken);
-		border-top: 1px solid var(--rule);
-		border-bottom: 1px solid var(--rule);
+		background: var(--color-sunken);
+		border-top: 1px solid var(--color-rule);
+		border-bottom: 1px solid var(--color-rule);
 	}
 
 	.zone {
 		position: absolute;
 		top: 0;
 		bottom: 0;
-		background: var(--orange-wash);
+		background: var(--color-orange-wash);
 	}
 
 	.base {
@@ -59,7 +59,7 @@
 		top: -2px;
 		bottom: -2px;
 		width: 1px;
-		background: var(--ink-4);
+		background: var(--color-ink-4);
 	}
 
 	.fill {
@@ -67,20 +67,20 @@
 		left: 0;
 		top: 0;
 		bottom: 0;
-		background: var(--ink-4);
+		background: var(--color-ink-4);
 		transition: width 180ms var(--ease);
 	}
 
 	.fill[data-band='PRIORITY'] {
-		background: var(--orange);
+		background: var(--color-orange);
 	}
 
 	.fill[data-band='NURTURE'] {
-		background: var(--orange-line);
+		background: var(--color-orange-line);
 	}
 
 	.fill[data-band='DISQUALIFIED'] {
-		background: var(--oxblood-line);
+		background: var(--color-oxblood-line);
 	}
 
 	.scale {
@@ -92,9 +92,8 @@
 	.scale .label {
 		position: absolute;
 		transform: translateX(-50%);
-		font-size: var(--fs-micro);
+		font-size: var(--text-micro);
 		letter-spacing: 0.06em;
-		color: var(--ink-4);
+		color: var(--color-ink-4);
 		white-space: nowrap;
-	}
-</style>
+	}</style>

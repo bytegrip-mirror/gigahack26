@@ -62,18 +62,17 @@
 
 <style>
 	.star {
-		color: var(--ink-4);
+		color: var(--color-ink-4);
 	}
 
 	.star:hover {
-		color: var(--orange-deep);
+		color: var(--color-orange-deep);
 	}
 
 	.star.on {
-		color: var(--orange);
+		color: var(--color-orange);
 	}
 
 	.star.busy {
 		opacity: 0.5;
-	}
-</style>
+	}</style>

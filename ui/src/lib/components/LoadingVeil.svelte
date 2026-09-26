@@ -17,14 +17,13 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		gap: var(--sp-2);
-		background: color-mix(in oklab, var(--paper) 78%, transparent);
+		gap: var(--spacing-2);
+		background: color-mix(in oklab, var(--color-paper) 78%, transparent);
 		backdrop-filter: blur(1px);
-		color: var(--ink-3);
+		color: var(--color-ink-3);
 		font-size: 13px;
 	}
 
 	.veil-label {
-		font-size: var(--fs-base);
-	}
-</style>
+		font-size: var(--text-base);
+	}</style>

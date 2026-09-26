@@ -100,7 +100,7 @@
 
 		<div class="rail-foot">
 			{#if workspace.status}
-				<section class="block">
+				<section class="panel-block">
 					<p class="label">Corpus</p>
 					<div class="corpus">
 						<Metric value={shortNumber(workspace.status.companies)} label="Companies" />
@@ -121,7 +121,7 @@
 					text={regionLabel(workspace.regions, session.region)}
 					icon="target"
 					align="start"
-					block
+					stretch
 					label="Board region"
 					title="Which markets the board ranks. The board shows the choice."
 					items={regionChoices(workspace.regions).map((choice) => ({
@@ -164,13 +164,13 @@
 <style>
 	.app {
 		display: grid;
-		grid-template-columns: var(--rail) minmax(0, 1fr);
+		grid-template-columns: var(--spacing-rail) minmax(0, 1fr);
 		height: 100vh;
 	}
 
 	.rail {
-		border-right: 1px solid var(--rule);
-		background: var(--paper);
+		border-right: 1px solid var(--color-rule);
+		background: var(--color-paper);
 		display: flex;
 		flex-direction: column;
 		overflow-y: auto;
@@ -182,16 +182,16 @@
 	}
 
 	.rail-top {
-		border-bottom: 1px solid var(--rule);
-		padding-bottom: var(--sp-2);
+		border-bottom: 1px solid var(--color-rule);
+		padding-bottom: var(--spacing-2);
 	}
 
 	.brand {
 		display: flex;
 		align-items: center;
-		gap: var(--sp-2);
-		padding: var(--sp-3) var(--sp-3) var(--sp-2);
-		color: var(--ink);
+		gap: var(--spacing-2);
+		padding: var(--spacing-3) var(--spacing-3) var(--spacing-2);
+		color: var(--color-ink);
 	}
 
 	.brand:hover {
@@ -206,33 +206,33 @@
 	}
 
 	.wordmark strong {
-		font-size: var(--fs-xl);
+		font-size: var(--text-xl);
 		line-height: 1.1;
 	}
 
 	.wordmark .label {
-		font-size: var(--fs-micro);
+		font-size: var(--text-micro);
 	}
 
 	.searchbox {
 		display: flex;
 		align-items: center;
-		gap: var(--sp-2);
-		margin: 0 var(--sp-3);
-		padding: 0 var(--sp-2);
-		height: var(--ctl);
-		width: calc(100% - var(--sp-5));
-		border: 1px solid var(--rule-strong);
+		gap: var(--spacing-2);
+		margin: 0 var(--spacing-3);
+		padding: 0 var(--spacing-2);
+		height: var(--spacing-ctl);
+		width: calc(100% - var(--spacing-5));
+		border: 1px solid var(--color-rule-strong);
 		border-radius: 2px;
-		background: var(--surface);
-		color: var(--ink-3);
-		font-size: var(--fs-base);
+		background: var(--color-surface);
+		color: var(--color-ink-3);
+		font-size: var(--text-base);
 		transition: border-color var(--ease), color var(--ease);
 	}
 
 	.searchbox:hover {
-		border-color: var(--ink-3);
-		color: var(--ink);
+		border-color: var(--color-ink-3);
+		color: var(--color-ink);
 	}
 
 	.searchbox-text {
@@ -241,67 +241,67 @@
 	}
 
 	kbd {
-		border: 1px solid var(--rule);
+		border: 1px solid var(--color-rule);
 		border-radius: 2px;
 		padding: 0 3px;
 		font-family: var(--font-ui);
-		font-size: var(--fs-micro);
-		color: var(--ink-4);
+		font-size: var(--text-micro);
+		color: var(--color-ink-4);
 	}
 
 	nav {
 		display: flex;
 		flex-direction: column;
-		padding: var(--sp-1) 0;
-		border-bottom: 1px solid var(--rule);
+		padding: var(--spacing-1) 0;
+		border-bottom: 1px solid var(--color-rule);
 	}
 
 	nav a {
 		display: flex;
 		align-items: center;
-		gap: var(--sp-2);
-		padding: 6px var(--sp-3) 6px 11px;
-		font-size: var(--fs-md);
-		color: var(--ink-2);
+		gap: var(--spacing-2);
+		padding: 6px var(--spacing-3) 6px 11px;
+		font-size: var(--text-md);
+		color: var(--color-ink-2);
 		border-left: 2px solid transparent;
 		transition: background var(--ease), color var(--ease);
 	}
 
 	nav a:hover {
-		background: var(--sunken);
+		background: var(--color-sunken);
 		text-decoration: none;
-		color: var(--ink);
+		color: var(--color-ink);
 	}
 
 	nav a[aria-current='page'] {
-		border-left-color: var(--orange);
-		color: var(--ink);
+		border-left-color: var(--color-orange);
+		color: var(--color-ink);
 		font-weight: 500;
 	}
 
 	nav a :global(.icon) {
-		color: var(--ink-3);
+		color: var(--color-ink-3);
 	}
 
 	nav a[aria-current='page'] :global(.icon) {
-		color: var(--orange-deep);
+		color: var(--color-orange-deep);
 	}
 
-	.block {
-		padding: var(--sp-3);
-		border-bottom: 1px solid var(--rule);
+	.panel-block {
+		padding: var(--spacing-3);
+		border-bottom: 1px solid var(--color-rule);
 	}
 
-	.block .label {
+	.panel-block .label {
 		display: block;
-		margin-bottom: var(--sp-2);
+		margin-bottom: var(--spacing-2);
 	}
 
 
 	.corpus {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
-		gap: var(--sp-2) var(--sp-3);
+		gap: var(--spacing-2) var(--spacing-3);
 	}
 
 	.corpus :global(.metric) {
@@ -311,26 +311,26 @@
 	}
 
 	.corpus :global(.metric-val) {
-		font-size: var(--fs-lg);
+		font-size: var(--text-lg);
 	}
 
 	.rail-foot {
 		margin-top: auto;
 		display: flex;
 		flex-direction: column;
-		padding: 0 var(--sp-3) var(--sp-3);
-		gap: var(--sp-2);
+		padding: 0 var(--spacing-3) var(--spacing-3);
+		gap: var(--spacing-2);
 	}
 
-	.rail-foot .block {
-		padding: var(--sp-3) 0;
-		border-bottom: 1px solid var(--rule);
+	.rail-foot .panel-block {
+		padding: var(--spacing-3) 0;
+		border-bottom: 1px solid var(--color-rule);
 	}
 
 	.region {
 		display: flex;
 		flex-direction: column;
-		gap: var(--sp-1);
+		gap: var(--spacing-1);
 	}
 
 	.region .label {
@@ -340,9 +340,9 @@
 	.refresh {
 		display: flex;
 		align-items: center;
-		gap: var(--sp-1);
-		font-size: var(--fs-sm);
-		color: var(--ink-3);
+		gap: var(--spacing-1);
+		font-size: var(--text-sm);
+		color: var(--color-ink-3);
 	}
 
 	.dot {
@@ -353,11 +353,11 @@
 	}
 
 	.dot.ok {
-		background: var(--accent);
+		background: var(--color-accent);
 	}
 
 	.dot.bad {
-		background: var(--oxblood);
+		background: var(--color-oxblood);
 	}
 
 	main {
@@ -370,24 +370,24 @@
 	.toasts {
 		animation: rise var(--ease-enter) both;
 		position: fixed;
-		right: var(--sp-4);
-		bottom: var(--sp-4);
+		right: var(--spacing-4);
+		bottom: var(--spacing-4);
 		display: flex;
 		flex-direction: column;
-		gap: var(--sp-1);
-		z-index: var(--z-toast);
+		gap: var(--spacing-1);
+		z-index: var(--z-index-toast);
 		max-width: 400px;
 	}
 
 	.toast {
 		display: flex;
 		align-items: flex-start;
-		gap: var(--sp-2);
-		background: var(--ink);
-		color: var(--paper);
+		gap: var(--spacing-2);
+		background: var(--color-ink);
+		color: var(--color-paper);
 		border-radius: 2px;
-		padding: var(--sp-2) 10px;
-		font-size: var(--fs-base);
+		padding: var(--spacing-2) 10px;
+		font-size: var(--text-base);
 		line-height: 1.4;
 	}
 
@@ -396,11 +396,11 @@
 	}
 
 	.toast[data-tone='error'] {
-		background: var(--oxblood);
+		background: var(--color-oxblood);
 	}
 
 	.toast :global(.btn) {
-		color: var(--paper);
+		color: var(--color-paper);
 		opacity: 0.75;
 	}
 
@@ -412,10 +412,10 @@
 		.rail {
 			flex-direction: row;
 			align-items: center;
-			gap: var(--sp-2);
+			gap: var(--spacing-2);
 			overflow-x: auto;
 			border-right: 0;
-			border-bottom: 1px solid var(--rule);
+			border-bottom: 1px solid var(--color-rule);
 		}
 		.rail-top {
 			display: flex;
@@ -425,14 +425,14 @@
 			flex: none;
 		}
 		.brand {
-			padding: var(--sp-2) var(--sp-3);
+			padding: var(--spacing-2) var(--spacing-3);
 		}
 		.wordmark .label {
 			display: none;
 		}
 		.searchbox {
-			width: var(--ctl);
-			margin: 0 var(--sp-2) 0 0;
+			width: var(--spacing-ctl);
+			margin: 0 var(--spacing-2) 0 0;
 			justify-content: center;
 		}
 		.searchbox-text,
@@ -447,18 +447,17 @@
 		nav a {
 			border-left: 0;
 			border-bottom: 2px solid transparent;
-			padding: var(--sp-2);
+			padding: var(--spacing-2);
 		}
 		nav a[aria-current='page'] {
 			border-left-color: transparent;
-			border-bottom-color: var(--orange);
+			border-bottom-color: var(--color-orange);
 		}
 		.nav-label {
 			display: none;
 		}
-		.block,
+		.panel-block,
 		.rail-foot {
 			display: none;
 		}
-	}
-</style>
+	}</style>

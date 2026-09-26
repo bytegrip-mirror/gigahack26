@@ -11,7 +11,7 @@
 		text = '',
 		size = 'md',
 		align = 'end',
-		block = false,
+		stretch = false,
 		searchable = false,
 		disabled = false,
 		title = ''
@@ -23,7 +23,7 @@
 		text?: string;
 		size?: 'sm' | 'md';
 		align?: 'start' | 'end';
-		block?: boolean;
+		stretch?: boolean;
 		searchable?: boolean;
 		disabled?: boolean;
 		title?: string;
@@ -125,7 +125,7 @@
 <button
 	bind:this={trigger}
 	class="menu-trigger {text ? (size === 'sm' ? 'btn btn-sm' : 'btn') : size === 'sm' ? 'icon-btn icon-btn-sm' : 'icon-btn'}"
-	class:block
+	class:stretch
 	type="button"
 	aria-haspopup="menu"
 	aria-expanded={open}
@@ -210,14 +210,14 @@
 	.menu-search {
 		display: flex;
 		align-items: center;
-		gap: var(--sp-1);
-		padding: var(--sp-1) var(--sp-2) var(--sp-2);
-		margin-bottom: var(--sp-1);
-		border-bottom: 1px solid var(--rule);
-		color: var(--ink-3);
+		gap: var(--spacing-1);
+		padding: var(--spacing-1) var(--spacing-2) var(--spacing-2);
+		margin-bottom: var(--spacing-1);
+		border-bottom: 1px solid var(--color-rule);
+		color: var(--color-ink-3);
 		position: sticky;
 		top: 0;
-		background: var(--surface);
+		background: var(--color-surface);
 	}
 
 	.menu-search .input {
@@ -235,12 +235,11 @@
 		white-space: nowrap;
 	}
 
-	.menu-trigger.block {
+	.menu-trigger.stretch {
 		width: 100%;
 	}
 
-	.menu-trigger.block .trigger-text {
+	.menu-trigger.stretch .trigger-text {
 		flex: 1;
 		text-align: left;
-	}
-</style>
+	}</style>

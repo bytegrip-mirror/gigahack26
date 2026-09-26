@@ -261,7 +261,7 @@
 							<h2 class="label">{stage.label}</h2>
 							<span class="num">{stage.rows.length}</span>
 						</header>
-						<table class="grid">
+						<table class="tbl">
 							<thead>
 								<tr>
 									<th scope="col" class="c-co">Company</th>
@@ -345,34 +345,34 @@
 	}
 
 	.stage + .stage {
-		border-top: 1px solid var(--ink);
+		border-top: 1px solid var(--color-ink);
 	}
 
 	.stage-head {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: var(--sp-3);
-		padding: var(--sp-2) var(--sp-4);
-		border-bottom: 1px solid var(--rule);
-		background: var(--paper);
+		gap: var(--spacing-3);
+		padding: var(--spacing-2) var(--spacing-4);
+		border-bottom: 1px solid var(--color-rule);
+		background: var(--color-paper);
 		position: sticky;
 		top: 0;
-		z-index: var(--z-sticky);
+		z-index: var(--z-index-sticky);
 	}
 
 	.stage[data-stage='QUALIFIED'] .stage-head {
-		box-shadow: inset 3px 0 0 var(--accent);
+		box-shadow: inset 3px 0 0 var(--color-accent);
 	}
 
 	.stage[data-stage='REJECTED'] .stage-head {
-		box-shadow: inset 3px 0 0 var(--oxblood);
+		box-shadow: inset 3px 0 0 var(--color-oxblood);
 	}
 
 	.stage[data-stage='NEW'] .stage-head,
 	.stage[data-stage='CONTACTED'] .stage-head,
 	.stage[data-stage='REPLIED'] .stage-head {
-		box-shadow: inset 3px 0 0 var(--orange);
+		box-shadow: inset 3px 0 0 var(--color-orange);
 	}
 
 	.c-co {
@@ -382,9 +382,9 @@
 	.co {
 		display: block;
 		font-family: var(--font-display);
-		font-size: var(--fs-lg);
+		font-size: var(--text-lg);
 		font-weight: 500;
-		color: var(--ink);
+		color: var(--color-ink);
 		line-height: 1.2;
 	}
 
@@ -394,14 +394,14 @@
 
 	.sub {
 		display: block;
-		font-size: var(--fs-sm);
-		color: var(--ink-3);
+		font-size: var(--text-sm);
+		color: var(--color-ink-3);
 		margin-top: 1px;
 	}
 
 	.c-fit {
 		width: 68px;
-		font-size: var(--fs-lg);
+		font-size: var(--text-lg);
 	}
 
 	.c-band {
@@ -423,9 +423,9 @@
 		-webkit-box-orient: vertical;
 		overflow: hidden;
 		font-family: var(--font-display);
-		font-size: var(--fs-base);
+		font-size: var(--text-base);
 		font-style: italic;
-		color: var(--ink-2);
+		color: var(--color-ink-2);
 	}
 
 	.c-act {
@@ -436,24 +436,24 @@
 		display: flex;
 		align-items: center;
 		justify-content: flex-end;
-		gap: var(--sp-1);
+		gap: var(--spacing-1);
 	}
 
 	.search {
 		display: flex;
 		align-items: center;
-		gap: var(--sp-1);
+		gap: var(--spacing-1);
 		width: 280px;
-		padding-left: var(--sp-2);
-		border: 1px solid var(--rule-strong);
+		padding-left: var(--spacing-2);
+		border: 1px solid var(--color-rule-strong);
 		border-radius: 2px;
-		background: var(--surface);
-		color: var(--ink-3);
+		background: var(--color-surface);
+		color: var(--color-ink-3);
 	}
 
 	.search:focus-within {
-		border-color: var(--orange);
-		box-shadow: 0 0 0 2px var(--orange-wash);
+		border-color: var(--color-orange);
+		box-shadow: 0 0 0 2px var(--color-orange-wash);
 	}
 
 	.search .input {
@@ -469,8 +469,8 @@
 	@media (max-width: 760px) {
 		.metrics {
 			flex: 1 1 100%;
-			padding-top: var(--sp-2);
-			border-top: 1px solid var(--rule);
+			padding-top: var(--spacing-2);
+			border-top: 1px solid var(--color-rule);
 		}
 		.toolbar {
 			flex-wrap: wrap;
@@ -478,7 +478,7 @@
 		.search {
 			width: 100%;
 		}
-		.panes table.grid {
+		.panes table.tbl {
 			min-width: 520px;
 		}
 		.panes {
@@ -500,5 +500,4 @@
 		.c-act {
 			width: 130px;
 		}
-	}
-</style>
+	}</style>

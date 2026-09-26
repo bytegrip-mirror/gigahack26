@@ -81,6 +81,5 @@
 	.page-of {
 		min-width: 44px;
 		text-align: center;
-		font-size: var(--fs-sm);
-	}
-</style>
+		font-size: var(--text-sm);
+	}</style>

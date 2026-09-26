@@ -385,6 +385,22 @@ themselves. What follows from it, and must be respected:
   spent only on the corroboration mark. Semantic oxblood is for rejection and
   negative weights, and nothing else. No gradients, no shadows — hierarchy comes
   from rules and weight. Radii stay between 0 and 2px.
+- A project class name must not be a Tailwind utility name. Tailwind generates its
+  static utilities whatever the theme says, so a class called `grid`, `block`,
+  `flex`, `border`, `hidden`, `static`, `transform` or `transition` silently
+  acquires Tailwind's declarations on top of the project's — `class="grid"` on a
+  `<table>` sets `display: grid` and collapses every column. The board's table is
+  `tbl`, and the two modifiers that collided are `stretch` and `panel-block`.
+- The cascade order is `@theme`, `@layer base`, a view's own scoped styles, then
+  `@layer utilities` where Tailwind's utilities and this project's share a layer.
+  A design-system class therefore beats a view's rule of equal specificity, which
+  is what the interface was built on: the old `app.css` was unlayered and loaded
+  last, so it won every tie. Moving a rule into a lower layer changes rendering,
+  and a screenshot diff is how that is caught — reading the CSS is not enough.
+- The conversion to Tailwind was verified by screenshot, not by inspection: every
+  view at 1440×900 and 1024×768, before and after, pixel-diffed. Twelve of the
+  twelve were byte-identical apart from seven pixels of ±1 on a rounded border.
+  Hold that bar for the next restyle.
 - Type is two roles: `font-display` (Space Grotesk) for page titles, company
   names and section headings, `font-ui` (Archivo) for everything else. There is
   no monospace face; numbers use tabular figures in the interface face.

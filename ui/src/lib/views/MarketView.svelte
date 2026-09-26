@@ -144,7 +144,7 @@
 			{:else if slices.length === 0 && !loading}
 				<div class="empty">Nothing in this service line has enough companies to group yet.</div>
 			{:else}
-				<table class="grid">
+				<table class="tbl">
 					<thead>
 						<tr>
 							<th>{axisLabel}</th>
@@ -187,22 +187,22 @@
 
 <style>
 	.backtest {
-		margin-bottom: var(--sp-3);
+		margin-bottom: var(--spacing-3);
 	}
 
 	.topbar {
-		gap: var(--sp-4);
+		gap: var(--spacing-4);
 	}
 
 	.c-name {
 		font-weight: 500;
 		display: flex;
 		align-items: center;
-		gap: var(--sp-2);
+		gap: var(--spacing-2);
 	}
 
 	.hot {
-		color: var(--orange-ink);
+		color: var(--color-orange-ink);
 		font-weight: 600;
 	}
 
@@ -213,24 +213,23 @@
 	.bar {
 		display: block;
 		height: 6px;
-		background: var(--orange);
+		background: var(--color-orange);
 		border-radius: 1px;
 		min-width: 1px;
 	}
 
 	.seg-btn {
 		font: inherit;
-		font-size: var(--fs-sm);
-		padding: 2px var(--sp-3);
+		font-size: var(--text-sm);
+		padding: 2px var(--spacing-3);
 		border: 0;
 		background: transparent;
-		color: var(--ink-2);
+		color: var(--color-ink-2);
 		cursor: pointer;
 	}
 
 	.seg-btn.on {
-		background: var(--surface);
-		color: var(--ink);
+		background: var(--color-surface);
+		color: var(--color-ink);
 		font-weight: 600;
-	}
-</style>
+	}</style>

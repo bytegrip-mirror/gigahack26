@@ -270,8 +270,8 @@
 		animation: rise var(--ease-enter) both;
 		width: min(1080px, 100%);
 		height: min(760px, 92vh);
-		background: var(--surface);
-		border: 1px solid var(--ink);
+		background: var(--color-surface);
+		border: 1px solid var(--color-ink);
 		display: flex;
 		flex-direction: column;
 		min-height: 0;
@@ -281,15 +281,15 @@
 		display: flex;
 		align-items: flex-start;
 		justify-content: space-between;
-		gap: var(--sp-4);
-		padding: var(--sp-3);
-		border-bottom: 1px solid var(--ink);
+		gap: var(--spacing-4);
+		padding: var(--spacing-3);
+		border-bottom: 1px solid var(--color-ink);
 	}
 
 	.head-tools {
 		display: flex;
 		align-items: center;
-		gap: var(--sp-2);
+		gap: var(--spacing-2);
 	}
 
 	.body {
@@ -307,10 +307,10 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		gap: var(--sp-2);
-		background: color-mix(in oklab, var(--paper) 72%, transparent);
-		color: var(--ink-3);
-		font-size: var(--fs-md);
+		gap: var(--spacing-2);
+		background: color-mix(in oklab, var(--color-paper) 72%, transparent);
+		color: var(--color-ink-3);
+		font-size: var(--text-md);
 	}
 
 	.cols.waiting {
@@ -321,8 +321,8 @@
 		display: flex;
 		flex-direction: column;
 		min-height: 0;
-		padding: var(--sp-4);
-		gap: var(--sp-2);
+		padding: var(--spacing-4);
+		gap: var(--spacing-2);
 	}
 
 	.col:first-child {
@@ -332,22 +332,22 @@
 	.cites {
 		flex: 1;
 		min-width: 260px;
-		border-left: 1px solid var(--rule);
-		padding-left: var(--sp-4);
+		border-left: 1px solid var(--color-rule);
+		padding-left: var(--spacing-4);
 	}
 
 	.col-head {
 		display: flex;
 		align-items: baseline;
 		justify-content: space-between;
-		gap: var(--sp-2);
+		gap: var(--spacing-2);
 		flex: none;
 	}
 
 	.subject {
 		flex: none;
 		font-family: var(--font-display);
-		font-size: var(--fs-lg);
+		font-size: var(--text-lg);
 		font-weight: 500;
 	}
 
@@ -356,14 +356,14 @@
 		min-height: 0;
 		resize: none;
 		font-family: var(--font-ui);
-		font-size: var(--fs-md);
+		font-size: var(--text-md);
 		line-height: 1.6;
 	}
 
 	.col-foot {
 		display: flex;
 		align-items: center;
-		gap: var(--sp-1);
+		gap: var(--spacing-1);
 		flex: none;
 	}
 
@@ -378,66 +378,66 @@
 		scrollbar-width: thin;
 		display: flex;
 		flex-direction: column;
-		gap: var(--sp-3);
-		padding-right: var(--sp-1);
+		gap: var(--spacing-3);
+		padding-right: var(--spacing-1);
 	}
 
 	footer {
 		display: flex;
 		justify-content: flex-end;
-		gap: var(--sp-2);
-		padding: var(--sp-2) var(--sp-3);
-		border-top: 1px solid var(--rule);
-		background: var(--paper);
+		gap: var(--spacing-2);
+		padding: var(--spacing-2) var(--spacing-3);
+		border-top: 1px solid var(--color-rule);
+		background: var(--color-paper);
 	}
 
 	.note {
 		display: flex;
 		align-items: center;
-		gap: var(--sp-2);
-		font-size: var(--fs-md);
-		color: var(--ink-3);
+		gap: var(--spacing-2);
+		font-size: var(--text-md);
+		color: var(--color-ink-3);
 	}
 
 	.note.warn {
-		color: var(--oxblood);
+		color: var(--color-oxblood);
 	}
 
 	.cols {
 		display: grid;
 		grid-template-columns: minmax(0, 1.55fr) minmax(240px, 1fr);
-		gap: var(--sp-5);
+		gap: var(--spacing-5);
 	}
 
 	.cite {
-		border-top: 1px solid var(--rule);
-		padding-top: var(--sp-2);
+		border-top: 1px solid var(--color-rule);
+		padding-top: var(--spacing-2);
 	}
 
 	.cite-head {
 		display: flex;
 		align-items: baseline;
-		gap: var(--sp-2);
+		gap: var(--spacing-2);
 	}
 
 	.marker {
-		font-size: var(--fs-micro);
-		color: var(--orange-ink);
+		font-size: var(--text-micro);
+		color: var(--color-orange-ink);
 	}
 
 	.quote {
-		margin-top: var(--sp-1);
+		margin-top: var(--spacing-1);
 		font-family: var(--font-display);
-		font-size: var(--fs-md);
+		font-size: var(--text-md);
 		font-style: italic;
 		line-height: 1.45;
-		color: var(--ink-2);
+		color: var(--color-ink-2);
 	}
 
 	.sub {
-		font-size: var(--fs-sm);
+		font-size: var(--text-sm);
 		line-height: 1.45;
-		color: var(--ink-3);
+		color: var(--color-ink-3);
 		margin-top: 2px;
 		display: block;
 	}
@@ -449,18 +449,17 @@
 		}
 		.col {
 			flex: none;
-			padding: var(--sp-3);
+			padding: var(--spacing-3);
 		}
 		.message {
 			min-height: 180px;
 		}
 		.cites {
 			border-left: 0;
-			border-top: 1px solid var(--rule);
-			padding-left: var(--sp-3);
+			border-top: 1px solid var(--color-rule);
+			padding-left: var(--spacing-3);
 		}
 		.cite-list {
 			overflow-y: visible;
 		}
-	}
-</style>
+	}</style>

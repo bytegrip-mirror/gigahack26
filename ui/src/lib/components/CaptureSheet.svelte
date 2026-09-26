@@ -182,8 +182,8 @@
 	.sheet {
 		width: clamp(520px, 62%, 940px);
 		max-width: 100%;
-		background: var(--surface);
-		border-left: 1px solid var(--ink);
+		background: var(--color-surface);
+		border-left: 1px solid var(--color-ink);
 		display: flex;
 		flex-direction: column;
 		min-height: 0;
@@ -195,13 +195,13 @@
 		display: flex;
 		align-items: flex-start;
 		justify-content: space-between;
-		gap: var(--sp-3);
-		padding: var(--sp-3);
-		border-bottom: 1px solid var(--ink);
+		gap: var(--spacing-3);
+		padding: var(--spacing-3);
+		border-bottom: 1px solid var(--color-ink);
 	}
 
 	h2 {
-		font-size: var(--fs-xl);
+		font-size: var(--text-xl);
 		line-height: 1.25;
 		margin-top: 2px;
 	}
@@ -209,41 +209,41 @@
 	.body {
 		flex: 1;
 		min-height: 0;
-		padding: var(--sp-4);
+		padding: var(--spacing-4);
 		overflow-y: auto;
 	}
 
 	footer {
 		display: flex;
 		justify-content: flex-end;
-		gap: var(--sp-2);
-		padding: var(--sp-2) var(--sp-3);
-		border-top: 1px solid var(--rule);
-		background: var(--paper);
+		gap: var(--spacing-2);
+		padding: var(--spacing-2) var(--spacing-3);
+		border-top: 1px solid var(--color-rule);
+		background: var(--color-paper);
 	}
 
 	.note {
 		display: flex;
 		align-items: center;
-		gap: var(--sp-2);
-		font-size: var(--fs-md);
-		color: var(--ink-3);
+		gap: var(--spacing-2);
+		font-size: var(--text-md);
+		color: var(--color-ink-3);
 	}
 
 	.note.warn {
-		color: var(--oxblood);
+		color: var(--color-oxblood);
 	}
 
 	.meta {
 		display: grid;
 		grid-template-columns: 96px 1fr;
-		gap: var(--sp-1) var(--sp-3);
-		margin: 0 0 var(--sp-4);
-		font-size: var(--fs-base);
+		gap: var(--spacing-1) var(--spacing-3);
+		margin: 0 0 var(--spacing-4);
+		font-size: var(--text-base);
 	}
 
 	.meta dt {
-		color: var(--ink-3);
+		color: var(--color-ink-3);
 	}
 
 	.meta dd {
@@ -252,13 +252,13 @@
 	}
 
 	section + section {
-		margin-top: var(--sp-4);
-		padding-top: var(--sp-3);
-		border-top: 1px solid var(--rule);
+		margin-top: var(--spacing-4);
+		padding-top: var(--spacing-3);
+		border-top: 1px solid var(--color-rule);
 	}
 
 	section h3 {
-		margin-bottom: var(--sp-2);
+		margin-bottom: var(--spacing-2);
 	}
 
 	.signals {
@@ -267,30 +267,30 @@
 		padding: 0;
 		display: flex;
 		flex-direction: column;
-		gap: var(--sp-3);
+		gap: var(--spacing-3);
 	}
 
 	.signals li {
-		padding-left: var(--sp-3);
-		border-left: 2px solid var(--orange-line);
+		padding-left: var(--spacing-3);
+		border-left: 2px solid var(--color-orange-line);
 	}
 
 	.sig-head {
 		display: flex;
 		align-items: center;
-		gap: var(--sp-2);
+		gap: var(--spacing-2);
 		flex-wrap: wrap;
 	}
 
 	.sig-q {
-		margin-top: var(--sp-1);
-		font-size: var(--fs-base);
+		margin-top: var(--spacing-1);
+		font-size: var(--text-base);
 		line-height: 1.4;
-		color: var(--ink-2);
+		color: var(--color-ink-2);
 	}
 
 	.sub {
-		font-size: var(--fs-sm);
+		font-size: var(--text-sm);
 		line-height: 1.45;
 		margin-top: 3px;
 	}
@@ -299,15 +299,15 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		margin-bottom: var(--sp-2);
+		margin-bottom: var(--spacing-2);
 	}
 
 	pre {
 		margin: 0;
-		padding: var(--sp-3);
-		background: var(--paper);
-		border: 1px solid var(--rule);
-		font-size: var(--fs-base);
+		padding: var(--spacing-3);
+		background: var(--color-paper);
+		border: 1px solid var(--color-rule);
+		font-size: var(--text-base);
 		line-height: 1.7;
 		white-space: pre-wrap;
 		word-break: break-word;
@@ -316,6 +316,5 @@
 	}
 
 	.fade {
-		color: var(--ink-4);
-	}
-</style>
+		color: var(--color-ink-4);
+	}</style>

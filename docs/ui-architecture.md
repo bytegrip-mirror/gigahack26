@@ -58,43 +58,60 @@ Rules that hold across every screen:
 
 ## 2. The design system
 
-The interface uses Tailwind v4 for utilities and bits-ui for behaviour. The
-design system has three parts, and a gate holds each part in place.
+The interface is Tailwind v4, and Tailwind owns the design system rather than
+sitting next to it. Three parts:
 
-1. **The theme.** `ui/src/app.css` defines every colour, space, type size, radius,
-   font, breakpoint and z-index in one `@theme` block. The block starts with
-   `--*: initial`, so the default Tailwind scale does not exist. `p-7`,
-   `text-gray-500` and `rounded-lg` produce no CSS. Only the tokens below produce
-   utilities.
-2. **The primitives.** `ui/src/lib/ui/` holds every control and every piece of the
-   shell. Only these files import `bits-ui`. Only these files decide padding,
-   colour, border and type for a control. A caller selects a look with a
-   `variant`, `size` or `tone` prop.
-3. **The gate.** `pnpm run check` runs `ui/scripts/design-lint.mjs` after
-   `svelte-check`. The lint fails the build on a violation of the rules in
-   section 2.2.
+1. **The theme.** `ui/src/app.css` opens with `@import 'tailwindcss'` and defines
+   every colour, space, type size and z-index in one `@theme` block. The block
+   starts with `--*: initial`, so Tailwind's own scale does not exist: `p-7`,
+   `text-gray-500` and `rounded-lg` produce no CSS, and an off-scale value cannot
+   be written by accident. The tokens are also plain CSS custom properties, which
+   is what the existing rules read.
+2. **The utilities.** Every shared class — the shell, the controls, the tags, the
+   table — is an `@utility` in the same file, written against those tokens. One
+   place decides what a button's padding, colour and type are, and the markup
+   asks for it by name. Element-qualified rules (`table.tbl th`,
+   `th[aria-sort] .icon`) live in a `@layer utilities` block beside them, because
+   a rule that has to beat a utility cannot itself sit in a lower layer.
+3. **The views.** A view keeps only what is true of that view alone, and it is
+   scoped CSS in the component. Nothing here re-declares what a token already
+   says.
+
+**A class name is not free.** Tailwind generates static utilities whatever the
+theme says, so a project class called `grid`, `block`, `flex`, `border`,
+`hidden`, `static`, `transform` or `transition` silently acquires Tailwind's
+declarations — `class="grid"` on a `<table>` sets `display: grid` and collapses
+every column. The table class is `tbl` and the two modifiers that collided are
+`stretch` and `panel-block` for that reason. Check a new name against Tailwind's
+utility list before adding it.
+
+**The cascade has an order.** `@theme` and `@layer base` are lowest, then the
+component styles a view scopes for itself, then `@layer utilities`, where both
+Tailwind's utilities and this project's live. A design-system class therefore
+beats a component's own rule of the same specificity, which is what the
+interface was built on: every rule in the old `app.css` was unlayered and loaded
+last, so it won every tie. Moving one of those rules into a lower layer changes
+the rendering, and the way to notice is a screenshot diff, not a reading.
 
 ### 2.1 Tokens
 
 | Group | Utilities | Values |
 | --- | --- | --- |
 | Spacing | `p-*`, `m-*`, `gap-*`, `inset-*` … | `0`, `px`, `0.5` 2, `1` 4, `2` 8, `3` 12, `4` 16, `5` 24, `6` 32 |
-| Sizes | `h-*`, `w-*`, `size-*`, `min-h-*` … | `ctl-sm` 22, `ctl` 28, `row` 34, `bar` 44, `topbar` 56, `rail` 232 |
-| Max widths | `max-w-*` | `prose` 60ch, `menu` 320, `palette` 640, `sheet` 720, `dialog` 1080 |
-| Colour | `text-*`, `bg-*`, `border-*` … | `orange`, `orange-deep`, `orange-ink`, `orange-wash`, `orange-line`, `on-orange`, `accent`, `accent-wash`, `accent-line`, `oxblood`, `oxblood-wash`, `oxblood-line`, `ink`, `ink-2`, `ink-3`, `ink-4`, `ink-line`, `ink-hover`, `paper`, `surface`, `sunken`, `rule`, `rule-strong`, `scrim`, `veil` |
+| Sizes | `h-*`, `w-*`, `size-*`, `min-h-*` … | `ctl-sm` 22, `ctl` 28, `row` 34, `bar` 44, `head` 67, `rail` 232 |
+| Colour | `text-*`, `bg-*`, `border-*` … | `orange`, `orange-deep`, `orange-ink`, `orange-wash`, `orange-line`, `accent`, `accent-wash`, `accent-line`, `oxblood`, `oxblood-wash`, `oxblood-line`, `ink`, `ink-2`, `ink-3`, `ink-4`, `paper`, `surface`, `sunken`, `rule`, `rule-strong` |
 | Type size | `text-*` | `micro` 11, `sm` 11.5, `base` 12.5, `md` 13.5, `lg` 15.5, `xl` 18, `title` 22 |
 | Family | `font-*` | `display` (Space Grotesk), `ui` (Archivo) |
 | Leading | `leading-*` | `none` 1, `tight` 1.1, `snug` 1.3, `normal` 1.45, `relaxed` 1.6 |
 | Tracking | `tracking-*` | `tight`, `num`, `normal`, `wide`, `caps` |
-| Radius | `rounded-*` | `sm` 2px, `none`, `full` (dots only) |
-| Depth | `z-*` | `sticky`, `raised`, `overlay`, `menu`, `sheet`, `toast` |
-| Breakpoint | `sm:`, `max-lg:` … | `sm` 760, `compact` 1000, `md` 1100, `lg` 1180, `xl` 1380 |
-| Motion | `animate-*` | `rise` and `fade-in` 120ms, `arrive`, `scrim`, `enter-right` and `enter-left` 160ms |
+| Depth | `z-*` | `sticky` 2, `menu` 200, `sheet` 260, `toast` 300 |
 | Pane header | `min-h-head` | 67px, shared by every pane header |
 
-Text styles are utilities too: `type-display`, `type-label` (uppercase tracked
-label), `type-sub` (helper line), `type-key` and `num` (tabular figures). Layout
-helpers are `scroll`, `grid-fields`, `grid-kv` and `table-grid`.
+Text styles are utilities too: `dsp` (display face, tracked tight), `label`
+(uppercase tracked label), `sub` (helper line), `key` and `num` (tabular
+figures). Layout helpers are `scroll`, `fields`, `meta` and `tbl`. Radii,
+leading, tracking and breakpoints are not tokens: they are written as literals in
+the utility that needs them, which is why `--*: initial` costs nothing there.
 
 **Surfaces arrive.** Panels, sheets, popovers and toasts enter with a short fade
 and a few pixels of travel. A surface that attaches to a control (a menu, a
@@ -125,57 +142,26 @@ Numbers always carry `num`, so that columns align. Radii stay at 2px. There are
 no shadows and no gradients. A popover shows its edge with a full-contrast ink
 border against paper.
 
-### 2.2 What the gate rejects
-
-Outside `ui/src/lib/ui/`:
-
-- A `<style>` block.
-- A `style="…"` attribute. A `style:` directive is allowed only for geometry
-  (`width`, `height`, `left`, `top`, `transform`, grid tracks) with a computed
-  value, for example a percentage bar.
-- An arbitrary value, that is, any class with `[`, `]`, `(` or `)`.
-- A raw z-index (`z-10`), a colour opacity modifier (`bg-orange/50`), or a raw hex
-  or rgb colour in markup.
-- A class that the theme does not define.
-- A class built at run time (`` `tag-${tone}` ``, a variable). Class values must
-  be literal strings, literal ternaries or literal arrays.
-- A class on a component that is not a layout class. A component takes display,
-  placement, width, height, position, overflow and depth from its caller. It never
-  takes padding, margin, colour, font, border or radius. If a component needs a
-  new look, add a variant to it in `lib/ui`.
-- An import from `bits-ui`.
-
-Inside `ui/src/lib/ui/`, the theme and arbitrary-value rules still apply. The only
-exceptions are the bits-ui state selectors (`data-[state=open]:`) and the bits-ui
-size variables (`max-h-(--bits-select-content-available-height)`).
-
-The rules separate two kinds of edit. A view can arrange things: grid, flex,
-width, order, what hides at which breakpoint. A view cannot restyle things: that
-change goes into the primitive, where every screen gets it.
-
 ## 3. The shared components
 
-All of them are in `ui/src/lib/ui/`. Read the file for the exact props.
+All of them are in `ui/src/lib/components/`. Read the file for the exact props.
 
 | Component | Contract |
 | --- | --- |
-| `View`, `Topbar`, `Toolbar`, `ToolbarSeparator`, `Panes`, `Bulkbar` | The shell from section 1. `Topbar` takes a `title` and the snippets `subtitle`, `metrics` and `tools`. |
-| `Button` | `variant`: `default`, `primary`, `ink`, `quiet`, `inverse`. `size`: `md`, `sm`. Optional `icon`, `trailing` and `href`. |
-| `IconButton` | An icon-only button. `label` is required and becomes the accessible name and the tooltip. |
-| `Input`, `Textarea` | Text fields with `bind:value`. |
-| `Select` | A bits-ui listbox. Takes `options: {value, label}[]` and `bind:value`. The value can be a string or a number. |
-| `Checkbox` | A bits-ui checkbox. Its children are the label. Without children it needs `label`. |
-| `Segmented` | A bits-ui single toggle group, for a filter with a few options and optional counts. |
-| `Tabs` | A bits-ui tab strip with a `trailing` snippet and one panel for each tab. |
-| `Menu` + `menu.ts` | The overflow pattern on the bits-ui dropdown menu. Takes `items: MenuItem[]` and `onselect(id)`. `text` renders a labelled button, otherwise an icon button. `searchable` adds a filter on the bits-ui command list. |
-| `Dialog` | The bits-ui dialog. `kind`: `dialog`, `sheet` (from the right), `palette`. Handles Escape, focus and outside click. |
-| `Icon` + `icons.ts` | One 24-box stroke set. `size`: `sm` 13, `md` 15, `lg` 17, `xl` 22. Add a path to `PATHS`, never an inline `<svg>` in a view. |
-| `Metric` | A number above its tracked label, with an optional `tone` and `hint`. Use it for every top-level summary, never a sentence. |
-| `Tag` | The only badge. `tone` selects the colour. `band` renders the semantic band colours. |
+| `Icon` + `icons.ts` | One stroke set. `size`: `sm` 13, `md` 15, `lg` 17, `xl` 22. Add a path to `PATHS`, never an inline `<svg>` in a view. |
+| `Menu` + `menu.ts` | The overflow pattern. Takes `items: MenuItem[]` and `onselect(id)`. `text` renders a labelled button, otherwise an icon button; `stretch` makes it fill its container. |
+| `Tag` | The only badge. `variant` selects the colour, `band` renders the semantic band colours. |
 | `Th` | A sortable header cell. Renders `aria-sort` and a direction arrow that shows without hover. `class` takes the column's hide rule. |
+| `Metric` | A number above its tracked label, with an optional `tone` and `hint`. Use it for every top-level summary, never a sentence. |
 | `Pager` | Range, page size, prev and next, over the fetched array. |
-| `Panel`, `Empty`, `Note`, `Facts`, `Field`, `Fields` | Content blocks: a titled section, an empty state, a status line, key/value pairs, a labelled control, a field grid. |
-| `Spinner`, `LoadingVeil` | `LoadingVeil` sits over its pane, so a load never moves the layout. |
+| `ScoreMeter` | The fit bar with the pool average and the Priority line marked. |
+| `Star` | The bookmark toggle. |
+| `Ledger` | The evidence ledger: one row per reading, with its weight, its source and the arithmetic behind a disclosure. |
+| `CaptureSheet` | The stored document with the marked span, opened from any quote. |
+| `OutreachModal` | The drafted message. Consumes Escape so a draft and the board position survive it. |
+| `LoadingVeil` | Sits over its pane, so a load never moves the layout. |
+| `Hubspot` | The HubSpot mark. |
+| `Logo` | The wordmark. |
 
 `CommandPalette.svelte` (⌘K / Ctrl-K) stays in `lib/components/`, with the other
 components that are specific to this product. It searches companies through the
