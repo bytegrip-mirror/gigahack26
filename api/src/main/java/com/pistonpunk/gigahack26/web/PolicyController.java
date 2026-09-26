@@ -22,7 +22,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -85,7 +87,11 @@ public class PolicyController {
     }
 
     @GetMapping("/decay-classes")
-    public List<DecayClass> decayClasses() {
-        return List.of(DecayClass.values());
+    public List<Map<String, Object>> decayClasses() {
+        return Arrays.stream(DecayClass.values())
+                .map(value -> Map.<String, Object>of(
+                        "name", value.name(),
+                        "halfLifeDays", value.halfLifeDays()))
+                .toList();
     }
 }

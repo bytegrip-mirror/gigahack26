@@ -3,11 +3,14 @@
 		createPolicy,
 		deletePolicy,
 		fetchPolicies,
+		fetchDecayClasses,
 		fetchServiceLines,
+		fetchThemes,
 		deriveCues,
 		previewPolicy,
 		rescore,
 		updatePolicy,
+		type DecayOption,
 		type Policy,
 		type PolicyInput,
 		type ServiceLine,
@@ -41,6 +44,8 @@
 
 	let policies = $state<Policy[]>([]);
 	let serviceLines = $state<ServiceLine[]>([]);
+	let themes = $state<string[]>([]);
+	let decayClasses = $state<DecayOption[]>([]);
 	let loading = $state(true);
 	let selectedId = $state<string | null>(null);
 	let draft = $state<PolicyInput>({ ...BLANK });
@@ -50,6 +55,8 @@
 	let preview = $state<Preview | null>(null);
 	let previewing = $state(false);
 	let derivedCues = $state<string[]>([]);
+	let cueDraft = $state('');
+	let counterDraft = $state('');
 	let veil = $state(false);
 	let applying = $state(false);
 	let query = $state('');
@@ -62,10 +69,12 @@
 		if (!line) return;
 		let cancelled = false;
 		loading = true;
-		Promise.all([fetchPolicies(), fetchServiceLines(false)])
-			.then(([result, lines]) => {
+		Promise.all([fetchPolicies(), fetchServiceLines(false), fetchThemes(), fetchDecayClasses()])
+			.then(([result, lines, themeList, decays]) => {
 				if (cancelled) return;
 				serviceLines = lines;
+				themes = themeList;
+				decayClasses = decays;
 				policies = result;
 				loading = false;
 				if (!selectedId) {
@@ -157,6 +166,41 @@
 		creating = true;
 		dirty = true;
 		draft = { ...BLANK, serviceLine: line || '' };
+	}
+
+	function normaliseCue(value: string) {
+		return value.trim().toLowerCase().replace(/\s+/g, ' ');
+	}
+
+	function addCue() {
+		const cue = normaliseCue(cueDraft);
+		if (cue.length < 3) return;
+		draft.cues = [...(draft.cues ?? []).filter((existing) => existing !== cue), cue];
+		cueDraft = '';
+		dirty = true;
+	}
+
+	function dropCue(cue: string) {
+		draft.cues = (draft.cues ?? []).filter((existing) => existing !== cue);
+		dirty = true;
+	}
+
+	function keepDerived() {
+		draft.cues = [...derivedCues];
+		dirty = true;
+	}
+
+	function addCounterCue() {
+		const cue = normaliseCue(counterDraft);
+		if (cue.length < 3) return;
+		draft.counterCues = [...(draft.counterCues ?? []).filter((existing) => existing !== cue), cue];
+		counterDraft = '';
+		dirty = true;
+	}
+
+	function dropCounterCue(cue: string) {
+		draft.counterCues = (draft.counterCues ?? []).filter((existing) => existing !== cue);
+		dirty = true;
 	}
 
 	async function save_() {
@@ -468,15 +512,22 @@
 						</label>
 						<label class="field">
 							<span class="label">Theme</span>
-							<input class="input" bind:value={draft.theme} oninput={() => (dirty = true)} />
+							<input class="input" list="themes-present" bind:value={draft.theme} oninput={() => (dirty = true)} />
+							<datalist id="themes-present">
+								{#each themes as name (name)}
+									<option value={name}></option>
+								{/each}
+							</datalist>
+							<span class="sub dim">Rows sharing a theme are capped together, so a single loud topic cannot carry a company.</span>
 						</label>
 						<label class="field">
 							<span class="label">Half-life</span>
 							<select class="select" bind:value={draft.decayClass} onchange={() => (dirty = true)}>
-								<option value="EVENT">Event · 30d</option>
-								<option value="HIRING">Hiring · 90d</option>
-								<option value="STRUCTURAL">Structural · 180d</option>
+								{#each decayClasses as decay (decay.name)}
+									<option value={decay.name}>{tier(decay.name)} · {decay.halfLifeDays}d</option>
+								{/each}
 							</select>
+							<span class="sub dim">How long this evidence keeps its weight. A dated event is worth less next quarter; a structural shift is worth less next year.</span>
 						</label>
 					</div>
 					<label class="check">
@@ -492,21 +543,71 @@
 					</div>
 					{#if (draft.cues ?? []).length > 0}
 						<div class="chips">
-							{#each (draft.cues ?? []).slice(0, 24) as cue (cue)}<Tag>{cue}</Tag>{/each}
-							{#if (draft.cues ?? []).length > 24}<Tag variant="bare">+{(draft.cues ?? []).length - 24}</Tag>{/if}
+							{#each draft.cues ?? [] as cue (cue)}
+								<button class="chip" type="button" title="Remove this cue" onclick={() => dropCue(cue)}>
+									{cue}<Icon name="close" size={11} />
+								</button>
+							{/each}
 						</div>
-						<p class="sub dim">Set on the question. Clear the list to let the rubric derive its own.</p>
+						<div class="cue-add">
+							<input
+								class="input input-sm"
+								placeholder="Add a phrase this question should match"
+								bind:value={cueDraft}
+								onkeydown={(event) => {
+									if (event.key === 'Enter') {
+										event.preventDefault();
+										addCue();
+									}
+								}}
+							/>
+							<button class="btn btn-sm" type="button" onclick={addCue}>Add</button>
+						</div>
+						<p class="sub dim">Set on the question. Empty the list to let the rubric derive its own.</p>
 					{:else if derivedCues.length > 0}
 						<div class="chips">
 							{#each derivedCues as cue (cue)}<Tag variant="wash">{cue}</Tag>{/each}
 						</div>
 						<p class="sub dim">
 							Derived from the wording — nothing is configured, so these are the phrases the engine will match.
-							Save the question to keep them, and remove any that would match everything.
+							Keep them to edit the list, or leave it empty and they are re-derived from the rubric.
 						</p>
+						<button class="btn btn-sm" type="button" onclick={keepDerived}>Use these as the cue list</button>
 					{:else}
 						<p class="sub dim">No cue vocabulary yet. Write at least ten characters of question and rubric.</p>
 					{/if}
+				</div>
+
+				<div class="panel">
+					<div class="panel-head">
+						<h3 class="label">What argues against it</h3>
+					</div>
+					<div class="chips">
+						{#each draft.counterCues ?? [] as cue (cue)}
+							<button class="chip chip-bad" type="button" title="Remove" onclick={() => dropCounterCue(cue)}>
+								{cue}<Icon name="close" size={11} />
+							</button>
+						{/each}
+						{#if (draft.counterCues ?? []).length === 0}
+							<span class="sub dim">
+								None. A passage containing one of these subtracts from the score instead of adding to it.
+							</span>
+						{/if}
+					</div>
+					<div class="cue-add">
+						<input
+							class="input input-sm"
+							placeholder="A phrase that means this is not a buying signal"
+							bind:value={counterDraft}
+							onkeydown={(event) => {
+								if (event.key === 'Enter') {
+									event.preventDefault();
+									addCounterCue();
+								}
+							}}
+						/>
+						<button class="btn btn-sm" type="button" onclick={addCounterCue}>Add</button>
+					</div>
 				</div>
 
 				<div class="panel">
@@ -576,6 +677,39 @@
 </div>
 
 <style>
+	.chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		padding: 2px var(--sp-2);
+		border: 1px solid var(--rule);
+		border-radius: 2px;
+		background: var(--surface);
+		font: inherit;
+		font-size: var(--fs-sm);
+		cursor: pointer;
+	}
+
+	.chip:hover {
+		border-color: var(--ink-3);
+	}
+
+	.chip-bad {
+		border-color: var(--oxblood-line);
+		background: var(--oxblood-wash);
+		color: var(--oxblood);
+	}
+
+	.cue-add {
+		display: flex;
+		gap: var(--sp-2);
+		margin-top: var(--sp-2);
+	}
+
+	.cue-add .input {
+		flex: 1;
+	}
+
 	.panes {
 		flex: 1;
 		min-height: 0;

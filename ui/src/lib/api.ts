@@ -450,6 +450,16 @@ export function fetchEvidence(id: string): Promise<EvidenceDetail> {
 	return request<EvidenceDetail>(`/api/evidence/${id}`);
 }
 
+export function fetchThemes(): Promise<string[]> {
+	return request<string[]>('/api/policies/themes');
+}
+
+export type DecayOption = { name: DecayClass; halfLifeDays: number };
+
+export function fetchDecayClasses(): Promise<DecayOption[]> {
+	return request<DecayOption[]>('/api/policies/decay-classes');
+}
+
 export function deriveCues(text: string, instructions = ''): Promise<string[]> {
 	return request<string[]>(`/api/policies/derive${query({ text, instructions })}`);
 }
