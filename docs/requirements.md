@@ -176,7 +176,32 @@ at a key and it either works or it does not, and it is one class to fix
   Apollo, Cognite, Lusha, People Data Labs all expose an API and carry the
   consent and the accuracy bill. That is a purchase decision, not a scraper.
 
-## 7. Copy
+## 7. Contacts and addresses
+
+| # | Requirement | Status |
+| --- | --- | --- |
+| 7.1 | The rail reads Companies, People, Pipeline | **done** |
+| 7.2 | A company shows its contacts and their emails | **done** — the Contacts tab, first in the strip |
+| 7.3 | Contacts are saved and shown for companies and people | **done** — `person.email`, typed or licensed, never inferred |
+| 7.4 | A draft is prefilled with the address and shows it | **done** — a *To* field on the outreach sheet, editable, carried into the `mailto:` |
+
+**An address is only ever one somebody gave us.** A licensed provider returns it, or
+a rep types it on the person's row. It is never assembled from a name and a domain:
+an inferred address is a bounce, and a bounce costs the sending domain more than the
+missing contact costs the rep.
+
+**A company's contacts are the people our documents named there**, ordered with the
+ones we hold an address for first. That ordering is the whole point of the tab — a
+rep opening a company wants the person they can write to, not an alphabetical list.
+
+**The draft is addressed to a person, not a company.** `OutreachService` picks the
+contact whose role matches the seat the service line sells into — the COO for
+automation, the CISO for security — preferring one with an address, and falls back
+to the first contact with one. The sheet shows who and where it came from, and the
+field is editable, because a rep who knows better than the desk should not have to
+fight it.
+
+## 8. Copy
 
 | # | Requirement | Status |
 | --- | --- | --- |
