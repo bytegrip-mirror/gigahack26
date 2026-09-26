@@ -1241,7 +1241,7 @@
 								</td>
 								<td class="c-fit">
 									{#if row.band === 'DISQUALIFIED'}
-										<Tag band={row.band} title={row.gateReason ?? row.bandLabel}>{row.bandShort}</Tag>
+										<Tag band={row.band} title={row.gateReason ?? row.bandLabel}>Out of the queue</Tag>
 										{#if row.gateReason}
 											<span class="gate" title={row.gateReason}>{gateCause(row.gateReason)}</span>
 										{/if}
@@ -1611,6 +1611,7 @@
 
 	.c-fit {
 		vertical-align: top;
+		min-width: 0;
 	}
 
 	.one-theme {

@@ -1220,8 +1220,7 @@
 
 	@media (max-width: 1280px) {
 		.editor-body {
-			grid-template-columns: minmax(0, 1fr);
-			grid-template-rows: minmax(0, 1fr) auto;
+			display: block;
 			overflow-y: auto;
 		}
 		.editor-fields,
