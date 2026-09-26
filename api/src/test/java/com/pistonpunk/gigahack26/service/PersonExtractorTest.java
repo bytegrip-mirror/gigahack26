@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PersonExtractorTest {
@@ -63,6 +64,13 @@ class PersonExtractorTest {
                 "a sentence break inside the name means it was two sentences");
         assertTrue(PersonExtractor.find("The IEA, ceo, said.").isEmpty(),
                 "an all-capitals token is an organisation, not a person");
+    }
+
+    @Test
+    void aSentenceThatLooksLikeANameIsNotOne() {
+        assertTrue(PersonExtractor.find("Drones Are, ceo, according to the report.").isEmpty(),
+                "both words are cleanly alphabetical; only the grammar gives it away");
+        assertFalse(PersonExtractor.find("Ana Silva, ceo, said.").isEmpty());
     }
 
     @Test

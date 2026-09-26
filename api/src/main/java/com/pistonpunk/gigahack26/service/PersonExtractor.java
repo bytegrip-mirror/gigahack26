@@ -109,6 +109,9 @@ public final class PersonExtractor {
         if (words.size() < 2 || words.size() > 3) {
             return null;
         }
+        if (NOT_A_LAST_NAME.contains(words.get(words.size() - 1).toLowerCase(java.util.Locale.ROOT))) {
+            return null;
+        }
         for (String word : words) {
             // A person's name is letters, an apostrophe and a hyphen. Anything else
             // in it means the pattern caught a place name, a headline or a
@@ -125,6 +128,15 @@ public final class PersonExtractor {
     /** Job titles that are written as initials, and are wrong in title case. */
     private static final java.util.Set<String> HONORIFICS =
             java.util.Set.of("prof", "dr", "mr", "mrs", "ms", "sir", "dame", "ing", "mag");
+
+    /**
+     * A surname is not a verb. "Drones Are" survived every rule above because both
+     * words are cleanly alphabetical — it is a sentence that happens to look like a
+     * name, and only the grammar gives it away.
+     */
+    private static final java.util.Set<String> NOT_A_LAST_NAME = java.util.Set.of(
+            "are", "is", "was", "were", "be", "been", "has", "have", "had", "will", "would", "can",
+            "could", "should", "may", "might", "must", "do", "does", "did", "said", "says", "told");
 
     private static final java.util.Set<String> SMALL_WORDS =
             java.util.Set.of("of", "for", "and", "the", "in", "at", "to", "on");
