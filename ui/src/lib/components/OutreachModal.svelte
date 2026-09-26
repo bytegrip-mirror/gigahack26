@@ -21,10 +21,10 @@
 	} = $props();
 
 	const PROMPTS = [
-		'Make it shorter',
+		'Cut it to under 60 words',
 		'Lead with the cost angle',
 		'Warmer, less formal',
-		'Ask for fifteen minutes',
+		'Ask for fifteen minutes next week',
 		'Softer — drop the ask',
 		'Say we have done this in their industry'
 	];
