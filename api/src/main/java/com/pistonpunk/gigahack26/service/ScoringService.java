@@ -225,7 +225,9 @@ public class ScoringService {
 
     private Optional<String> gate(Company company, boolean blockedByBuild, String buildReason,
                                   ScoringProperties properties) {
-        if (properties.competitorGate() && company.isCompetitor()) {
+        if (properties.competitorGate()
+                && (company.isCompetitor()
+                || VendorRegistry.isVendor(company.getName(), company.getIndustry()))) {
             return Optional.of("Competitor — provides the same services we sell");
         }
         if (blockedByBuild && buildReason != null) {

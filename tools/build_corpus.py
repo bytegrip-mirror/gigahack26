@@ -17,6 +17,9 @@ import urllib.request
 import xml.etree.ElementTree as ET
 import zlib
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from vendor_registry import is_vendor
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "api", "src", "main", "resources", "corpus", "raw.json")
 CACHE = os.path.join(ROOT, "tools", ".cache")
@@ -515,7 +518,7 @@ def c(key, name, domain, country, city, size, industry, competitor=False,
         "hqCity": city,
         "sizeBand": size,
         "industry": industry,
-        "isCompetitor": competitor,
+        "isCompetitor": competitor or is_vendor(name, industry),
         "aliases": [a.strip() for a in aliases.split("|") if a.strip()],
         "gleif": gleif or name,
         "ticker": ticker,

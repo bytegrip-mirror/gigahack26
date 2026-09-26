@@ -163,7 +163,9 @@ public class CorpusSeeder implements ApplicationRunner {
             rows.add(new Company(
                     id, entry.key(), entry.name(), entry.domain(), upper(entry.country()), entry.hqCity(),
                     entry.industry(), entry.sizeBand(), employees, confidence, entry.caemCode(),
-                    Boolean.TRUE.equals(entry.isCompetitor()), entry.coverageNotes(), clock.instant()));
+                    Boolean.TRUE.equals(entry.isCompetitor())
+                            || VendorRegistry.isVendor(entry.name(), entry.industry()),
+                    entry.coverageNotes(), clock.instant()));
 
             if (entry.aliases() != null) {
                 for (String alias : entry.aliases()) {
