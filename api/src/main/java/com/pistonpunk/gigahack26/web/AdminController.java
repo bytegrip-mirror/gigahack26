@@ -12,6 +12,7 @@ import com.pistonpunk.gigahack26.service.CaptureStore;
 import com.pistonpunk.gigahack26.service.ClassifierEngine;
 import com.pistonpunk.gigahack26.service.ClassifierRouter;
 import com.pistonpunk.gigahack26.service.CorpusProperties;
+import com.pistonpunk.gigahack26.service.CorpusSeeder;
 import com.pistonpunk.gigahack26.service.DeepSeekEngine;
 import com.pistonpunk.gigahack26.service.LocalRubricEngine;
 import org.slf4j.Logger;
@@ -46,6 +47,7 @@ public class AdminController {
     private static final double SAMPLE_RATE = 0.08;
 
     private final CompanyRepository companies;
+    private final com.pistonpunk.gigahack26.repository.jpa.SignalRepository signals;
     private final EvidenceRepository evidence;
     private final PolicyQuestionRepository questions;
     private final CaptureStore captures;
@@ -53,14 +55,17 @@ public class AdminController {
     private final ClassifierRouter router;
     private final LocalRubricEngine local;
     private final CorpusProperties corpus;
+    private final CorpusSeeder seeder;
     private final ObjectMapper mapper;
     private final Clock clock;
 
-    public AdminController(CompanyRepository companies, EvidenceRepository evidence,
+    public AdminController(CompanyRepository companies,
+                           com.pistonpunk.gigahack26.repository.jpa.SignalRepository signals, EvidenceRepository evidence,
                            PolicyQuestionRepository questions, CaptureStore captures, DeepSeekEngine deepSeek,
-                           LocalRubricEngine local, ClassifierRouter router, CorpusProperties corpus,
+                           LocalRubricEngine local, ClassifierRouter router, CorpusProperties corpus, CorpusSeeder seeder,
                            ObjectMapper mapper, Clock clock) {
         this.companies = companies;
+        this.signals = signals;
         this.evidence = evidence;
         this.questions = questions;
         this.captures = captures;
@@ -68,8 +73,27 @@ public class AdminController {
         this.local = local;
         this.router = router;
         this.corpus = corpus;
+        this.seeder = seeder;
         this.mapper = mapper;
         this.clock = clock;
+    }
+
+    @PostMapping("/corpus/reload")
+    public ResponseEntity<Map<String, Object>> reloadCorpus() {
+        if (!corpus.adminEnabled()) {
+            return ResponseEntity.notFound().build();
+        }
+        long started = System.nanoTime();
+        boolean loaded = seeder.reload();
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("reloaded", loaded);
+        result.put("companies", companies.count());
+        result.put("evidence", evidence.count());
+        result.put("signals", questions.count() == 0 ? 0 : signals.count());
+        result.put("tookMs", (System.nanoTime() - started) / 1_000_000);
+        return loaded
+                ? ResponseEntity.ok(result)
+                : ResponseEntity.status(409).body(Map.of("error", "the corpus file could not be read"));
     }
 
     @PostMapping("/signals/build")

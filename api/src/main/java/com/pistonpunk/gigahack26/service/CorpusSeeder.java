@@ -108,6 +108,41 @@ public class CorpusSeeder implements ApplicationRunner {
     record Overlay(String engine, Verdict verdict, double confidence, String quote, String rationale) {
     }
 
+    /**
+     * Re-reads the corpus and the overlay on a running instance.
+     *
+     * Ingestion used to mean a redeploy: the corpus is baked into the image, so
+     * new captures only arrived when the container was replaced. A deployment
+     * that can pick up documents while it serves is the difference between a
+     * pipeline and a nightly batch, and this is the smallest honest version of
+     * it — the files are the interface, and the running process reads them.
+     */
+    public boolean reload() {
+        CorpusFiles.RawCorpus raw = readJson(properties.rawPath(), CorpusFiles.RawCorpus.class);
+        if (raw == null || raw.companies() == null || raw.evidence() == null) {
+            return false;
+        }
+        long started = System.nanoTime();
+        readiness.seeding(true);
+        try {
+            Map<String, UUID> companyIds = persistCompanies(raw.companies());
+            persistEvidence(raw.evidence(), companyIds);
+            persistSignals();
+            for (String serviceLine : scoreboard.serviceLines()) {
+                scoreboard.rescore(serviceLine);
+            }
+            corpusState.save(new CorpusState(CorpusState.SINGLETON, fingerprintOf(), clock.instant(),
+                    raw.companies().size(), raw.evidence().size()));
+            readiness.seeded();
+        } catch (RuntimeException e) {
+            log.error("the reload failed; the API will report itself not ready", e);
+            throw e;
+        }
+        log.info("reloaded {} companies and {} evidence units in {} ms",
+                companies.count(), evidence.count(), (System.nanoTime() - started) / 1_000_000);
+        return true;
+    }
+
     @Override
     public void run(ApplicationArguments args) {
         readiness.seeding(true);

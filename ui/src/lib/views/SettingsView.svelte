@@ -43,6 +43,7 @@
 	let telemetry = $state<Telemetry | null>(null);
 	let precision = $state<Awaited<ReturnType<typeof fetchPrecision>> | null>(null);
 	let curve = $state<number[]>([]);
+	let perThousand = $state(0);
 	let settings = $state<Settings | null>(null);
 	let draft = $state<Settings | null>(null);
 	let lines = $state<ServiceLine[]>([]);
@@ -589,6 +590,47 @@
 				{/if}
 
 				{#if section === 'pipeline'}
+					<section class="panel">
+						<div class="panel-head">
+							<h2 class="dsp">What a pass costs, at your own rate</h2>
+						</div>
+						{#if telemetry}
+							{@const pairs = telemetry.signalsBySource?.classificationPairs ?? 0}
+							{@const read = telemetry.overlay?.pairsSeen ?? 0}
+							{@const cached = telemetry.classificationCache?.entries ?? 0}
+							<div class="metrics">
+								<Metric value={shortNumber(pairs)} label="Pairs if every question read every document" />
+								<Metric
+									value={shortNumber(read)}
+									label="Pairs the model actually read"
+									hint="Where the cue matcher pointed, plus a sample of where it did not"
+								/>
+								<Metric
+									value={shortNumber(Math.max(0, pairs - read))}
+									label="Pairs never sent"
+									tone="good"
+									hint="Documents sharing no vocabulary with the question are not worth a model call"
+								/>
+							</div>
+							<label class="field">
+								<span class="label">Your cost per 1,000 model calls</span>
+								<input class="input" type="number" min="0" step="0.1" bind:value={perThousand} />
+								<span class="sub dim">
+									We do not know your contract, so the rate is yours to set and the counts are the system's. At the
+									rate you enter, reading this corpus costs
+									<strong>{(read / 1000 * perThousand).toFixed(2)}</strong> and would have cost
+									<strong>{(pairs / 1000 * perThousand).toFixed(2)}</strong> asked question by question.
+								</span>
+							</label>
+							<p class="sub dim">
+								{cached > 0
+									? `${shortNumber(cached)} answers are cached, so a re-run over unchanged documents pays for nothing it has already read.`
+									: 'Nothing is cached yet; the first re-run over unchanged documents is where the saving shows.'}
+							</p>
+						{:else}
+							<p class="sub dim">No telemetry yet.</p>
+						{/if}
+					</section>
 					<section class="panel">
 						<div class="panel-head">
 							<h2 class="dsp">What the model half cost, and what it found</h2>
