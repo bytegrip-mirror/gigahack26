@@ -17,3 +17,4 @@ dist/
 .jdk
 .gradle/
 !.just/build/
+claude-deepseek.bat
