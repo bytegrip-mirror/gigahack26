@@ -40,20 +40,23 @@ public class BacktestService {
      * That is a test of whether the score precedes the evidence, which is not
      * the same as whether it precedes a purchase, and the panel says so.
      */
+    /**
+     * The rates are components rather than methods because they are computed for
+     * the payload: a record's methods are not serialised, so a panel reading
+     * calledRate() got nothing and drew a dash where the number should be.
+     */
     public record Outcome(int asOfDaysAgo, Instant asOf, long companies, long called, long control,
+                          long calledConfirmed, long controlConfirmed,
+                          Double calledRate, Double controlRate, Double lift, List<Row> rows) {
+
+        static Outcome of(int asOfDaysAgo, Instant asOf, long called, long control,
                           long calledConfirmed, long controlConfirmed, List<Row> rows) {
-        public Double calledRate() {
-            return called == 0 ? null : round((double) calledConfirmed / called);
-        }
-
-        public Double controlRate() {
-            return control == 0 ? null : round((double) controlConfirmed / control);
-        }
-
-        public Double lift() {
-            Double a = calledRate();
-            Double b = controlRate();
-            return a == null || b == null || b == 0.0 ? null : round(a / b);
+            Double calledRate = called == 0 ? null : round((double) calledConfirmed / called);
+            Double controlRate = control == 0 ? null : round((double) controlConfirmed / control);
+            Double lift = calledRate == null || controlRate == null || controlRate == 0.0
+                    ? null : round(calledRate / controlRate);
+            return new Outcome(asOfDaysAgo, asOf, called + control, called, control,
+                    calledConfirmed, controlConfirmed, calledRate, controlRate, lift, rows);
         }
     }
 
@@ -87,7 +90,7 @@ public class BacktestService {
         Instant asOf = clock.instant().minus(Duration.ofDays(daysAgo));
         List<PolicyQuestion> questions = scoreboard.activeQuestions(serviceLine);
         if (questions.isEmpty()) {
-            return new Outcome(daysAgo, asOf, 0, 0, 0, 0, 0, List.of());
+            return Outcome.of(daysAgo, asOf, 0, 0, 0, 0, List.of());
         }
         Set<UUID> questionIds = questions.stream().map(PolicyQuestion::getId).collect(Collectors.toSet());
 
@@ -152,8 +155,8 @@ public class BacktestService {
         if (rows.size() > MAX_ROWS) {
             rows = rows.subList(0, MAX_ROWS);
         }
-        return new Outcome(daysAgo, asOf, called + control, called, control, calledConfirmed,
-                controlConfirmed, List.copyOf(rows));
+        return Outcome.of(daysAgo, asOf, called, control, calledConfirmed, controlConfirmed,
+                List.copyOf(rows));
     }
 
     private static double round(double value) {
