@@ -1,5 +1,20 @@
 """Read each document once, not once per question.
 
+MEASURED, AND NOT THE ONE THAT SHIPS. The saving is real — 2,061 calls against
+12,409, covering 46% more pairs — but comparing the two overlays on the live
+corpus showed what it costs: the grouped build disqualifies 102 companies where
+the per-question build disqualifies 76, and the difference is not vendors. Bank
+of Cyprus is removed for recruiting security engineers, eMAG for hiring
+DevSecOps, JPMorgan for building internal automation. Those are hiring signals,
+which is what the question asks for, read as in-house building. Asked one
+question at a time the model gets this right; asked six at once it reaches for
+the disqualifier.
+
+So this stays as the cheap option for a corpus that grows, and the per-question
+builder is what ships. If it is ever switched on, the three disqualifying
+questions should be asked on their own.
+
+
 The per-question builder asks the model the same document's worth of text
 sixteen times, because a question is the unit of configuration and the builder
 took that to mean it was also the unit of work. It is not: the document does not

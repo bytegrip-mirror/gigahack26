@@ -34,8 +34,8 @@ Two things the audit already proved, which this plan spends:
 
 ## Where this stands
 
-Fifty of these fifty-two landed and are on `main` and deployed. One is partial
-and one is in progress, each said so in place rather than left to look finished. Three things this pass found were not
+Fifty-one of these fifty-two landed and are on `main` and deployed. One is
+partial, with the reason measured rather than asserted. Three things this pass found were not
 on the list and mattered more than most of it: the deployed database answered
 with the union of every corpus ever seeded, a model reading was allowed to delete
 a company the team had configured in, and a new nullable column took the board
@@ -157,7 +157,7 @@ queue is non-empty and each row shows why it did not clear the floor.
 
 ## B. AI/ML innovation — 20%, currently 5/10
 
-[ ] B1. One model call per document per service line
+[~] B1. One model call per document per service line
 Today the model is asked one question at a time: 16 calls per document. The
 document does not change between them. Add `DocumentEngine`: one call, all of a
 service line's questions in a single JSON answer, each with its own quote. That
@@ -445,6 +445,21 @@ what is missing and why — an absence with a reason, not a silent gap.
 ---
 
 ## What the partials are missing
+
+- **B1** — built, measured, and not the one that ships. `tools/grouped_overlay.py`
+  reads each document once per service line: 2,061 calls against 12,409, covering
+  46% more pairs, with three quotes struck out of 727 signals. Comparing the two
+  artefacts on the live corpus showed the cost: the grouped build disqualifies 102
+  companies where the per-question build disqualifies 76, and the extra ones are
+  not vendors — Bank of Cyprus is removed for recruiting security engineers, eMAG
+  for hiring DevSecOps, JPMorgan for building internal automation. Those are the
+  hiring signals the question asks about, read as in-house building. Asked one
+  question at a time the model gets it right; asked six at once it reaches for the
+  disqualifier. The cheap build stays in the repository for a corpus that grows;
+  the careful one is what ships. The obvious next move is a hybrid — grouped for
+  the positive questions, one at a time for the three that can remove a company —
+  and it is not built.
+
 
 - **D6, D7** — the board, the market view and the settings panels were checked at
   1024×768 in a headless browser. The Studio and the capture sheet were not.

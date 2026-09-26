@@ -41,6 +41,23 @@ class VendorRegistryTest(unittest.TestCase):
         self.assertFalse(vendor_registry.named_vendor(None))
 
 
+class GroupedQuestionsTest(unittest.TestCase):
+
+    def test_questions_are_grouped_by_service_line(self):
+        import grouped_overlay
+        questions = [
+            {"key": "a", "serviceLine": "One"}, {"key": "b", "serviceLine": "One"},
+            {"key": "c", "serviceLine": "Two"},
+        ]
+        groups = grouped_overlay.group_questions(questions)
+        self.assertEqual({"One": 2, "Two": 1}, {k: len(v) for k, v in groups.items()})
+
+    def test_the_grouped_prompt_narrows_build_the_same_way(self):
+        import grouped_overlay
+        self.assertIn("is NOT BUILD", grouped_overlay.SYSTEM)
+        self.assertIn("sells", grouped_overlay.SYSTEM.lower())
+
+
 class OverlayLocateTest(unittest.TestCase):
 
     def test_an_exact_quote_resolves_to_the_documents_own_bytes(self):
