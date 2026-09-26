@@ -863,6 +863,30 @@ export function markCompetitor(companyId: string, competitor: boolean): Promise<
 	});
 }
 
+export type PersonRow = {
+	id: string;
+	companyId: string;
+	company: string;
+	domain: string | null;
+	name: string;
+	role: string;
+	band: string;
+	probability: number;
+	serviceLine: string;
+	sourceUrl: string;
+	publisher: string;
+	publishedAt: string | null;
+	profiles: string[];
+};
+
+export function fetchPeople(serviceLine: string): Promise<PersonRow[]> {
+	return request<PersonRow[]>(`/api/people${query({ serviceLine })}`);
+}
+
+export function extractPeople(): Promise<{ added: number; total: number }> {
+	return request<{ added: number; total: number }>('/api/people/extract', { method: 'POST' });
+}
+
 export type Settings = {
 	blacklist: string[];
 	exclusions: { id: string; name: string }[];

@@ -32,6 +32,7 @@
 		{ href: '/', label: 'Board', icon: 'board' },
 		{ href: '/studio', label: 'Signal Studio', icon: 'studio' },
 		{ href: '/signals', label: 'Signal map', icon: 'target' },
+		{ href: '/people', label: 'People', icon: 'building' },
 		{ href: '/pipeline', label: 'Pipeline', icon: 'pipeline' },
 		{ href: '/market', label: 'Market', icon: 'board' },
 		{ href: '/settings', label: 'Settings', icon: 'settings' }
