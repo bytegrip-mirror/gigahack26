@@ -71,6 +71,7 @@ public class CorpusSeeder implements ApplicationRunner {
     private final ClassifierRouter router;
     private final CaptureStore captureStore;
     private final CorpusProperties properties;
+    private final Readiness readiness;
     private final ObjectMapper mapper;
     private final Clock clock;
 
@@ -80,7 +81,8 @@ public class CorpusSeeder implements ApplicationRunner {
                         PolicyLibrary library, ServiceLineService serviceLines, RegionService regions,
                         ScoreboardService scoreboard,
                         RescoreService rescore, ClassifierRouter router,
-                        CaptureStore captureStore, CorpusProperties properties, ObjectMapper mapper, Clock clock) {
+                        CaptureStore captureStore, CorpusProperties properties, Readiness readiness,
+                        ObjectMapper mapper, Clock clock) {
         this.companies = companies;
         this.corpusState = corpusState;
         this.aliases = aliases;
@@ -96,6 +98,7 @@ public class CorpusSeeder implements ApplicationRunner {
         this.router = router;
         this.captureStore = captureStore;
         this.properties = properties;
+        this.readiness = readiness;
         this.mapper = mapper;
         this.clock = clock;
     }
@@ -105,6 +108,15 @@ public class CorpusSeeder implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
+        readiness.seeding(true);
+        try {
+            seed(args);
+        } finally {
+            readiness.seeded();
+        }
+    }
+
+    private void seed(ApplicationArguments args) {
         boolean policiesChanged = library.ensureSeeded();
         serviceLines.ensureSeeded();
         regions.ensureSeeded();

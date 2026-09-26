@@ -293,15 +293,18 @@ pipeline {
                     status=$(docker exec ${API_CONTAINER} wget -q -O - "https://${API_DOMAIN}/api/status") || fail "status did not answer"
                     echo "$status"
 
-                    board=$(docker exec ${API_CONTAINER} wget -q -O - "https://${API_DOMAIN}/api/companies") \
-                        || fail "the board payload did not answer — status alone can be green while reads fail"
-                    case "$board" in
-                        \\[*\\]) ;;
-                        *) fail "the board payload is not a JSON array: $(echo "$board" | head -c 200)" ;;
-                    esac
-                    case "$board" in
-                        \\[\\]) fail "the board payload is empty" ;;
-                    esac
+                    for attempt in 1 2 3; do
+                        board=$(docker exec ${API_CONTAINER} wget -q -O - "https://${API_DOMAIN}/api/companies") \
+                            || fail "the board payload did not answer — status alone can be green while reads fail"
+                        case "$board" in
+                            \[*\]) ;;
+                            *) fail "the board payload is not a JSON array: $(echo "$board" | head -c 200)" ;;
+                        esac
+                        case "$board" in
+                            \[\]) fail "the board payload is empty" ;;
+                        esac
+                        sleep 2
+                    done
 
                     meta=$(docker exec ${API_CONTAINER} wget -q -O - "https://${API_DOMAIN}/api/meta?serviceLine=Intelligent%20Automation") \
                         || fail "meta did not answer"
