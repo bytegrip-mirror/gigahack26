@@ -220,6 +220,8 @@
 			<span class="legend-item"><span class="swatch swatch-for"></span> counts for the company</span>
 			<span class="legend-item"><span class="swatch swatch-against"></span> counts against the company</span>
 			<span class="legend-item"><span class="swatch swatch-line"></span> a question that found them</span>
+			<span class="legend-item"><span class="swatch swatch-priority"></span> on the board</span>
+			<span class="legend-item"><span class="swatch swatch-out"></span> out of the queue</span>
 		</span>
 		<span class="spacer"></span>
 		<span class="sub dim num">
@@ -444,6 +446,16 @@
 		width: 16px;
 		height: 2px;
 		background: var(--color-rule-strong);
+	}
+
+	.swatch-priority {
+		background: var(--color-orange-wash);
+		border: 1px solid var(--color-orange-line);
+	}
+
+	.swatch-out {
+		background: var(--color-oxblood-wash);
+		border: 1px solid var(--color-oxblood-line);
 	}
 
 	.pane {
