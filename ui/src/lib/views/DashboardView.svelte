@@ -182,19 +182,21 @@
 
 	<div class="body scroll">
 		<div class="dash">
-			{#each kpis as kpi (kpi.title)}
-				<a class="card kpi" href={kpi.href}>
-					<span class="card-head">
-						<span class="chip"><Icon name={kpi.icon} size={15} /></span>
-						<span class="card-title">{kpi.title}</span>
-					</span>
-					<span class="figure">
-						<span class="big num">{kpi.value}</span>
-						<span class="unit">{kpi.unit}</span>
-					</span>
-					<span class="foot">{kpi.foot}</span>
-				</a>
-			{/each}
+			<div class="kpis">
+				{#each kpis as kpi (kpi.title)}
+					<a class="card kpi" href={kpi.href}>
+						<span class="card-head">
+							<span class="chip"><Icon name={kpi.icon} size={15} /></span>
+							<span class="card-title">{kpi.title}</span>
+						</span>
+						<span class="figure">
+							<span class="big num">{kpi.value}</span>
+							<span class="unit">{kpi.unit}</span>
+						</span>
+						<span class="foot">{kpi.foot}</span>
+					</a>
+				{/each}
+			</div>
 
 			<section class="card list">
 				<div class="card-head">
@@ -326,8 +328,20 @@
 		border: 1px solid var(--color-rule);
 	}
 
+	/*
+	 * The figures keep one row whatever their number. They were tiles in the
+	 * twelve-column grid spanning three columns each, which is four across — so a
+	 * fifth stranded itself in the first column of the next row and pushed the
+	 * list and the cards after it out of shape.
+	 */
+	.kpis {
+		grid-column: 1 / -1;
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+		gap: var(--spacing-3);
+	}
+
 	.kpi {
-		grid-column: span 3;
 		color: var(--color-ink);
 	}
 
@@ -355,12 +369,6 @@
 	.chart {
 		grid-column: span 6;
 		min-height: 200px;
-	}
-
-	@media (max-width: 900px) {
-		.kpi {
-			grid-column: span 6;
-		}
 	}
 
 	@media (max-width: 1100px) {
