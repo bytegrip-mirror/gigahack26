@@ -4,31 +4,32 @@ A reference for the shell, the token scale and the shared components. Read this
 before adding a screen, a column or an action, so the new work lands in the same
 system rather than beside it.
 
-Everything here is enforced by two gates: `pnpm run check` must report zero
-errors, and every row of the board must survive a 1024×768 projector — nothing
-load-bearing below 11px, nothing that only appears on hover.
+Two gates enforce everything here. `pnpm run check` must report zero errors: it
+runs `svelte-check` and then the design lint from section 2. Every row of the
+board must survive a 1024×768 projector: nothing load-bearing below 11px, and
+nothing that only appears on hover.
 
 ---
 
 ## 1. The shell
 
 One rail, one scroll region per pane, no document scroll. `+layout.svelte` owns
-the rail and mounts the command palette; every screen below it is a `.view` that
+the rail and mounts the command palette; every screen below it is a `View` that
 fills the remaining width.
 
 ```
 ┌──────────┬────────────────────────────────────────────────────────────┐
-│ rail     │ .topbar      identity · metrics · one primary action · ⋯   │
+│ rail     │ Topbar       identity · metrics · one primary action · ⋯   │
 │ 232px    ├────────────────────────────────────────────────────────────┤
-│          │ .toolbar     the lens: filters, search, scope              │
+│          │ Toolbar      the lens: filters, search, scope              │
 │ brand    ├────────────────────────────────────────────────────────────┤
-│ search   │ .panes                                                     │
+│ search   │ Panes                                                      │
 │ nav      │  ┌──────────────────────────┬─────────────────────────┐    │
 │ corpus   │  │ .list  (scrolls)         │ .detail (scrolls)       │    │
 │          │  │  the ranked table        │  the scorecard          │    │
 │ region   │  └──────────────────────────┴─────────────────────────┘    │
 │ refresh  ├────────────────────────────────────────────────────────────┤
-│          │ .pager       1–50 of 578 · page size · prev/next           │
+│          │ Pager        1–50 of 578 · page size · prev/next           │
 └──────────┴────────────────────────────────────────────────────────────┘
 ```
 
@@ -36,64 +37,129 @@ The rail reads top-down as identity, navigation, then the facts about the corpus
 and the two workspace-wide settings, pushed to the bottom together so they sit in
 the same place on every screen.
 
-When a company is open, `.view` becomes two columns and the detail pane takes the
+When a company is open, the view becomes two columns and the detail pane takes the
 **full height of the window** — the topbar, toolbar, list and pager are the left
 column and stop at the divider, rather than running over the top of the pane.
 Below 1100px the pane lays over the view instead of beside it.
 
 Rules that hold across every screen:
 
-- **`.topbar` carries identity, the numbers that summarise the screen, and at
+- **The topbar carries identity, the numbers that summarise the screen, and at
   most one prominent button.** Everything else is a `Menu` behind a `⋯`.
-- **`.toolbar` carries filters and nothing else.** It never holds a primary
+- **The toolbar carries filters and nothing else.** It never holds a primary
   action.
-- **`.panes` is the only part that scrolls.** Its children are `min-height: 0`
+- **The panes are the only part that scrolls.** Its children carry `min-h-0`
   so a grid child cannot push the view taller than the viewport.
 - **Selection lives in the URL** (`/?co=<id>`), so a company stays linkable.
-- Below 1100px the detail pane becomes an overlay inside `.panes` rather than a
+- Below 1100px the detail pane becomes an overlay inside the panes rather than a
   second column, so the table keeps its width on a projector.
-- `.panes` is a grid from `app.css`. A screen that wants a plain block stack
-  (the pipeline) must set `display: block` itself.
+- `Panes` is a one-column grid. A screen that wants a plain block stack (the
+  pipeline) passes `class="block"`.
 
-## 2. The token scale
+## 2. The design system
 
-All of it is in `ui/src/app.css`. Views use the tokens; they do not invent px.
+The interface uses Tailwind v4 for utilities and bits-ui for behaviour. The
+design system has three parts, and a gate holds each part in place.
 
-| Group | Tokens | Use |
+1. **The theme.** `ui/src/app.css` defines every colour, space, type size, radius,
+   font, breakpoint and z-index in one `@theme` block. The block starts with
+   `--*: initial`, so the default Tailwind scale does not exist. `p-7`,
+   `text-gray-500` and `rounded-lg` produce no CSS. Only the tokens below produce
+   utilities.
+2. **The primitives.** `ui/src/lib/ui/` holds every control and every piece of the
+   shell. Only these files import `bits-ui`. Only these files decide padding,
+   colour, border and type for a control. A caller selects a look with a
+   `variant`, `size` or `tone` prop.
+3. **The gate.** `pnpm run check` runs `ui/scripts/design-lint.mjs` after
+   `svelte-check`. The lint fails the build on a violation of the rules in
+   section 2.2.
+
+### 2.1 Tokens
+
+| Group | Utilities | Values |
 | --- | --- | --- |
-| Spacing | `--sp-1` 4 · `--sp-2` 8 · `--sp-3` 12 · `--sp-4` 16 · `--sp-5` 24 · `--sp-6` 32 | every padding, margin and gap |
-| Control heights | `--ctl` 28 · `--ctl-sm` 22 · `--row` 34 · `--bar` 44 | buttons, inputs, toolbars |
-| Type | `--fs-micro` 11 · `--fs-sm` 11.5 · `--fs-base` 12.5 · `--fs-md` 13.5 · `--fs-lg` 15.5 · `--fs-xl` 18 · `--fs-title` 22 | see below |
-| Depth | `--z-sticky` 2 · `--z-menu` 200 · `--z-sheet` 260 · `--z-toast` 300 | never hardcode a z-index |
-| Motion | `--ease` | every transition |
+| Spacing | `p-*`, `m-*`, `gap-*`, `inset-*` … | `0`, `px`, `0.5` 2, `1` 4, `2` 8, `3` 12, `4` 16, `5` 24, `6` 32 |
+| Sizes | `h-*`, `w-*`, `size-*`, `min-h-*` … | `ctl-sm` 22, `ctl` 28, `row` 34, `bar` 44, `topbar` 56, `rail` 232 |
+| Max widths | `max-w-*` | `prose` 60ch, `menu` 320, `palette` 640, `sheet` 720, `dialog` 1080 |
+| Colour | `text-*`, `bg-*`, `border-*` … | `orange`, `orange-deep`, `orange-ink`, `orange-wash`, `orange-line`, `on-orange`, `accent`, `accent-wash`, `accent-line`, `oxblood`, `oxblood-wash`, `oxblood-line`, `ink`, `ink-2`, `ink-3`, `ink-4`, `ink-line`, `ink-hover`, `paper`, `surface`, `sunken`, `rule`, `rule-strong`, `scrim`, `veil` |
+| Type size | `text-*` | `micro` 11, `sm` 11.5, `base` 12.5, `md` 13.5, `lg` 15.5, `xl` 18, `title` 22 |
+| Family | `font-*` | `display` (Space Grotesk), `ui` (Archivo) |
+| Leading | `leading-*` | `none` 1, `tight` 1.1, `snug` 1.3, `normal` 1.45, `relaxed` 1.6 |
+| Tracking | `tracking-*` | `tight`, `num`, `normal`, `wide`, `caps` |
+| Radius | `rounded-*` | `sm` 2px, `none`, `full` (dots only) |
+| Depth | `z-*` | `sticky`, `raised`, `overlay`, `menu`, `sheet`, `toast` |
+| Breakpoint | `sm:`, `max-lg:` … | `sm` 760, `compact` 1000, `md` 1100, `lg` 1180, `xl` 1380 |
 
-Type is three roles, and a size belongs to exactly one of them:
+Text styles are utilities too: `type-display`, `type-label` (uppercase tracked
+label), `type-sub` (helper line), `type-key` and `num` (tabular figures). Layout
+helpers are `scroll`, `grid-fields`, `grid-kv` and `table-grid`.
 
-- **`--fs-title` / `--fs-xl`** — page titles and panel headings, in
-  `--font-display`.
-- **`--fs-lg` / `--fs-md` / `--fs-base`** — row data, field values, body copy,
-  in `--font-ui`.
-- **`--fs-micro` with `--fs-sm`** — uppercase tracked labels, tags, helper
-  lines. 11px is the floor; nothing load-bearing goes below it.
+Type has three roles, and a size belongs to exactly one role:
 
-Numbers always carry `.num`: tabular figures so columns align.
+- **`title` and `xl`** are for page titles and panel headings, in `font-display`.
+- **`lg`, `md` and `base`** are for row data, field values and body copy.
+- **`micro` and `sm`** are for labels, tags and helper lines. 11px is the floor.
+  Nothing load-bearing goes below it.
 
-Radii stay at 2px, hierarchy comes from rules and weight, and there are no
-shadows anywhere — a popover announces itself with a full-contrast ink border
-against paper, not a drop shadow.
+Numbers always carry `num`, so that columns align. Radii stay at 2px. There are
+no shadows and no gradients. A popover shows its edge with a full-contrast ink
+border against paper.
+
+### 2.2 What the gate rejects
+
+Outside `ui/src/lib/ui/`:
+
+- A `<style>` block.
+- A `style="…"` attribute. A `style:` directive is allowed only for geometry
+  (`width`, `height`, `left`, `top`, `transform`, grid tracks) with a computed
+  value, for example a percentage bar.
+- An arbitrary value, that is, any class with `[`, `]`, `(` or `)`.
+- A raw z-index (`z-10`), a colour opacity modifier (`bg-orange/50`), or a raw hex
+  or rgb colour in markup.
+- A class that the theme does not define.
+- A class built at run time (`` `tag-${tone}` ``, a variable). Class values must
+  be literal strings, literal ternaries or literal arrays.
+- A class on a component that is not a layout class. A component takes display,
+  placement, width, height, position, overflow and depth from its caller. It never
+  takes padding, margin, colour, font, border or radius. If a component needs a
+  new look, add a variant to it in `lib/ui`.
+- An import from `bits-ui`.
+
+Inside `ui/src/lib/ui/`, the theme and arbitrary-value rules still apply. The only
+exceptions are the bits-ui state selectors (`data-[state=open]:`) and the bits-ui
+size variables (`max-h-(--bits-select-content-available-height)`).
+
+The rules separate two kinds of edit. A view can arrange things: grid, flex,
+width, order, what hides at which breakpoint. A view cannot restyle things: that
+change goes into the primitive, where every screen gets it.
 
 ## 3. The shared components
 
+All of them are in `ui/src/lib/ui/`. Read the file for the exact props.
+
 | Component | Contract |
 | --- | --- |
-| `Icon.svelte` + `icons.ts` | One 24-box stroke set, `name` from the `PATHS` map. Add a path there, never an inline `<svg>` in a view. |
-| `Menu.svelte` + `menu.ts` | The overflow pattern. Takes `items: MenuItem[]` and `onselect(id)`. Renders fixed-positioned so a menu inside a scrolling pane is never clipped; closes on outside click, scroll, resize and Escape; arrow keys, Home/End. `text` renders a labelled button, otherwise an icon button. |
-| `Metric.svelte` | A number above its tracked-out label, with an optional `tone` and `hint`. Use for every top-level summary — never a sentence. |
-| `Th.svelte` | A sortable header cell. `id`, `label`, `sort`, `dir`, `onsort`, `align`, `width`, `className`. Renders `aria-sort` and a direction arrow that is visible without hovering. |
-| `Pager.svelte` | Range, page size, prev/next. Client-side over the fetched array. |
-| `CommandPalette.svelte` | ⌘K / Ctrl-K. Searches companies through the API and jumps to views, service lines and regions. Mounted once, in the layout. |
-| `Tag.svelte` | The only badge. `band` renders the semantic band colours. |
-| `LoadingVeil.svelte` | Absolutely positioned over its pane, so a load never reflows the layout. |
+| `View`, `Topbar`, `Toolbar`, `ToolbarSeparator`, `Panes`, `Bulkbar` | The shell from section 1. `Topbar` takes a `title` and the snippets `subtitle`, `metrics` and `tools`. |
+| `Button` | `variant`: `default`, `primary`, `ink`, `quiet`, `inverse`. `size`: `md`, `sm`. Optional `icon`, `trailing` and `href`. |
+| `IconButton` | An icon-only button. `label` is required and becomes the accessible name and the tooltip. |
+| `Input`, `Textarea` | Text fields with `bind:value`. |
+| `Select` | A bits-ui listbox. Takes `options: {value, label}[]` and `bind:value`. The value can be a string or a number. |
+| `Checkbox` | A bits-ui checkbox. Its children are the label. Without children it needs `label`. |
+| `Segmented` | A bits-ui single toggle group, for a filter with a few options and optional counts. |
+| `Tabs` | A bits-ui tab strip with a `trailing` snippet and one panel for each tab. |
+| `Menu` + `menu.ts` | The overflow pattern on the bits-ui dropdown menu. Takes `items: MenuItem[]` and `onselect(id)`. `text` renders a labelled button, otherwise an icon button. `searchable` adds a filter on the bits-ui command list. |
+| `Dialog` | The bits-ui dialog. `kind`: `dialog`, `sheet` (from the right), `palette`. Handles Escape, focus and outside click. |
+| `Icon` + `icons.ts` | One 24-box stroke set. `size`: `sm` 13, `md` 15, `lg` 17, `xl` 22. Add a path to `PATHS`, never an inline `<svg>` in a view. |
+| `Metric` | A number above its tracked label, with an optional `tone` and `hint`. Use it for every top-level summary, never a sentence. |
+| `Tag` | The only badge. `tone` selects the colour. `band` renders the semantic band colours. |
+| `Th` | A sortable header cell. Renders `aria-sort` and a direction arrow that shows without hover. `class` takes the column's hide rule. |
+| `Pager` | Range, page size, prev and next, over the fetched array. |
+| `Panel`, `Empty`, `Note`, `Facts`, `Field`, `Fields` | Content blocks: a titled section, an empty state, a status line, key/value pairs, a labelled control, a field grid. |
+| `Spinner`, `LoadingVeil` | `LoadingVeil` sits over its pane, so a load never moves the layout. |
+
+`CommandPalette.svelte` (⌘K / Ctrl-K) stays in `lib/components/`, with the other
+components that are specific to this product. It searches companies through the
+API and jumps to views, service lines and regions. The layout mounts it once.
 
 State lives in three stores, all `.svelte.ts`:
 
@@ -196,8 +262,8 @@ companies the region filter has left on screen.
 
 Dense data is a table, never a grid of cards.
 
-- Right-align numbers and amounts (`.c`, `.num`), left-align text, centre status
-  badges (`.m`).
+- Right-align numbers and amounts (`text-right num`), left-align text, centre
+  status badges (`text-center`).
 - Sortable headers only. Sorting is client-side over the fetched array, so both
   directions work; the `#` column keeps the server's fit rank whatever the sort,
   which is why its tooltip says *fit rank*.
@@ -211,9 +277,9 @@ Dense data is a table, never a grid of cards.
 
 ## 7. Adding to a screen
 
-- **A column** — add a `Th` with an `id`, `width` and `className`, add the
-  matching `td`, and add the `id` to the sort switch. Give it a hide rule in the
-  same media queries as its neighbours.
+- **A column** — add a `Th` with an `id`, a `width` and a hide rule in `class`
+  (for example `max-xl:hidden`). Put the same hide rule on the matching `td`, and
+  add the `id` to the sort switch.
 - **An action** — if it is the one thing the screen is for, it is a button in the
   topbar. Otherwise it is a `MenuItem`.
 - **A row action** — append to the view's `rowMenu`/`menuFor` builder, with
@@ -224,6 +290,6 @@ Dense data is a table, never a grid of cards.
   *Top evidence* cell can name three **distinct** reasons. It runs them through
   `reasons()`, which keeps the strongest signal per question, because one
   question firing on six documents is one reason, not six.
-- **A panel** — `.panel` + `.panel-head`, then `.metrics` for numbers and
-  `.facts` for key/value pairs. Prose belongs behind a disclosure, not in the
+- **A panel** — `Panel` with a `title`, then `Metric` for numbers and `Facts`
+  for key/value pairs. Prose belongs behind a disclosure, not in the
   default view.
