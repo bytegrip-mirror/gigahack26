@@ -14,7 +14,12 @@ public interface DraftWriter {
             List<String> findings,
             Voice voice,
             String channel,
-            String trigger) {
+            String trigger,
+            String instruction) {
+
+        boolean steered() {
+            return instruction != null && !instruction.isBlank();
+        }
     }
 
     record Composed(String subject, String body, String engine) {

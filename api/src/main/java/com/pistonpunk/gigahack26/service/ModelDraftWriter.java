@@ -124,6 +124,15 @@ public class ModelDraftWriter implements DraftWriter {
             findings.append("- (nothing specific; keep the note short and ask a genuine question)\n");
         }
 
+        String steer = brief.steered()
+                ? """
+
+                The person who will send this has rewritten it before and asked for this change. It outranks \
+                your own judgement on tone, length and emphasis, and it does not license a fact that is not in \
+                the findings above:
+                %s""".formatted(brief.instruction().trim())
+                : "";
+
         messages.addObject().put("role", "user").put("content", """
                 Company: %s
                 Service we are selling: %s
@@ -135,7 +144,7 @@ public class ModelDraftWriter implements DraftWriter {
                 %s
                 Voice to write in: %s
 
-                Write the %s now. Answer with JSON only.""".formatted(
+                Write the %s now. Answer with JSON only.%s""".formatted(
                 brief.company(),
                 brief.serviceLine(),
                 brief.proposition(),
@@ -143,7 +152,8 @@ public class ModelDraftWriter implements DraftWriter {
                 brief.channel(),
                 findings,
                 brief.voice().describe(),
-                brief.channel().equals("inmail") ? "LinkedIn message, under 90 words" : "email"));
+                brief.channel().equals("inmail") ? "LinkedIn message, under 90 words" : "email",
+                steer));
 
         return mapper.writeValueAsString(root);
     }

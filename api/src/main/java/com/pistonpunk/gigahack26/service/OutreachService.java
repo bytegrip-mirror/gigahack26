@@ -42,11 +42,11 @@ public class OutreachService {
         this.writer = writer;
     }
 
-    public Optional<OutreachDraft> draft(UUID companyId, String serviceLine, String rawChannel) {
-        return board.detail(companyId, serviceLine).map(detail -> compose(detail, rawChannel));
+    public Optional<OutreachDraft> draft(UUID companyId, String serviceLine, String rawChannel, String instruction) {
+        return board.detail(companyId, serviceLine).map(detail -> compose(detail, rawChannel, instruction));
     }
 
-    OutreachDraft compose(CompanyDetail detail, String rawChannel) {
+    OutreachDraft compose(CompanyDetail detail, String rawChannel, String instruction) {
         String channel = "inmail".equalsIgnoreCase(rawChannel) ? "inmail" : "email";
         Voice voice = Voice.of(settings.current());
 
@@ -84,7 +84,8 @@ public class OutreachService {
                 findings,
                 voice,
                 channel,
-                detail.whyNow() == null ? null : detail.whyNow().headline());
+                detail.whyNow() == null ? null : detail.whyNow().headline(),
+                instruction);
 
         DraftWriter.Composed composed = writer.write(brief, citations);
 

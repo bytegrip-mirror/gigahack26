@@ -24,7 +24,7 @@ public class OutreachController {
         this.outreach = outreach;
     }
 
-    public record Request(String serviceLine, String channel) {
+    public record Request(String serviceLine, String channel, String instruction) {
     }
 
     @PostMapping("/{companyId}")
@@ -34,7 +34,8 @@ public class OutreachController {
                 ? PolicyLibrary.AUTOMATION
                 : request.serviceLine();
         String channel = request == null ? "email" : request.channel();
-        return outreach.draft(companyId, serviceLine, channel)
+        String instruction = request == null ? null : request.instruction();
+        return outreach.draft(companyId, serviceLine, channel, instruction)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -44,9 +45,11 @@ public class OutreachController {
                                                  @RequestParam(name = "serviceLine", required = false)
                                                  String serviceLine,
                                                  @RequestParam(name = "channel", defaultValue = "email")
-                                                 String channel) {
+                                                 String channel,
+                                                 @RequestParam(name = "instruction", required = false)
+                                                 String instruction) {
         String line = serviceLine == null || serviceLine.isBlank() ? PolicyLibrary.AUTOMATION : serviceLine;
-        return outreach.draft(companyId, line, channel)
+        return outreach.draft(companyId, line, channel, instruction)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
