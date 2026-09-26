@@ -880,8 +880,20 @@ export type PersonRow = {
 	linkedinUrl: string | null;
 	headline: string | null;
 	enrichedAt: string | null;
+	status: string;
+	statusLabel: string;
+	contactCount: number;
+	lastContactedAt: string | null;
+	outreachSubject: string | null;
 	profiles: string[];
 };
+
+export function movePerson(id: string, status: string, subject?: string): Promise<PersonRow> {
+	return request<PersonRow>(`/api/people/${id}/stage`, {
+		method: 'POST',
+		body: JSON.stringify({ status, subject })
+	});
+}
 
 export type EnrichmentProvider = { provider: string; available: boolean };
 

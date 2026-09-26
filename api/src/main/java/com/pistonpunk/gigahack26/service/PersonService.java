@@ -2,6 +2,7 @@ package com.pistonpunk.gigahack26.service;
 
 import com.pistonpunk.gigahack26.domain.Company;
 import com.pistonpunk.gigahack26.domain.Evidence;
+import com.pistonpunk.gigahack26.domain.LeadStatus;
 import com.pistonpunk.gigahack26.domain.Person;
 import com.pistonpunk.gigahack26.repository.jpa.CompanyRepository;
 import com.pistonpunk.gigahack26.repository.jpa.EvidenceRepository;
@@ -129,6 +130,23 @@ public class PersonService {
     @Transactional(readOnly = true)
     public long count() {
         return people.count();
+    }
+
+    @Transactional
+    public Optional<Person> move(UUID id, String rawStatus, String channel, String subject) {
+        if (rawStatus == null || rawStatus.isBlank()) {
+            return Optional.empty();
+        }
+        LeadStatus next;
+        try {
+            next = LeadStatus.valueOf(rawStatus.trim().toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException unknown) {
+            return Optional.empty();
+        }
+        return people.findById(id).map(person -> {
+            person.moveTo(next, channel, subject, clock.instant());
+            return people.save(person);
+        });
     }
 
     @Transactional

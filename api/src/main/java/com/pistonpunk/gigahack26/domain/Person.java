@@ -2,6 +2,8 @@ package com.pistonpunk.gigahack26.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -51,6 +53,22 @@ public class Person {
     @Column(name = "enriched_at")
     private Instant enrichedAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private LeadStatus status;
+
+    @Column(name = "contact_count", nullable = false)
+    private int contactCount;
+
+    @Column(name = "last_contacted_at")
+    private Instant lastContactedAt;
+
+    @Column(length = 40)
+    private String channel;
+
+    @Column(name = "outreach_subject", length = 300)
+    private String outreachSubject;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
@@ -70,6 +88,7 @@ public class Person {
         this.publisher = publisher;
         this.publishedAt = publishedAt;
         this.createdAt = createdAt;
+        this.status = LeadStatus.NEW;
     }
 
     public UUID getId() {
@@ -126,6 +145,45 @@ public class Person {
 
     public Instant getEnrichedAt() {
         return enrichedAt;
+    }
+
+    public LeadStatus getStatus() {
+        return status == null ? LeadStatus.NEW : status;
+    }
+
+    public int getContactCount() {
+        return contactCount;
+    }
+
+    public Instant getLastContactedAt() {
+        return lastContactedAt;
+    }
+
+    public String getChannel() {
+        return channel;
+    }
+
+    public String getOutreachSubject() {
+        return outreachSubject;
+    }
+
+    /**
+     * A person is worked, not a company: the same transition rules the company
+     * lead follows, so the two boards read the same way — the count moves on a real
+     * move and not on a re-save.
+     */
+    public void moveTo(LeadStatus next, String viaChannel, String subject, Instant now) {
+        if (next != this.status) {
+            this.contactCount = this.contactCount + 1;
+            this.lastContactedAt = now;
+        }
+        this.status = next;
+        if (viaChannel != null && !viaChannel.isBlank()) {
+            this.channel = viaChannel;
+        }
+        if (subject != null && !subject.isBlank()) {
+            this.outreachSubject = subject;
+        }
     }
 
     public void enrich(String linkedinUrl, String headline, Instant now) {

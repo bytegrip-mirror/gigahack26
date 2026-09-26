@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,7 +43,9 @@ public class PersonController {
     private PersonRow row(Person person) {
         return new PersonRow(person.getId(), person.getCompanyId(), null, null, person.getName(), person.getRole(),
                 null, 0, null, person.getSourceUrl(), person.getPublisher(), person.getPublishedAt(),
-                person.getLinkedinUrl(), person.getHeadline(), person.getEnrichedAt(), List.of());
+                person.getLinkedinUrl(), person.getHeadline(), person.getEnrichedAt(),
+                person.getStatus().name(), person.getStatus().label(), person.getContactCount(),
+                person.getLastContactedAt(), person.getOutreachSubject(), List.of());
     }
 
     @GetMapping("/provider")
@@ -90,9 +93,24 @@ public class PersonController {
                     person.getLinkedinUrl(),
                     person.getHeadline(),
                     person.getEnrichedAt(),
+                    person.getStatus().name(),
+                    person.getStatus().label(),
+                    person.getContactCount(),
+                    person.getLastContactedAt(),
+                    person.getOutreachSubject(),
                     row.profiles()));
         }
         return out;
+    }
+
+    public record StageRequest(String status, String channel, String subject) {
+    }
+
+    @PostMapping("/{id}/stage")
+    public ResponseEntity<PersonRow> stage(@PathVariable UUID id, @RequestBody StageRequest request) {
+        return people.move(id, request.status(), request.channel(), request.subject())
+                .map(person -> ResponseEntity.ok(row(person)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping("/{id}/enrich")

@@ -4,12 +4,13 @@
 		extractPeople,
 		fetchEnrichmentProvider,
 		fetchPeople,
+		movePerson,
 		type PersonRow
 	} from '$lib/api';
 	import { session } from '$lib/session.svelte';
 	import { workspace } from '$lib/workspace.svelte';
 	import { toasts } from '$lib/toast.svelte';
-	import { date, fitTone, fitWord, host, safeHref } from '$lib/format';
+	import { age, date, fitTone, fitWord, host, safeHref } from '$lib/format';
 	import { csv, save } from '$lib/export';
 	import CompanyMark from '$lib/components/CompanyMark.svelte';
 	import LoadingVeil from '$lib/components/LoadingVeil.svelte';
@@ -30,6 +31,53 @@
 	let sort = $state('company');
 	let busy = $state(false);
 	let provider = $state<{ provider: string; available: boolean } | null>(null);
+	let stage = $state('');
+	let busyOn = $state<string | null>(null);
+
+	const STAGES = [
+		{ id: '', label: 'Anyone' },
+		{ id: 'NEW', label: 'Not worked' },
+		{ id: 'CONTACTED', label: 'Contacted' },
+		{ id: 'REPLIED', label: 'Replied' },
+		{ id: 'QUALIFIED', label: 'Qualified' },
+		{ id: 'REJECTED', label: 'Rejected' }
+	];
+
+	const NEXT: Record<string, string> = {
+		NEW: 'CONTACTED',
+		CONTACTED: 'REPLIED',
+		REPLIED: 'QUALIFIED'
+	};
+
+	async function advance(person: PersonRow) {
+		const next = NEXT[person.status];
+		if (!next) return;
+		busyOn = person.id;
+		try {
+			await movePerson(person.id, next);
+			await load();
+		} catch (cause) {
+			toasts.push((cause as Error).message, 'error');
+		} finally {
+			busyOn = null;
+		}
+	}
+
+	async function setStage(person: PersonRow, status: string) {
+		busyOn = person.id;
+		try {
+			await movePerson(person.id, status);
+			await load();
+		} catch (cause) {
+			toasts.push((cause as Error).message, 'error');
+		} finally {
+			busyOn = null;
+		}
+	}
+
+	function daysSince(iso: string | null): number | null {
+		return iso ? Math.max(0, (Date.now() - new Date(iso).getTime()) / 86_400_000) : null;
+	}
 
 	const serviceLine = $derived(session.serviceLine);
 	const thresholds = $derived({
@@ -73,9 +121,10 @@
 
 	const matched = $derived.by(() => {
 		const needle = query.trim().toLowerCase();
-		const list = needle
+		const list = (needle
 			? rows.filter((row) => `${row.name} ${row.role} ${row.company}`.toLowerCase().includes(needle))
-			: [...rows];
+			: [...rows]
+		).filter((row) => stage === '' || row.status === stage);
 		list.sort((a, b) => {
 			if (sort === 'name') return a.name.localeCompare(b.name);
 			if (sort === 'role') return a.role.localeCompare(b.role) || a.name.localeCompare(b.name);
@@ -215,6 +264,13 @@
 			<Icon name="search" size={14} />
 			<input class="input input-sm" placeholder="Name, role, company" bind:value={query} />
 		</label>
+		<div class="seg" role="tablist" aria-label="Which people">
+			{#each STAGES as option (option.id)}
+				<button role="tab" aria-selected={stage === option.id} onclick={() => (stage = option.id)}>
+					{option.label}
+				</button>
+			{/each}
+		</div>
 		<span class="spacer"></span>
 		<span class="sub dim num">{matched.length} of {rows.length} shown</span>
 		<Menu
@@ -251,6 +307,7 @@
 					<tr>
 						<th scope="col" class="c-person">Person</th>
 						<th scope="col">Company</th>
+						<th scope="col" class="c-stage">Stage</th>
 						<th scope="col" class="c-fit">Fit</th>
 						<th scope="col" class="c-when">Said</th>
 						<th scope="col" class="c-src">Where</th>
@@ -268,6 +325,35 @@
 									<CompanyMark name={person.company} domain={person.domain} />
 									<span class="co">{person.company}</span>
 								</span>
+							</td>
+							<td class="c-stage" onclick={(event) => event.stopPropagation()}>
+								{#if person.status === 'NEW'}
+									<button
+										class="btn btn-sm"
+										disabled={busyOn === person.id}
+										title={`Mark ${person.name} contacted`}
+										onclick={() => advance(person)}
+									>
+										<Icon name="mail" size={13} /> To contact
+									</button>
+								{:else}
+									<span class="p-stage" data-stage={person.status}>{person.statusLabel}</span>
+									<span class="sub dim">
+										{#if person.contactCount > 0}
+											{person.contactCount}×{#if person.lastContactedAt} · {age(daysSince(person.lastContactedAt) ?? 0)}{/if}
+										{/if}
+									</span>
+									{#if NEXT[person.status]}
+										<button
+											class="btn btn-sm btn-quiet"
+											disabled={busyOn === person.id}
+											onclick={() => advance(person)}
+										>
+											{STAGES.find((entry) => entry.id === NEXT[person.status])?.label}
+											<Icon name="chevronRight" size={12} />
+										</button>
+									{/if}
+								{/if}
 							</td>
 							<td class="c-fit">
 								<span class="fitval dsp" data-tone={fitTone(person.probability, thresholds)}>
@@ -361,6 +447,47 @@
 	.c-fit {
 		width: 96px;
 		vertical-align: top;
+	}
+
+	.c-stage {
+		width: 190px;
+		vertical-align: top;
+	}
+
+	.p-stage {
+		display: inline-block;
+		font-size: var(--text-micro);
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.07em;
+		padding: 1px 5px;
+		border: 1px solid var(--color-rule-strong);
+		color: var(--color-ink-3);
+	}
+
+	.p-stage[data-stage='QUALIFIED'] {
+		border-color: var(--color-accent);
+		color: var(--color-accent);
+	}
+
+	.p-stage[data-stage='REJECTED'] {
+		border-color: var(--color-oxblood-line);
+		color: var(--color-oxblood);
+	}
+
+	.p-stage[data-stage='CONTACTED'],
+	.p-stage[data-stage='REPLIED'] {
+		border-color: var(--color-orange-line);
+		color: var(--color-orange-ink);
+	}
+
+	.c-stage .btn {
+		display: inline-flex;
+		margin-top: 4px;
+	}
+
+	.toolbar .spacer {
+		margin-left: auto;
 	}
 
 	.c-when {

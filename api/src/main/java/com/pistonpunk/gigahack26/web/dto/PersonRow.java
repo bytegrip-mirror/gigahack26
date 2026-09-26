@@ -20,5 +20,10 @@ public record PersonRow(
         String linkedinUrl,
         String headline,
         Instant enrichedAt,
+        String status,
+        String statusLabel,
+        int contactCount,
+        Instant lastContactedAt,
+        String outreachSubject,
         List<String> profiles) {
 }

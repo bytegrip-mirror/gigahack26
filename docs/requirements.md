@@ -101,7 +101,7 @@ and it gates at scoring time exactly as the shipped list does.
 
 | # | Requirement | Status |
 | --- | --- | --- |
-| 6.1 | A board of companies and a separate board of people | **done** — People, in the rail |
+| 6.1 | A board of companies and a separate board of people | **done** — People, in the rail, with its own stages so a rep works a person and not an account |
 | 6.2 | People come from somewhere real | **done** — named in a document we hold, with the sentence they came from |
 | 6.3 | Add LinkedIn scraping | **not built.** A licensed-provider connector is, at 6.4 |
 | 6.4 | Get more than a name — profile, headline, seniority | **done** — `POST /api/people/enrich`, off until a provider key is set |
@@ -110,6 +110,12 @@ A lead used to be a company: `contactCount` counted approaches to an account and
 the desk had no idea who at that account had ever been named. `person` now holds
 the people our documents name, with the role the same sentence gave them and the
 byte range they came from — the same rule the signals follow.
+
+**A person carries their own stage.** Not worked, contacted, replied, qualified,
+rejected — the same five the company lead uses and the same rule about the count
+moving only on a real transition, because two boards for two kinds of thing still
+have to read the same way. The People board filters by stage and advances inline,
+so the unit of work is the human rather than the account.
 
 ### Why there is no LinkedIn crawler
 
