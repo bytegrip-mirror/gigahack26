@@ -24,12 +24,12 @@ public final class PersonExtractor {
             "chief executive officer", "chief financial officer", "chief technology officer",
             "chief information officer", "chief information security officer", "chief operating officer",
             "chief data officer", "chief digital officer", "chief people officer", "chief marketing officer",
-            "chief executive", "chief [a-z]+ officer",
+            "chief [a-z]+ officer",
             "managing director", "group chief executive", "general manager", "country manager",
             "head of [a-z][a-z &-]{2,40}", "director of [a-z][a-z &-]{2,40}",
             "vice president[ ,]*(?:of )?[a-z][a-z &-]{0,40}", "senior vice president[ ,]*(?:of )?[a-z][a-z &-]{0,40}",
             "svp", "evp", "vp of [a-z][a-z &-]{2,40}", "ceo", "cfo", "cto", "cio", "ciso", "coo", "cdo",
-            "president", "chairman", "chairwoman", "chair of [a-z][a-z &-]{2,40}", "partner");
+            "president of [a-z][a-z &-]{2,40}", "chair of [a-z][a-z &-]{2,40}", "chief executive");
 
     private static final Pattern ROLE = Pattern.compile("\\b(" + ROLE_WORDS + ")\\b", Pattern.CASE_INSENSITIVE);
 
@@ -111,12 +111,20 @@ public final class PersonExtractor {
         return name.length() < 4 ? null : name;
     }
 
+    /** Job titles that are written as initials, and are wrong in title case. */
+    private static final java.util.Set<String> ACRONYMS = java.util.Set.of(
+            "ceo", "cfo", "cto", "cio", "ciso", "coo", "cdo", "svp", "evp", "vp", "md", "coo.");
+
     private static String tidy(String role) {
         String cleaned = role.trim().replaceAll("\\s+", " ").toLowerCase(java.util.Locale.ROOT);
         if (cleaned.length() < 2 || cleaned.length() > MAX_ROLE) {
             return null;
         }
-        return cleaned.substring(0, 1).toUpperCase(java.util.Locale.ROOT) + cleaned.substring(1);
+        return java.util.Arrays.stream(cleaned.split(" "))
+                .map(word -> ACRONYMS.contains(word)
+                        ? word.toUpperCase(java.util.Locale.ROOT)
+                        : word.substring(0, 1).toUpperCase(java.util.Locale.ROOT) + word.substring(1))
+                .collect(java.util.stream.Collectors.joining(" "));
     }
 
     public static List<String> roles() {

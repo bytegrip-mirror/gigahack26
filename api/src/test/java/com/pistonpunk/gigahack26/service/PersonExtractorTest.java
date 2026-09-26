@@ -41,6 +41,21 @@ class PersonExtractorTest {
     }
 
     @Test
+    void aTitleWrittenAsInitialsKeepsItsInitials() {
+        List<PersonExtractor.Found> found = PersonExtractor.find("Ana Silva, ceo, said the target was unchanged.");
+        assertEquals(1, found.size());
+        assertEquals("CEO", found.get(0).role());
+    }
+
+    @Test
+    void aHeadOfStateIsNotAContact() {
+        assertTrue(PersonExtractor.find("Recep Tayyip Erdoğan, president, opened the terminal.").isEmpty(),
+                "a bare president is as likely to run a country as a company, and this desk cannot tell");
+        assertEquals(1, PersonExtractor.find("Ana Silva, president of the logistics division, said.").size(),
+                "a president of a named part of the business is a contact");
+    }
+
+    @Test
     void theSamePersonIsReturnedOnceWithTheirFullestTitle() {
         String text = "Ana Silva, chief executive officer, said. Later Ana Silva, chief executive officer of the group, added.";
         List<PersonExtractor.Found> found = PersonExtractor.find(text);

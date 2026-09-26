@@ -76,7 +76,13 @@ public class PersonService {
             byId.put(company.getId(), company);
         }
 
-        List<Person> found = new ArrayList<>();
+        Map<UUID, Set<String>> held = new LinkedHashMap<>();
+        for (Person person : people.findAll()) {
+            held.computeIfAbsent(person.getCompanyId(), key -> new HashSet<>())
+                    .add(person.getName().toLowerCase(Locale.ROOT));
+        }
+
+        Map<String, Person> found = new LinkedHashMap<>();
         for (Evidence item : evidence.findAll()) {
             Company company = byId.get(item.getCompanyId());
             if (company == null || alreadyRead.contains(item.getId())) {
@@ -87,16 +93,31 @@ public class PersonService {
                 continue;
             }
             for (PersonExtractor.Found person : PersonExtractor.find(text)) {
-                if (person.name().toLowerCase(Locale.ROOT).contains(company.getName().toLowerCase(Locale.ROOT))) {
+                String folded = person.name().toLowerCase(Locale.ROOT);
+                if (folded.contains(company.getName().toLowerCase(Locale.ROOT))
+                        || held.getOrDefault(company.getId(), Set.of()).contains(folded)) {
                     continue;
                 }
-                found.add(new Person(UUID.randomUUID(), company.getId(), person.name(), person.role(),
+                String key = company.getId() + "|" + folded;
+                Person earlier = found.get(key);
+                if (earlier != null && !isNewer(item, earlier)) {
+                    continue;
+                }
+                found.put(key, new Person(UUID.randomUUID(), company.getId(), person.name(), person.role(),
                         item.getId(), person.start(), person.end(), item.getSourceUrl(), item.getPublisher(),
                         item.getPublishedAt(), clock.instant()));
             }
         }
-        people.saveAll(found);
+        people.saveAll(found.values());
         return found.size();
+    }
+
+    /** One row per person per company: the same name in two documents is one contact. */
+    private static boolean isNewer(Evidence item, Person earlier) {
+        if (item.getPublishedAt() == null) {
+            return false;
+        }
+        return earlier.getPublishedAt() == null || item.getPublishedAt().isAfter(earlier.getPublishedAt());
     }
 
     @Transactional

@@ -39,25 +39,33 @@ profile order and says so on hover.
 
 | # | Requirement | Status |
 | --- | --- | --- |
-| 2.1 | A signal graph to the left of the company — strength over time | done — `SignalTrace`, twelve monthly bars |
+| 2.1 | A signal graph to the left of the company — strength over time | done — `SignalTrace`, an orange curve across its whole column |
 | 2.2 | The time of the last signal | done — the `Latest` column |
 | 2.3 | The score of the last signal | done — the word in `Fit`, the amount on the Signals list |
 | 2.4 | Rename "Why we would call" to "Signals" | done |
 | 2.5 | Rename "Newest" to "Latest" | done |
 | 2.6 | The signal chart is *nonchalant*: the shape only, inside the row, between the status and documents columns, with no points and no axis, and the detail on hover | done — no axis, no points, no tooltip of its own; the numbers are in the hover card |
 
-The sparkline is a mark, not a chart. It has no axes, no labels, no points and no
-tooltip of its own; hovering anywhere on it opens the company's hover card, which
-is where the numbers live. A row of them is read as a shape — "this one spiked
-last week", "this one has been quiet for a quarter" — and anything more would be
-a chart pretending to be a row.
+The row mark is a mark, not a chart. It fills its column, orange over a gradient
+that fades out, with no axis, no labels, no points and no tooltip of its own. It is
+drawn through a **monotone** cubic rather than a Catmull-Rom, which is what keeps
+three readings in one month a peak instead of a wave that dips below its
+neighbours — the curve is smooth, the spikes survive it.
+
+A row of them is read as shape — "this one spiked last week", "this one has been
+quiet for a quarter" — and anything more would be a chart pretending to be a row.
+The numbers are an inch away: hovering the row opens a card at half the window,
+on the side away from the pointer, with a chart that has a y-axis, month labels,
+gridlines and a point on every month that had a reading, then the reasons to call
+with their quotes and weights. Clicking opens the right-hand panel, and the full
+page is one link further on.
 
 ## 3. The company, at two depths
 
 | # | Requirement | Status |
 | --- | --- | --- |
-| 3.1 | Hovering a company opens a card: name, overview, signal graph, signal list, fit | done — a card after 260ms, so passing the mouse across the board does not flash cards |
-| 3.2 | Clicking opens a full page with more of the same | done — a row now navigates to `/companies/<id>` |
+| 3.1 | Hovering a company opens a card: name, overview, signal graph, signal list, fit | done — half the window, on the opposite side from the pointer, with a chart that has axes and the reasons beside it |
+| 3.2 | Clicking opens a full page with more of the same | done — and the row also opens the right-hand panel, which is where a rep scans without leaving the board. The page is one link from the panel and from the card |
 | 3.3 | …with tabs under the graph | done — Signals · News · History · Overview |
 | 3.4 | Signals tab: the readings, in more detail than the hover | done — every reading with its quote, source, age and amount |
 | 3.5 | News tab: the documents, linking out to the source | done |
