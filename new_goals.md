@@ -208,7 +208,7 @@ the user save it in one click. Files: `AskService`, `AskController`,
 `BoardView` ask panel. **Verify:** typing "companies in Romania cutting costs"
 offers a saveable question.
 
-[ ] B8. Explain the score in words
+[x] B8. Explain the score in words
 The overlay's `reason` field is written and never shown. Render it next to the
 score as the plain-language reading, separate from the arithmetic. Files:
 `LedgerRow`, `Ledger.svelte`, `Scorecard.svelte`. **Verify:** every ledger row
@@ -267,7 +267,7 @@ distinct industries actually present, with counts. Files: `SettingsView.svelte`,
 `SettingsController`. **Verify:** the picker lists 30+ industries with counts
 that match the board.
 
-[ ] C7. A scoring simulator
+[x] C7. A scoring simulator
 Settings shows threshold number inputs and band counts from `workspace.meta`.
 Make it live: drag priority/nurture/watch and watch the band counts recompute
 from the stored scores without saving. Files: `SettingsView.svelte`. **Verify:**
@@ -309,7 +309,7 @@ focus search. The board is a table of 578 rows and it is mouse-only. Files:
 rows moved, which leader changed, before/after. Files: `BoardView.svelte`.
 **Verify:** asking a question shows a non-empty movement list.
 
-[ ] D4. Quote-first in the capture sheet
+[x] D4. Quote-first in the capture sheet
 The company pane scrolls to prose and hides the quote. Open at the marked span
 with the lead-in bounded. Files: `CaptureSheet.svelte`. **Verify:** the marked
 span is in the viewport on open at 1024×768.
@@ -346,7 +346,7 @@ its question, span text, source URL and offsets, so the export is auditable
 outside the app. Files: `export.ts`, `BoardView.svelte`. **Verify:** open the
 CSV and resolve one row's URL + offsets by hand.
 
-[ ] D11. Bookmark count in the rail and a real Saved view
+[~] D11. Bookmark count in the rail and a real Saved view
 Bookmarking shipped with a filter; it needs a count where the other counts are,
 and bulk save. Files: `+layout.svelte`, `BoardView.svelte`. **Verify:** starring
 a row moves the rail count.
