@@ -152,7 +152,15 @@ def age_days(iso):
 
 def mentions(text, variants):
     low = text.lower()
-    return any(v.lower() in low for v in variants if len(v) >= 4)
+    for v in variants:
+        if len(v) >= 4:
+            if v.lower() in low:
+                return True
+        elif 2 <= len(v) <= 3 and v.isupper() and re.search(r"\b%s\b" % re.escape(v), text):
+            # ABB, BP, EY, UBS: a two-letter name is only a match as a standalone
+            # capitalised token, never as a substring of an ordinary word.
+            return True
+    return False
 
 
 def key_for(company, url):
@@ -236,8 +244,57 @@ def build(company, observed):
     return docs
 
 
+def read_existing():
+    if not os.path.exists(OUT):
+        return {}
+    try:
+        with open(OUT, encoding="utf-8") as fh:
+            return json.load(fh)
+    except (OSError, ValueError):
+        return {}
+
+
+def carried_over(previous, evidence, companies_out):
+    """
+    A refresh adds documents; it never deletes evidence it did not go and fetch.
+
+    Two classes survive every run: captures this sweep cannot produce at all
+    (registry and filings), and everything belonging to a company that returned
+    nothing this time — a failed fetch is a gap in the run, not a finding about
+    the company. Only a company that actually came back with documents has its
+    previous documents replaced.
+    """
+    refreshed = {d.get("companyKey") for d in evidence}
+    previous_evidence = previous.get("evidence", [])
+    kept = [d for d in previous_evidence
+            if d.get("sourceKind") != "news" or d.get("companyKey") not in refreshed]
+
+    every = {}
+    for company in previous.get("companies", []) + companies_out:
+        every[company.get("key")] = company
+
+    if kept:
+        print("[keep] %d documents carried over (%d companies untouched)"
+              % (len(kept), len(every) - len(companies_out)), flush=True)
+    return kept, list(every.values())
+
+
+def deduped(evidence):
+    seen = set()
+    out = []
+    for item in evidence:
+        digest = item.get("contentHash") or item.get("sourceUrl")
+        if digest in seen:
+            continue
+        seen.add(digest)
+        out.append(item)
+    return out
+
+
 def write_payload(observed, companies_out, evidence):
-    payload = {"generatedAt": observed, "companies": companies_out, "evidence": evidence}
+    keep, every_company = carried_over(read_existing(), evidence, companies_out)
+    merged = deduped(keep + evidence)
+    payload = {"generatedAt": observed, "companies": every_company, "evidence": merged}
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     tmp = PARTIAL
     with open(tmp, "w", encoding="utf-8") as fh:

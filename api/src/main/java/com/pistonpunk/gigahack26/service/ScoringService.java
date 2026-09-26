@@ -18,6 +18,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
@@ -241,6 +242,11 @@ public class ScoringService {
                 && !icpCountries(properties).contains(company.getCountry())) {
             return Optional.of("Outside the ICP geography — HQ " + company.getCountry());
         }
+        Set<String> industries = icpIndustries(properties);
+        if (!industries.isEmpty() && company.getIndustry() != null
+                && !industries.contains(company.getIndustry().toLowerCase(Locale.ROOT))) {
+            return Optional.of("Outside the ICP industries — " + company.getIndustry());
+        }
         return Optional.empty();
     }
 
@@ -257,16 +263,34 @@ public class ScoringService {
                         : employees + " → unconfirmed";
         String build = !blockedByBuild ? "pass" : "fail";
         String competitor = company.isCompetitor() ? "flagged" : "no";
-        return "Geography: HQ %s%s ∈ ICP → %s (%s) · Size: %s (%s) · Competitor: %s (%s) · Building in-house: %s (%s)"
+        String industry = icpIndustries(properties).isEmpty()
+                ? company.getIndustry() + " (no industry filter)"
+                : icpIndustries(properties).contains(
+                        company.getIndustry() == null ? "" : company.getIndustry().toLowerCase(Locale.ROOT))
+                        ? company.getIndustry() + " ∈ ICP"
+                        : company.getIndustry() + " → outside ICP";
+        return "Geography: HQ %s%s ∈ ICP → %s (%s) · Industries: %s · Size: %s (%s) · Competitor: %s (%s) · Building in-house: %s (%s)"
                 .formatted(company.getHqCity() == null ? "" : company.getHqCity().trim() + ", ", country,
                         properties.geographyGate() ? geography : "gate off",
                         properties.geographyGate() ? "removes" : "kept",
+                        industry,
                         size,
                         properties.sizeGate() ? "gate on" : "gate off",
                         competitor,
                         properties.competitorGate() ? "removes" : "kept",
                         build,
                         gateReason == null ? "no reason recorded" : gateReason);
+    }
+
+    private static Set<String> icpIndustries(ScoringProperties properties) {
+        Set<String> industries = new LinkedHashSet<>();
+        for (String industry : properties.icpIndustries().split(",")) {
+            String trimmed = industry.trim().toLowerCase(Locale.ROOT);
+            if (!trimmed.isEmpty()) {
+                industries.add(trimmed);
+            }
+        }
+        return industries;
     }
 
     private static Set<String> icpCountries(ScoringProperties properties) {
