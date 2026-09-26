@@ -1269,12 +1269,11 @@
 	}
 
 	.c-fit {
-		/* Bottom, not top: the bar is a meter along the row's floor. Tied to the
-		   top of the cell it landed level with the middle of a tall row — the
-		   signals list above it runs to four lines — and read as if it belonged to
-		   nothing. The trend column already sits on this same floor, so the two
-		   marks now share a baseline across the row. */
-		vertical-align: bottom;
+		/* Centred, not top and not bottom. The signals list beside it runs from
+		   one line to four, so the row is as tall as that list; pinned to either
+		   end, the word and its meter drifted away from the middle of the row they
+		   describe. */
+		vertical-align: middle;
 		min-width: 0;
 	}
 
@@ -1462,11 +1461,14 @@
 
 	.c-stage {
 		width: 104px;
+		/* Centred with the fit column beside it: the two are the row's verdict —
+		   what we make of the company and where it has got to — so they sit on the
+		   same line however tall the signals list makes the row. */
+		vertical-align: middle;
 	}
 
 	.stage-tag {
 		display: inline-block;
-		margin-top: 3px;
 		font-size: var(--text-micro);
 		font-weight: 700;
 		padding: 1px 5px;
