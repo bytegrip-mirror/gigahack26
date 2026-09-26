@@ -51,6 +51,12 @@ pipeline {
             }
         }
 
+        stage('Check the corpus') {
+            steps {
+                sh 'python3 tools/verify_corpus.py'
+            }
+        }
+
         stage('Test API') {
             steps {
                 sh '''

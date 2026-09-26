@@ -43977,7 +43977,7 @@
    "contentHash": "sha256:5ba790e751d7c88c1881cbb7180f432c7b455d226902a935ef777df4444c932c"
   },
   {
-   "key": "nws-1",
+   "key": "axa:nws-1",
    "companyKey": "axa",
    "sourceUrl": "https://finance.yahoo.com/technology/ai/articles/axa-enxtpa-cs-pivots-organic-051634641.html",
    "publisher": "finance.yahoo.com",
@@ -43989,7 +43989,7 @@
    "contentHash": "sha256:e2f1a6d271839c8444384eea3a6a0f098868eec0bfdd751987e1d23f9b6b4f96"
   },
   {
-   "key": "nws-2",
+   "key": "axa:nws-2",
    "companyKey": "axa",
    "sourceUrl": "https://businessday.ng/health/article/axa-mansard-to-reduce-waiting-time-at-hospital-with-new-whatapp-chatbot/",
    "publisher": "businessday.ng",
@@ -44349,7 +44349,7 @@
    "contentHash": "sha256:d93d1f303fa6c6c2e9db741fda66c3cf1a0d5c3e500566ecdb357c34bd46f45c"
   },
   {
-   "key": "nws-3",
+   "key": "brd:nws-3",
    "companyKey": "brd",
    "sourceUrl": "https://www.ad-hoc-news.de/boerse/news/nebenwerte/brd-stock-holds-after-recent-bet-slide-as-investors-digest-first-half/70029129",
    "publisher": "www.ad-hoc-news.de",
@@ -44361,7 +44361,7 @@
    "contentHash": "sha256:b09196559498a482484e403f6e8f6fce6a433858aeaa5fb5170c0a359fc3e5c0"
   },
   {
-   "key": "nws-6",
+   "key": "brd:nws-6",
    "companyKey": "brd",
    "sourceUrl": "https://www.reveliolabs.com/companies/brd-groupe-societe/employees",
    "publisher": "www.reveliolabs.com",
@@ -45489,7 +45489,7 @@
    "contentHash": "sha256:58e34fd58b0779fc622cf314eef7bd1f4c020d643da994788c4e193c755d8b3d"
   },
   {
-   "key": "nws-9",
+   "key": "ctt-portugal:nws-9",
    "companyKey": "ctt-portugal",
    "sourceUrl": "https://simplywall.st/stocks/ch/pharmaceuticals-biotech/vtx-idia/idorsia-shares/news/european-companies-estimated-below-intrinsic-value-in-july-2",
    "publisher": "simplywall.st",
@@ -45609,7 +45609,7 @@
    "contentHash": "sha256:abd66ba7cb392a734b937aec36b43c02beef79926d7ce15e89d0aafc3f5392da"
   },
   {
-   "key": "nws-4",
+   "key": "deutsche-boerse:nws-4",
    "companyKey": "deutsche-boerse",
    "sourceUrl": "https://www.globalbankingandfinance.com/deutsche-boerse-seeks-approval-eu-subsidies-rules-allfunds/",
    "publisher": "www.globalbankingandfinance.com",
@@ -45969,7 +45969,7 @@
    "contentHash": "sha256:f97a3f639f51754a5a4d8c27c009ec68a7a70f8de2898189bd4b5f24224f335e"
   },
   {
-   "key": "nws-5",
+   "key": "direct-line:nws-5",
    "companyKey": "direct-line",
    "sourceUrl": "https://www.which.co.uk/money/insurance/home-and-mobile-insurance/home-insurance-reviews/direct-line-home-insurance-review-aMDMl5K8NvKe",
    "publisher": "www.which.co.uk",
@@ -46317,7 +46317,7 @@
    "contentHash": "sha256:b8b7b81d1d1a90390ad4308f57ba7f08aa28dab664222d79b0707df5630944d3"
   },
   {
-   "key": "nws-8",
+   "key": "dsv:nws-8",
    "companyKey": "dsv",
    "sourceUrl": "https://www.bitget.com/news/detail/12560605483925",
    "publisher": "www.bitget.com",
@@ -49893,7 +49893,7 @@
    "contentHash": "sha256:5cff17a7a68b97f166224d7f6001b32a34fb7b118e94173237df5c5e7d36ca85"
   },
   {
-   "key": "nws-7",
+   "key": "la-poste:nws-7",
    "companyKey": "la-poste",
    "sourceUrl": "https://www.lapostegroupe.com/en/postal-services-and-healthcare-strategic-priorities",
    "publisher": "www.lapostegroupe.com",
@@ -56349,7 +56349,7 @@
    "contentHash": "sha256:d8b5598cbed2f48df7c5f8abd23742b0ef1e62cd4e59f31f32f7720c2c5b1f0f"
   },
   {
-   "key": "nws-1",
+   "key": "a2a:nws-1",
    "companyKey": "a2a",
    "sourceUrl": "https://aws.amazon.com/blogs/aws-cloud-financial-management/automating-multi-cloud-cost-management-at-scale-a2as-finops-platform-powered-by-aws/",
    "publisher": "aws.amazon.com",
@@ -56361,7 +56361,7 @@
    "contentHash": "sha256:816e7b761ccd49304c3867f7395fdb0e2e65e7e357400f3082c7214a475df498"
   },
   {
-   "key": "nws-2",
+   "key": "a2a:nws-2",
    "companyKey": "a2a",
    "sourceUrl": "http://datacenters.economictimes.indiatimes.com/news/energy-cooling-sustainability/equinix-and-a2a-partner-for-data-center-heat-recovery-in-milan/132153939",
    "publisher": "datacenters.economictimes.indiatimes.com",
@@ -56373,7 +56373,7 @@
    "contentHash": "sha256:f59dbe84c6d8fa949be139275e87d027f71b2b651236e53c80e0f568c24f7080"
   },
   {
-   "key": "nws-5",
+   "key": "a2a:nws-5",
    "companyKey": "a2a",
    "sourceUrl": "https://www.mediapost.com/publications/article/418213/a2a-marketing-gains-traction-albeit-conceptually.html",
    "publisher": "www.mediapost.com",
@@ -56385,7 +56385,7 @@
    "contentHash": "sha256:6aa7b40fbcd146b4ce6418be16821543524ab7bfee4c99b64af4935e1bdbe713"
   },
   {
-   "key": "nws-6",
+   "key": "a2a:nws-6",
    "companyKey": "a2a",
    "sourceUrl": "https://pasqualepillitteri.it/en/news/1261/google-cloud-next-2026-keynote-announcements",
    "publisher": "pasqualepillitteri.it",
@@ -56397,7 +56397,7 @@
    "contentHash": "sha256:9e9502e0d6f204cae077c17e9834e33b049a5b25b7bb97485769d1528794fc90"
   },
   {
-   "key": "nws-8",
+   "key": "a2a:nws-8",
    "companyKey": "a2a",
    "sourceUrl": "https://www.prnewswire.com/news-releases/a2a-protocol-surpasses-150-organizations-lands-in-major-cloud-platforms-and-sees-enterprise-production-use-in-first-year-302737641.html",
    "publisher": "www.prnewswire.com",
@@ -56409,7 +56409,7 @@
    "contentHash": "sha256:aa4283a59c5dd0aa0490cdd1a57cf8eb3177c2c35b2eb90424264cf001ecc3b0"
   },
   {
-   "key": "nws-9",
+   "key": "a2a:nws-9",
    "companyKey": "a2a",
    "sourceUrl": "https://aws.amazon.com/blogs/machine-learning/building-a-serverless-a2a-gateway-for-agent-discovery-routing-and-access-control/",
    "publisher": "aws.amazon.com",
@@ -56421,7 +56421,7 @@
    "contentHash": "sha256:2b3cf902066b7fa931fa2c8485f10f315a9f28fdebf9224e5571a9540d6c661c"
   },
   {
-   "key": "nws-1",
+   "key": "abb:nws-1",
    "companyKey": "abb",
    "sourceUrl": "https://www.automate.org/robotics/news/abb-robotics-delivers-new-industry-ready-physical-ai-at-automate-2026-abb",
    "publisher": "www.automate.org",
@@ -56433,7 +56433,7 @@
    "contentHash": "sha256:825849f3265fb7962a967ae35a77b7a0ed8e458c7428ecc5759070e37ca9f539"
   },
   {
-   "key": "nws-2",
+   "key": "abb:nws-2",
    "companyKey": "abb",
    "sourceUrl": "https://www.automationworld.com/analytics/news/55390122/abb-robotics-launches-platform-that-extends-ai-powered-visual-technology",
    "publisher": "www.automationworld.com",
@@ -56445,7 +56445,7 @@
    "contentHash": "sha256:f9e33cd4ba2e9dd40e18fc3f06fb5b697fc3d06e9886361ab23e6f931d598225"
   },
   {
-   "key": "nws-4",
+   "key": "abb:nws-4",
    "companyKey": "abb",
    "sourceUrl": "https://www.automate.org/robotics/news/abb-robotics-recognized-as-a-2026-ford-supplier-of-the-year-at-the-ford-supplier-awards-and-summit",
    "publisher": "www.automate.org",
@@ -56457,7 +56457,7 @@
    "contentHash": "sha256:57a0f2f8c50dfbd7c4f6529c05c2423cd410687407431d7d792a56cf94e062f4"
   },
   {
-   "key": "nws-5",
+   "key": "abb:nws-5",
    "companyKey": "abb",
    "sourceUrl": "https://new.abb.com/news/detail/135903/abb-introduces-new-solution-to-automate-quay-crane-waterside-operations-and-improve-container-terminal-efficiency",
    "publisher": "new.abb.com",
@@ -56469,7 +56469,7 @@
    "contentHash": "sha256:384f0459cf5b5fbe2678dfd7d5acbed5917ce22fb3131459f4fdba0afa4fab45"
   },
   {
-   "key": "nws-6",
+   "key": "abb:nws-6",
    "companyKey": "abb",
    "sourceUrl": "https://www.abb.com/global/en/news/133797/prsrl-abb-robotics-survey-identifies-cybersecurity-as-top-priority-for-automotive-manufacturers",
    "publisher": "www.abb.com",
@@ -56481,7 +56481,7 @@
    "contentHash": "sha256:12dcf091a02510ae2673fcb4ef6a6e0b5dd125a6ce993f7b3d56fda48932c75a"
   },
   {
-   "key": "nws-7",
+   "key": "abb:nws-7",
    "companyKey": "abb",
    "sourceUrl": "https://new.abb.com/news/detail/132563/abb-and-tennet-dcs-modernization-at-dolwin-beta-offshore-wind-platform-improves-safety-cyber-security-and-reliability",
    "publisher": "new.abb.com",
@@ -56493,7 +56493,7 @@
    "contentHash": "sha256:c70f65124a06cc3bd92d6eaf13e28c7bbff3b4e79c541fbbb34bd0936627499b"
   },
   {
-   "key": "nws-9",
+   "key": "abb:nws-9",
    "companyKey": "abb",
    "sourceUrl": "https://www.automate.org/robotics/news/abb-robotics-and-nvidia-white-paper-defines-transformative-impact-of-physical-ai-on-manufacturing",
    "publisher": "www.automate.org",
@@ -56505,7 +56505,7 @@
    "contentHash": "sha256:95362cdbd805fae83540d16c8ef0b02f7ce6a75d765082c568079c087a7d18d6"
   },
   {
-   "key": "nws-1",
+   "key": "bp:nws-1",
    "companyKey": "bp",
    "sourceUrl": "https://www.globalbankingandfinance.com/bps-second-quarter-profit-doubles-year-ago/",
    "publisher": "www.globalbankingandfinance.com",
@@ -56517,7 +56517,7 @@
    "contentHash": "sha256:fbec5efbd948c687e07c072160818276531e937327c07e26bad4f545a1d3e58d"
   },
   {
-   "key": "nws-2",
+   "key": "bp:nws-2",
    "companyKey": "bp",
    "sourceUrl": "https://www.tradingview.com/news/zacks:f8fa44f28094b:0-will-bp-s-new-organizational-structure-drive-efficiency-returns/",
    "publisher": "www.tradingview.com",
@@ -56529,7 +56529,7 @@
    "contentHash": "sha256:c657452c824eaa9073f1a1c57b7ea1223285d36878cad3a0b43948d3062b5b1c"
   },
   {
-   "key": "nws-3",
+   "key": "bp:nws-3",
    "companyKey": "bp",
    "sourceUrl": "https://finance.yahoo.com/sectors/energy/articles/aker-bp-asa-akrbf-q1-070150923.html",
    "publisher": "finance.yahoo.com",
@@ -56541,7 +56541,7 @@
    "contentHash": "sha256:a7fac0dc7b706be4b4d38d4b5dfae704537d3e0899dc3cf15b8e18858949c7dd"
   },
   {
-   "key": "nws-4",
+   "key": "bp:nws-4",
    "companyKey": "bp",
    "sourceUrl": "https://www.linkedin.com/posts/cnbc-tv18_akshay-wadhwa-ceo-ofjio-bp-as-he-emphasizes-activity-7422921121534214144-d6je",
    "publisher": "www.linkedin.com",
@@ -56553,7 +56553,7 @@
    "contentHash": "sha256:31772bd6907c73649018b908a2fc8b779989ac6cff1f229fee0b31707d6f7fb9"
   },
   {
-   "key": "nws-5",
+   "key": "bp:nws-5",
    "companyKey": "bp",
    "sourceUrl": "https://www.bp.com/en_az/azerbaijan/home/news/press-releases/Automation-contract-awarded-for-Shah-Deniz-Compression-project.html",
    "publisher": "www.bp.com",
@@ -56565,7 +56565,7 @@
    "contentHash": "sha256:bad06f9f31774035d4314b033e106e742fde652631a8114f30b0681b0ff1f276"
   },
   {
-   "key": "nws-7",
+   "key": "bp:nws-7",
    "companyKey": "bp",
    "sourceUrl": "https://www.worldoil.com/news/2026/3/23/aker-bp-armada-to-deploy-offshore-modular-data-center-for-ai-driven-drilling-operations/",
    "publisher": "www.worldoil.com",
@@ -56577,7 +56577,7 @@
    "contentHash": "sha256:274874bef82f701026bc7da9029785edc6b4a323117eca6a9a6960b87055ea59"
   },
   {
-   "key": "nws-8",
+   "key": "bp:nws-8",
    "companyKey": "bp",
    "sourceUrl": "https://jpt.spe.org/bp-optimizing-on-the-go-using-automated-drilling-through-mpd",
    "publisher": "jpt.spe.org",
@@ -56589,7 +56589,7 @@
    "contentHash": "sha256:d3d7b75aceec259d0b6497125c49aaf067c9809d10328e74a067ef58a1f187ef"
   },
   {
-   "key": "nws-2",
+   "key": "ccc:nws-2",
    "companyKey": "ccc",
    "sourceUrl": "https://simplywall.st/stocks/us/software/nasdaq-ccc/ccc-intelligent-solutions-holdings/news/ccc-mobile-scanning-links-ai-automation-with-ccc-one-usage-a",
    "publisher": "simplywall.st",
@@ -56601,7 +56601,7 @@
    "contentHash": "sha256:da46d74dc61dc3e1e8162e530155e4378df403fd90fddb4389c5fbd8e10ea71e"
   },
   {
-   "key": "nws-3",
+   "key": "ccc:nws-3",
    "companyKey": "ccc",
    "sourceUrl": "https://www.watermagazine.co.uk/2026/05/21/water-efficiency-central-to-uk-climate-resilience-in-ccc-adaptation-report/",
    "publisher": "www.watermagazine.co.uk",
@@ -56613,7 +56613,7 @@
    "contentHash": "sha256:0c4da19b3622ca4648880db71d0d29d265abaae1696ccde8d60cba752bbf3aaf"
   },
   {
-   "key": "nws-5",
+   "key": "ccc:nws-5",
    "companyKey": "ccc",
    "sourceUrl": "https://marathonhandbook.com/2026-utmb-ccc-results/",
    "publisher": "marathonhandbook.com",
@@ -56625,7 +56625,7 @@
    "contentHash": "sha256:38e0a771aa1aa110ee13b63a3566dffa44b835cb0df4329e921024d19828043b"
   },
   {
-   "key": "nws-7",
+   "key": "ccc:nws-7",
    "companyKey": "ccc",
    "sourceUrl": "https://www.hpcwire.com/off-the-wire/ccc-outlines-research-priorities-for-trustworthy-ai-generated-software/",
    "publisher": "www.hpcwire.com",
@@ -56637,7 +56637,7 @@
    "contentHash": "sha256:57500c02e4e85a1126322448c92e39d86b25cc585f3487dbe2174ae52a2a80aa"
   },
   {
-   "key": "nws-8",
+   "key": "ccc:nws-8",
    "companyKey": "ccc",
    "sourceUrl": "https://collisionweek.com/2026/04/28/ccc-adds-mobile-invoice-scanning-ccc-one-parts-reconciliation/",
    "publisher": "collisionweek.com",
@@ -56649,7 +56649,7 @@
    "contentHash": "sha256:52b624b9094f7a745193971901f449f2db7ac44aa598970145de24e328a57ebc"
   },
   {
-   "key": "nws-9",
+   "key": "ccc:nws-9",
    "companyKey": "ccc",
    "sourceUrl": "https://von.gov.ng/ccc-calls-for-stronger-intelligence-on-nigerias-security/",
    "publisher": "von.gov.ng",
@@ -56661,7 +56661,7 @@
    "contentHash": "sha256:2b37550e989db81b22f10e1130d21eb8c3d89973ff53d8761a6e7e0bf96b80c0"
   },
   {
-   "key": "nws-6",
+   "key": "edp:nws-6",
    "companyKey": "edp",
    "sourceUrl": "https://www.newindianexpress.com/cities/vijayawada/2026/Mar/15/andhra-pradesh-cid-conducts-five-day-cybersecurity-training-for-officers",
    "publisher": "www.newindianexpress.com",
@@ -56673,7 +56673,7 @@
    "contentHash": "sha256:990074792489abb171b2ed4966a83fc84ebcf5e80bdc62f1937c9aa462261a88"
   },
   {
-   "key": "nws-1",
+   "key": "eni:nws-1",
    "companyKey": "eni",
    "sourceUrl": "https://en.ilsole24ore.com/art/enis-adjusted-net-profit-doubles-to-23-billion-excellent-results-for-the-quarter-AJO7tRY",
    "publisher": "en.ilsole24ore.com",
@@ -56685,7 +56685,7 @@
    "contentHash": "sha256:b9f60ae924aee956177495aa96c07f4ce49c4adbbbc9185ef012cbb5f3ab23cc"
   },
   {
-   "key": "nws-4",
+   "key": "eni:nws-4",
    "companyKey": "eni",
    "sourceUrl": "https://inspenet.com/en/news/eni-and-halliburton-take-offshore-drilling-automation-to-a-new-level/",
    "publisher": "inspenet.com",
@@ -56697,7 +56697,7 @@
    "contentHash": "sha256:ded4c31abf9e5ec61e627ba57f07474d54a11f8ed9ac0e46dae20cce8f43f29c"
   },
   {
-   "key": "nws-5",
+   "key": "eni:nws-5",
    "companyKey": "eni",
    "sourceUrl": "https://www.offshore-energy.biz/eni-halliburton-cheer-asia-pacifics-first-integrated-closed-loop-rig-automation-milestone/",
    "publisher": "www.offshore-energy.biz",
@@ -56709,7 +56709,7 @@
    "contentHash": "sha256:279daf52a890ddaf2e84fb65c3e81d31e984c42ef2cff1308b8190b6477195da"
   },
   {
-   "key": "nws-6",
+   "key": "eni:nws-6",
    "companyKey": "eni",
    "sourceUrl": "https://www.enlit.world/library/eni-opens-its-supercomputing-for-the-energy-transition",
    "publisher": "www.enlit.world",
@@ -56721,7 +56721,7 @@
    "contentHash": "sha256:ccab19703603a84e48bc5a4f43513763e8096bc50f86df208153736c0ba92cd0"
   },
   {
-   "key": "nws-7",
+   "key": "eni:nws-7",
    "companyKey": "eni",
    "sourceUrl": "https://www.thestar.com.my/business/business-news/2026/05/22/jakarta-msia-ok-to-asset-transfer-to-eni-petronas-jv",
    "publisher": "www.thestar.com.my",
@@ -56733,7 +56733,7 @@
    "contentHash": "sha256:e99950aee7726805082d30366231ac239b2998bc583a6a4e3811e7d894d3f828"
   },
   {
-   "key": "nws-8",
+   "key": "eni:nws-8",
    "companyKey": "eni",
    "sourceUrl": "https://www.bairdmaritime.com/shipping/tankers/eni-chief-calls-for-reduced-dependence-on-controlled-maritime-routes",
    "publisher": "www.bairdmaritime.com",
@@ -56745,7 +56745,7 @@
    "contentHash": "sha256:028b2cd007c9e3f1758e079ce714f77dca60c9adbb205d7abddaad9be7695bf6"
   },
   {
-   "key": "nws-9",
+   "key": "eni:nws-9",
    "companyKey": "eni",
    "sourceUrl": "https://www.offshore-energy.biz/6-2-billion-fid-enables-adnoc-totalenergies-eni-and-cnpc-to-unleash-more-gas/",
    "publisher": "www.offshore-energy.biz",
@@ -56757,7 +56757,7 @@
    "contentHash": "sha256:e03f9eb912f9a61cce9f9017a154d06a70c0123049c5ee214d316e23fe3169f7"
   },
   {
-   "key": "nws-1",
+   "key": "eon:nws-1",
    "companyKey": "eon",
    "sourceUrl": "https://erp.today/snp-transformation-world-2026-e-ons-record-s-4hana-migration-of-550-companies-with-martin-humberg/",
    "publisher": "erp.today",
@@ -56769,7 +56769,7 @@
    "contentHash": "sha256:fc83f41d9e7ab9a1b9ac64e2228e54c36b1263fed806cf81c9a716e875d221a1"
   },
   {
-   "key": "nws-2",
+   "key": "eon:nws-2",
    "companyKey": "eon",
    "sourceUrl": "https://erp.today/e-on-sweden-selects-ifs-copperleaf-to-modernize-asset-investment-planning/",
    "publisher": "erp.today",
@@ -56781,7 +56781,7 @@
    "contentHash": "sha256:23cac0b4436414f20d763b38c34ad4248d2d662f2d12b87b3512070528ec332f"
   },
   {
-   "key": "nws-3",
+   "key": "eon:nws-3",
    "companyKey": "eon",
    "sourceUrl": "https://news.sap.com/2026/06/how-e-on-building-digital-backbone-energy-transition/",
    "publisher": "news.sap.com",
@@ -56793,7 +56793,7 @@
    "contentHash": "sha256:8813319a8883d18b8e9c51d099a4ca17189c77dc121769730cf25c315ecf277e"
   },
   {
-   "key": "nws-4",
+   "key": "eon:nws-4",
    "companyKey": "eon",
    "sourceUrl": "https://news.eonenergy.com/news/price-alert-e-on-next-cuts-ev-tariff-day-rates-while-off-peak-charging-saves-customers-around-gbp-500-vs-the-price-cap",
    "publisher": "news.eonenergy.com",
@@ -56805,7 +56805,7 @@
    "contentHash": "sha256:21d741c355bc67445ee2605ae8878bcd43bb8ba73c54fe2f79c587835e69744f"
   },
   {
-   "key": "nws-5",
+   "key": "eon:nws-5",
    "companyKey": "eon",
    "sourceUrl": "https://quantumcomputingreport.com/wiser-and-e-on-benchmark-quantum-machine-learning-for-smart-grid-energy-forecasting/",
    "publisher": "quantumcomputingreport.com",
@@ -56817,7 +56817,7 @@
    "contentHash": "sha256:734c1fa28855e3167cf4d83cd94cbd0c8db305d169be3c5cf12d3b88601fd514"
   },
   {
-   "key": "nws-6",
+   "key": "eon:nws-6",
    "companyKey": "eon",
    "sourceUrl": "https://fortune.com/company/e-on-2/",
    "publisher": "fortune.com",
@@ -56829,7 +56829,7 @@
    "contentHash": "sha256:6972ae689ffc30ea60f171a32b41886f317538602d2736e216edfe5d1aebff2f"
   },
   {
-   "key": "nws-8",
+   "key": "eon:nws-8",
    "companyKey": "eon",
    "sourceUrl": "https://www.datacenterdynamics.com/en/news/eon-to-invest-56bn-in-european-grid-modernization-to-meet-ai-energy-demands/",
    "publisher": "www.datacenterdynamics.com",
@@ -56841,7 +56841,7 @@
    "contentHash": "sha256:b9e940ff811196fe4c6d02228e45c3a65b35d08eee0199ba125e7346f8936d88"
   },
   {
-   "key": "nws-9",
+   "key": "eon:nws-9",
    "companyKey": "eon",
    "sourceUrl": "https://thequantuminsider.com/2026/07/24/wiser-eon-quantum-machine-learning-energy-forecasting/",
    "publisher": "thequantuminsider.com",
@@ -56853,7 +56853,7 @@
    "contentHash": "sha256:b5acf9f71670f55ae530566324318bd4cc062e8d2cb58f58c3f17c760447db7c"
   },
   {
-   "key": "nws-2",
+   "key": "ey:nws-2",
    "companyKey": "ey",
    "sourceUrl": "https://www.peoplematters.in/article/business/why-most-business-transformation-programmes-fail-to-change-behaviour-ey-leader-explains-50756",
    "publisher": "www.peoplematters.in",
@@ -56865,7 +56865,7 @@
    "contentHash": "sha256:cdbfc8e3a6d7e0e7d830c2e53fcd007f01856fb3a9a1db771056cc42497c6bfb"
   },
   {
-   "key": "nws-3",
+   "key": "ey:nws-3",
    "companyKey": "ey",
    "sourceUrl": "https://cyprus-mail.com/2026/09/03/ai-adoption-in-risk-management-needs-to-move-beyond-automation-says-ey",
    "publisher": "cyprus-mail.com",
@@ -56877,7 +56877,7 @@
    "contentHash": "sha256:0d91570f419a03c117326c4ff4cc6e06d8e90a0c23583de526deb47474651f49"
   },
   {
-   "key": "nws-4",
+   "key": "ey:nws-4",
    "companyKey": "ey",
    "sourceUrl": "https://www.ey.com/en_us/services/consulting/finance-consulting-services/ai-in-gbs-operations-to-enterprise-intelligence",
    "publisher": "www.ey.com",
@@ -56889,7 +56889,7 @@
    "contentHash": "sha256:b723288189d445d051637c39ec8ed105120f0ed66c3aae8263c27e08c88340e7"
   },
   {
-   "key": "nws-5",
+   "key": "ey:nws-5",
    "companyKey": "ey",
    "sourceUrl": "https://www.ey.com/en_br/alliances/digital-transformation-aco-cearense",
    "publisher": "www.ey.com",
@@ -56901,7 +56901,7 @@
    "contentHash": "sha256:6f5b57a3a425b43df464a6ebd23fa5dfa2a150eed2b751860026ebbc23a8eea8"
   },
   {
-   "key": "nws-7",
+   "key": "ey:nws-7",
    "companyKey": "ey",
    "sourceUrl": "https://www.ey.com/en_in/newsroom/2026/02/51-percent-of-india-inc-rank-cybersecurity-breaches-as-the-top-risk-to-organizational-performance-ficci-ey-risk-survey",
    "publisher": "www.ey.com",
@@ -56913,7 +56913,7 @@
    "contentHash": "sha256:252590067e748e78bc5425e53ecd440bf989674074f9fa4a9f45f06d1d3c1493"
   },
   {
-   "key": "nws-8",
+   "key": "ey:nws-8",
    "companyKey": "ey",
    "sourceUrl": "https://news.careers360.com/srcc-ey-india-launch-12-month-ai-led-programme-du-machine-learning-data-analytics-blockchain-students-industry-education-careers",
    "publisher": "news.careers360.com",
@@ -56925,7 +56925,7 @@
    "contentHash": "sha256:fbe38f86e8822fb7eb9bcfe4f8de732116613e418cbb6ac023fc7a8021af94b3"
   },
   {
-   "key": "nws-9",
+   "key": "ey:nws-9",
    "companyKey": "ey",
    "sourceUrl": "https://www.tekedia.com/eys-ai-routing-technology-could-transform-enterprise-generative-ai-costs/",
    "publisher": "www.tekedia.com",
@@ -56937,7 +56937,7 @@
    "contentHash": "sha256:7fe2680bff449a336cbe372f178df1810426ebab2cd4baf2031582d3714a5ec4"
   },
   {
-   "key": "nws-2",
+   "key": "gsk:nws-2",
    "companyKey": "gsk",
    "sourceUrl": "https://blockonomi.com/gsk-gsk-stock-jumps-4-2-on-strong-q2-earnings-and-1-9b-cost-cutting-initiative/",
    "publisher": "blockonomi.com",
@@ -56949,7 +56949,7 @@
    "contentHash": "sha256:649d7424e29adb43a47d0293cce0be3d9df22a4b88a606c5c455742def86e6c0"
   },
   {
-   "key": "nws-3",
+   "key": "gsk:nws-3",
    "companyKey": "gsk",
    "sourceUrl": "https://sea.peoplemattersglobal.com/news/appointments/gsk-appoints-vasudevan-lakshmanan-as-country-hr-head-for-malaysia-49210",
    "publisher": "sea.peoplemattersglobal.com",
@@ -56961,7 +56961,7 @@
    "contentHash": "sha256:80fd76aa578851e001c31029eb926032c8d755bbda37e3797bd55c317ccec7d3"
   },
   {
-   "key": "nws-4",
+   "key": "gsk:nws-4",
    "companyKey": "gsk",
    "sourceUrl": "https://finance.yahoo.com/healthcare/articles/gsk-eyes-future-growth-cost-150134414.html",
    "publisher": "finance.yahoo.com",
@@ -56973,7 +56973,7 @@
    "contentHash": "sha256:da7ab02702de0426a8e1db6b4ee186a58a5a42dce3ccc892124b42449c203b2a"
   },
   {
-   "key": "nws-6",
+   "key": "gsk:nws-6",
    "companyKey": "gsk",
    "sourceUrl": "https://crypto.news/gsk-global-ciso-warns-the-quantum-threat-to-enterprise-security-is-already-here/",
    "publisher": "crypto.news",
@@ -56985,7 +56985,7 @@
    "contentHash": "sha256:46dfecab1d482783d444f860dac9d9d4024cd1c1822ec39516a227ac8ea9ebaa"
   },
   {
-   "key": "nws-8",
+   "key": "gsk:nws-8",
    "companyKey": "gsk",
    "sourceUrl": "https://ukinvestormagazine.co.uk/ftse-100-surges-higher-as-gsk-breaks-2000p/",
    "publisher": "ukinvestormagazine.co.uk",
@@ -56997,7 +56997,7 @@
    "contentHash": "sha256:00f895f3a093c27fb18d190d289a771920fb831dcf515dc8b0a5c4be1f4d8c7c"
   },
   {
-   "key": "nws-9",
+   "key": "gsk:nws-9",
    "companyKey": "gsk",
    "sourceUrl": "https://www.biospace.com/drug-development/gsk-partnered-alector-hit-with-third-neuro-failure-as-alzheimers-asset-disappoints",
    "publisher": "www.biospace.com",
@@ -57009,7 +57009,7 @@
    "contentHash": "sha256:d7e48c05a7284b099c81df2513207947b3a079275de3ee0af94f9e7ddc1d92b8"
   },
   {
-   "key": "nws-2",
+   "key": "lpp:nws-2",
    "companyKey": "lpp",
    "sourceUrl": "https://pressreleasehub.pa.media/article/lpp-logistics-deploys-948-hai-robotics-robots-for-e-commerce-fulfillment-in-southeastern-europe-79660.html",
    "publisher": "pressreleasehub.pa.media",
@@ -57021,7 +57021,7 @@
    "contentHash": "sha256:6fa1953c92ae9af393dc3d5c8b0d2421239e3d2c4931e766c31bf86bdc9e93dd"
   },
   {
-   "key": "nws-3",
+   "key": "lpp:nws-3",
    "companyKey": "lpp",
    "sourceUrl": "https://business-review.eu/property/industrial/ctp-delivers-major-logistics-hub-for-lpp-logistics-at-ctpark-bucharest-west-in-under-a-year-298913",
    "publisher": "business-review.eu",
@@ -57033,7 +57033,7 @@
    "contentHash": "sha256:e0216a4a1938af5ac47bbcb10ff85deea69c2ad184ec94ca734dcedc36f41e96"
   },
   {
-   "key": "nws-4",
+   "key": "lpp:nws-4",
    "companyKey": "lpp",
    "sourceUrl": "https://en.defence-ua.com/weapon_and_tech/czech_lpp_holding_develops_two_bigger_warhead_narwhal_cruise_missile_variants_100kg_and_200kg_versions_keep_638km_range_once_promised_for_combat_testing_in_russia-19285.html",
    "publisher": "en.defence-ua.com",
@@ -57045,7 +57045,7 @@
    "contentHash": "sha256:93260acaf7e6cf020f1d0fbdc2ab861dec04d77e1e21c6315e2d0fb74e18e13f"
   },
   {
-   "key": "nws-6",
+   "key": "lpp:nws-6",
    "companyKey": "lpp",
    "sourceUrl": "https://www.globalbankingandfinance.com/eu-parcel-duty-boosts-sinsay-online-sales-lpp-finance-chief/",
    "publisher": "www.globalbankingandfinance.com",
@@ -57057,7 +57057,7 @@
    "contentHash": "sha256:0dd60d3a08514d25742dc1506908e0811e1a52d1e9ed8e346b71a593880b3648"
   },
   {
-   "key": "nws-7",
+   "key": "lpp:nws-7",
    "companyKey": "lpp",
    "sourceUrl": "https://leadership.ng/lpp-candidate-promises-rebates-for-nigerians-targets-2027-victory/",
    "publisher": "leadership.ng",
@@ -57069,7 +57069,7 @@
    "contentHash": "sha256:e4ca77dcaf56109a2398eb98692489f9bb157f74ab6bb1c12e7040a0a8a56d76"
   },
   {
-   "key": "nws-8",
+   "key": "lpp:nws-8",
    "companyKey": "lpp",
    "sourceUrl": "https://www.armyrecognition.com/news/army-news/2026/lpp-narwhal-cruise-missile-specs-expansion",
    "publisher": "www.armyrecognition.com",
@@ -57081,7 +57081,7 @@
    "contentHash": "sha256:45914906e439aad7847ee85ea50e05c89371f35ff74f7ab993f698811d9541bf"
   },
   {
-   "key": "nws-1",
+   "key": "moldovacredit:nws-1",
    "companyKey": "moldovacredit",
    "sourceUrl": "https://radiomoldova.md/p/79972/moldova-credit-guarantees-spark-over-43m-in-second-quarter-investment",
    "publisher": "radiomoldova.md",
@@ -57093,7 +57093,7 @@
    "contentHash": "sha256:a003d168c45f6b8fb7f3ec94d2f3173adc08fa84171899b6dab904f027f9be6b"
   },
   {
-   "key": "nws-1",
+   "key": "nordea-asset:nws-1",
    "companyKey": "nordea-asset",
    "sourceUrl": "https://amwatch.com/AMNews/People/article19090275.ece",
    "publisher": "amwatch.com",
@@ -57105,7 +57105,7 @@
    "contentHash": "sha256:61edbf64f7ce1fb19e14102b33714cfdcf6f24e5677b533c7657ebc07c7aa6d1"
   },
   {
-   "key": "nws-7",
+   "key": "nordea-asset:nws-7",
    "companyKey": "nordea-asset",
    "sourceUrl": "https://amwatch.com/AMNews/Fund_Management/article19137547.ece",
    "publisher": "amwatch.com",
@@ -57117,7 +57117,7 @@
    "contentHash": "sha256:192ba107be20ddf77f4b271a5d778ca0c63ca987feb72f3755ab63b1b7d84cd1"
   },
   {
-   "key": "nws-8",
+   "key": "nordea-asset:nws-8",
    "companyKey": "nordea-asset",
    "sourceUrl": "https://www.thetradenews.com/multimedia/nordea-asset-managements-edgar-castel-on-changing-broker-dynamics/",
    "publisher": "www.thetradenews.com",
@@ -57129,7 +57129,7 @@
    "contentHash": "sha256:97629465469135d76c3858b9eab9f3ff69b4ce0354e92d6a4c8c7e1e80e11745"
   },
   {
-   "key": "nws-1",
+   "key": "ns:nws-1",
    "companyKey": "ns",
    "sourceUrl": "https://www.railwaygazette.com/technology/2026/03/24/from-ai-firewalls-to-ethical-hackers-ns-and-alstom-on-cybersecurity/",
    "publisher": "www.railwaygazette.com",
@@ -57141,7 +57141,7 @@
    "contentHash": "sha256:430d8d9434a78b9ac90ee7ed00afe59c8b74999037f12b23c707fc8432ae1676"
   },
   {
-   "key": "nws-3",
+   "key": "ns:nws-3",
    "companyKey": "ns",
    "sourceUrl": "https://nltimes.nl/2026/01/11/fewer-flight-cancellations-schiphol-trains-roads-hit-snow-ice",
    "publisher": "nltimes.nl",
@@ -57153,7 +57153,7 @@
    "contentHash": "sha256:62eb400bd3817494b1a3e54bd29de6683792aeb933d67cc7d527126952683f67"
   },
   {
-   "key": "nws-4",
+   "key": "ns:nws-4",
    "companyKey": "ns",
    "sourceUrl": "https://www.databricks.com/customers/dutch-railways",
    "publisher": "www.databricks.com",
@@ -57165,7 +57165,7 @@
    "contentHash": "sha256:8128fa232289c0b15c3bdbcc77c1166f37f0ee5fb1c356f74041518235ba6112"
   },
   {
-   "key": "nws-5",
+   "key": "ns:nws-5",
    "companyKey": "ns",
    "sourceUrl": "https://www.railway.supply/smart-train-maintenance-planning-lifts-ns-capacity/",
    "publisher": "www.railway.supply",
@@ -57177,7 +57177,7 @@
    "contentHash": "sha256:90d0e61d2fb057caf09d764b1ece22fd6748c825c6531aadcc778493ccd61e3b"
   },
   {
-   "key": "nws-7",
+   "key": "ns:nws-7",
    "companyKey": "ns",
    "sourceUrl": "https://www.ibm.com/case-studies/dutch-railways",
    "publisher": "www.ibm.com",
@@ -57189,7 +57189,7 @@
    "contentHash": "sha256:b67f30956d9d31dd8ffa1394b53a81ceea3de4936b4be33801b49a5cf0467ac8"
   },
   {
-   "key": "nws-9",
+   "key": "ns:nws-9",
    "companyKey": "ns",
    "sourceUrl": "https://www.bbc.com/news/articles/c8ly49w9g1edo",
    "publisher": "www.bbc.com",
@@ -57201,7 +57201,7 @@
    "contentHash": "sha256:11fe1a92d4f4b82c607124b921dca8dcbf46cb277974742fa1589c2bacd352cc"
   },
   {
-   "key": "nws-1",
+   "key": "pzu:nws-1",
    "companyKey": "pzu",
    "sourceUrl": "https://xyz.pl/poland-unpacked/a-war-affected-market-a-calculated-bet-pzus-ukrainian-expansion-3026/",
    "publisher": "xyz.pl",
@@ -57213,7 +57213,7 @@
    "contentHash": "sha256:3828a01e7a837f148527d4914cae02b21c2b60352e13979b569430d86449453d"
   },
   {
-   "key": "nws-3",
+   "key": "pzu:nws-3",
    "companyKey": "pzu",
    "sourceUrl": "https://finance.yahoo.com/quote/0MYY.L/earnings/0MYY.L-Q2-2026-earnings_call-543300.html",
    "publisher": "finance.yahoo.com",
@@ -57225,7 +57225,7 @@
    "contentHash": "sha256:f83917f9ebea80608deaaad1c99755fd826626e1fdf098e7cf2ceed863bdb81b"
   },
   {
-   "key": "nws-5",
+   "key": "pzu:nws-5",
    "companyKey": "pzu",
    "sourceUrl": "https://getlatka.com/companies/decerto.com",
    "publisher": "getlatka.com",
@@ -57237,7 +57237,7 @@
    "contentHash": "sha256:3fa6c6351bc877cd0c50b7da38602d5a6740de1e3fc08d2bfeff0a6156a905f0"
   },
   {
-   "key": "nws-6",
+   "key": "pzu:nws-6",
    "companyKey": "pzu",
    "sourceUrl": "https://visegradinsight.eu/resilient-futures-fellowship/",
    "publisher": "visegradinsight.eu",
@@ -57249,7 +57249,7 @@
    "contentHash": "sha256:0d12420a422e970c0e1715ce090edc3f5d67a0db0ea4c9f5c3153b697a0f91a2"
   },
   {
-   "key": "nws-7",
+   "key": "pzu:nws-7",
    "companyKey": "pzu",
    "sourceUrl": "https://beinsure.com/news/pzu-is-examining-an-alternative-restructuring-with-bank-pekao/",
    "publisher": "beinsure.com",
@@ -57261,7 +57261,7 @@
    "contentHash": "sha256:9fc30c73d8fc4f4016ac67557265e20497e44c37630e5d1ce303eccc5c6bfdbc"
   },
   {
-   "key": "nws-8",
+   "key": "pzu:nws-8",
    "companyKey": "pzu",
    "sourceUrl": "https://beinsure.com/news/pzu-acquired-metlife-ukraine/",
    "publisher": "beinsure.com",
@@ -57273,7 +57273,7 @@
    "contentHash": "sha256:b6574dc86dbe5426a8b4cd48769ae18313ba3ccce7f235ed4da3bb3ff648c974"
   },
   {
-   "key": "nws-3",
+   "key": "red-nord:nws-3",
    "companyKey": "red-nord",
    "sourceUrl": "https://logos-pres.md/en/news/a-draft-bill-providing-for-the-suspension-of-privatisation-has-been-tabled-in-parliament/",
    "publisher": "logos-pres.md",
@@ -57285,7 +57285,7 @@
    "contentHash": "sha256:d03fd0ee55101d23a78048071c504d5cd43be77be8c9c3b0f1f8097e23c1b2d9"
   },
   {
-   "key": "nws-2",
+   "key": "rwe:nws-2",
    "companyKey": "rwe",
    "sourceUrl": "https://www.rwe.com/en/investor-relations/financial-calendar-and-publications/news-and-ad-hoc-announcements/news/news-2026-02-10/",
    "publisher": "www.rwe.com",
@@ -57297,7 +57297,7 @@
    "contentHash": "sha256:29d669dbf00992199774b4639e29e543e1c7c0ba814523f09543fa93cda7e999"
   },
   {
-   "key": "nws-3",
+   "key": "rwe:nws-3",
    "companyKey": "rwe",
    "sourceUrl": "https://www.renews.biz/uncategorized/ar7-rwe-wins-big-in-8-4gw-cfd-auction/",
    "publisher": "www.renews.biz",
@@ -57309,7 +57309,7 @@
    "contentHash": "sha256:9a1bc4254b9ff6963469f4bfd736804eadce69f34119f5dab4fb7f85eb42e57a"
   },
   {
-   "key": "nws-4",
+   "key": "rwe:nws-4",
    "companyKey": "rwe",
    "sourceUrl": "https://inspenet.com/en/news/ampelmann-and-rwe-complete-cargo-drone-trial-at-triton-knoll-wind-farm/",
    "publisher": "inspenet.com",
@@ -57321,7 +57321,7 @@
    "contentHash": "sha256:082169d62d8c359b854ba0c36af526d1f83847f54e1aa6f4a08b7afb347fc1ec"
   },
   {
-   "key": "nws-5",
+   "key": "rwe:nws-5",
    "companyKey": "rwe",
    "sourceUrl": "https://finimize.com/content/barclays-thinks-rwes-2026-outlook-is-due-for-a-raise",
    "publisher": "finimize.com",
@@ -57333,7 +57333,7 @@
    "contentHash": "sha256:9c4d2b7de9dc45e739753727ecae05ddcb4d711ecd95167806fa958513a753ee"
   },
   {
-   "key": "nws-6",
+   "key": "rwe:nws-6",
    "companyKey": "rwe",
    "sourceUrl": "https://www.weil.com/articles/weil-advises-infrastructure-at-goldman-sachs-alternatives-in-acquisition",
    "publisher": "www.weil.com",
@@ -57345,7 +57345,7 @@
    "contentHash": "sha256:9919f681f87899d0afc386d275463167106e2488eaca872f96685be7e0edb8fe"
   },
   {
-   "key": "nws-7",
+   "key": "rwe:nws-7",
    "companyKey": "rwe",
    "sourceUrl": "https://windeurope.org/windeurope-bulletin/april-2026/",
    "publisher": "windeurope.org",
@@ -57357,7 +57357,7 @@
    "contentHash": "sha256:c76b6ecadb1b4f1e6ba4aa78814a4b3df71ab6262b8b0ac8f88d8bad7213308a"
   },
   {
-   "key": "nws-8",
+   "key": "rwe:nws-8",
    "companyKey": "rwe",
    "sourceUrl": "https://www.oracle.com/europe/news/announcement/oracle-named-a-leader-in-idc-marketscape-worldwide-life-sciences-vendor-assessment-2026-09-22/",
    "publisher": "www.oracle.com",
@@ -57369,7 +57369,7 @@
    "contentHash": "sha256:e8a70b3b840317eaf1554063c9ce50d8e268a822213cf8223adc6f312eac133b"
   },
   {
-   "key": "nws-9",
+   "key": "rwe:nws-9",
    "companyKey": "rwe",
    "sourceUrl": "https://www.ipsos.com/en-us/beyond-claim-case-direct-responder-rwe-us-healthcare",
    "publisher": "www.ipsos.com",
@@ -57381,7 +57381,7 @@
    "contentHash": "sha256:4f2f7b4d5b2f4e829ec65aa63b14b9372748531af64cbc89e218d986dd9db173"
   },
   {
-   "key": "nws-1",
+   "key": "seb:nws-1",
    "companyKey": "seb",
    "sourceUrl": "https://www.globalbankingandfinance.com/frances-seb-targets-2-100-potential-job-cuts-worldwide-2027/",
    "publisher": "www.globalbankingandfinance.com",
@@ -57393,7 +57393,7 @@
    "contentHash": "sha256:4581d7c9c014b05f1470cda56afabf33df4aa257672ec6180e92e0fa1f2565ac"
   },
   {
-   "key": "nws-2",
+   "key": "seb:nws-2",
    "companyKey": "seb",
    "sourceUrl": "https://www.europeanbusinessreview.com/from-payment-frustration-to-fintech-scale-how-seb-haugeto-turned-a-personal-problem-into-a-e10m-platform/",
    "publisher": "www.europeanbusinessreview.com",
@@ -57405,7 +57405,7 @@
    "contentHash": "sha256:bb5a7d9cf4ed0278c434ed65e82494323868901e35175349b320dd804f866130"
   },
   {
-   "key": "nws-3",
+   "key": "seb:nws-3",
    "companyKey": "seb",
    "sourceUrl": "https://www.worldcoffeeportal.com/opinion/the-great-automation-debate-with-groupe-sebs-dominique-lasseur-and-gails-kasjan-orzol/",
    "publisher": "www.worldcoffeeportal.com",
@@ -57417,7 +57417,7 @@
    "contentHash": "sha256:a4c0537eead9985a070fec74da2312208e9abd75b66fb6c78791e6a8c178077f"
   },
   {
-   "key": "nws-4",
+   "key": "seb:nws-4",
    "companyKey": "seb",
    "sourceUrl": "https://www.yachtingnz.org.nz/news/2026-49er-49erfx-and-nacra-17-european-championships-day-3-new-zealands-world-champions-seb-menzies",
    "publisher": "www.yachtingnz.org.nz",
@@ -57429,7 +57429,7 @@
    "contentHash": "sha256:9e3d57ea25acfdfa6b3fe34a0beed9f3487e4029bc88f2252f1f2fb30781daf9"
   },
   {
-   "key": "nws-5",
+   "key": "seb:nws-5",
    "companyKey": "seb",
    "sourceUrl": "https://www.yachtingnz.org.nz/news/2026-49er-49erfx-and-nacra-17-world-championships-day-4-new-zealands-seb-menzies-and-george-lee-rush",
    "publisher": "www.yachtingnz.org.nz",
@@ -57441,7 +57441,7 @@
    "contentHash": "sha256:1891b5fc396264e6811573e72ef11eb807162bd785b90f0fbd3cbc87c5d8da3a"
   },
   {
-   "key": "nws-6",
+   "key": "seb:nws-6",
    "companyKey": "seb",
    "sourceUrl": "https://technologyreseller.uk/cohesity-appoints-seb-fitzjohn-as-vice-president-partner-channel-sales-and-gtm-europe/",
    "publisher": "technologyreseller.uk",
@@ -57453,7 +57453,7 @@
    "contentHash": "sha256:cc49c122c1c443fc478e260c0576078ec2e4c228a823f4965fea790b67bd8c22"
   },
   {
-   "key": "nws-7",
+   "key": "seb:nws-7",
    "companyKey": "seb",
    "sourceUrl": "https://www.clickorlando.com/sports/2026/09/02/orlando-pride-interim-head-coach-players-speak-after-seb-hines-firing/",
    "publisher": "www.clickorlando.com",
@@ -57465,7 +57465,7 @@
    "contentHash": "sha256:7452e9068cb459c0f8121b5bfea0b715dc035ff87398f9d977eec678f44ec780"
   },
   {
-   "key": "nws-8",
+   "key": "seb:nws-8",
    "companyKey": "seb",
    "sourceUrl": "https://amwatch.com/AMNews/Fund_Management/article19414987.ece",
    "publisher": "amwatch.com",
@@ -57477,7 +57477,7 @@
    "contentHash": "sha256:7b79e7fca7425eb174cc954017adcb73bcdd6383a4043ac7808cc6bd118d85d7"
   },
   {
-   "key": "nws-9",
+   "key": "seb:nws-9",
    "companyKey": "seb",
    "sourceUrl": "https://amwatch.com/AMNews/Fund_Management/article19609635.ece",
    "publisher": "amwatch.com",
@@ -57489,7 +57489,7 @@
    "contentHash": "sha256:aeaed0b20b327750d88bea51a78766a81fa5eb31485fde56e1a1fa8340a2fa4b"
   },
   {
-   "key": "nws-1",
+   "key": "six-group:nws-1",
    "companyKey": "six-group",
    "sourceUrl": "https://baku.ws/en/sport/fifa-world-cup-2026-six-group-stage-matches-upsets-and-unexpected-results",
    "publisher": "baku.ws",
@@ -57501,7 +57501,7 @@
    "contentHash": "sha256:b441619c5ff108f40ade8c180781826e8471ac43537b8b0bc237403f609fa5a6"
   },
   {
-   "key": "nws-2",
+   "key": "six-group:nws-2",
    "companyKey": "six-group",
    "sourceUrl": "https://www.marketsmedia.com/six-group-report-net-loss-after-worldline-goodwill-impairment/",
    "publisher": "www.marketsmedia.com",
@@ -57513,7 +57513,7 @@
    "contentHash": "sha256:c12771ba318d526da2051b856513ba70fe1bf528f622915fa3033283bd6b8056"
   },
   {
-   "key": "nws-4",
+   "key": "six-group:nws-4",
    "companyKey": "six-group",
    "sourceUrl": "https://www.tekedia.com/six-group-partners-with-chainlink-for-real-time-and-historical-equities-market-data-onchain/",
    "publisher": "www.tekedia.com",
@@ -57525,7 +57525,7 @@
    "contentHash": "sha256:e6f2b3d3b9d8c3a0220ba19e198f6e57d92a79f4f7e5f971caa5e67bef227a79"
   },
   {
-   "key": "nws-5",
+   "key": "six-group:nws-5",
    "companyKey": "six-group",
    "sourceUrl": "https://www.crowdfundinsider.com/2026/03/264992-switzerlands-six-group-reports-surge-in-trading-announces-direct-greek-equity-access/",
    "publisher": "www.crowdfundinsider.com",
@@ -57537,7 +57537,7 @@
    "contentHash": "sha256:e0523de6951a26dcdf64ae76e3c0c67edfd050f1406016f6f17b2a58af0c828d"
   },
   {
-   "key": "nws-6",
+   "key": "six-group:nws-6",
    "companyKey": "six-group",
    "sourceUrl": "https://www.leaprate.com/financial-services/exchanges/six-swiss-exchange-and-bme-exchange-report-strong-turnover-growth-in-august/",
    "publisher": "www.leaprate.com",
@@ -57549,7 +57549,7 @@
    "contentHash": "sha256:6d5e71a511b5d5e9cfa19ad564cc7066cdcc62d61a411f26be21f6bf32ec5f45"
   },
   {
-   "key": "nws-7",
+   "key": "six-group:nws-7",
    "companyKey": "six-group",
    "sourceUrl": "https://www.ey.com/en_ch/newsroom/2026/09/swiss-ciso-awards-2026-ey-and-the-swiss-cyber-institute-recognize-cybersecurity-leaders",
    "publisher": "www.ey.com",
@@ -57561,7 +57561,7 @@
    "contentHash": "sha256:c69429c0b7c8472739bbc150b4a50742d2abbc24ff8f222777d76c835a3f541b"
   },
   {
-   "key": "nws-8",
+   "key": "six-group:nws-8",
    "companyKey": "six-group",
    "sourceUrl": "https://www.theblock.co/news/business/2026-04-15-major-european-six-group-stock-exchanges-feeding-data-to-chainlink-397450",
    "publisher": "www.theblock.co",
@@ -57573,7 +57573,7 @@
    "contentHash": "sha256:a8f2688391ab489868332e873dfe38f86c9a608c6f419e083e7ad02845a65686"
   },
   {
-   "key": "nws-9",
+   "key": "six-group:nws-9",
    "companyKey": "six-group",
    "sourceUrl": "https://escharts.com/news/blast-r6-major-salt-lake-city-2026-group-stage-average-viewership-104-compared-munich",
    "publisher": "escharts.com",
@@ -57585,7 +57585,7 @@
    "contentHash": "sha256:64e330df0bcb6305f11a22c8a726e4aea1da8ac77328c3390e6d72b8bf2595ed"
   },
   {
-   "key": "nws-3",
+   "key": "skf:nws-3",
    "companyKey": "skf",
    "sourceUrl": "https://www.autocarpro.in/news/skf-india-industrial-appoints-manasa-nagaraju-to-lead-it-and-digitalization-133185",
    "publisher": "www.autocarpro.in",
@@ -57597,7 +57597,7 @@
    "contentHash": "sha256:0339e530d4285a8a046b1735f57f8e00b0decab2c48f9577f19ef21796ae2f57"
   },
   {
-   "key": "nws-4",
+   "key": "skf:nws-4",
    "companyKey": "skf",
    "sourceUrl": "https://mediabrief.com/skf-india-appoints-manasa-nagaraju/",
    "publisher": "mediabrief.com",
@@ -57609,7 +57609,7 @@
    "contentHash": "sha256:67eb59e290d29498e971e6ac28d3d8ff5252d14d616ba8662099dd4a106faf0c"
   },
   {
-   "key": "nws-5",
+   "key": "skf:nws-5",
    "companyKey": "skf",
    "sourceUrl": "https://www.techcircle.in/2026/06/22/skf-india-gets-a-new-head-of-it-and-digitalisation-for-iseam-region/",
    "publisher": "www.techcircle.in",
@@ -57621,7 +57621,7 @@
    "contentHash": "sha256:938269522900bffba66ffa3b7915b8202428535ad5522940aed824a855287f02"
   },
   {
-   "key": "nws-6",
+   "key": "skf:nws-6",
    "companyKey": "skf",
    "sourceUrl": "https://www.itvoice.in/skf-awards-global-ai-led-business-transformation-contract-to-tcs",
    "publisher": "www.itvoice.in",
@@ -57633,7 +57633,7 @@
    "contentHash": "sha256:19939a4ed446cf5416b290ddccbf35f94c9b92ddff302b8e3ada3040e6a54f2a"
   },
   {
-   "key": "nws-7",
+   "key": "skf:nws-7",
    "companyKey": "skf",
    "sourceUrl": "https://tradebrains.in/tcs-secures-landmark-long-term-ai-deal-with-swedish-engineering-giant-skf/",
    "publisher": "tradebrains.in",
@@ -57645,7 +57645,7 @@
    "contentHash": "sha256:3d5d6872c2d5a1923c7d730698bf01ecb948debfa011a84bcea242c866dd6a23"
   },
   {
-   "key": "nws-9",
+   "key": "skf:nws-9",
    "companyKey": "skf",
    "sourceUrl": "https://www.post-journal.com/news/top-stories/2026/07/skf-eyes-role-in-humanoid-robotics-business/",
    "publisher": "www.post-journal.com",
@@ -57657,7 +57657,7 @@
    "contentHash": "sha256:82d0f3ada6f6cac133018aeca1fdbfb3da6a373b255aed4b1360b711f3c357d0"
   },
   {
-   "key": "nws-6",
+   "key": "ubs:nws-6",
    "companyKey": "ubs",
    "sourceUrl": "https://www.proactiveinvestors.com/companies/news/1090302/anthropic-s-project-glasswing-seen-accelerating-cybersecurity-spending-ubs-says-1090302.html",
    "publisher": "www.proactiveinvestors.com",
@@ -57669,7 +57669,7 @@
    "contentHash": "sha256:51415e4aea9cf2c26f9f62bf6fc3cc09ee15bcff367c44545eac6d1b86409958"
   },
   {
-   "key": "nws-7",
+   "key": "ubs:nws-7",
    "companyKey": "ubs",
    "sourceUrl": "https://www.cnbc.com/2026/06/16/this-cybersecurity-stock-to-soar-on-ai-tailwinds-ubs-says-to-buy-it.html",
    "publisher": "www.cnbc.com",
@@ -57681,7 +57681,7 @@
    "contentHash": "sha256:ec6c9d3c12bf214814c0f41fe0938706629fc85fc1247bcb7f79453ec933fc58"
   },
   {
-   "key": "nws-8",
+   "key": "ubs:nws-8",
    "companyKey": "ubs",
    "sourceUrl": "https://www.voiceofalexandria.com/news/national_business_news/orvera-ai-named-best-ai-cx-platform-for-enterprise-contact-centers-by-ubs-forums-at/article_67c587e7-d97a-5cb3-8019-fc6ab9f6fdea.html",
    "publisher": "www.voiceofalexandria.com",
@@ -57693,7 +57693,7 @@
    "contentHash": "sha256:56d60f6c8a665a140b626d1294bf22940d700e85a4e9c7b3d75818197ed9c980"
   },
   {
-   "key": "nws-2",
+   "key": "ucb:nws-2",
    "companyKey": "ucb",
    "sourceUrl": "https://www.prnewswire.com/news-releases/axios-names-ucb-a-winner-of-the-metro-atlanta-top-workplaces-2026-award-302852347.html",
    "publisher": "www.prnewswire.com",
@@ -57705,7 +57705,7 @@
    "contentHash": "sha256:ec0574df4e8fcdfafca29e0abf2059c781c40264f246399eef1a8e0e22084a2f"
   },
   {
-   "key": "nws-6",
+   "key": "ucb:nws-6",
    "companyKey": "ucb",
    "sourceUrl": "https://www.indiancooperative.com/from-states/cosmos-bank-hosts-rbis-saksham-program180-ucb-leaders-attend/",
    "publisher": "www.indiancooperative.com",
@@ -57717,7 +57717,7 @@
    "contentHash": "sha256:9ed9a4c00ca2e9de8d3240227c74218a4bb7ad079a00647cc385ea3db8d38a1b"
   },
   {
-   "key": "nws-7",
+   "key": "ucb:nws-7",
    "companyKey": "ucb",
    "sourceUrl": "https://www.indiancooperative.com/banks/rbi-sets-ambitious-2026-27-supervisory-agenda-for-ucbs/",
    "publisher": "www.indiancooperative.com",
@@ -57729,7 +57729,7 @@
    "contentHash": "sha256:12d8bb462a446c8ee978125346ca6b7d047968697fdb8d9dfba1842ecddbf761"
   },
   {
-   "key": "nws-9",
+   "key": "ucb:nws-9",
    "companyKey": "ucb",
    "sourceUrl": "https://www.prnewswire.com/news-releases/antengene-announces-receipt-of-usd-60-million-upfront-payment-from-ucb-302823509.html",
    "publisher": "www.prnewswire.com",

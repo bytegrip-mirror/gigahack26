@@ -1822,7 +1822,7 @@ def news_docs(company, observed):
             text = clean_text(item["desc"])
         if not text or len(text) < MIN_TEXT or has_markup(text):
             continue
-        docs.append(Doc("nws-%d" % i, company["key"], url, publisher, "news",
+        docs.append(Doc("%s:nws-%d" % (company["key"], i), company["key"], url, publisher, "news",
                         item["published"], item["title"], text, observed))
     return docs
 

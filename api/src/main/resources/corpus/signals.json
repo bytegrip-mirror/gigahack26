@@ -50381,38 +50381,6 @@
    "rationale": "The model read this document and found no signal"
   },
   {
-   "evidenceKey": "nws-1",
-   "questionKey": "automation.programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "the model's answer could not be parsed"
-  },
-  {
-   "evidenceKey": "nws-1",
-   "questionKey": "automation.vendor_lock",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-2",
-   "questionKey": "data.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-2",
-   "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
    "evidenceKey": "lei-636700SJ7QL99BKODY81",
    "questionKey": "security.insourcing",
    "verdict": "NONE",
@@ -50895,22 +50863,6 @@
   {
    "evidenceKey": "lei-984500CAABN4CC0A0A49",
    "questionKey": "automation.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-3",
-   "questionKey": "data.ai_governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "security.insourcing",
    "verdict": "NONE",
    "confidence": 0.0,
    "quote": null,
@@ -52829,22 +52781,6 @@
    "rationale": "The model read this document and found no signal"
   },
   {
-   "evidenceKey": "nws-9",
-   "questionKey": "data.initiative",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-9",
-   "questionKey": "automation.cost_programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
    "evidenceKey": "lei-529900G4A1IKOKC22K56",
    "questionKey": "security.incident",
    "verdict": "NONE",
@@ -53517,14 +53453,6 @@
    "rationale": "The model read this document and found no signal"
   },
   {
-   "evidenceKey": "nws-5",
-   "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
    "evidenceKey": "lei-213800FF2R23ALJQOP04",
    "questionKey": "data.platform_migration",
    "verdict": "NONE",
@@ -53871,38 +53799,6 @@
   {
    "evidenceKey": "lei-254900TGKR7XGY0V0Y69",
    "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "security.leadership",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "data.initiative",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "the model's answer could not be parsed"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "data.governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "automation.cost_programme",
    "verdict": "NONE",
    "confidence": 0.0,
    "quote": null,
@@ -58559,22 +58455,6 @@
   {
    "evidenceKey": "lei-549300LQ4LWX2R8ZV130",
    "questionKey": "automation.cost_programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "security.incident",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "automation.hiring",
    "verdict": "NONE",
    "confidence": 0.0,
    "quote": null,
@@ -67693,111 +67573,7 @@
    "rationale": "the model's answer could not be parsed"
   },
   {
-   "evidenceKey": "nws-1",
-   "questionKey": "data.ai_governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-1",
-   "questionKey": "automation.programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "the model's answer could not be parsed"
-  },
-  {
-   "evidenceKey": "nws-1",
-   "questionKey": "automation.ssc",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "the model's answer could not be parsed"
-  },
-  {
-   "evidenceKey": "nws-1",
-   "questionKey": "automation.vendor_lock",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "the model's answer could not be parsed"
-  },
-  {
-   "evidenceKey": "nws-5",
-   "questionKey": "security.incident",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-5",
-   "questionKey": "data.initiative",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-5",
-   "questionKey": "data.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-5",
-   "questionKey": "data.governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-5",
-   "questionKey": "automation.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "security.leadership",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "data.initiative",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "data.governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "data.initiative",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "the model's answer could not be parsed"
-  },
-  {
-   "evidenceKey": "nws-8",
+   "evidenceKey": "a2a:nws-8",
    "questionKey": "data.insourcing",
    "verdict": "BUILD",
    "confidence": 0.65,
@@ -67805,79 +67581,7 @@
    "rationale": "Document is A2A's own marketing for its own AI agent protocol, not a buyer of AI platforms."
   },
   {
-   "evidenceKey": "nws-8",
-   "questionKey": "automation.cost_programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-9",
-   "questionKey": "data.initiative",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-9",
-   "questionKey": "automation.process_mining",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-1",
-   "questionKey": "automation.cost_programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-2",
-   "questionKey": "security.compliance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-2",
-   "questionKey": "automation.cost_programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-2",
-   "questionKey": "automation.ssc",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "data.ai_governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "automation.vendor_lock",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-5",
+   "evidenceKey": "abb:nws-5",
    "questionKey": "data.insourcing",
    "verdict": "BUILD",
    "confidence": 0.9,
@@ -67885,31 +67589,7 @@
    "rationale": "ABB sells its own analytics/AI-based automation solution to terminal customers."
   },
   {
-   "evidenceKey": "nws-5",
-   "questionKey": "data.ai_governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-5",
-   "questionKey": "automation.process_mining",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "security.compliance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
+   "evidenceKey": "abb:nws-7",
    "questionKey": "security.compliance",
    "verdict": "BUILD",
    "confidence": 0.55,
@@ -67917,15 +67597,7 @@
    "rationale": "ABB supplies the NIS2-compliance cyber platform to TenneT; obligation is the customer's, not ABB's own."
   },
   {
-   "evidenceKey": "nws-7",
-   "questionKey": "security.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "the model's answer could not be parsed"
-  },
-  {
-   "evidenceKey": "nws-7",
+   "evidenceKey": "abb:nws-7",
    "questionKey": "data.insourcing",
    "verdict": "BUILD",
    "confidence": 0.6,
@@ -67933,23 +67605,7 @@
    "rationale": "ABB sells its own System 800xA platform to customer TenneT; vendor, not buyer."
   },
   {
-   "evidenceKey": "nws-7",
-   "questionKey": "data.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-9",
+   "evidenceKey": "abb:nws-9",
    "questionKey": "data.initiative",
    "verdict": "BUY",
    "confidence": 0.62,
@@ -67957,223 +67613,7 @@
    "rationale": "ABB-NVIDIA physical AI initiative with named robotic vision and sim-to-real manufacturing use case."
   },
   {
-   "evidenceKey": "nws-9",
-   "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-1",
-   "questionKey": "security.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-1",
-   "questionKey": "data.initiative",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-1",
-   "questionKey": "data.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-1",
-   "questionKey": "automation.process_mining",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-2",
-   "questionKey": "data.governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-2",
-   "questionKey": "automation.programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "the model's answer could not be parsed"
-  },
-  {
-   "evidenceKey": "nws-3",
-   "questionKey": "security.incident",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-3",
-   "questionKey": "data.initiative",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-3",
-   "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "data.initiative",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "data.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-5",
-   "questionKey": "security.leadership",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-5",
-   "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "security.incident",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "data.ai_governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "data.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "automation.process_mining",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-2",
-   "questionKey": "data.initiative",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-2",
-   "questionKey": "automation.cost_programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-2",
-   "questionKey": "automation.programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-3",
-   "questionKey": "security.compliance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "the model's answer could not be parsed"
-  },
-  {
-   "evidenceKey": "nws-3",
-   "questionKey": "security.incident",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-3",
-   "questionKey": "security.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-5",
-   "questionKey": "security.incident",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-5",
-   "questionKey": "automation.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "data.initiative",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
+   "evidenceKey": "ccc:nws-8",
    "questionKey": "data.initiative",
    "verdict": "BUILD",
    "confidence": 0.7,
@@ -68181,47 +67621,7 @@
    "rationale": "CCC sells this AI capability to shops; it is the vendor's own product, not an internal buyer."
   },
   {
-   "evidenceKey": "nws-8",
-   "questionKey": "data.ai_governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-9",
-   "questionKey": "data.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-9",
-   "questionKey": "automation.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-1",
-   "questionKey": "automation.programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "the model's answer could not be parsed"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "security.leadership",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-4",
+   "evidenceKey": "eni:nws-4",
    "questionKey": "data.initiative",
    "verdict": "BUY",
    "confidence": 0.55,
@@ -68229,55 +67629,7 @@
    "rationale": "Eni ran a named digital automation deployment in production, delivered with an outside vendor."
   },
   {
-   "evidenceKey": "nws-4",
-   "questionKey": "data.platform_migration",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "data.ai_governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "data.governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "automation.programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-5",
-   "questionKey": "automation.programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "security.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
+   "evidenceKey": "eni:nws-6",
    "questionKey": "data.initiative",
    "verdict": "BUY",
    "confidence": 0.78,
@@ -68285,39 +67637,7 @@
    "rationale": "Eni runs a named AI/HPC initiative with specific use cases and business areas."
   },
   {
-   "evidenceKey": "nws-6",
-   "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "security.compliance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "security.leadership",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "data.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-1",
+   "evidenceKey": "eon:nws-1",
    "questionKey": "data.initiative",
    "verdict": "BUY",
    "confidence": 0.55,
@@ -68325,7 +67645,7 @@
    "rationale": "Named S/4HANA data-harmonization programme with stated AI-driven, data-driven services ambition."
   },
   {
-   "evidenceKey": "nws-1",
+   "evidenceKey": "eon:nws-1",
    "questionKey": "data.platform_migration",
    "verdict": "BUY",
    "confidence": 0.85,
@@ -68333,15 +67653,7 @@
    "rationale": "Named ERP migration consolidating 17 legacy systems onto one S/4HANA platform."
   },
   {
-   "evidenceKey": "nws-2",
-   "questionKey": "security.compliance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-2",
+   "evidenceKey": "eon:nws-2",
    "questionKey": "data.initiative",
    "verdict": "BUY",
    "confidence": 0.85,
@@ -68349,15 +67661,7 @@
    "rationale": "E.ON Sweden selected AI analytics platform for named asset investment planning use case."
   },
   {
-   "evidenceKey": "nws-3",
-   "questionKey": "security.leadership",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-3",
+   "evidenceKey": "eon:nws-3",
    "questionKey": "data.platform_migration",
    "verdict": "BUY",
    "confidence": 0.85,
@@ -68365,119 +67669,7 @@
    "rationale": "Named SAP S/4HANA cloud ERP migration at E.ON, forcing process re-examination around core systems."
   },
   {
-   "evidenceKey": "nws-3",
-   "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "the model's answer could not be parsed"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "security.compliance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "security.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "automation.programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-5",
-   "questionKey": "data.initiative",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model's quote was not found in its capture and the row was struck"
-  },
-  {
-   "evidenceKey": "nws-5",
-   "questionKey": "data.ai_governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-5",
-   "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-5",
-   "questionKey": "automation.ssc",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "data.platform_migration",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "data.initiative",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "data.governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-9",
-   "questionKey": "security.leadership",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-9",
+   "evidenceKey": "eon:nws-9",
    "questionKey": "data.initiative",
    "verdict": "BUY",
    "confidence": 0.72,
@@ -68485,135 +67677,7 @@
    "rationale": "E.ON co-ran a quantum ML forecasting pilot on smart-meter demand; named use case with E.ON scientist quoted."
   },
   {
-   "evidenceKey": "nws-9",
-   "questionKey": "automation.ssc",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-9",
-   "questionKey": "automation.vendor_lock",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-2",
-   "questionKey": "security.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-2",
-   "questionKey": "data.initiative",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "the model's answer could not be parsed"
-  },
-  {
-   "evidenceKey": "nws-2",
-   "questionKey": "automation.programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-3",
-   "questionKey": "data.initiative",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "the model's answer could not be parsed"
-  },
-  {
-   "evidenceKey": "nws-3",
-   "questionKey": "automation.cost_programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "data.initiative",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "data.ai_governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "automation.cost_programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "automation.programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "automation.ssc",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-5",
-   "questionKey": "data.initiative",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-5",
-   "questionKey": "data.platform_migration",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-5",
-   "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-5",
+   "evidenceKey": "ey:nws-5",
    "questionKey": "automation.insourcing",
    "verdict": "BUILD",
    "confidence": 0.6,
@@ -68621,55 +67685,7 @@
    "rationale": "EY markets its own AI and transformation services to clients, so it builds rather than buys."
   },
   {
-   "evidenceKey": "nws-5",
-   "questionKey": "automation.programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "security.compliance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "data.initiative",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "data.ai_governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "the model's answer could not be parsed"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "data.governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "data.initiative",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
+   "evidenceKey": "ey:nws-8",
    "questionKey": "data.ai_governance",
    "verdict": "BUILD",
    "confidence": 0.55,
@@ -68677,23 +67693,7 @@
    "rationale": "EY India delivers responsible-AI and AI-governance teaching as a provider, not evidence of its own governance function."
   },
   {
-   "evidenceKey": "nws-8",
-   "questionKey": "automation.programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-9",
-   "questionKey": "security.compliance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-9",
+   "evidenceKey": "ey:nws-9",
    "questionKey": "data.initiative",
    "verdict": "BUILD",
    "confidence": 0.7,
@@ -68701,31 +67701,7 @@
    "rationale": "Named AI router in production, but it is EY's own technology and service offering."
   },
   {
-   "evidenceKey": "nws-9",
-   "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-9",
-   "questionKey": "automation.programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-2",
-   "questionKey": "data.ai_governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-2",
+   "evidenceKey": "gsk:nws-2",
    "questionKey": "automation.programme",
    "verdict": "BUY",
    "confidence": 0.85,
@@ -68733,47 +67709,7 @@
    "rationale": "GSK announced a £1.9B three-year efficiency programme, a quantified cost-reduction target."
   },
   {
-   "evidenceKey": "nws-3",
-   "questionKey": "security.compliance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-3",
-   "questionKey": "security.leadership",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-3",
-   "questionKey": "automation.cost_programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "security.compliance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "data.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-4",
+   "evidenceKey": "gsk:nws-4",
    "questionKey": "automation.programme",
    "verdict": "BUY",
    "confidence": 0.9,
@@ -68781,119 +67717,7 @@
    "rationale": "GSK announced named cost-cutting plan with quantified £1.9bn savings target through 2029."
   },
   {
-   "evidenceKey": "nws-4",
-   "questionKey": "automation.ssc",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "security.compliance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "security.leadership",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "data.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "data.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-9",
-   "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-2",
-   "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-2",
-   "questionKey": "automation.process_mining",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-3",
-   "questionKey": "automation.process_mining",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "security.compliance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "security.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "security.incident",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "security.incident",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
+   "evidenceKey": "lpp:nws-8",
    "questionKey": "automation.insourcing",
    "verdict": "BUILD",
    "confidence": 0.7,
@@ -68901,159 +67725,7 @@
    "rationale": "LPP develops its own AI/autonomous missile systems, indicating in-house automation capability and product."
   },
   {
-   "evidenceKey": "nws-1",
-   "questionKey": "automation.cost_programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-1",
-   "questionKey": "automation.cost_programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-1",
-   "questionKey": "automation.vendor_lock",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "data.initiative",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "data.platform_migration",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "security.incident",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "security.leadership",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "automation.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "automation.programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "the model's answer could not be parsed"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "automation.ssc",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-1",
-   "questionKey": "security.incident",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-1",
-   "questionKey": "security.leadership",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "security.incident",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "automation.programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "the model's answer could not be parsed"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "automation.process_mining",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-5",
-   "questionKey": "security.incident",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-5",
-   "questionKey": "security.leadership",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-5",
-   "questionKey": "data.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-5",
-   "questionKey": "automation.programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "the model's answer could not be parsed"
-  },
-  {
-   "evidenceKey": "nws-7",
+   "evidenceKey": "ns:nws-7",
    "questionKey": "data.initiative",
    "verdict": "BUY",
    "confidence": 0.55,
@@ -69061,31 +67733,7 @@
    "rationale": "Named data platform initiative and use case: maintenance data driving train readiness decisions."
   },
   {
-   "evidenceKey": "nws-9",
-   "questionKey": "data.ai_governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-9",
-   "questionKey": "data.governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-3",
-   "questionKey": "security.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-3",
+   "evidenceKey": "pzu:nws-3",
    "questionKey": "data.initiative",
    "verdict": "BUY",
    "confidence": 0.9,
@@ -69093,47 +67741,7 @@
    "rationale": "PZU has AI strategy, 30+ AI solutions, code generation use case, claims handling AI-ready."
   },
   {
-   "evidenceKey": "nws-3",
-   "questionKey": "data.platform_migration",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "the model's answer could not be parsed"
-  },
-  {
-   "evidenceKey": "nws-3",
-   "questionKey": "automation.cost_programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "the model's answer could not be parsed"
-  },
-  {
-   "evidenceKey": "nws-5",
-   "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-5",
-   "questionKey": "automation.programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "security.compliance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
+   "evidenceKey": "pzu:nws-6",
    "questionKey": "security.leadership",
    "verdict": "BUY",
    "confidence": 0.55,
@@ -69141,183 +67749,7 @@
    "rationale": "Names PZU's head of cyber security, an ex-EY/PwC hire, a likely recent security leadership appointment."
   },
   {
-   "evidenceKey": "nws-6",
-   "questionKey": "data.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "data.governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "the model's answer could not be parsed"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "automation.programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "automation.process_mining",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "data.initiative",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "automation.programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "security.compliance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "security.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "data.governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "automation.cost_programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "automation.vendor_lock",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-2",
-   "questionKey": "security.incident",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-2",
-   "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-2",
-   "questionKey": "automation.process_mining",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-3",
-   "questionKey": "data.initiative",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-3",
-   "questionKey": "data.ai_governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-3",
-   "questionKey": "data.governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "data.platform_migration",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "data.platform_migration",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "automation.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
+   "evidenceKey": "rwe:nws-7",
    "questionKey": "data.initiative",
    "verdict": "BUY",
    "confidence": 0.6,
@@ -69325,47 +67757,7 @@
    "rationale": "RWE adopted external mesoscale data platform for wind resource assessment, shows data initiative buying externally."
   },
   {
-   "evidenceKey": "nws-8",
-   "questionKey": "data.initiative",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "data.ai_governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-9",
-   "questionKey": "data.initiative",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-9",
-   "questionKey": "data.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-9",
-   "questionKey": "data.governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-1",
+   "evidenceKey": "seb:nws-1",
    "questionKey": "automation.programme",
    "verdict": "BUY",
    "confidence": 0.9,
@@ -69373,335 +67765,7 @@
    "rationale": "SEB announces restructuring with 2,100 job cuts by 2027 and €200m savings target."
   },
   {
-   "evidenceKey": "nws-1",
-   "questionKey": "automation.ssc",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-2",
-   "questionKey": "automation.ssc",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "security.leadership",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-5",
-   "questionKey": "security.compliance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-5",
-   "questionKey": "automation.cost_programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-5",
-   "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-5",
-   "questionKey": "automation.ssc",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "security.compliance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "security.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "data.initiative",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "data.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "automation.cost_programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "security.incident",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "data.platform_migration",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "automation.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "security.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "data.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "automation.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "the model's answer could not be parsed"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "automation.programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-9",
-   "questionKey": "data.ai_governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-9",
-   "questionKey": "data.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-9",
-   "questionKey": "automation.process_mining",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-1",
-   "questionKey": "security.compliance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-1",
-   "questionKey": "automation.programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-1",
-   "questionKey": "automation.process_mining",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-2",
-   "questionKey": "security.compliance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-2",
-   "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-2",
-   "questionKey": "automation.ssc",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "automation.cost_programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-5",
-   "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "automation.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "automation.vendor_lock",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "security.compliance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "security.incident",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "security.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "security.leadership",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "data.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "data.ai_governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "automation.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "automation.programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-3",
+   "evidenceKey": "skf:nws-3",
    "questionKey": "data.initiative",
    "verdict": "BUY",
    "confidence": 0.6,
@@ -69709,63 +67773,7 @@
    "rationale": "New digitalization head with stated data pipeline ambition and business ownership; early-stage initiative signal."
   },
   {
-   "evidenceKey": "nws-3",
-   "questionKey": "data.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-3",
-   "questionKey": "data.ai_governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-3",
-   "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-3",
-   "questionKey": "automation.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "the model's answer could not be parsed"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "data.initiative",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "the model's answer could not be parsed"
-  },
-  {
-   "evidenceKey": "nws-4",
-   "questionKey": "automation.vendor_lock",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-5",
+   "evidenceKey": "skf:nws-5",
    "questionKey": "data.initiative",
    "verdict": "BUY",
    "confidence": 0.55,
@@ -69773,15 +67781,7 @@
    "rationale": "Named digitalisation head owns stated data and cloud transformation ambition for SKF India."
   },
   {
-   "evidenceKey": "nws-5",
-   "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
+   "evidenceKey": "skf:nws-6",
    "questionKey": "data.initiative",
    "verdict": "BUY",
    "confidence": 0.82,
@@ -69789,7 +67789,7 @@
    "rationale": "SKF signed a global AI-led transformation programme with TCS, CEO-championed, covering data and AI."
   },
   {
-   "evidenceKey": "nws-6",
+   "evidenceKey": "skf:nws-6",
    "questionKey": "automation.vendor_lock",
    "verdict": "COUNTER",
    "confidence": 0.85,
@@ -69797,7 +67797,7 @@
    "rationale": "SKF signed long-term AI transformation partnership with named vendor TCS, making switching harder."
   },
   {
-   "evidenceKey": "nws-7",
+   "evidenceKey": "skf:nws-7",
    "questionKey": "data.initiative",
    "verdict": "BUY",
    "confidence": 0.82,
@@ -69805,212 +67805,12 @@
    "rationale": "SKF contracts TCS for AI-led transformation, agentic workflows and ERP modernisation across its global IT."
   },
   {
-   "evidenceKey": "nws-7",
-   "questionKey": "data.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
+   "evidenceKey": "skf:nws-7",
    "questionKey": "automation.insourcing",
    "verdict": "COUNTER",
    "confidence": 0.72,
    "quote": "TCS announced that it has entered into a strategic, long-term partnership with SKF to modernise its entire global IT landscape using artificial intelligence.",
    "rationale": "SKF signed long-term AI/IT outsourcing deal with TCS, buying externally rather than building in-house."
-  },
-  {
-   "evidenceKey": "nws-9",
-   "questionKey": "data.platform_migration",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-9",
-   "questionKey": "data.ai_governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-9",
-   "questionKey": "data.governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-9",
-   "questionKey": "automation.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-9",
-   "questionKey": "automation.vendor_lock",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "security.compliance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "security.incident",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "data.initiative",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "automation.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "security.compliance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "data.initiative",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "data.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "automation.programme",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-8",
-   "questionKey": "automation.process_mining",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-2",
-   "questionKey": "security.incident",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-2",
-   "questionKey": "data.ai_governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-2",
-   "questionKey": "data.hiring",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "the model's answer could not be parsed"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "security.compliance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-6",
-   "questionKey": "data.platform_migration",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "data.platform_migration",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "data.governance",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-7",
-   "questionKey": "automation.ssc",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-9",
-   "questionKey": "security.insourcing",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
-  },
-  {
-   "evidenceKey": "nws-9",
-   "questionKey": "data.initiative",
-   "verdict": "NONE",
-   "confidence": 0.0,
-   "quote": null,
-   "rationale": "The model read this document and found no signal"
   }
  ],
  "sampling": {
