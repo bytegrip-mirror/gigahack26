@@ -40,6 +40,7 @@
 	import type { MenuItem } from '$lib/components/menu';
 	import Metric from '$lib/components/Metric.svelte';
 	import SignalTrace from '$lib/components/SignalTrace.svelte';
+	import FitBar from '$lib/components/FitBar.svelte';
 	import SignalChart from '$lib/components/SignalChart.svelte';
 	import Pager from '$lib/components/Pager.svelte';
 	import Th from '$lib/components/Th.svelte';
@@ -1405,6 +1406,7 @@
 												? `Fit ${fit(row.probability)} — ${fitWord(row.probability, thresholds).toLowerCase()} evidence. A company in your market scores ${fit(meta.scoring.baseRate)} with no evidence at all.`
 												: `Fit ${fit(row.probability)}`}
 										>{fitWord(row.probability, thresholds)}</span>
+										<FitBar probability={row.probability} tone={fitTone(row.probability, thresholds)} />
 										{#if row.themeCount === 1 && row.probability >= thresholds.priority}
 											<span class="one-theme" title="The evidence is at the Priority line and stops there: one theme is all they have, and a single topic is capped so it cannot carry a company on its own.">
 												capped · one theme
@@ -1778,7 +1780,6 @@
 		position: fixed;
 		width: 50vw;
 		min-width: 460px;
-		max-width: 780px;
 		z-index: var(--z-index-menu);
 		background: var(--color-surface);
 		border: 1px solid var(--color-ink);
@@ -2044,6 +2045,7 @@
 		font-size: var(--text-lg);
 		line-height: 1.2;
 		color: var(--color-ink-2);
+		margin-bottom: 3px;
 	}
 
 	.fitval[data-tone='strong'] {

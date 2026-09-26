@@ -6,6 +6,7 @@
 	import { age, fit, fitTone, fitWord, host, plural } from '$lib/format';
 	import { copy, csv, save } from '$lib/export';
 	import Tag from '$lib/components/Tag.svelte';
+	import FitBar from '$lib/components/FitBar.svelte';
 	import LoadingVeil from '$lib/components/LoadingVeil.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import Menu from '$lib/components/Menu.svelte';
@@ -359,6 +360,7 @@
 												<span class="fitval dsp" data-tone={fitTone(lead.probability, thresholds)}
 													>{fitWord(lead.probability, thresholds)}</span
 												>
+												<FitBar probability={lead.probability} tone={fitTone(lead.probability, thresholds)} />
 											{/if}
 										</td>
 										<td class="c-contact">
