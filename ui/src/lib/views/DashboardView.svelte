@@ -128,7 +128,7 @@
 			</div>
 			<div class="figure">
 				<span class="figure-val num accent">{exact(profiles.length)}</span>
-				<span class="figure-lab">Books of business</span>
+				<span class="figure-lab">ICP Profiles</span>
 			</div>
 		</section>
 
@@ -189,10 +189,10 @@
 			</section>
 		</div>
 
-		<section class="panel" aria-label="Books of business">
+		<section class="panel" aria-label="ICP Profiles">
 			<div class="panel-head">
-				<h2 class="dsp">Books of business</h2>
-				<span class="sub dim">{books.length} books · the board shows the ones switched on</span>
+				<h2 class="dsp">ICP Profiles</h2>
+				<span class="sub dim">{profiles.length} profiles · the board shows the ones switched on</span>
 			</div>
 			<ul class="bars books">
 				{#each books as book (book.id)}

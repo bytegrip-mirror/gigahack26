@@ -430,7 +430,7 @@
 				{#if section === 'profile'}
 					<section class="panel">
 						<div class="panel-head">
-							<h2 class="dsp">Books of business</h2>
+							<h2 class="dsp">ICP Profiles</h2>
 						</div>
 						<p class="sub dim">
 							The named profiles — their titles, colours and filters — are made and kept in the

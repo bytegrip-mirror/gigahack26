@@ -309,7 +309,15 @@ looking at is worse than no control.
 **Service line** scopes the board, and the People screen reads the same value. The
 switcher is therefore the **first control in the toolbar of the board** — one
 component in one position, reading and writing one session value so no two screens
-can disagree — and it never appears on Settings or in the rail. The workspace settings row is global, so that screen
+can disagree — and it never appears on Settings or in the rail.
+
+That one control carries **both halves of "what am I looking at"**: the service
+line, which decides what the board is ranked for, and the ICP profiles, which
+decide which companies it shows. They are one menu because they are one question,
+and because two controls for one question is how the two of them start disagreeing
+— the profile filter used to sit in the Filters menu, which meant the button said
+one thing and the rows another. The button's own label states both: the line, plus
+how many profiles are on. The workspace settings row is global, so that screen
 does not pretend to be scoped: saving re-scores **every** service line.
 
 The switcher is searchable, and it carries **All service lines** at the top. All
@@ -333,7 +341,7 @@ The board's band counts are tallied from the rows in hand, not read from the
 server's per-line totals, so the Priority metric always counts the Priority
 companies the region filter has left on screen.
 
-**The ICP Studio keeps the books of business.** A profile is a name, a colour and
+**The ICP Studio keeps the ICP profiles.** A profile is a name, a colour and
 a set of criteria — geography, industries, company size, exclusions — and the
 board shows the union of the profiles in force. The list is on the left and the
 open profile on the right — a list beside a detail, the same shape the board uses

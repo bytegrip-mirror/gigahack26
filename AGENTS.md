@@ -125,11 +125,11 @@ questions, and all of them scored positive**; the top company on the live board 
 top because a `COUNTER` reading was paid +0.63. Rows that do not assert are still
 stored, still shown on the card under "Read, not evidence", and contribute nothing.
 
-**A customer profile is a named book of business, and it is data.** `icp_profile`
+**An ICP profile is a named book of business, and it is data.** `icp_profile`
 holds a name, the countries, the industries, the size floor and an on/off switch;
 a company belongs to a profile when its own country, industry and headcount
 satisfy that profile's rules, computed in `IcpProfile.covers`. A company can
-belong to several, because books of business overlap — that is the point of naming
+belong to several, because profiles overlap — that is the point of naming
 them. **The scoring thresholds are not per profile**: the base rate, the band cuts
 and the rank discount stay on the single `workspace_settings` row, because they
 describe how the desk scores rather than who it sells to, and one score has to stay

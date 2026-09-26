@@ -157,19 +157,6 @@
 			label: option.label,
 			checked: stage === option.id
 		})),
-		...(profiles.length > 0
-			? [
-					{ id: 'head-icp', label: 'Books of business', heading: true, separatorBefore: true },
-					...profiles.map((profile) => ({
-						id: `icp:${profile.id}`,
-						label: profile.name,
-						checked: profileFilter.has(profile.name)
-					})),
-					...(profileFilter.size > 0
-						? [{ id: 'icp-clear', label: 'Show every profile', icon: 'close' as const }]
-						: [])
-				]
-			: []),
 		{ id: 'head-engine', label: 'Read by', heading: true, separatorBefore: true },
 		...(
 			[
@@ -219,8 +206,50 @@
 			label: line,
 			hint: workspace.counts[line] === undefined ? '' : String(workspace.counts[line]),
 			checked: !allLines && line === serviceLine
-		}))
+		})),
+		...(profiles.length > 0
+			? [
+					{ id: 'head-icp', label: 'ICP Profiles', heading: true, separatorBefore: true },
+					...profiles.map((profile) => ({
+						id: `icp:${profile.id}`,
+						label: profile.name,
+						hint: profile.companies === 1 ? '1 company' : `${shortNumber(profile.companies)} companies`,
+						checked: profileFilter.has(profile.name)
+					})),
+					...(profileFilter.size > 0
+						? [{ id: 'icp-clear', label: 'Any profile', icon: 'close' as const }]
+						: [])
+				]
+			: [])
 	]);
+
+	/**
+	 * One control for what the board is looking at: a service line ranks it, an ICP
+	 * profile narrows it, and several profiles can be on at once. Two controls for
+	 * one question is how the two of them start disagreeing.
+	 */
+	function runScope(id: string) {
+		if (id === ALL_LINES) {
+			session.setAll();
+			return;
+		}
+		if (id === 'icp-clear') {
+			profileFilter = new Set();
+			page = 1;
+			return;
+		}
+		if (id.startsWith('icp:')) {
+			toggleProfile(id.slice(4));
+			return;
+		}
+		void workspace.select(id);
+	}
+
+	const scopeText = $derived(
+		profileFilter.size === 0
+			? session.scopeLabel()
+			: `${session.scopeLabel()} · ${profileFilter.size} ${profileFilter.size === 1 ? 'profile' : 'profiles'}`
+	);
 
 	const localEngine = $derived(workspace.meta?.localEngine ?? 'local-rubric-v1');
 
@@ -875,14 +904,14 @@
 		</div>
 		<div class="toolbar">
 			<Menu
-				text={session.scopeLabel()}
+				text={scopeText}
 				icon="layers"
 				align="start"
 				searchable
-				label="Service line"
-				title="What the board is ranked for"
+				label="What the board shows"
+				title="The service line it is ranked for, and the ICP profiles it is narrowed to"
 				items={scopeItems}
-				onselect={(line) => (line === ALL_LINES ? session.setAll() : workspace.select(line))}
+				onselect={runScope}
 			/>
 			{#if workspace.switching}<span class="spinner"></span>{/if}
 
@@ -950,6 +979,7 @@
 							<Th id="fit" label="Fit" sort={sort} {dir} onsort={sortBy} width="118px" title="How strong the evidence is, and whether the queue will act on it" />
 							<th class="c-stage" scope="col" title="Where the lead stands: new, contacted, replied, qualified or rejected">Stage</th>
 							<th class="c-sig" scope="col">Signals</th>
+							<th class="c-trend" scope="col" title="When the signals arrived over the last year">Trend</th>
 							<Th id="docs" label="Docs" sort={sort} {dir} onsort={sortBy} align="right" width="56px" className="c-doc" />
 							<Th id="newest" label="Latest" sort={sort} {dir} onsort={sortBy} align="right" width="66px" className="c-age" />
 							<th class="c-star" scope="col"><span class="sr-only">Saved</span></th>
@@ -1039,14 +1069,14 @@
 									{:else}
 										<span class="sub dim">nothing on file answers your questions about them</span>
 									{/if}
-									<div class="trend">
-										<SignalTrace
-											spark={row.spark ?? []}
-											title={row.newestSignalAgeDays === null
-												? 'Nothing dated has been read about this company'
-												: `When the signals arrived over the last year. Latest, ${ageShort(row.newestSignalAgeDays)}.`}
-										/>
-									</div>
+								</td>
+								<td class="c-trend">
+									<SignalTrace
+										spark={row.spark ?? []}
+										title={row.newestSignalAgeDays === null
+											? 'Nothing dated has been read about this company'
+											: `When the signals arrived over the last year. Latest, ${ageShort(row.newestSignalAgeDays)}.`}
+									/>
 								</td>
 								<td class="num c-doc">
 									{#if row.evidenceCount === 0}
@@ -1160,7 +1190,7 @@
 		min-height: 0;
 	}
 
-	.view.split .trend,
+	.view.split .c-trend,
 	.view.split .c-doc,
 	.view.split .c-age,
 	.view.split :global(th.c-doc),
@@ -1289,9 +1319,9 @@
 		overflow-wrap: anywhere;
 	}
 
-	.trend {
+	.c-trend {
 		width: 180px;
-		margin-top: var(--spacing-1);
+		vertical-align: top;
 	}
 
 	.c-star {
@@ -1433,7 +1463,7 @@
 	}
 
 	@media (max-width: 1180px) {
-		.trend,
+		.c-trend,
 		.c-doc,
 		.c-age,
 		:global(th.c-doc),
