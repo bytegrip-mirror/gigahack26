@@ -30,6 +30,7 @@
 		{ href: '/', label: 'Board', icon: 'board' },
 		{ href: '/studio', label: 'Signal Studio', icon: 'studio' },
 		{ href: '/pipeline', label: 'Pipeline', icon: 'pipeline' },
+		{ href: '/market', label: 'Market', icon: 'board' },
 		{ href: '/settings', label: 'Settings', icon: 'settings' }
 	] as const;
 

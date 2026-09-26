@@ -683,6 +683,32 @@ export function deleteServiceLine(id: string): Promise<void> {
 	return request<void>(`/api/service-lines/${id}`, { method: 'DELETE' });
 }
 
+export type MarketSlice = {
+	key: string;
+	companies: number;
+	inMarket: number;
+	signals: number;
+	withEvidence: number;
+	medianFit: number;
+	topFit: number;
+	medianAgeDays: number | null;
+};
+
+export type Market = {
+	serviceLine: string;
+	companies: number;
+	inMarket: number;
+	signals: number;
+	blindSpots: number;
+	countries: MarketSlice[];
+	industries: MarketSlice[];
+	sizeBands: MarketSlice[];
+};
+
+export function fetchMarket(serviceLine: string): Promise<Market> {
+	return request<Market>(`/api/market${query({ serviceLine })}`);
+}
+
 export type Telemetry = {
 	checkedAt: string;
 	signalsByEngine: Record<string, number>;
