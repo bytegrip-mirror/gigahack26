@@ -3,6 +3,7 @@ package com.pistonpunk.gigahack26.service;
 import tools.jackson.databind.ObjectMapper;
 import com.pistonpunk.gigahack26.domain.Company;
 import com.pistonpunk.gigahack26.domain.CompanyAlias;
+import com.pistonpunk.gigahack26.domain.CorpusState;
 import com.pistonpunk.gigahack26.domain.Evidence;
 import com.pistonpunk.gigahack26.domain.PolicyQuestion;
 import com.pistonpunk.gigahack26.domain.RawCapture;
@@ -11,6 +12,7 @@ import com.pistonpunk.gigahack26.domain.SourceKind;
 import com.pistonpunk.gigahack26.domain.Verdict;
 import com.pistonpunk.gigahack26.repository.jpa.CompanyAliasRepository;
 import com.pistonpunk.gigahack26.repository.jpa.CompanyRepository;
+import com.pistonpunk.gigahack26.repository.jpa.CorpusStateRepository;
 import com.pistonpunk.gigahack26.repository.jpa.EvidenceRepository;
 import com.pistonpunk.gigahack26.repository.jpa.PolicyQuestionRepository;
 import com.pistonpunk.gigahack26.repository.mongo.RawCaptureRepository;
@@ -28,6 +30,8 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.util.HexFormat;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
@@ -51,6 +55,7 @@ public class CorpusSeeder implements ApplicationRunner {
     private static final double ESTIMATED_SIZE_CONFIDENCE = 0.85;
 
     private final CompanyRepository companies;
+    private final CorpusStateRepository corpusState;
     private final CompanyAliasRepository aliases;
     private final EvidenceRepository evidence;
     private final RawCaptureRepository captures;
@@ -67,13 +72,15 @@ public class CorpusSeeder implements ApplicationRunner {
     private final ObjectMapper mapper;
     private final Clock clock;
 
-    public CorpusSeeder(CompanyRepository companies, CompanyAliasRepository aliases, EvidenceRepository evidence,
+    public CorpusSeeder(CompanyRepository companies, CorpusStateRepository corpusState,
+                        CompanyAliasRepository aliases, EvidenceRepository evidence,
                         RawCaptureRepository captures, SignalRepository signals, PolicyQuestionRepository questions,
                         PolicyLibrary library, ServiceLineService serviceLines, RegionService regions,
                         ScoreboardService scoreboard,
                         RescoreService rescore, ClassifierRouter router,
                         CaptureStore captureStore, CorpusProperties properties, ObjectMapper mapper, Clock clock) {
         this.companies = companies;
+        this.corpusState = corpusState;
         this.aliases = aliases;
         this.evidence = evidence;
         this.captures = captures;
@@ -104,7 +111,13 @@ public class CorpusSeeder implements ApplicationRunner {
             log.info("corpus seeding is disabled");
             return;
         }
-        if (companies.count() > 0 && !properties.forceReseed()) {
+
+        String fingerprint = fingerprintOf();
+        CorpusState state = corpusState.findById(CorpusState.SINGLETON).orElse(null);
+        boolean corpusChanged = fingerprint != null
+                && (state == null || !fingerprint.equals(state.getFingerprint()));
+
+        if (companies.count() > 0 && !properties.forceReseed() && !corpusChanged) {
             log.info("corpus already present ({} companies, {} evidence); skipping the crawl seed",
                     companies.count(), evidence.count());
             if (policiesChanged) {
@@ -120,6 +133,11 @@ public class CorpusSeeder implements ApplicationRunner {
             return;
         }
 
+        if (corpusChanged) {
+            log.info("the corpus changed since the last seed ({}); re-reading {} companies",
+                    state == null ? "never seeded" : state.getFingerprint(), raw.companies().size());
+        }
+
         Map<String, UUID> companyIds = persistCompanies(raw.companies());
         persistEvidence(raw.evidence(), companyIds);
         persistSignals();
@@ -128,8 +146,42 @@ public class CorpusSeeder implements ApplicationRunner {
             scoreboard.rescore(serviceLine);
         }
 
+        corpusState.save(new CorpusState(CorpusState.SINGLETON, fingerprint, clock.instant(),
+                raw.companies().size(), raw.evidence().size()));
+
         log.info("seeded {} companies and {} evidence units in {} ms",
                 companies.count(), evidence.count(), (System.nanoTime() - started) / 1_000_000);
+    }
+
+    /**
+     * Identifies the shipped corpus by its content, so a deploy that changes the
+     * file re-reads it without an operator remembering a flag.
+     *
+     * Re-seeding is safe to repeat: company, evidence and capture identifiers are
+     * all derived from the corpus keys, so the rows that leads, bookmarks and
+     * feedback point at keep their identity across a rebuild.
+     */
+    private String fingerprintOf() {
+        try {
+            ClassPathResource resource = new ClassPathResource(properties.rawPath());
+            byte[] bytes;
+            if (resource.exists()) {
+                try (InputStream stream = resource.getInputStream()) {
+                    bytes = stream.readAllBytes();
+                }
+            } else {
+                Path path = Path.of(properties.rawPath());
+                if (!Files.exists(path)) {
+                    return null;
+                }
+                bytes = Files.readAllBytes(path);
+            }
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            return "sha256:" + HexFormat.of().formatHex(digest.digest(bytes), 0, 16);
+        } catch (Exception e) {
+            log.warn("could not fingerprint {}: {}", properties.rawPath(), e.toString());
+            return null;
+        }
     }
 
     private void refreshSignals() {

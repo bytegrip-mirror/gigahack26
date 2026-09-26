@@ -34,8 +34,21 @@ UA = {
     "Accept-Language": "en-US,en;q=0.9",
 }
 
-QUERY_SHAPES = ["{n}", "{n} automation", "{n} cybersecurity", "{n} artificial intelligence"]
-MAX_DOCS_PER_COMPANY = 6
+QUERY_SHAPES = [
+    "{n} automation",
+    "{n} digital transformation",
+    "{n} artificial intelligence",
+    "{n} efficiency programme",
+    "{n} cost cutting",
+    "{n} shared services",
+    "{n} process mining",
+    "{n} restructuring",
+    "{n} cybersecurity",
+    "{n}",
+]
+SIGNAL_QUERIES = set(QUERY_SHAPES[:-1])
+MAX_DOCS_PER_COMPANY = 12
+MAX_HEADLINE_DOCS = 4
 MAX_AGE_DAYS = 548
 WORKERS = 40
 FETCH_WORKERS = 40
@@ -183,6 +196,17 @@ def variants_of(company):
     return {company["name"], *alias_list(company)}
 
 
+def ordered(candidates):
+    """Signal queries first, then recency; the plain name query fills the rest.
+
+    Asking for a company by name returns its share price and its quarterly
+    results — news about it, not news of a buying signal. Ranking a
+    restructuring story behind an aircraft order because the order is three days
+    fresher throws away the only document on the page the board can score.
+    """
+    return sorted(candidates, key=lambda c: (not c["signal"], c["age"] is None, c["age"] or 0))
+
+
 def build(company, observed):
     variants = variants_of(company)
     seen_urls = set()
@@ -190,7 +214,7 @@ def build(company, observed):
     candidates = []
 
     for shape in QUERY_SHAPES:
-        query = shape.format(n='"%s"' % company["name"])
+        query = '"{0}" {1}'.format(company["name"], shape.format(n="")).strip()
         try:
             items = bing_items(query)
             bump("bing_queries")
@@ -213,13 +237,19 @@ def build(company, observed):
                 continue
             seen_urls.add(url)
             seen_titles.add(tkey)
-            candidates.append({**item, "publishedAt": rfc822_to_iso(item["pubDate"]), "age": age})
+            candidates.append({**item, "publishedAt": rfc822_to_iso(item["pubDate"]), "age": age,
+                               "signal": shape in SIGNAL_QUERIES})
 
-    candidates.sort(key=lambda c: (c["age"] is None, c["age"] or 0))
     docs = []
-    for cand in candidates:
+    headline = 0
+    for cand in ordered(candidates):
         if len(docs) >= MAX_DOCS_PER_COMPANY:
             break
+        if not cand["signal"]:
+            if headline >= MAX_HEADLINE_DOCS:
+                bump("skipped_headline_quota")
+                continue
+            headline += 1
         try:
             text = article_text(cand["url"])
         except Exception:
@@ -279,21 +309,27 @@ def carried_over(previous, evidence, companies_out):
     return kept, list(every.values())
 
 
-def deduped(evidence):
-    seen = set()
-    out = []
-    for item in evidence:
-        digest = item.get("contentHash") or item.get("sourceUrl")
-        if digest in seen:
+def deduped(keep, fresh):
+    """Add the new documents; never drop a document that was carried over.
+
+    Deduplicating the merged list by content hash looks equivalent and is not:
+    two job postings from one employer routinely carry identical text, so the
+    cheaper rule quietly deletes stored evidence every time the sweep runs.
+    """
+    held = {item.get("key") or item.get("sourceUrl") for item in keep}
+    merged = list(keep)
+    for item in fresh:
+        digest = item.get("key") or item.get("sourceUrl")
+        if digest in held:
             continue
-        seen.add(digest)
-        out.append(item)
-    return out
+        held.add(digest)
+        merged.append(item)
+    return merged
 
 
 def write_payload(observed, companies_out, evidence):
     keep, every_company = carried_over(read_existing(), evidence, companies_out)
-    merged = deduped(keep + evidence)
+    merged = deduped(keep, evidence)
     payload = {"generatedAt": observed, "companies": every_company, "evidence": merged}
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     tmp = PARTIAL

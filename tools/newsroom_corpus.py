@@ -32,6 +32,9 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import browser_fetch
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "api", "src", "main", "resources", "corpus", "raw.json")
 PARTIAL = OUT + ".newsroom.partial"
@@ -72,6 +75,12 @@ STRATEGY_HINT = re.compile(
 ARTICLE_HINT = re.compile(
     r"/(19|20)\d{2}/|/news/|/press|/story|/stories/|/article|/insight|/blog/|"
     r"announc|release|-20\d\d|/post/", re.I)
+
+MISSING = re.compile(
+    r"\b404\b|page (?:you are looking for|not found|cannot be found|doesn't exist)|"
+    r"unavailable or no longer exists|no longer available|"
+    r"the page you requested|sorry, (?:this|the) page|error 404|"
+    r"we can'?t find (?:that|this) page|content not found|page not available", re.I)
 
 MAX_ARTICLES = 14
 MAX_STRATEGY = 4
@@ -115,17 +124,23 @@ def http_get(url, timeout=15, limit_bytes=4_000_000):
     raise RuntimeError("unreachable")
 
 
-def fetch_page(url):
+def fetch_page(url, allow_browser=False):
     os.makedirs(CACHE, exist_ok=True)
     cached = cache_path(url)
     if os.path.exists(cached):
         with open(cached, encoding="utf-8", errors="replace") as handle:
             return handle.read()
-    raw, content_type = http_get(url)
-    if "html" not in content_type.lower() and "xml" not in content_type.lower():
-        bump("not_html")
+    try:
+        raw, content_type = http_get(url)
+        page = raw.decode("utf-8", "replace") if "html" in content_type.lower() else ""
+    except Exception:
+        page = ""
+    if not page and allow_browser and browser_fetch.available():
+        page = browser_fetch.render(url)
+        if page:
+            bump("browser_rescued")
+    if not page:
         return ""
-    page = raw.decode("utf-8", "replace")
     with open(cached, "w", encoding="utf-8") as handle:
         handle.write(page)
     return page
@@ -221,6 +236,9 @@ def document(company, url, page, observed):
     if len(text) < MIN_TEXT:
         return None
     title = title_of(page) or url
+    if MISSING.search(title) or MISSING.search(text[:600]):
+        bump("missing_page")
+        return None
     return {
         "key": key_for(company, url),
         "companyKey": company["key"],
@@ -235,16 +253,18 @@ def document(company, url, page, observed):
     }
 
 
-def fetch_many(urls, workers=10):
+def fetch_many(urls, workers=10, allow_browser=False):
     """Probe every candidate path at once.
 
     A site answers on one of a dozen guessed newsroom paths and 404s the rest.
     Asking for them in turn spends the whole timeout budget on the misses, so
-    they go out together and the first useful answer wins.
+    they go out together and the first useful answer wins. The browser fallback
+    is off for guesses: rendering twenty-three paths that were never going to
+    exist costs minutes a company and rescues nothing.
     """
     found = []
     with futures.ThreadPoolExecutor(max_workers=workers) as pool:
-        pending = {pool.submit(fetch_page, url): url for url in urls}
+        pending = {pool.submit(fetch_page, url, allow_browser): url for url in urls}
         for future in futures.as_completed(pending):
             url = pending[future]
             try:
@@ -267,7 +287,7 @@ def gather(company, observed):
     variants = [v for v in variants if len(v) >= 4]
     origin = "https://" + domain
 
-    root = fetch_many([origin], workers=1)
+    root = fetch_many([origin], workers=1, allow_browser=True)
     landing = []
     extra = []
     if root:
@@ -285,7 +305,7 @@ def gather(company, observed):
         bump("landings")
         landing.append((url, page))
 
-    landing.extend(fetch_many(sorted(set(extra))[:12], workers=8))
+    landing.extend(fetch_many(sorted(set(extra))[:12], workers=6, allow_browser=browser_fetch.available()))
     landing = [(url, page) for url, page in landing if page]
 
     strategy_pages = []
@@ -313,7 +333,8 @@ def gather(company, observed):
             articles.append(href)
 
     docs = []
-    for url, page in fetch_many(articles[:MAX_ARTICLES], workers=10):
+    for url, page in fetch_many(articles[:MAX_ARTICLES], workers=8,
+                                allow_browser=browser_fetch.available()):
         built = document(company, url, page, observed)
         if built is None:
             bump("article_too_thin")
@@ -358,13 +379,13 @@ def merge(existing, fresh, touched):
             if d.get("sourceKind") not in ("newsroom", "strategy")
             or d.get("companyKey") not in fresh_keys]
 
-    seen = set()
-    merged = []
-    for item in kept + fresh:
-        digest = item.get("contentHash") or item.get("sourceUrl")
-        if digest in seen:
+    merged = list(kept)
+    held = {item.get("key") or item.get("sourceUrl") for item in merged}
+    for item in fresh:
+        key = item.get("key") or item.get("sourceUrl")
+        if key in held:
             continue
-        seen.add(digest)
+        held.add(key)
         merged.append(item)
 
     companies = {c["key"]: c for c in existing.get("companies", [])}
