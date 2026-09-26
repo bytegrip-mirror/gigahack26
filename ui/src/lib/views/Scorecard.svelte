@@ -98,9 +98,25 @@
 	});
 	const word = $derived(detail ? fitWord(detail.probability, thresholds) : '');
 	const tone = $derived(detail ? fitTone(detail.probability, thresholds) : 'fair');
-	const triggers = $derived(detail?.whyNow?.triggers ?? []);
-	const counters = $derived(detail?.whyNow?.counters ?? []);
-	const notEvidence = $derived(detail ? detail.ledger.filter((row) => !row.blocking && row.tierNats === 0) : []);
+	const triggers = $derived(strongest(detail?.whyNow?.triggers ?? []));
+	const counters = $derived(strongest(detail?.whyNow?.counters ?? []));
+	const notEvidence = $derived.by(() => {
+		const scored = new Set([...triggers, ...counters].map((row) => row.questionKey));
+		return strongest(
+			detail ? detail.ledger.filter((row) => !row.blocking && row.tierNats === 0) : []
+		).filter((row) => !scored.has(row.questionKey));
+	});
+
+	function strongest(rows: LedgerRow[]): LedgerRow[] {
+		const seen = new Map<string, LedgerRow>();
+		for (const row of rows) {
+			const held = seen.get(row.questionKey);
+			if (!held || Math.abs(row.contributionNats) > Math.abs(held.contributionNats)) {
+				seen.set(row.questionKey, row);
+			}
+		}
+		return [...seen.values()].sort((a, b) => Math.abs(b.contributionNats) - Math.abs(a.contributionNats));
+	}
 
 	const documents = $derived.by(() => {
 		if (!detail) return { read: [], silent: [] };
@@ -251,7 +267,6 @@
 			{#if tab !== 'overview'}
 				<span class="chip">
 					<span class="chip-fit dsp" data-tone={tone}>{word}</span>
-					<Tag band={detail.band}>{detail.bandLabel}</Tag>
 				</span>
 			{/if}
 		</div>
@@ -267,12 +282,11 @@
 				<section class="panel score">
 					<div class="score-row">
 						<span class="verdict dsp" data-tone={tone}>{word}</span>
-						<Tag band={detail.band}>{detail.bandLabel}</Tag>
 					</div>
 					<p class="reading">{READINGS[word]}</p>
 					{#if detail.themes.length > 0}
 						<div class="themes">
-							<span class="label">What it is</span>
+							<span class="label">Themes</span>
 							<span class="theme-tags">
 								{#each detail.themes as item (item.name)}
 									<Tag>{theme(item.name)}</Tag>

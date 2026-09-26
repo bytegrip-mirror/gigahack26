@@ -128,8 +128,14 @@ stored, still shown on the card under "Read, not evidence", and contribute nothi
 **The operator can exclude a company without a deploy.** `workspace_settings.blacklist`
 holds names and domains; `Blacklist.match` compares them folded, on the whole name
 with the legal suffix dropped, or on the domain, and `ScoringService.gate` runs it
-before every other gate with the reason `On the blacklist — "…"`. It is a scoring
-input, so it travels the documented path: `ScoringProperties`, `WorkspaceSettings`,
+before every other gate with the reason `On the blacklist — "…"`. **The list adds
+to the shipped exclusions and cannot remove one of them** — the 92 competitors come
+from `tools/vendor_registry.py` and are part of the corpus, so a name taken off the
+blacklist is still gated by `is_competitor`. The Customer profile screen lists both,
+the editable chips and a disclosure of the shipped names, because an operator who
+can see only half the exclusion set will spend an afternoon on the other half.
+
+It is a scoring input, so it travels the documented path: `ScoringProperties`, `WorkspaceSettings`,
 `SettingsService.effective()`, the Customer profile screen and the
 `ScoringServiceTest` literal. It is deliberately *not* an environment variable —
 the settings row is the source of truth, the way it is for the voice settings, and
@@ -155,6 +161,11 @@ still exists and the Studio still offers it; the shipped set does not use it.
 weight is a product of what was read, where it was published, how old it is and how
 sure the reader was. `counterEvidence()` now returns both the negative rows and the
 rows that assert nothing, because both are reasons not to call.
+
+**The board opens on the work, not on the book.** The default view is `To call`:
+worth calling and untouched. It was `All`, so a company contacted six times still
+sat at rank 1 of the calling list. `To call` is the only view that reads the lead
+stage; the rest are band filters and the stage lives under `Filters`.
 
 **The board carries the reading and the export carries the arithmetic.** A calling
 list is read by someone who will never open `ScoringService`, so no weight, no

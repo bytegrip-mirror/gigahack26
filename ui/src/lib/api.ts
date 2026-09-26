@@ -821,6 +821,7 @@ export function fetchTelemetry(): Promise<Telemetry> {
 
 export type Settings = {
 	blacklist: string[];
+	shippedExclusions: string[];
 	icpCountries: string[];
 	icpIndustries: string[];
 	icpMinEmployees: number;
@@ -859,7 +860,14 @@ export function fetchSettings(): Promise<Settings> {
 export function saveSettings(
 	input: Omit<
 		Settings,
-		'themeCap' | 'updatedAt' | 'inScope' | 'indexedCompanies' | 'modelWritesDrafts' | 'industriesPresent' | 'blacklist'
+		| 'themeCap'
+		| 'updatedAt'
+		| 'inScope'
+		| 'indexedCompanies'
+		| 'modelWritesDrafts'
+		| 'industriesPresent'
+		| 'shippedExclusions'
+		| 'blacklist'
 	> & { blacklist: string }
 ): Promise<Settings> {
 	return request<Settings>('/api/settings', {

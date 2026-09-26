@@ -54,6 +54,7 @@
 	let countries = $state('');
 	let industries = $state('');
 	let blacklist = $state<string[]>([]);
+	const shipped = $derived(settings?.shippedExclusions ?? []);
 	let blacklistDraft = $state('');
 	let newLine = $state({ name: '', valueProposition: '' });
 	let lineBusy = $state<string | null>(null);
@@ -474,7 +475,8 @@
 						</div>
 						<p class="sub dim">
 							A name or a domain. A company on this list leaves the queue with the reason shown on its card,
-							wherever it sits on the board — the same way the gates work, and without a deploy.
+							wherever it sits on the board — the same way the gates work, and without a deploy. This list
+							adds to the exclusions below; it cannot remove one of them.
 						</p>
 						<div class="chips">
 							{#each blacklist as entry (entry)}
@@ -505,6 +507,23 @@
 							/>
 							<button class="btn btn-sm" type="button" onclick={addBlacklist}>Add</button>
 						</div>
+
+						{#if shipped.length > 0}
+							<details class="shipped">
+								<summary>
+									{shipped.length} more are excluded as competitors by the vendor list the corpus ships
+									with
+								</summary>
+								<p class="sub dim">
+									Those come from <span class="key">tools/vendor_registry.py</span>, applied when the corpus is
+									built, and they are part of the corpus rather than of your settings. Change one there and
+									re-seed.
+								</p>
+								<div class="chips">
+									{#each shipped as name (name)}<Tag variant="bare">{name}</Tag>{/each}
+								</div>
+							</details>
+						{/if}
 					</section>
 
 					<section class="panel">
@@ -627,8 +646,8 @@
 							<Metric value={bands.PRIORITY ?? 0} label="Priority" tone="hot" />
 							<Metric value={bands.NURTURE ?? 0} label="Nurture" />
 							<Metric value={bands.WATCH ?? 0} label="Watch" />
-							<Metric value={bands.THIN ?? 0} label="Thin" />
-							<Metric value={bands.DISQUALIFIED ?? 0} label="Rejected" />
+							<Metric value={bands.THIN ?? 0} label="Unproven" />
+							<Metric value={bands.DISQUALIFIED ?? 0} label="Out of the queue" />
 						</div>
 					</section>
 
@@ -643,7 +662,7 @@
 								<Metric value={simulated.PRIORITY} label="Priority" tone="hot" />
 								<Metric value={simulated.NURTURE} label="Nurture" />
 								<Metric value={simulated.WATCH} label="Watch" />
-								<Metric value={simulated.THIN} label="Thin" />
+								<Metric value={simulated.THIN} label="Unproven" />
 							</div>
 							
 							{#if simulated.PRIORITY !== (bands.PRIORITY ?? 0)}
@@ -941,6 +960,27 @@
 	.blacklist-add .input {
 		flex: 1;
 		max-width: 340px;
+	}
+
+	.shipped {
+		margin-top: var(--spacing-3);
+		border-top: 1px solid var(--color-rule);
+		padding-top: var(--spacing-2);
+	}
+
+	.shipped summary {
+		font-size: var(--text-sm);
+		color: var(--color-ink-3);
+		cursor: pointer;
+	}
+
+	.shipped summary:hover {
+		color: var(--color-ink);
+	}
+
+	.shipped .sub {
+		margin-top: var(--spacing-2);
+		max-width: 70ch;
 	}
 
 	.region-pick {

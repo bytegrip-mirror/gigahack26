@@ -131,6 +131,27 @@ state. If an animation is skipped, nothing stays invisible.
 The board title rule and the detail pane title rule are on the same line, because
 `Topbar` and the scorecard header both use `min-h-head`.
 
+**One state has one name.** The panels had drifted into four vocabularies for the
+same facts, which is how a product starts feeling like it has too many labels:
+`THIN` was "Thin" on the board, "Insufficient evidence" on the band and "Unproven"
+on the fit; `DISQUALIFIED` was "Rejected" in Settings and "Out of the queue" in
+the filter; a polarity was "Counter" in the editor, "counter" on the row and
+"in-house" on the map. The words are now:
+
+| State | The word |
+| --- | --- |
+| `PRIORITY` / `NURTURE` / `WATCH` | Priority / Nurture / Watch |
+| `THIN` | Unproven |
+| `DISQUALIFIED` | Out of the queue |
+| `POSITIVE` polarity | counts for them |
+| `NEGATIVE` polarity | counts against them |
+| `DISQUALIFYING` polarity | removes them from the queue |
+| lead stage `REJECTED` | Rejected — a rep's decision, not the board's |
+
+A group of readings is deduplicated by question before it is printed, in the
+evidence panel and on the board's row alike: one question firing on six documents
+is one reason, not six, and the same title twice in one list reads as a bug.
+
 Type has three roles, and a size belongs to exactly one role:
 
 - **`title` and `xl`** are for page titles and panel headings, in `font-display`.
@@ -192,6 +213,7 @@ one `Menu` away, and every row carries the same `⋯` in the last column.
 | Company pane | *Generate outreach*, then *Push to HubSpot* | copy the summary, open the website, count as a lead, count as rejected, close |
 | Pipeline | per-row *advance to the next stage* | open on the board, copy a link, export the row, move to any stage; screen-level: export the pipeline, open the board |
 | Signal Studio | *New question* | export every question, duplicate, delete; per row: edit, duplicate, turn on/off, copy the key, delete |
+| Signal map | *Table* (a reading, not an action) | — |
 
 | Settings | *Save and re-score* | read the writer brief; per service line: enable/disable, delete |
 
@@ -254,6 +276,16 @@ toolbar with a dark bar holding the selection count, *Set stage*, *Export*,
 *Copy links* and a clear button. Bulk stage changes fire one `recordLead` per
 company and report how many landed.
 
+**The board opens on the work, not on the book.** The default view is
+`To call`: worth calling — Priority, Nurture or Watch — and nobody has worked
+them yet. It used to be `All`, which meant every company the corpus holds,
+so a company that had been contacted six times still sat at rank 1 of the
+calling list. The view segments are `To call`, `Priority`, `Unproven`,
+`Out of the queue`, `Saved` and `Everyone`; `To call` is the only one that reads
+the lead stage, and its tooltip says so. Everything else about stage lives in the
+`Filters` menu, so a rep who wants the companies already worked sets the stage
+there rather than scrolling past them on the board.
+
 **The board's filter bar is one row and four controls.** Left to right: the
 service line, then the one segmented control that decides *which companies*, then
 a spacer, then the search and one `Filters` menu, then `Clear` when anything is
@@ -292,14 +324,21 @@ subtitle, so the effect is legible from the screen it changes.
 The studio is a library, not a scoped view: it lists every question grouped by
 service line, with the session's line first, and offers no scope control at all.
 
-**The studio's editor is two columns, and the form is a grid.** The question list
-stays on the left; the editor puts the fields on the left of its own body and the
-live preview in a column on the right, each scrolling on its own — the preview is
-the feedback loop for what you are typing, so it cannot be a panel you have to
-scroll past four others to reach. The fields themselves are a two-column grid:
-**What to ask** beside **How it scores**, then **What it matches** across both,
-because that is the order the decisions are made in. Below 1280px the preview
+**The studio's editor is three panes: the question list, the form, and the
+preview.** The question list
+stays on the left; the editor puts the fields in the middle and the live preview
+in a column on the right, each scrolling on its own — the preview is the feedback
+loop for what you are typing, so it cannot be a panel you have to scroll past four
+others to reach. The fields are **one column**, in the order the decisions are
+made in: what to ask, how it scores, what it matches. Below 1280px the preview
 drops under the fields and the whole body scrolls as one.
+
+The form was briefly a two-column grid and it was wrong: at 1440 that left the
+question and the rubric about 230px each, so a single sentence wrapped four times
+in a field the width of a phone. The question, the rubric and the phrases are all
+prose, and prose needs a measure — the list and the preview give up the width
+instead, and the form stops at 760px so a line never runs past a comfortable
+read.
 
 The editor's own title carries the question's state — tier, polarity, theme,
 whether it is on, and how many signals it has produced — so nothing on this
@@ -319,6 +358,26 @@ in its tooltip, and the footer says the board still has the saved version.
 The board's band counts are tallied from the rows in hand, not read from the
 server's per-line totals, so the Priority metric always counts the Priority
 companies the region filter has left on screen.
+
+**The Signal map shows how a question becomes a company.** Three columns — theme,
+question, company — with an edge from each question to each company it found. It
+is the one screen that shows the shape of the framework rather than a list of its
+results: a question that found 53 companies draws a bar 53 wide, and a company
+standing under three questions is visibly the reason the board calls it.
+
+Two rules keep it legible. **Themes are separated by position, not by hue** — the
+palette has three roles and a sixth categorical hue would be a different design
+system — so colour carries meaning instead: ink for a question that counts for the
+company, oxblood for one that counts against, and the same two on the edges that
+leave them. And **the company column holds the top 16 by how many questions found
+them**, not all 124, with the count in the toolbar saying what is below the cut.
+The column is ordered by the average height of the questions feeding it, which is
+what stops the edges from braiding.
+
+Every node is a link: a question opens in the Studio, a company opens its
+scorecard. Hovering dims everything not connected to the node under the cursor.
+The `Table` toggle is the same data as rows, which is the accessible view and the
+one to reach for when the map is too dense to read a name off.
 
 **The Market screen groups the corpus; it does not grade it.** It answers "where is
 the demand" by country, industry or headcount, and the columns are counts a rep

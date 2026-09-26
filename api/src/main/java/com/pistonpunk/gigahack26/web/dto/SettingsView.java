@@ -6,6 +6,7 @@ import java.util.Map;
 
 public record SettingsView(
         List<String> blacklist,
+        List<String> shippedExclusions,
         List<String> icpCountries,
         List<String> icpIndustries,
         int icpMinEmployees,

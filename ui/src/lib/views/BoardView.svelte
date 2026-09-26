@@ -47,12 +47,12 @@
 }: { initialSelected?: string | null; initialLine?: string | null } = $props();
 
 	const FILTERS = [
-		{ id: 'all', label: 'All' },
-		{ id: 'hot', label: 'Hot' },
-		{ id: 'priority', label: 'Priority' },
-		{ id: 'rejected', label: 'Out of the queue' },
-		{ id: 'thin', label: 'Unproven' },
-		{ id: 'saved', label: 'Saved' }
+		{ id: 'to-call', label: 'To call', title: 'Worth calling, and nobody has worked them yet. Set the lead stage under Filters to see the ones already worked.' },
+		{ id: 'priority', label: 'Priority', title: 'Above the Priority line' },
+		{ id: 'thin', label: 'Unproven', title: 'No document in the corpus answers your questions about them' },
+		{ id: 'rejected', label: 'Out of the queue', title: 'Removed by a gate or the blacklist' },
+		{ id: 'saved', label: 'Saved', title: 'Bookmarked' },
+		{ id: 'everyone', label: 'Everyone', title: 'Every company the corpus holds, whatever the queue decided and whoever has worked them' }
 	];
 
 	const WEAK_OPENERS = new Set([
@@ -82,13 +82,17 @@
 
 	type ScopedRow = BoardRow & { serviceLine: string; fitRank: number };
 
-	const BAND_FILTERS: Record<string, (band: string) => boolean> = {
-		all: () => true,
-		saved: () => true,
-		hot: (band) => band === 'PRIORITY' || band === 'NURTURE',
-		priority: (band) => band === 'PRIORITY',
-		rejected: (band) => band === 'DISQUALIFIED',
-		thin: (band) => band === 'THIN'
+	function worked(row: BoardRow): boolean {
+		return row.leadStatus !== null && row.leadStatus !== 'NEW';
+	}
+
+	const VIEWS: Record<string, (row: BoardRow) => boolean> = {
+		'to-call': (row) => row.band !== 'DISQUALIFIED' && row.band !== 'THIN' && !worked(row),
+		priority: (row) => row.band === 'PRIORITY',
+		thin: (row) => row.band === 'THIN',
+		rejected: (row) => row.band === 'DISQUALIFIED',
+		saved: (row) => saved.has(row.id),
+		everyone: () => true
 	};
 
 	const LEAD_STAGES = [
@@ -102,7 +106,7 @@
 	let loading = $state(true);
 	let error = $state<string | null>(null);
 
-	let filter = $state('all');
+	let filter = $state('to-call');
 	let engineFilter = $state<'all' | 'model' | 'local'>('all');
 	let stage = $state('');
 	let query = $state('');
@@ -141,7 +145,7 @@
 	);
 
 	const narrowed = $derived(
-		session.region !== 'world' || stage !== '' || query !== '' || applied !== null || filter !== 'all'
+		session.region !== 'world' || stage !== '' || query !== '' || applied !== null || filter !== 'to-call'
 	);
 	const activeFilters = $derived((stage === '' ? 0 : 1) + (engineFilter === 'all' ? 0 : 1));
 	const STAGE_LABEL = $derived(STAGES.find((option) => option.id === stage)?.label ?? 'Any lead stage');
@@ -202,9 +206,9 @@
 	});
 
 	const visible = $derived.by(() => {
-		const bandWanted = BAND_FILTERS[filter] ?? BAND_FILTERS.all;
+		const wanted = VIEWS[filter] ?? VIEWS.everyone;
 		return rows.filter((row) => {
-			const passesBand = filter === 'saved' ? saved.has(row.id) : bandWanted(row.band);
+			const passesBand = wanted(row);
 			const passesEngine =
 				engineFilter === 'all' ||
 				(row.engine !== null &&
@@ -217,14 +221,14 @@
 
 	const counts = $derived.by(() => {
 		const tally: Record<string, number> = {
-			ALL: rows.length,
+			ALL: visible.length,
 			PRIORITY: 0,
 			NURTURE: 0,
 			WATCH: 0,
 			THIN: 0,
 			DISQUALIFIED: 0
 		};
-		for (const row of rows) tally[row.band] = (tally[row.band] ?? 0) + 1;
+		for (const row of visible) tally[row.band] = (tally[row.band] ?? 0) + 1;
 		tally.HOT = tally.PRIORITY + tally.NURTURE;
 		return tally;
 	});
@@ -517,7 +521,7 @@
 	function clearFilters() {
 		query = '';
 		stage = '';
-		filter = 'all';
+		filter = 'to-call';
 		engineFilter = 'all';
 		session.setRegion('world');
 		applied = null;
@@ -715,7 +719,7 @@
 				rows = await loadBoard();
 			}
 			elapsed = result.tookMs ?? 0;
-			if (filter !== 'all') filter = 'all';
+			if (filter !== 'to-call') filter = 'to-call';
 			toasts.push(summarise(result), 'success');
 			workspace.reload();
 		} catch (cause) {
@@ -1123,7 +1127,12 @@
 
 			<div class="seg" role="tablist" aria-label="Which companies to show">
 				{#each FILTERS as option (option.id)}
-					<button role="tab" aria-selected={filter === option.id} onclick={() => (filter = option.id)}>
+					<button
+						role="tab"
+						aria-selected={filter === option.id}
+						title={option.title}
+						onclick={() => (filter = option.id)}
+					>
 						{option.label}
 						{#if option.id === 'saved'}<span class="num">{savedCount}</span>{/if}
 					</button>
@@ -1167,7 +1176,10 @@
 			{:else if visible.length === 0 && !loading}
 				<div class="empty">
 					<Icon name="inbox" size={22} />
-					<p>Nothing matches this filter. Widen the region, clear the stage, or ask a different question.</p>
+					<p>
+						Nothing here. To call leaves out everyone you have already worked — set the lead stage under
+						Filters to bring them back, or widen the region.
+					</p>
 				</div>
 			{:else}
 				<table class="tbl">
@@ -1463,7 +1475,8 @@
 	}
 
 	.toolbar {
-		flex-wrap: nowrap;
+		flex-wrap: wrap;
+		row-gap: var(--spacing-2);
 	}
 
 	:global(.toolbar .menu-trigger .trigger-text) {
@@ -1474,8 +1487,9 @@
 		display: flex;
 		align-items: center;
 		gap: var(--spacing-1);
-		flex: 0 1 268px;
+		flex: 1 1 200px;
 		min-width: 150px;
+		max-width: 300px;
 		padding-left: var(--spacing-2);
 		border: 1px solid var(--color-rule-strong);
 		border-radius: 2px;

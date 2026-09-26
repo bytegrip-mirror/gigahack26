@@ -22,7 +22,7 @@
 	import { session } from '$lib/session.svelte';
 	import { workspace } from '$lib/workspace.svelte';
 	import { toasts } from '$lib/toast.svelte';
-	import { duration, plural, shortNumber, theme, tier } from '$lib/format';
+	import { duration, shortNumber, theme, tier } from '$lib/format';
 	import { copy, csv, save } from '$lib/export';
 	import Tag from '$lib/components/Tag.svelte';
 	import LoadingVeil from '$lib/components/LoadingVeil.svelte';
@@ -533,15 +533,14 @@
 											<span class="q-title">{policy.title}</span>
 											<span class="q-text">{policy.text}</span>
 											<span class="q-meta">
-												<Tag>{tier(policy.weightTier)}</Tag>
+												{#if !policy.active}<Tag variant="bare">off</Tag>{/if}
 												{#if policy.polarity !== 'POSITIVE'}
 													<Tag variant={policy.polarity === 'DISQUALIFYING' ? 'oxblood' : 'default'}>
-														{policy.polarity === 'DISQUALIFYING' ? 'disqualifying' : 'counter'}
+														{policy.polarity === 'DISQUALIFYING' ? 'removes them' : 'against them'}
 													</Tag>
 												{/if}
-												<Tag variant="bare">{theme(policy.theme)}</Tag>
-												{#if !policy.active}<Tag variant="bare">off</Tag>{/if}
-												<span class="num dim">{policy.signalCount} signals</span>
+												<span class="q-theme">{theme(policy.theme)}</span>
+												<span class="q-count num">{policy.signalCount} signals</span>
 											</span>
 										</button>
 										<Menu
@@ -579,19 +578,6 @@
 				<div class="editor-title">
 					<h2 class="dsp">{creating ? 'New question' : (current?.title ?? 'Question')}</h2>
 					{#if dirty}<Tag variant="wash">unsaved</Tag>{/if}
-					{#if current}
-						<span class="state">
-							<Tag>{tier(draft.weightTier)}</Tag>
-							{#if draft.polarity !== 'POSITIVE'}
-								<Tag variant={draft.polarity === 'DISQUALIFYING' ? 'oxblood' : 'default'}>
-									{draft.polarity === 'DISQUALIFYING' ? 'disqualifying' : 'counter'}
-								</Tag>
-							{/if}
-							<Tag variant="bare">{theme(draft.theme)}</Tag>
-							{#if !draft.active}<Tag variant="bare">off</Tag>{/if}
-							<span class="num dim">{plural(current.signalCount, 'signal')}</span>
-						</span>
-					{/if}
 				</div>
 			{/if}
 
@@ -656,9 +642,9 @@
 							<label class="field">
 								<span class="label">Polarity</span>
 								<select class="select" bind:value={draft.polarity} onchange={() => (dirty = true)}>
-									<option value="POSITIVE">Positive</option>
-									<option value="NEGATIVE">Counter</option>
-									<option value="DISQUALIFYING">Disqualifying</option>
+									<option value="POSITIVE">Counts for them</option>
+									<option value="NEGATIVE">Counts against them</option>
+									<option value="DISQUALIFYING">Removes them from the queue</option>
 								</select>
 							</label>
 							<label class="field">
@@ -691,7 +677,7 @@
 						</label>
 					</div>
 
-					<div class="panel span-all">
+					<div class="panel">
 						<div class="panel-head">
 							<h3 class="label">What it matches</h3>
 							{#if (draft.cues ?? []).length === 0}<Tag variant="bare">derived from the wording</Tag>{/if}
@@ -922,7 +908,7 @@
 	.panes {
 		flex: 1;
 		min-height: 0;
-		grid-template-columns: 320px minmax(0, 1fr);
+		grid-template-columns: 264px minmax(0, 1fr);
 	}
 
 	.questions {
@@ -1045,8 +1031,10 @@
 		margin-top: 2px;
 	}
 
-	.q-meta .num {
+	.q-meta .num,
+	.q-theme {
 		font-size: var(--text-micro);
+		color: var(--color-ink-3);
 	}
 
 	.pad {
@@ -1101,45 +1089,28 @@
 		white-space: nowrap;
 	}
 
-	.state {
-		display: flex;
-		align-items: center;
-		gap: 4px;
-		margin-left: var(--spacing-2);
-	}
-
-	.state .num {
-		font-size: var(--text-micro);
-	}
-
 	.editor-body {
 		position: relative;
 		display: grid;
-		grid-template-columns: minmax(0, 1fr) minmax(320px, 26rem);
+		grid-template-columns: minmax(0, 1fr) minmax(300px, 21rem);
 		flex: 1;
 		min-height: 0;
 	}
 
 	.editor-fields {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		align-content: start;
+		display: flex;
+		flex-direction: column;
 		min-height: 0;
 		min-width: 0;
+		max-width: 760px;
 	}
 
 	.editor-fields .panel {
-		border-right: 1px solid var(--color-rule);
 		border-bottom: 1px solid var(--color-rule);
 	}
 
-	.editor-fields .panel:nth-child(2n) {
-		border-right: 0;
-	}
-
-	.span-all {
-		grid-column: 1 / -1;
-		border-right: 0;
+	.editor-fields .panel:last-child {
+		border-bottom: 0;
 	}
 
 	.aside {
@@ -1226,12 +1197,6 @@
 		.editor-fields,
 		.aside {
 			overflow: visible;
-		}
-		.editor-fields {
-			grid-template-columns: minmax(0, 1fr);
-		}
-		.editor-fields .panel {
-			border-right: 0;
 		}
 		.aside {
 			border-left: 0;
