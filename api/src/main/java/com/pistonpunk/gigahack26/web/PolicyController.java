@@ -81,6 +81,17 @@ public class PolicyController {
         return LocalRubricEngine.deriveCues(text, instructions == null ? "" : instructions);
     }
 
+    @GetMapping("/export")
+    public List<PolicyRequest> export(@RequestParam(name = "serviceLine", required = false) String serviceLine) {
+        return policies.export(serviceLine);
+    }
+
+    @org.springframework.cache.annotation.CacheEvict(value = "board", allEntries = true)
+    @PostMapping("/import")
+    public PolicyService.ImportSummary importPolicies(@RequestBody List<PolicyRequest> incoming) {
+        return policies.importPolicies(incoming);
+    }
+
     @GetMapping("/themes")
     public List<String> themes() {
         return policies.knownThemes();

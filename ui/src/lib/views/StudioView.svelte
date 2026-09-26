@@ -3,9 +3,11 @@
 		createPolicy,
 		deletePolicy,
 		fetchPolicies,
+		exportPolicies as exportPolicySet,
 		fetchDecayClasses,
 		fetchServiceLines,
 		fetchThemes,
+		importPolicies,
 		deriveCues,
 		previewPolicy,
 		rescore,
@@ -355,16 +357,63 @@
 
 	const overflow: MenuItem[] = $derived([
 		{ id: 'export', label: 'Export every question as CSV', icon: 'download' },
+		{
+			id: 'export-set',
+			label: 'Export the policy set as JSON',
+			icon: 'download',
+			hint: 'carries cues and counter-cues'
+		},
+		{ id: 'import-set', label: 'Import a policy set', icon: 'plus' },
 		{ id: 'duplicate', label: 'Duplicate this question', icon: 'copy', disabled: !current },
 		{ id: 'delete', label: 'Delete this question', icon: 'trash', danger: true, separatorBefore: true, disabled: creating || !selectedId }
 	]);
 
+	async function exportSet() {
+		try {
+			const set = await exportPolicySet();
+			save('policy-set.json', JSON.stringify(set, null, 1), 'application/json');
+			toasts.push(`Exported ${set.length} questions as a set.`, 'success');
+		} catch (cause) {
+			toasts.push((cause as Error).message, 'error');
+		}
+	}
+
+	async function importSet(event: Event) {
+		const input = event.target as HTMLInputElement;
+		const file = input.files?.[0];
+		input.value = '';
+		if (!file) return;
+		try {
+			const text = await file.text();
+			const parsed = JSON.parse(text) as Parameters<typeof importPolicies>[0];
+			if (!Array.isArray(parsed)) throw new Error('A policy set is a JSON array of questions.');
+			const result = await importPolicies(parsed);
+			policies = await fetchPolicies();
+			toasts.push(
+				`Imported: ${result.created} added, ${result.updated} replaced, ${result.skipped} skipped.`,
+				'success'
+			);
+		} catch (cause) {
+			toasts.push((cause as Error).message, 'error');
+		}
+	}
+
 	async function runOverflow(id: string) {
 		if (id === 'export') exportPolicies();
+		else if (id === 'export-set') await exportSet();
+		else if (id === 'import-set') document.getElementById('policy-set-input')?.click();
 		else if (id === 'duplicate' && current) await duplicate(current);
 		else if (id === 'delete') await remove();
 	}
 </script>
+
+<input
+	id="policy-set-input"
+	type="file"
+	accept="application/json,.json"
+	class="sr-only"
+	onchange={importSet}
+/>
 
 <div class="view">
 	<header class="topbar">

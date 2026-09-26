@@ -461,6 +461,16 @@ export function fetchDecayClasses(): Promise<DecayOption[]> {
 	return request<DecayOption[]>('/api/policies/decay-classes');
 }
 
+export type PolicySet = PolicyInput & { key?: string };
+
+export function exportPolicies(serviceLine?: string): Promise<PolicySet[]> {
+	return request<PolicySet[]>(`/api/policies/export${query({ serviceLine })}`);
+}
+
+export function importPolicies(set: PolicySet[]): Promise<{ created: number; updated: number; skipped: number }> {
+	return request('/api/policies/import', { method: 'POST', body: JSON.stringify(set) });
+}
+
 export function deriveCues(text: string, instructions = ''): Promise<string[]> {
 	return request<string[]>(`/api/policies/derive${query({ text, instructions })}`);
 }

@@ -137,11 +137,74 @@ public class PolicyService {
         }
     }
 
+    public record ImportSummary(int created, int updated, int skipped) {
+    }
+
+    @Transactional(readOnly = true)
+    public List<PolicyRequest> export(String serviceLine) {
+        List<PolicyQuestion> source = serviceLine == null || serviceLine.isBlank()
+                ? questions.findAll()
+                : questions.findByServiceLineOrderByWeightTierDesc(serviceLine);
+        return source.stream()
+                .map(question -> new PolicyRequest(
+                        question.getKey(),
+                        question.getServiceLine(),
+                        question.getTitle(),
+                        question.getText(),
+                        question.getInstructions(),
+                        question.getWeightTier(),
+                        question.getPolarity(),
+                        question.getTheme(),
+                        question.getDecayClass(),
+                        List.copyOf(question.getCues()),
+                        List.copyOf(question.getCounterCues()),
+                        question.isActive()))
+                .toList();
+    }
+
+    /**
+     * A policy set is portable: keys are matched, everything else is replaced.
+     *
+     * Importing by title or by text would create a second copy of a question
+     * that is already there, which is the opposite of what a set is for. A
+     * question is identified by its key where the key is given, and by the text
+     * where it is not, and anything that is neither is added.
+     */
+    @Transactional
+    public ImportSummary importPolicies(List<PolicyRequest> incoming) {
+        int created = 0;
+        int updated = 0;
+        int skipped = 0;
+        for (PolicyRequest request : incoming) {
+            if (request == null || request.text() == null || request.text().isBlank()
+                    || request.serviceLine() == null || request.serviceLine().isBlank()) {
+                skipped++;
+                continue;
+            }
+            String key = request.key();
+            Optional<PolicyQuestion> existing = key == null || key.isBlank()
+                    ? questions.findAll().stream()
+                            .filter(question -> question.getText().equalsIgnoreCase(request.text().trim()))
+                            .findFirst()
+                    : questions.findByKey(key);
+            if (existing.isPresent()) {
+                update(existing.get().getId(), request);
+                updated++;
+            } else {
+                create(request);
+                created++;
+            }
+        }
+        return new ImportSummary(created, updated, skipped);
+    }
+
     @Transactional
     public PolicyView create(PolicyRequest request) {
         PolicyQuestion question = new PolicyQuestion(
                 UUID.randomUUID(),
-                uniqueKey(request.serviceLine(), request.text()),
+                request.key() == null || request.key().isBlank()
+                        ? uniqueKey(request.serviceLine(), request.text())
+                        : request.key().trim(),
                 titleFor(request),
                 request.serviceLine().trim(),
                 request.text().trim(),
@@ -201,7 +264,7 @@ public class PolicyService {
                 polarity == null ? Polarity.POSITIVE : polarity,
                 theme == null || theme.isBlank() ? "custom" : theme,
                 DecayClass.STRUCTURAL,
-                cuesFor(new PolicyRequest(serviceLine, null, text == null ? "" : text, instructions, tier, polarity,
+                cuesFor(new PolicyRequest(null, serviceLine, null, text == null ? "" : text, instructions, tier, polarity,
                         theme, null, null, null, null)),
                 List.of(),
                 true,
