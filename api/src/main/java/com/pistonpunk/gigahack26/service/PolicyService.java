@@ -91,7 +91,7 @@ public class PolicyService {
                 orEmpty(instructions),
                 tier == null ? WeightTier.HIGH : tier,
                 polarity == null ? Polarity.POSITIVE : polarity,
-                theme == null || theme.isBlank() ? themeFor(text) : theme.trim(),
+                theme == null || theme.isBlank() ? themeFor(text) : normaliseTheme(theme),
                 DecayClass.STRUCTURAL,
                 LocalRubricEngine.deriveCues(text, orEmpty(instructions)),
                 List.of(),
@@ -118,7 +118,19 @@ public class PolicyService {
 
     private static String themeFor(String text) {
         String derived = firstWords(text, 2).replace(' ', '-');
-        return derived.isBlank() ? "asked" : derived.substring(0, Math.min(40, derived.length()));
+        return normaliseTheme(derived.isBlank() ? "asked" : derived);
+    }
+
+    /**
+     * The theme is what the cap groups by, so two spellings of one topic would be
+     * two themes and a company could climb past the Priority line on a single loud
+     * subject — which is the one thing the cap exists to stop. The Studio offers a
+     * free-text field, so the fold happens here rather than in the typist.
+     */
+    static String normaliseTheme(String theme) {
+        String folded = theme == null ? "" : theme.trim().toLowerCase(Locale.ROOT).replaceAll("[\\s_]+", "-")
+                .replaceAll("-+", "-").replaceAll("^-|-$", "");
+        return folded.isEmpty() ? "custom" : folded.substring(0, Math.min(40, folded.length()));
     }
 
     private static String sha(String value) {
@@ -209,7 +221,7 @@ public class PolicyService {
                 orEmpty(request.instructions()),
                 request.weightTier() == null ? WeightTier.MEDIUM : request.weightTier(),
                 request.polarity() == null ? Polarity.POSITIVE : request.polarity(),
-                request.theme() == null || request.theme().isBlank() ? "custom" : request.theme().trim(),
+                normaliseTheme(request.theme()),
                 request.decayClass() == null ? DecayClass.STRUCTURAL : request.decayClass(),
                 cuesFor(request),
                 request.counterCues() == null ? List.of() : clean(request.counterCues()),
@@ -227,7 +239,9 @@ public class PolicyService {
                     orEmpty(request.instructions()),
                     request.weightTier() == null ? question.getWeightTier() : request.weightTier(),
                     request.polarity() == null ? question.getPolarity() : request.polarity(),
-                    request.theme() == null || request.theme().isBlank() ? question.getTheme() : request.theme().trim(),
+                    request.theme() == null || request.theme().isBlank()
+                            ? question.getTheme()
+                            : normaliseTheme(request.theme()),
                     request.decayClass() == null ? question.getDecayClass() : request.decayClass(),
                     cuesFor(request),
                     request.counterCues() == null ? List.of() : clean(request.counterCues()),

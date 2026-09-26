@@ -248,6 +248,15 @@ invariant. `tools/grouped_overlay.py` reads a document once per service line —
 can remove a company on its own, because asked together with the rest the model
 reaches for the disqualifier.
 
+**A theme is folded on the way in, because it is what the cap groups by.**
+`PolicyService.normaliseTheme` trims, lowercases and hyphenates whatever is typed
+into the Studio's free-text theme field, so `Efficiency`, `efficiency` and
+`EFFICIENCY ` are one theme. They were not: the cap groups rows by the theme
+string, so two spellings of one topic were two themes and a company could climb
+past the Priority line on a single loud subject — the one thing the cap exists to
+stop. Nothing in the shipped question set is spelled twice today, which is exactly
+why it was worth closing before a rep typed one.
+
 **A signal question is the unit of configuration.** `policy_question` carries the
 plain-language `text`, an `instructions` rubric, a `weight_tier`, a `polarity`
 (`POSITIVE`, `NEGATIVE`, `DISQUALIFYING`), a `theme`, a `decay_class` that fixes its
