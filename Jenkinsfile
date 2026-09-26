@@ -58,7 +58,7 @@ pipeline {
                         -v "$(pwd)":/w \
                         -w /w \
                         python:3.12-alpine \
-                        python3 tools/verify_corpus.py
+                        sh -c "python3 -m unittest discover -s tools/tests -t . && python3 tools/verify_corpus.py"
                 '''
             }
         }
