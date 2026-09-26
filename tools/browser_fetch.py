@@ -12,10 +12,13 @@ fetch_many, which keeps a small pool and falls back to a plain request first.
 """
 
 import hashlib
+import ipaddress
 import os
 import shutil
+import socket
 import subprocess
 import threading
+import urllib.parse
 
 CACHE = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".cache", "browser")
 CHROME_CANDIDATES = [
@@ -54,9 +57,48 @@ def cache_path(url):
     return os.path.join(CACHE, hashlib.sha1(url.encode()).hexdigest() + ".html")
 
 
+def refused(url):
+    """Why this URL must not be fetched, or None.
+
+    Every URL here was read off a page someone else controls: a newsroom link, a
+    redirect target, an article anchor. That is enough for a page to point the
+    crawler at a cloud metadata endpoint or an internal host, and the crawler
+    would fetch it and store the body as corporate evidence. Link-local,
+    loopback and private addresses are refused on the resolved address rather
+    than the literal, so a name that resolves inward is caught too.
+    """
+    if not url or url.startswith("-"):
+        return "not a URL"
+    try:
+        parsed = urllib.parse.urlparse(url)
+    except ValueError:
+        return "not a URL"
+    if parsed.scheme not in ("http", "https"):
+        return "scheme is not http or https"
+    host = (parsed.hostname or "").strip().lower().rstrip(".")
+    if not host:
+        return "no host"
+    try:
+        addresses = socket.getaddrinfo(host, parsed.port or (443 if parsed.scheme == "https" else 80),
+                                       proto=socket.IPPROTO_TCP)
+    except socket.gaierror:
+        return "host does not resolve"
+    for entry in addresses:
+        try:
+            address = ipaddress.ip_address(entry[4][0])
+        except ValueError:
+            return "unreadable address"
+        if (address.is_private or address.is_loopback or address.is_link_local
+                or address.is_reserved or address.is_multicast or address.is_unspecified):
+            return "address is not public"
+    return None
+
+
 def render(url, timeout=60):
     binary = chrome()
     if not binary:
+        return ""
+    if refused(url):
         return ""
     os.makedirs(CACHE, exist_ok=True)
     path = cache_path(url)
@@ -75,6 +117,7 @@ def render(url, timeout=60):
         "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
         "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
         "--dump-dom",
+        "--",
         url,
     ]
     with MAX_CONCURRENT:

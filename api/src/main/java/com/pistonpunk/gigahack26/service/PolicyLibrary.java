@@ -311,9 +311,33 @@ public class PolicyLibrary {
                         WeightTier.HIGH, Polarity.DISQUALIFYING, "in-house", DecayClass.STRUCTURAL,
                         List.of("in-house soc", "own soc", "in-house security team", "internal soc team",
                                 "we run our own soc", "internal security operations centre",
-                                "we handle security ourselves", "security operations centre in-house"),
+                                "we handle security ourselves", "security operations centre in-house",
+                                "our security platform", "our siem", "our soar platform", "our edr platform",
+                                "our xdr platform", "our threat intelligence platform", "our managed detection",
+                                "we protect our customers", "protect your business", "our cybersecurity solutions",
+                                "our security products", "customers use our platform", "our security operations platform"),
                         List.of("managed security provider", "outsourced security", "what is a soc",
-                                "security operations centre is", "center is", "explainer")),
+                                "security operations centre is", "center is", "explainer", "forrester",
+                                "gartner", "magic quadrant", "market guide", "we compared")),
+                new Definition(
+                        "data.insourcing", "Selling a data or AI platform of its own", DATA,
+                        "Is the company a vendor of data, analytics or AI platforms rather than a buyer of them?",
+                        """
+                        Counts: the company describes a data, analytics or AI product of its own that customers \
+                        buy, or positions itself as a provider of the capability this question looks for in a buyer. \
+                        A vendor writes about its own category constantly, so its pages outrank a real buyer's and \
+                        it lands in the queue on its own marketing.
+
+                        Does not count: a company that has built an internal data team to run platforms it bought.""",
+                        WeightTier.HIGH, Polarity.DISQUALIFYING, "in-house", DecayClass.STRUCTURAL,
+                        List.of("our data platform", "our analytics platform", "our ai platform",
+                                "our machine learning platform", "our ml platform", "our data fabric",
+                                "our data warehouse product", "our lakehouse", "customers use our platform",
+                                "our ai products", "our genai platform", "our copilot product",
+                                "leading data platform", "leading analytics platform", "leading ai platform",
+                                "data platform for enterprises", "analytics platform that", "we help customers",
+                                "our customers use", "platform that lets you"),
+                        List.of("built on", "powered by", "we use", "our deployment of", "third-party")),
                 new Definition(
                         "data.initiative", "A data or AI initiative", DATA,
                         "Has the company started a data, analytics or AI initiative with a named use case?",

@@ -357,6 +357,14 @@
 		return rows.find((row) => row.id === id)?.serviceLine ?? serviceLine;
 	}
 
+	function gateCause(reason: string): string {
+		const [head] = reason.split(' — ');
+		return head.replace(/^(Building in-house|Below the size floor|Outside the ICP geography|Outside the ICP industries)$/, (whole) =>
+			({ 'Building in-house': 'in-house', 'Below the size floor': 'too small',
+				'Outside the ICP geography': 'off-geography', 'Outside the ICP industries': 'off-industry' })[whole] ?? whole
+		);
+	}
+
 	function reasons(row: BoardRow): Chip[] {
 		const seen = new Map<string, Chip>();
 		for (const chip of row.chips) {
@@ -881,7 +889,7 @@
 								<td class="m">
 									<Tag band={row.band} title={row.gateReason ?? row.bandLabel}>{row.bandShort}</Tag>
 									{#if row.gateReason}
-										<span class="gate" title={row.gateReason}>removed</span>
+										<span class="gate" title={row.gateReason}>{gateCause(row.gateReason)}</span>
 									{/if}
 								</td>
 								<td class="c-sig">
