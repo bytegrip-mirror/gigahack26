@@ -87,12 +87,12 @@
 						<tr>
 							<th>{axisLabel}</th>
 							<th class="m">Companies</th>
-							<th class="m">Worth a look</th>
+							<th class="m" title="Companies in the Priority or Nurture band">To call</th>
 							<th class="m">Signals</th>
-							<th class="m">With evidence</th>
-							<th class="m">Median fit</th>
-							<th class="m">Newest signal</th>
-							<th>Share of the queue</th>
+							<th class="m" title="Companies we hold at least one document for">Evidence</th>
+							<th class="m" title="Median fit across the group">Med. fit</th>
+							<th class="m" title="Median age of the newest signal in this group">Newest</th>
+							<th title="Worth-a-look companies in this group, against the busiest group">Share</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -141,7 +141,7 @@
 	}
 
 	.c-bar {
-		width: 160px;
+		width: 120px;
 	}
 
 	.bar {
