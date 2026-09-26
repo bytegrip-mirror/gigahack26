@@ -72,6 +72,7 @@ public class CorpusSeeder implements ApplicationRunner {
     private final CaptureStore captureStore;
     private final CorpusProperties properties;
     private final Readiness readiness;
+    private final CorpusEviction eviction;
     private final ObjectMapper mapper;
     private final Clock clock;
 
@@ -82,7 +83,7 @@ public class CorpusSeeder implements ApplicationRunner {
                         ScoreboardService scoreboard,
                         RescoreService rescore, ClassifierRouter router,
                         CaptureStore captureStore, CorpusProperties properties, Readiness readiness,
-                        ObjectMapper mapper, Clock clock) {
+                        CorpusEviction eviction, ObjectMapper mapper, Clock clock) {
         this.companies = companies;
         this.corpusState = corpusState;
         this.aliases = aliases;
@@ -99,6 +100,7 @@ public class CorpusSeeder implements ApplicationRunner {
         this.captureStore = captureStore;
         this.properties = properties;
         this.readiness = readiness;
+        this.eviction = eviction;
         this.mapper = mapper;
         this.clock = clock;
     }
@@ -320,16 +322,10 @@ public class CorpusSeeder implements ApplicationRunner {
         List<Evidence> stale = evidence.findAll().stream()
                 .filter(item -> !present.contains(item.getKey()))
                 .toList();
-        if (stale.isEmpty()) {
-            return;
+        int dropped = eviction.drop(stale);
+        if (dropped > 0) {
+            log.info("dropped {} evidence units the corpus no longer carries", dropped);
         }
-        for (Evidence item : stale) {
-            captures.deleteByEvidenceKey(item.getKey());
-            captureStore.forget(item.getKey());
-        }
-        signals.deleteByEvidenceIdIn(stale.stream().map(Evidence::getId).toList());
-        evidence.deleteAll(stale);
-        log.info("dropped {} evidence units the corpus no longer carries", stale.size());
     }
 
     private void persistSignals() {
