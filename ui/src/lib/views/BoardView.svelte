@@ -5,6 +5,7 @@
 		ask,
 		fetchBoard,
 		fetchBookmarks,
+		deriveCues,
 		readAsk,
 		recordLead,
 		rescore,
@@ -122,6 +123,7 @@
 	let elapsed = $state(0);
 	let applied = $state<AskOutcome | null>(null);
 	let reading = $state<AskReading | null>(null);
+	let askCues = $state<string[]>([]);
 
 	let capture = $state<{ id: string; focus: { start: number; end: number } | null } | null>(null);
 
@@ -305,6 +307,7 @@
 		const text = questionText.trim();
 		if (text.length < 4) {
 			reading = null;
+			askCues = [];
 			return;
 		}
 		let cancelled = false;
@@ -316,6 +319,15 @@
 				.catch(() => {
 					if (!cancelled) reading = null;
 				});
+			if (text.length >= 10) {
+				deriveCues(text)
+					.then((list) => {
+						if (!cancelled) askCues = list;
+					})
+					.catch(() => {
+						if (!cancelled) askCues = [];
+					});
+			}
 		}, 260);
 		return () => {
 			cancelled = true;
@@ -696,6 +708,14 @@
 						</span>
 					{/if}
 				</div>
+
+				{#if askCues.length > 0 && !rescoring}
+					<div class="ask-cues">
+						<span class="label">It will match</span>
+						{#each askCues as cue (cue)}<Tag variant="wash">{cue}</Tag>{/each}
+						<span class="sub dim">Nothing is configured, so the rubric derives these from the wording.</span>
+					</div>
+				{/if}
 			{:else}
 				<div class="result">
 					{#if applied.movedRows !== undefined}
@@ -1279,6 +1299,15 @@
 		font-weight: 500;
 		line-height: 1.1;
 		margin-bottom: 3px;
+	}
+
+	.ask-cues {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--sp-2);
+		padding: var(--sp-2) var(--sp-3);
+		border-top: 1px solid var(--rule);
 	}
 
 	.gate {

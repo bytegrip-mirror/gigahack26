@@ -3,6 +3,7 @@ package com.pistonpunk.gigahack26.web;
 import com.pistonpunk.gigahack26.domain.DecayClass;
 import com.pistonpunk.gigahack26.domain.Polarity;
 import com.pistonpunk.gigahack26.domain.WeightTier;
+import com.pistonpunk.gigahack26.service.LocalRubricEngine;
 import com.pistonpunk.gigahack26.service.PolicyService;
 import com.pistonpunk.gigahack26.web.dto.PolicyRequest;
 import com.pistonpunk.gigahack26.web.dto.PolicyView;
@@ -70,6 +71,12 @@ public class PolicyController {
                                    @RequestParam(name = "polarity", required = false) Polarity polarity,
                                    @RequestParam(name = "theme", required = false) String theme) {
         return policies.preview(serviceLine, text, instructions, tier, polarity, theme);
+    }
+
+    @GetMapping("/derive")
+    public List<String> derive(@RequestParam(name = "text") String text,
+                               @RequestParam(name = "instructions", required = false) String instructions) {
+        return LocalRubricEngine.deriveCues(text, instructions == null ? "" : instructions);
     }
 
     @GetMapping("/themes")

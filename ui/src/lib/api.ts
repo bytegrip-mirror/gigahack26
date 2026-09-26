@@ -450,6 +450,10 @@ export function fetchEvidence(id: string): Promise<EvidenceDetail> {
 	return request<EvidenceDetail>(`/api/evidence/${id}`);
 }
 
+export function deriveCues(text: string, instructions = ''): Promise<string[]> {
+	return request<string[]>(`/api/policies/derive${query({ text, instructions })}`);
+}
+
 export function fetchPolicies(serviceLine?: string): Promise<Policy[]> {
 	return request<Policy[]>(`/api/policies${query({ serviceLine })}`);
 }

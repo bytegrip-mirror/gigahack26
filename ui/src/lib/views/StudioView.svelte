@@ -4,6 +4,7 @@
 		deletePolicy,
 		fetchPolicies,
 		fetchServiceLines,
+		deriveCues,
 		previewPolicy,
 		rescore,
 		updatePolicy,
@@ -48,6 +49,7 @@
 	let saving = $state(false);
 	let preview = $state<Preview | null>(null);
 	let previewing = $state(false);
+	let derivedCues = $state<string[]>([]);
 	let veil = $state(false);
 	let applying = $state(false);
 	let query = $state('');
@@ -100,6 +102,13 @@
 		}
 		let cancelled = false;
 		previewing = true;
+		deriveCues(text, instructions)
+			.then((list) => {
+				if (!cancelled) derivedCues = list;
+			})
+			.catch(() => {
+				if (!cancelled) derivedCues = [];
+			});
 		const timer = setTimeout(() => {
 			previewPolicy({
 				serviceLine: line,
@@ -474,6 +483,30 @@
 						<input type="checkbox" bind:checked={draft.active} onchange={() => (dirty = true)} />
 						<span>Active — the board scores this question</span>
 					</label>
+				</div>
+
+				<div class="panel">
+					<div class="panel-head">
+						<h3 class="label">What this question will look for</h3>
+						{#if (draft.cues ?? []).length === 0}<Tag variant="bare">derived</Tag>{/if}
+					</div>
+					{#if (draft.cues ?? []).length > 0}
+						<div class="chips">
+							{#each (draft.cues ?? []).slice(0, 24) as cue (cue)}<Tag>{cue}</Tag>{/each}
+							{#if (draft.cues ?? []).length > 24}<Tag variant="bare">+{(draft.cues ?? []).length - 24}</Tag>{/if}
+						</div>
+						<p class="sub dim">Set on the question. Clear the list to let the rubric derive its own.</p>
+					{:else if derivedCues.length > 0}
+						<div class="chips">
+							{#each derivedCues as cue (cue)}<Tag variant="wash">{cue}</Tag>{/each}
+						</div>
+						<p class="sub dim">
+							Derived from the wording — nothing is configured, so these are the phrases the engine will match.
+							Save the question to keep them, and remove any that would match everything.
+						</p>
+					{:else}
+						<p class="sub dim">No cue vocabulary yet. Write at least ten characters of question and rubric.</p>
+					{/if}
 				</div>
 
 				<div class="panel">
