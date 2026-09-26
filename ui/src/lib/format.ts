@@ -11,17 +11,6 @@ export function signed(value: number, digits = 3): string {
 	return value > 0 ? `+${rounded}` : rounded;
 }
 
-export function nats(value: number): string {
-	return `${signed(value, 3)} nats`;
-}
-
-export function odds(value: number): string {
-	const ratio = Math.exp(value);
-	if (ratio >= 10) return `×${ratio.toFixed(0)}`;
-	if (ratio >= 1) return `×${ratio.toFixed(1)}`;
-	return `×${ratio.toFixed(2)}`;
-}
-
 export function age(days: number | null | undefined): string {
 	if (days === null || days === undefined) return 'no dated signal';
 	if (days < 1) return 'today';
@@ -64,7 +53,13 @@ export function theme(value: string): string {
 }
 
 export function sourceKind(value: string): string {
-	return value.replace('_', ' ').toLowerCase();
+	if (value === 'JOB_POSTING') return 'job posting';
+	if (value === 'NEWS') return 'news report';
+	if (value === 'NEWSROOM') return 'company newsroom';
+	if (value === 'STRATEGY') return 'company strategy page';
+	if (value === 'REGISTRY') return 'company register';
+	if (value === 'FILING') return 'regulatory filing';
+	return value.replace(/_/g, ' ').toLowerCase();
 }
 
 export function plural(count: number, one: string, many?: string): string {

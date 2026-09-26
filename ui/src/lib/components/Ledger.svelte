@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { LedgerRow } from '$lib/api';
-	import { age, confidence, date, host, odds, precise, signed, sourceKind, tier } from '$lib/format';
+	import { age, confidence, date, host, precise, signed, sourceKind, tier } from '$lib/format';
 	import Icon from './Icon.svelte';
 
 	let {
@@ -20,6 +20,37 @@
 		else next.add(id);
 		open = next;
 	}
+
+	function effect(row: LedgerRow): string {
+		if (row.blocking) return 'removed the company';
+		if (row.tierNats === 0) return 'not evidence';
+		return row.contributionNats < 0 ? 'counts against' : 'counts for';
+	}
+
+	function source(row: LedgerRow): string {
+		if (row.sourceKind === 'FILING') return 'regulatory filing';
+		if (row.sourceKind === 'REGISTRY') return 'company register';
+		if (row.sourceKind === 'JOB_POSTING') return 'job posting';
+		if (row.sourceKind === 'NEWSROOM' || row.sourceKind === 'STRATEGY') return 'the company’s own page';
+		return 'news report';
+	}
+
+	function weight(row: LedgerRow): string {
+		if (row.tier === 'HIGH') return 'high weight';
+		if (row.tier === 'MEDIUM') return 'medium weight';
+		return 'low weight';
+	}
+
+	function reader(row: LedgerRow): string {
+		return row.engine && row.engine.startsWith('local') ? 'matched by rules' : 'read by the model';
+	}
+
+	function discount(value: number): string {
+		if (value >= 0.99) return 'in full';
+		if (value >= 0.49) return 'at half';
+		if (value >= 0.24) return 'at a quarter';
+		return `at ${value.toFixed(2)}`;
+	}
 </script>
 
 {#if rows.length === 0}
@@ -28,7 +59,8 @@
 	<ul class="ledger">
 		{#each rows as row (keyOf(row))}
 			{@const expanded = open.has(keyOf(row))}
-			<li class:blocking={row.blocking}>
+			{@const weighable = row.tierNats !== 0}
+			<li class:blocking={row.blocking} class:muted={!weighable}>
 				<div class="row-main">
 					<div class="col-src">
 						<span class="src">{row.title ?? host(row.sourceUrl)}</span>
@@ -45,8 +77,12 @@
 					</div>
 
 					<div class="col-amt">
-						<span class="num amt" class:neg={row.contributionNats < 0}>{signed(row.contributionNats)}</span>
-						<span class="sub dim num">{odds(row.contributionNats)}</span>
+						{#if weighable}
+							<span class="num amt" class:neg={row.contributionNats < 0}>{signed(row.contributionNats)}</span>
+						{:else}
+							<span class="amt none">—</span>
+						{/if}
+						<span class="effect" class:neg={row.contributionNats < 0} class:quiet={!weighable}>{effect(row)}</span>
 					</div>
 				</div>
 
@@ -55,11 +91,11 @@
 					<span class="q-text">{row.questionText}</span>
 				</div>
 
-				<span class="formula num">
-					{tier(row.tier)} {signed(row.tierNats, 1)} × {row.authority.toFixed(2)} × {row.decay.toFixed(3)} × {row.shrink.toFixed(2)}
-					{#if row.groupRank > 0}<span class="mark">rank {row.groupRank + 1} ×{row.discount}</span>{/if}
+				<span class="strength">
+					{weight(row)} · {source(row)} · {age(row.ageDays)} · {reader(row)}
+					{#if row.groupRank > 0}<span class="mark">{row.groupRank + 1}th report of the same thing — counted {discount(row.discount)}</span>{/if}
+					{#if row.themeCapped}<span class="mark">capped: one topic cannot carry the whole score</span>{/if}
 					{#if row.blocking}<span class="mark">disqualifying</span>{/if}
-					{#if row.themeCapped}<span class="mark">capped</span>{/if}
 				</span>
 
 				{#if expanded}
@@ -68,10 +104,18 @@
 						<div class="detail-foot">
 							<button class="btn btn-sm" onclick={() => onopen(row)}>Open capture</button>
 							<a class="btn btn-sm" href={row.sourceUrl} target="_blank" rel="noreferrer noopener">Open source</a>
-							<span class="sub dim num">chars {row.spanStart}–{row.spanEnd}</span>
-							<span class="sub dim num">{confidence(row.confidence)} conf · {precise(row.rawNats)} raw</span>
+							<span class="sub dim num">characters {row.spanStart}–{row.spanEnd}</span>
+							<span class="sub dim num">{confidence(row.confidence)} confident</span>
 						</div>
 						{#if row.rationale}<p class="sub dim">{row.rationale}</p>{/if}
+						<details class="working">
+							<summary>Every number behind this row</summary>
+							<p class="sub dim num">
+								{tier(row.tier)} {signed(row.tierNats, 1)} × {row.authority.toFixed(2)} source × {row.decay.toFixed(3)} decay
+								× {row.shrink.toFixed(2)} confidence = {precise(row.rawNats)}
+								{#if row.groupRank > 0} · repeated evidence ×{row.discount}{/if}
+							</p>
+						</details>
 					</div>
 				{/if}
 			</li>
@@ -93,6 +137,11 @@
 
 	.ledger > li.blocking {
 		background: var(--oxblood-wash);
+	}
+
+	.ledger > li.muted .src {
+		font-weight: 400;
+		color: var(--ink-2);
 	}
 
 	.row-main {
@@ -164,7 +213,7 @@
 		margin-top: 1px;
 	}
 
-	.formula {
+	.strength {
 		display: block;
 		margin-top: var(--sp-1);
 		font-size: var(--fs-micro);
@@ -187,8 +236,26 @@
 		line-height: 1.2;
 	}
 
+	.amt.none {
+		color: var(--ink-3);
+	}
+
 	.amt.neg {
 		color: var(--oxblood);
+	}
+
+	.effect {
+		display: block;
+		font-size: var(--fs-micro);
+		color: var(--ink-3);
+	}
+
+	.effect.neg {
+		color: var(--oxblood);
+	}
+
+	.effect.quiet {
+		font-style: italic;
 	}
 
 	.detail {
@@ -215,6 +282,20 @@
 		align-items: center;
 		gap: var(--sp-1);
 		flex-wrap: wrap;
+	}
+
+	.working {
+		margin-top: var(--sp-2);
+	}
+
+	.working summary {
+		font-size: var(--fs-micro);
+		color: var(--ink-3);
+		cursor: pointer;
+	}
+
+	.working p {
+		margin: var(--sp-1) 0 0;
 	}
 
 	.empty {

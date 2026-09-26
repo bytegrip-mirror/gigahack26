@@ -47,7 +47,7 @@
 				id: `co-${hit.id}`,
 				group: 'Companies',
 				label: hit.name,
-				hint: `${fit(hit.probability)} · ${hit.country ?? '—'}`,
+				hint: `Fit ${fit(hit.probability)} · ${hit.country ?? '—'}`,
 				icon: 'building',
 				run: () => goto(`/?co=${hit.id}`)
 			});
@@ -78,7 +78,7 @@
 					id: 'line-all',
 					group: 'Service lines',
 					label: 'All service lines',
-					hint: 'showing',
+					hint: 'showing every line',
 					icon: 'layers',
 					run: () => session.setAll()
 				});
@@ -104,7 +104,7 @@
 				id: `line-${line}`,
 				group: 'Service lines',
 				label: line,
-				hint: session.allLines && line === session.serviceLine ? 'last used' : 'switch',
+				hint: session.allLines && line === session.serviceLine ? 'last used' : 'switch to this line',
 				icon: 'layers',
 				run: () => {
 					session.set(line);
@@ -133,7 +133,7 @@
 			{
 				id: 'act-ask',
 				label: 'Ask a question',
-				hint: 'score the corpus against a new one',
+				hint: 'write one and re-rank the board',
 				icon: 'studio',
 				keys: 'ask question signal studio new',
 				run: () => {
@@ -144,7 +144,7 @@
 			{
 				id: 'act-saved',
 				label: 'Show only what you saved',
-				hint: 'the board filtered to bookmarks',
+				hint: 'the board filtered to what you saved',
 				icon: 'star',
 				keys: 'saved bookmarks starred shortlist',
 				run: () => {
@@ -155,7 +155,7 @@
 			{
 				id: 'act-leads',
 				label: 'Show only the ones being worked',
-				hint: 'any stage past new',
+				hint: 'everything you have started on',
 				icon: 'pipeline',
 				keys: 'leads worked contacted pipeline stage',
 				run: () => {

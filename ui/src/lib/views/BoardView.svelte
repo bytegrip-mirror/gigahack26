@@ -50,13 +50,19 @@
 		{ id: 'all', label: 'All' },
 		{ id: 'hot', label: 'Hot' },
 		{ id: 'priority', label: 'Priority' },
-		{ id: 'rejected', label: 'Rejected' },
-		{ id: 'thin', label: 'Thin' },
+		{ id: 'rejected', label: 'Out of the queue' },
+		{ id: 'thin', label: 'Too little evidence' },
 		{ id: 'saved', label: 'Saved' }
 	];
 
+	const WEAK_OPENERS = new Set([
+		'companies', 'company', 'banks', 'bank', 'firms', 'firm', 'businesses', 'business',
+		'organisations', 'organizations', 'employers', 'employer', 'groups', 'agencies', 'operators',
+		'retailers', 'insurers', 'carriers', 'makers', 'players', 'giants', 'enterprises', 'corporations'
+	]);
+
 	const STAGES = [
-		{ id: '', label: 'Any stage' },
+		{ id: '', label: 'Any lead stage' },
 		{ id: 'worked', label: 'Worked' },
 		{ id: 'untouched', label: 'Untouched' },
 		{ id: 'CONTACTED', label: 'Contacted' },
@@ -124,6 +130,7 @@
 	let weightTier = $state<WeightTier>('HIGH');
 	let polarity = $state<Polarity>('POSITIVE');
 	let engine = $state<Engine>('local');
+	let engineChosen = $state(false);
 	let rescoring = $state(false);
 	let elapsed = $state(0);
 	let applied = $state<AskOutcome | null>(null);
@@ -342,6 +349,10 @@
 	$effect(() => {
 		void serviceLine;
 		loadSaved();
+	});
+
+	$effect(() => {
+		if (!engineChosen && meta?.languageModelAvailable) engine = 'deepseek';
 	});
 
 	$effect(() => {
@@ -596,12 +607,12 @@
 						'publisher',
 						'document_title',
 						'source_url',
-						'span_start',
-						'span_end',
-						'verbatim_span',
+						'quote_starts_at_character',
+						'quote_ends_at_character',
+						'verbatim_quote',
 						'engine',
-						'span_check',
-						'contribution_nats',
+						'quote_check',
+						'weight_in_the_score',
 						'model_reason'
 					],
 					lines
@@ -656,6 +667,8 @@
 			busy = false;
 		}
 	}
+
+	const weakCues = $derived(askCues.filter((cue) => !cue.includes(' ') || WEAK_OPENERS.has(cue.split(' ')[0])));
 
 	async function runAsk() {
 		const text = questionText.trim();
@@ -884,26 +897,33 @@
 					<label class="field">
 						<span class="label">Weight</span>
 						<select class="select select-sm" bind:value={weightTier}>
-							<option value="HIGH">High · 1.5</option>
-							<option value="MEDIUM">Medium · 0.7</option>
-							<option value="LOW">Low · 0.3</option>
+							<option value="HIGH">High</option>
+							<option value="MEDIUM">Medium</option>
+							<option value="LOW">Low</option>
 						</select>
 					</label>
 					<label class="field">
 						<span class="label">Polarity</span>
 						<select class="select select-sm" bind:value={polarity}>
-							<option value="POSITIVE">Positive</option>
-							<option value="NEGATIVE">Counter</option>
-							<option value="DISQUALIFYING">Disqualifying</option>
+							<option value="POSITIVE">Counts for the company</option>
+							<option value="NEGATIVE">Counts against</option>
+							<option value="DISQUALIFYING">Removes the company</option>
 						</select>
 					</label>
 					<label class="field">
 						<span class="label">Engine</span>
-						<select class="select select-sm" bind:value={engine}>
-							<option value="local">Local rubric</option>
+						<select
+							class="select select-sm"
+							value={engine}
+							onchange={(event) => {
+								engineChosen = true;
+								engine = (event.currentTarget as HTMLSelectElement).value as Engine;
+							}}
+						>
 							<option value="deepseek" disabled={!meta?.languageModelAvailable}>
-								Model{meta?.languageModelAvailable ? '' : ' — off'}
+								Reads the documents{meta?.languageModelAvailable ? ' (recommended)' : ' — unavailable'}
 							</option>
+							<option value="local">Matches words</option>
 						</select>
 					</label>
 					<Menu
@@ -942,9 +962,22 @@
 
 				{#if askCues.length > 0 && !rescoring}
 					<div class="ask-cues">
-						<span class="label">It will match</span>
-						{#each askCues as cue (cue)}<Tag variant="wash">{cue}</Tag>{/each}
-						<span class="sub dim">Nothing is configured, so the rubric derives these from the wording.</span>
+						<span class="label">The rule matcher would look for</span>
+						{#each askCues as cue (cue)}<Tag variant={weakCues.includes(cue) ? 'oxblood' : 'wash'}>{cue}</Tag>{/each}
+						{#if weakCues.length > 0}
+							<p class="note warn">
+								<Icon name="alert" size={14} />
+								<span>
+									{weakCues.length === 1 ? 'One of these is' : `${weakCues.length} of these are`} too general to be a
+									signal — {weakCues.join(', ')} will match most of the corpus. {meta?.languageModelAvailable
+										? 'Send it to the model instead, or write the question with the words you would actually look for.'
+										: 'Write the question with the words you would actually look for.'}
+								</span>
+							</p>
+						{/if}
+						<span class="sub dim">
+							Nothing is configured for this question, so the rule matcher derives these from the wording.
+						</span>
 					</div>
 				{/if}
 			{:else}
@@ -955,6 +988,13 @@
 							<Metric value={duration(applied.tookMs ?? 0)} label="Elapsed" />
 							<Metric value={shortNumber(applied.documentsScanned ?? 0)} label="Documents" />
 							<Metric value={shortNumber(applied.signalsProduced ?? 0)} label="Signals" />
+							{#if applied.answeredFromOverlay}
+								<Metric
+									value={shortNumber(applied.answeredFromOverlay)}
+									label="Already read by the model"
+									title="Questions the model had already answered were kept, not re-read"
+								/>
+							{/if}
 						</div>
 					{:else}
 						<div class="metrics">
@@ -1125,9 +1165,9 @@
 									/>
 								</span>
 							</th>
-							<Th id="rank" label="#" sort={sort} {dir} onsort={sortBy} align="right" width="58px" title="Fit rank — the order the ledger produces" />
+							<Th id="rank" label="#" sort={sort} {dir} onsort={sortBy} align="right" width="58px" title="Position on the board: highest fit first, companies out of the queue at the end" />
 							<Th id="name" label="Company" sort={sort} {dir} onsort={sortBy} width="21%" />
-							<Th id="fit" label="Fit" sort={sort} {dir} onsort={sortBy} align="right" width="128px" title="Probability this company is worth calling" />
+							<Th id="fit" label="Fit" sort={sort} {dir} onsort={sortBy} align="right" width="128px" title="How strongly the evidence points at this company, against the base rate you set" />
 							<Th id="band" label="Band" sort={sort} {dir} onsort={sortBy} align="center" width="96px" />
 							<th class="c-sig" scope="col">Top evidence</th>
 							<Th id="themes" label="Themes" sort={sort} {dir} onsort={sortBy} width="142px" className="c-th" />
@@ -1167,11 +1207,8 @@
 								</td>
 								<td class="c-co">
 									<span class="co">{row.name}</span>
-									{#if row.evidenceCount === 0}
-										<span
-											class="blind"
-											title="No document was ever captured for this company. Nothing can be said either way — a gap in the crawl, not a finding."
-										>no evidence</span>
+									{#if row.whyNow && row.band !== 'THIN'}
+										<span class="why-head">{row.whyNow}</span>
 									{/if}
 									<span class="sub">
 										{#if allLines}<span class="line-tag">{row.serviceLine}</span> · {/if}{#if row.domain}<span class="domain">{row.domain}</span> · {/if}{row.country ?? '—'}
@@ -1213,7 +1250,10 @@
 												<li title={`${chip.publisher}${chip.title ? ` · ${chip.title}` : ''}`}>
 													<span class="dot" data-polarity={chip.polarity}></span>
 													<span class="ev-title">{chip.questionTitle}</span>
-													<span class="num ev-amt">{signed(chip.contribution, 2)}</span>
+													<span
+														class="num ev-amt"
+														title={chip.contribution < 0 ? 'Counts against the company' : 'Counts for the company'}
+														>{signed(chip.contribution, 2)}</span>
 												</li>
 											{/each}
 										</ul>
@@ -1236,7 +1276,7 @@
 										{/if}
 									</div>
 									{#if row.themeCount >= 2}
-										<span class="corrob" title="Two independent kinds of evidence — what the Priority band requires">corroborated</span>
+										<span class="corrob" title="More than one kind of evidence points the same way. A single loud topic is capped, so this is what the Priority band needs.">corroborated</span>
 									{/if}
 								</td>
 								<td class="num c-doc">
@@ -1245,7 +1285,7 @@
 									{:else}
 										{row.evidenceCount}
 										{#if row.silentDocuments > 0}
-											<span class="sub dim" title="Documents read that produced no signal">{row.silentDocuments} silent</span>
+											<span class="sub dim" title="Documents we read that answered none of your questions">{row.silentDocuments} said nothing</span>
 										{/if}
 									{/if}
 								</td>
@@ -1582,6 +1622,14 @@
 		font-weight: 500;
 		line-height: 1.2;
 		letter-spacing: -0.01em;
+	}
+
+	.why-head {
+		display: block;
+		font-size: var(--fs-sm);
+		line-height: 1.4;
+		color: var(--ink-2);
+		margin-top: 1px;
 	}
 
 	.sub {

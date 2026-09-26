@@ -5,7 +5,7 @@ export type Polarity = 'POSITIVE' | 'NEGATIVE' | 'DISQUALIFYING';
 export type DecayClass = 'EVENT' | 'HIRING' | 'STRUCTURAL';
 export type Band = 'PRIORITY' | 'NURTURE' | 'WATCH' | 'THIN' | 'DISQUALIFIED';
 export type Verdict = 'BUY' | 'COUNTER' | 'BUILD' | 'NONE';
-export type SourceKind = 'JOB_POSTING' | 'NEWS' | 'REGISTRY' | 'FILING';
+export type SourceKind = 'JOB_POSTING' | 'NEWS' | 'NEWSROOM' | 'STRATEGY' | 'REGISTRY' | 'FILING';
 
 export type Chip = {
 	evidenceId: string;
@@ -550,6 +550,7 @@ export type AskOutcome = AskReading & {
 	tookMs?: number;
 	documentsScanned?: number;
 	signalsProduced?: number;
+	answeredFromOverlay?: number;
 	questionKey?: string;
 	keptPrevious?: boolean;
 	board?: BoardRow[];
@@ -787,6 +788,8 @@ export type Telemetry = {
 		generatedAt?: string;
 		pairsSeen?: number;
 		strikeRate?: number;
+		quotesChecked?: number;
+		quotesStruck?: number;
 		sampling?: {
 			cueLivePairs: number;
 			cueLiveSignals: number;

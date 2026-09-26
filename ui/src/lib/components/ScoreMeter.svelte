@@ -24,9 +24,11 @@
 	</div>
 	{#if showScale}
 		<div class="scale">
-			<span class="label" style="left:{pct(baseRate)}">base {baseRate.toFixed(2)}</span>
-			<span class="label" style="left:{pct(thresholds.priority)}">
-				{thresholds.priority.toFixed(2)}
+			<span class="label" style="left:{pct(baseRate)}" title="Where every company in the pool starts">
+				pool average {(baseRate * 100).toFixed(0)}%
+			</span>
+			<span class="label" style="left:{pct(thresholds.priority)}" title="Companies above this line go into Priority">
+				priority line
 			</span>
 		</div>
 	{/if}

@@ -9,7 +9,7 @@
 		type LeadView
 	} from '$lib/api';
 	import { toasts } from '$lib/toast.svelte';
-	import { age, date, fit, host, nats, plural, signed, sourceKind, theme } from '$lib/format';
+	import { age, date, fit, host, plural, signed, sourceKind, theme } from '$lib/format';
 	import { copy } from '$lib/export';
 	import Tag from '$lib/components/Tag.svelte';
 	import ScoreMeter from '$lib/components/ScoreMeter.svelte';
@@ -95,6 +95,13 @@
 	const stage = $derived(lead?.status ?? 'NEW');
 	const counters = $derived(detail?.whyNow?.counters ?? []);
 	const triggers = $derived(detail?.whyNow?.triggers ?? []);
+	const notEvidence = $derived(scored.filter((row) => row.tierNats === 0));
+
+	function verdictWords(row: LedgerRow): string {
+		if (row.verdict === 'BUILD') return 'the model read this as the company selling the capability itself';
+		if (row.verdict === 'COUNTER') return 'the model read this as arguing against buying';
+		return 'the model read this as answering the question';
+	}
 
 	function daysSince(iso: string): number {
 		return Math.max(0, (Date.now() - new Date(iso).getTime()) / 86_400_000);
@@ -119,7 +126,7 @@
 		try {
 			const result = await pushToHubspot(detail.id, serviceLine);
 			if (result.pushed) toasts.push('Pushed to HubSpot.', 'success');
-			else toasts.push(`HubSpot is not connected — ${result.reason}`, 'warn');
+			else toasts.push('HubSpot is not connected on this deployment. The push is recorded on the lead, not sent.', 'warn');
 			lead = await recordLead({ companyId: detail.id, serviceLine });
 		} catch (cause) {
 			toasts.push((cause as Error).message, 'error');
@@ -132,7 +139,9 @@
 		if (!detail) return;
 		try {
 			await sendFeedback({ companyId: detail.id, repVerdict: value });
-			toasts.push(value === 'ACCEPT' ? 'Counted as a qualified lead.' : 'Counted as rejected.', 'success');
+			toasts.push(value === 'ACCEPT'
+				? 'Counted as a good fit — it feeds the precision figure on the board.'
+				: 'Counted as not a fit — it feeds the precision figure on the board.', 'success');
 		} catch (cause) {
 			toasts.push((cause as Error).message, 'error');
 		}
@@ -160,8 +169,8 @@
 	const overflow: MenuItem[] = $derived([
 		{ id: 'summary', label: 'Copy the summary', icon: 'copy' },
 		{ id: 'source', label: 'Open the website', icon: 'link', disabled: !detail?.domain },
-		{ id: 'accept', label: 'Count as a qualified lead', icon: 'check', separatorBefore: true },
-		{ id: 'reject', label: 'Count as rejected', icon: 'close', danger: true },
+		{ id: 'accept', label: 'Count as a good fit', icon: 'check', separatorBefore: true },
+		{ id: 'reject', label: 'Count as not a fit', icon: 'close', danger: true },
 		{ id: 'close', label: 'Close the scorecard', icon: 'chevronRight', separatorBefore: true }
 	]);
 
@@ -232,9 +241,9 @@
 			<section class="panel score">
 				<div class="score-row">
 					<div class="metrics">
-						<Metric value={fit(detail.probability)} label="Fit" tone={detail.band === 'DISQUALIFIED' ? 'bad' : 'hot'} title="Probability this company is worth calling" />
-						<Metric value={detail.signalCount} label="Signals" title="Evidence rows that cleared the floor" />
-						<Metric value={detail.themeCount} label="Themes" title="Independent kinds of evidence" />
+						<Metric value={fit(detail.probability)} label="Fit" tone={detail.band === 'DISQUALIFIED' ? 'bad' : 'hot'} title="How strongly the evidence points at this company, against the base rate you set" />
+						<Metric value={detail.signalCount} label="Signals" title="Documents that answered one of your questions" />
+						<Metric value={detail.themeCount} label="Themes" title="Different kinds of evidence pointing the same way" />
 					</div>
 					<Tag band={detail.band}>{detail.bandLabel}</Tag>
 				</div>
@@ -262,7 +271,7 @@
 						<button
 							class="reveal"
 							aria-expanded={showFacts}
-							title="How this score was reached"
+							title="The counts behind this reading"
 							onclick={() => (showFacts = !showFacts)}
 						>
 							Facts
@@ -291,6 +300,15 @@
 						<dt>Documents read</dt>
 						<dd class="num">{detail.scannedDocuments} · {detail.silentDocuments} silent</dd>
 					</dl>
+					{#if detail.weakestLink}
+						<p class="sub dim">Weakest link in the evidence: {detail.weakestLink}</p>
+					{/if}
+					{#if detail.gateReason}
+						<p class="sub dim gate-line">{detail.gateLine}</p>
+					{/if}
+					{#if detail.coverageNotes}
+						<p class="sub dim">Coverage: {detail.coverageNotes}.</p>
+					{/if}
 				{/if}
 			</section>
 
@@ -312,6 +330,19 @@
 					{:else}
 						<p class="sub dim">No signal cleared the confidence floor for this policy.</p>
 					{/each}
+					{#if notEvidence.length > 0}
+						<p class="label against-label">Read, not evidence</p>
+						{#each notEvidence as row (row.evidenceId + row.questionId + row.spanStart)}
+							<button class="line" onclick={() => openRow(row)}>
+								<span class="dot neither"></span>
+								<span class="line-text">
+									{row.questionTitle}
+									<span class="why-line">{verdictWords(row)}</span>
+								</span>
+								<span class="num dim">not counted</span>
+							</button>
+						{/each}
+					{/if}
 					{#if counters.length > 0}
 						<p class="label against-label">Against</p>
 						{#each counters as row (row.evidenceId + row.spanStart)}
@@ -373,15 +404,18 @@
 				{#if tab === 'ledger'}
 					<Ledger rows={scored} onopen={openRow} />
 					<div class="sum num">
-						<div><span class="dim">logit({detail.baseRate.toFixed(2)})</span><span>{signed(detail.baseLogit)}</span></div>
+						<div>
+							<span class="dim">Every company in the pool starts here — the share you said is worth calling</span>
+							<span>{(detail.baseRate * 100).toFixed(0)}%</span>
+						</div>
 						{#each scored as row (row.evidenceId + row.questionId + row.spanStart)}
 							<div class="dim">
 								<span>{row.questionTitle}{row.themeCapped ? ' · capped' : ''}</span>
-								<span>{signed(row.contributionNats)}</span>
+								<span>{row.tierNats === 0 ? 'not counted' : signed(row.contributionNats)}</span>
 							</div>
 						{/each}
 						<div class="total">
-							<span>logit → fit</span><span>{signed(detail.logit)} → {fit(detail.probability)}</span>
+							<span>Fit</span><span>{fit(detail.probability)}</span>
 						</div>
 					</div>
 					<div class="themes">
@@ -399,7 +433,10 @@
 								</div>
 							</div>
 						{/each}
-						<p class="sub dim">Cap {nats(detail.themeCap)}, derived from the Priority line.</p>
+						<p class="sub dim">
+							Rows sharing a theme are capped together, so one loud topic can never carry a company into
+							Priority on its own. The ceiling is set from the Priority line, not chosen.
+						</p>
 					</div>
 				{/if}
 
@@ -708,6 +745,10 @@
 
 	.dot.neg {
 		background: var(--oxblood);
+	}
+
+	.dot.neither {
+		background: var(--rule-strong, var(--ink-3));
 	}
 
 	.line-text {

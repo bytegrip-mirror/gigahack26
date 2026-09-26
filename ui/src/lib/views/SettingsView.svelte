@@ -17,7 +17,7 @@
 	} from '$lib/api';
 	import { workspace } from '$lib/workspace.svelte';
 	import { toasts } from '$lib/toast.svelte';
-	import { shortNumber } from '$lib/format';
+	import { date, shortNumber } from '$lib/format';
 	import Tag from '$lib/components/Tag.svelte';
 	import LoadingVeil from '$lib/components/LoadingVeil.svelte';
 	import Icon from '$lib/components/Icon.svelte';
@@ -461,6 +461,9 @@
 							/>
 							<Metric value={shortNumber(settings?.inScope?.inIndustry ?? 0)} label="In industry" />
 						</div>
+						<p class="sub dim">
+							Counted over the profile as last saved, not the edits on this screen. Save to move them.
+						</p>
 					</section>
 				{/if}
 
@@ -519,7 +522,6 @@
 					<section class="panel">
 						<div class="panel-head">
 							<h2 class="dsp">Where the bands sit</h2>
-							<span class="sub dim num">cap {draft.themeCap.toFixed(3)} nats</span>
 						</div>
 						<div class="fields">
 							<label class="field">
@@ -554,7 +556,10 @@
 								</span>
 							</label>
 						</div>
-						<p class="sub dim">The base rate is the share of the pool worth calling.</p>
+						<p class="sub dim">
+							The base rate is the share of the pool worth calling. One theme can only carry a company as far
+							as the Priority line above, so no single loud topic reaches it on its own.
+						</p>
 					</section>
 
 					<section class="panel">
@@ -631,16 +636,18 @@
 						<div class="panel-head">
 							<h2 class="dsp">What the model half cost, and what it found</h2>
 							{#if telemetry?.overlay?.present}
-								<span class="sub dim num">{telemetry.overlay.engine}</span>
+								<span class="sub dim" title={telemetry.overlay.engine}>
+									read by the model on {date(telemetry.overlay.generatedAt)}
+								</span>
 							{:else}
-								<span class="sub dim">no overlay shipped</span>
+								<span class="sub dim">no model reading is shipped</span>
 							{/if}
 						</div>
 						{#if telemetry?.overlay?.present}
 							<div class="metrics">
 								<Metric
 									value={shortNumber(telemetry.overlay.pairsSeen ?? 0)}
-									label="Pairs read by the model"
+									label="Pairs the model answered"
 								/>
 								<Metric
 									value={shortNumber(telemetry.signalsBySource?.classificationPairs ?? 0)}
@@ -648,13 +655,19 @@
 								/>
 								<Metric
 									value={((telemetry.overlay.strikeRate ?? 0) * 100).toFixed(2) + '%'}
-									label="Quotes struck"
+									label="Quotes we could not verify"
 									tone={(telemetry.overlay.strikeRate ?? 0) > 0.02 ? 'bad' : 'good'}
 								/>
 							</div>
+							<p class="sub dim">
+								The model returned a quotation we could not find in the stored page, so we dropped it rather
+								than show it.
+							</p>
 							{#if telemetry.overlay.sampling}
 								{@const sampling = telemetry.overlay.sampling}
-								<p class="sub dim">\n\t\t\t\t\t\t\t\t\tThe cue matcher was silent on {shortNumber(sampling.cueSilentSampled)} pairs sampled at random; the model found a signal on {(sampling.cueSilentYield * 100).toFixed(2)}% of them. That is what the cheap engine alone misses.\n\t\t\t\t\t\t\t\t</p>
+								<p class="sub dim">
+									The cue matcher was silent on {shortNumber(sampling.cueSilentSampled)} pairs sampled at random; the model found a signal on {(sampling.cueSilentYield * 100).toFixed(2)}% of them. That is what the cheap engine alone misses.
+								</p>
 							{/if}
 						{:else}
 							<p class="sub dim">Every row was answered by the local rubric engine.</p>

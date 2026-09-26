@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { apiBase, fetchEvidence, type EvidenceDetail } from '$lib/api';
-	import { confidence, date, host, plural, sourceKind, tier, timestamp } from '$lib/format';
+	import { date, host, plural, tier, timestamp } from '$lib/format';
 	import Icon from './Icon.svelte';
 
 	let {
@@ -104,18 +104,15 @@
 			{:else}
 				<dl class="meta">
 					<dt>Source</dt>
-					<dd><a href={detail.sourceUrl} target="_blank" rel="noreferrer noopener">{host(detail.sourceUrl)}</a></dd>
-					<dt>Authority</dt>
-					<dd class="num">×{detail.authority.toFixed(2)}</dd>
-					<dt>Published</dt>
 					<dd>
-						{date(detail.publishedAt)}
-						<span class="dim">· {detail.anchorKind === 'published' ? 'drives decay' : 'undated, fetch time used'}</span>
+						<a href={detail.sourceUrl} target="_blank" rel="noreferrer noopener">{host(detail.sourceUrl)}</a>
 					</dd>
+					<dt>Publisher</dt>
+					<dd>{detail.publisher}</dd>
+					<dt>Published</dt>
+					<dd>{date(detail.publishedAt)}</dd>
 					<dt>Captured</dt>
 					<dd class="num">{timestamp(detail.observedAt)}</dd>
-					<dt>Hash</dt>
-					<dd class="num dim">{detail.contentHash ? detail.contentHash.slice(0, 30) : '—'}</dd>
 					<dt>Length</dt>
 					<dd class="num">{plural(detail.charLength, 'char')}</dd>
 				</dl>
@@ -130,7 +127,6 @@
 										<span class="tag tag-wash">{tier(signal.tier)}</span>
 										<span class="key" title={signal.questionKey}>{signal.questionTitle}</span>
 										{#if signal.blocking}<span class="tag tag-oxblood">disqualifying</span>{/if}
-										<span class="num dim">c {confidence(signal.confidence)} · chars {signal.spanStart}–{signal.spanEnd}</span>
 									</div>
 									<p class="sig-q">{signal.questionText}</p>
 									{#if signal.rationale}<p class="dim sub">{signal.rationale}</p>{/if}
@@ -284,10 +280,6 @@
 		align-items: center;
 		gap: var(--sp-2);
 		flex-wrap: wrap;
-	}
-
-	.sig-head .num {
-		font-size: var(--fs-micro);
 	}
 
 	.sig-q {

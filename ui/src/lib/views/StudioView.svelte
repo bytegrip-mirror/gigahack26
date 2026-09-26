@@ -31,6 +31,8 @@
 	import Metric from '$lib/components/Metric.svelte';
 	import type { MenuItem } from '$lib/components/menu';
 
+	type Pending = { kind: 'open' | 'new' | 'delete'; policy?: Policy };
+
 	const BLANK: PolicyInput = {
 		title: '',
 		serviceLine: '',
@@ -64,9 +66,18 @@
 	let veil = $state(false);
 	let applying = $state(false);
 	let query = $state('');
+	let pending = $state<Pending | null>(null);
 
 	const serviceLine = $derived(session.serviceLine);
 	const current = $derived(policies.find((policy) => policy.id === selectedId) ?? null);
+	const editable = $derived(creating || current !== null || loading);
+
+	const pendingNote = $derived.by(() => {
+		if (!pending) return '';
+		if (pending.kind === 'new') return 'Unsaved changes to this question — starting a new one discards them.';
+		if (pending.kind === 'delete') return 'Unsaved changes to this question — deleting another one discards them.';
+		return `Unsaved changes to this question — opening “${pending.policy?.title ?? 'another question'}” discards them.`;
+	});
 
 	$effect(() => {
 		const line = serviceLine;
@@ -151,11 +162,8 @@
 		};
 	});
 
-	function select(policy: Policy) {
-		selectedId = policy.id;
-		creating = false;
-		dirty = false;
-		draft = {
+	function toInput(policy: Policy): PolicyInput {
+		return {
 			title: policy.title,
 			serviceLine: policy.serviceLine,
 			text: policy.text,
@@ -170,11 +178,58 @@
 		};
 	}
 
+	function select(policy: Policy) {
+		selectedId = policy.id;
+		creating = false;
+		dirty = false;
+		draft = toInput(policy);
+	}
+
 	function startNew(line = serviceLine) {
 		selectedId = null;
 		creating = true;
 		dirty = true;
 		draft = { ...BLANK, serviceLine: line || '' };
+	}
+
+	function guard(kind: Pending['kind'], policy?: Policy): boolean {
+		if (!dirty) return false;
+		pending = { kind, policy };
+		return true;
+	}
+
+	function openQuestion(policy: Policy) {
+		if (guard('open', policy)) return;
+		select(policy);
+	}
+
+	function newQuestion() {
+		if (guard('new')) return;
+		startNew();
+	}
+
+	function keepEditing() {
+		pending = null;
+	}
+
+	async function deleteQuestion(policy: Policy) {
+		if (policy.id !== selectedId && guard('delete', policy)) return;
+		select(policy);
+		await remove();
+	}
+
+	async function resolvePending(action: 'save' | 'discard') {
+		const target = pending;
+		if (!target) return;
+		if (action === 'save' && !(await save_())) return;
+		pending = null;
+		if (target.kind === 'new') {
+			startNew();
+			return;
+		}
+		if (!target.policy) return;
+		select(target.policy);
+		if (target.kind === 'delete') await remove();
 	}
 
 	function decayOf(name: string): number | null {
@@ -220,22 +275,24 @@
 		dirty = true;
 	}
 
-	async function save_() {
+	async function save_(): Promise<boolean> {
 		if (draft.text.trim().length < 10) {
 			toasts.push('Write the question a sales manager would ask.', 'warn');
-			return;
+			return false;
 		}
 		saving = true;
 		try {
-			const saved = creating
-				? await createPolicy(draft)
-				: await updatePolicy(selectedId as string, draft);
+			const saved =
+				creating || !selectedId ? await createPolicy(draft) : await updatePolicy(selectedId, draft);
 			selectedId = saved.id;
 			policies = await fetchPolicies();
 			select(saved);
+			pending = null;
 			toasts.push('Saved.', 'success');
+			return true;
 		} catch (cause) {
 			toasts.push((cause as Error).message, 'error');
+			return false;
 		} finally {
 			saving = false;
 		}
@@ -248,6 +305,7 @@
 			policies = await fetchPolicies();
 			selectedId = null;
 			creating = false;
+			pending = null;
 			if (policies.length > 0) select(policies[0]);
 			toasts.push('Question deleted with the signals it produced.', 'success');
 		} catch (cause) {
@@ -256,9 +314,8 @@
 	}
 
 	async function duplicate(policy: Policy) {
-		const { id, key, nats, halfLifeDays, createdAt, updatedAt, signalCount, ...rest } = policy;
 		try {
-			const created = await createPolicy({ ...rest, title: `${policy.title} (copy)` });
+			const created = await createPolicy({ ...toInput(policy), title: `${policy.title} (copy)` });
 			policies = await fetchPolicies();
 			select(created);
 			toasts.push('Duplicated. Edit it and save.', 'success');
@@ -268,9 +325,8 @@
 	}
 
 	async function toggleActive(policy: Policy) {
-		const { id, key, nats, halfLifeDays, createdAt, updatedAt, signalCount, ...rest } = policy;
 		try {
-			const updated = await updatePolicy(policy.id, { ...rest, active: !policy.active });
+			const updated = await updatePolicy(policy.id, { ...toInput(policy), active: !policy.active });
 			policies = await fetchPolicies();
 			if (selectedId === policy.id) select(updated);
 		} catch (cause) {
@@ -359,15 +415,14 @@
 	}
 
 	async function runRow(policy: Policy, id: string) {
-		if (id === 'open') select(policy);
+		if (id === 'open') openQuestion(policy);
 		else if (id === 'duplicate') await duplicate(policy);
 		else if (id === 'toggle') await toggleActive(policy);
 		else if (id === 'key') {
 			const ok = await copy(policy.key);
 			toasts.push(ok ? 'Question key copied.' : 'This browser blocked the clipboard.', ok ? 'success' : 'warn');
 		} else if (id === 'delete') {
-			select(policy);
-			await remove();
+			await deleteQuestion(policy);
 		}
 	}
 
@@ -445,7 +500,7 @@
 		</div>
 
 		<div class="topbar-tools">
-			<button class="btn btn-primary" onclick={() => startNew()}>
+			<button class="btn btn-primary" onclick={() => newQuestion()}>
 				<Icon name="plus" size={15} />
 				New question
 			</button>
@@ -477,7 +532,7 @@
 										<button
 											class="q"
 											aria-current={policy.id === selectedId ? 'true' : undefined}
-											onclick={() => select(policy)}
+											onclick={() => openQuestion(policy)}
 										>
 											<span class="q-title">{policy.title}</span>
 											<span class="q-text">{policy.text}</span>
@@ -504,7 +559,19 @@
 							</ul>
 						</div>
 					{/each}
-					{#if matched.length === 0 && !loading}
+					{#if !loading && policies.length === 0}
+						<div class="pad empty">
+							{#if loadError}
+								<p class="sub dim">The questions could not be read — a failure, not an empty set.</p>
+							{:else}
+								<p class="sub dim">No questions yet. The board scores nothing until a question exists.</p>
+								<button class="btn btn-sm" onclick={() => newQuestion()}>
+									<Icon name="plus" size={14} />
+									New question
+								</button>
+							{/if}
+						</div>
+					{:else if !loading && matched.length === 0}
 						<p class="sub dim pad">No question matches “{query}”.</p>
 					{/if}
 				{/if}
@@ -513,244 +580,286 @@
 
 		<section class="editor" aria-label="Question editor">
 			<div class="editor-body scroll">
-				<div class="panel">
-					<div class="panel-head">
-						<h2 class="dsp">{creating ? 'New question' : (current?.title ?? 'Question')}</h2>
-						{#if dirty}<Tag variant="wash">unsaved</Tag>{/if}
+				{#if editable}
+					<div class="panel">
+						<div class="panel-head">
+							<h2 class="dsp">{creating ? 'New question' : (current?.title ?? 'Question')}</h2>
+							{#if dirty}<Tag variant="wash">unsaved</Tag>{/if}
+						</div>
+
+						<label class="field">
+							<span class="label">Title</span>
+							<input class="input" bind:value={draft.title} oninput={() => (dirty = true)} placeholder="Hiring for process excellence" />
+							<span class="sub dim">The name this question carries on the board. Left empty, it is taken from the question.</span>
+						</label>
+
+						<label class="field">
+							<span class="label">Question</span>
+							<textarea
+								class="textarea"
+								rows="3"
+								bind:value={draft.text}
+								oninput={() => (dirty = true)}
+								placeholder="Is the company consolidating shared service centres into a captive operation?"
+							></textarea>
+						</label>
+
+						<label class="field">
+							<span class="label">Rubric — what counts, and what does not</span>
+							<textarea
+								class="textarea"
+								rows="5"
+								bind:value={draft.instructions}
+								oninput={() => (dirty = true)}
+								placeholder="Counts: …  Does not count: …"
+							></textarea>
+							<span class="sub dim">The rubric is what lets the classifier make the inference a senior rep would, instead of matching a word.</span>
+						</label>
 					</div>
 
-					<label class="field">
-						<span class="label">Title</span>
-						<input class="input" bind:value={draft.title} oninput={() => (dirty = true)} placeholder="Hiring for process excellence" />
-						<span class="sub dim">The name this question carries on the board. Left empty, it is taken from the question.</span>
-					</label>
-
-					<label class="field">
-						<span class="label">Question</span>
-						<textarea
-							class="textarea"
-							rows="3"
-							bind:value={draft.text}
-							oninput={() => (dirty = true)}
-							placeholder="Is the company consolidating shared service centres into a captive operation?"
-						></textarea>
-					</label>
-
-					<label class="field">
-						<span class="label">Rubric — what counts, and what does not</span>
-						<textarea
-							class="textarea"
-							rows="5"
-							bind:value={draft.instructions}
-							oninput={() => (dirty = true)}
-							placeholder="Counts: …  Does not count: …"
-						></textarea>
-						<span class="sub dim">The rubric is what lets the classifier make the inference a senior rep would, instead of matching a word.</span>
-					</label>
-				</div>
-
-				<div class="panel">
-					<div class="panel-head"><h3 class="label">Scoring</h3></div>
-					<div class="fields">
-						<label class="field">
-							<span class="label">Service line</span>
-							<select class="select" bind:value={draft.serviceLine} onchange={() => (dirty = true)}>
-								{#each serviceLines as line (line.id)}
-									<option value={line.key}>{line.name}</option>
-								{/each}
-								{#if !serviceLines.some((line) => line.key === draft.serviceLine)}
-									<option value={draft.serviceLine}>{draft.serviceLine} (not configured)</option>
-								{/if}
-							</select>
-						</label>
-						<label class="field">
-							<span class="label">Weight</span>
-							<select class="select" bind:value={draft.weightTier} onchange={() => (dirty = true)}>
-								<option value="HIGH">High · 1.5 nats</option>
-								<option value="MEDIUM">Medium · 0.7</option>
-								<option value="LOW">Low · 0.3</option>
-							</select>
-						</label>
-						<label class="field">
-							<span class="label">Polarity</span>
-							<select class="select" bind:value={draft.polarity} onchange={() => (dirty = true)}>
-								<option value="POSITIVE">Positive</option>
-								<option value="NEGATIVE">Counter</option>
-								<option value="DISQUALIFYING">Disqualifying</option>
-							</select>
-						</label>
-						<label class="field">
-							<span class="label">Theme</span>
-							<input class="input" list="themes-present" bind:value={draft.theme} oninput={() => (dirty = true)} />
-							<datalist id="themes-present">
-								{#each themes as name (name)}
-									<option value={name}></option>
-								{/each}
-							</datalist>
-							<span class="sub dim">Rows sharing a theme are capped together, so a single loud topic cannot carry a company.</span>
-						</label>
-						<label class="field">
-							<span class="label">Half-life</span>
-							<select class="select" bind:value={draft.decayClass} onchange={() => (dirty = true)}>
-								{#each decayClasses as decay (decay.name)}
-									<option value={decay.name}>{tier(decay.name)} · {decay.halfLifeDays}d</option>
-								{/each}
-							</select>
-							<span class="sub dim">How long this evidence keeps its weight. A dated event is worth less next quarter; a structural shift is worth less next year.</span>
-							{#if draftHalfLife}
-								<div class="decay">
-									{#each [0, 30, 90, 180, 365] as age (age)}
-										<span class="decay-step">
-											<span class="label">{age === 0 ? 'today' : `${age}d`}</span>
-											<span class="num decay-bar">
-												<span style={`width:${Math.round(weight(age, draftHalfLife) * 100)}%`}></span>
-											</span>
-											<span class="num dim">{weight(age, draftHalfLife).toFixed(2)}</span>
-										</span>
+					<div class="panel">
+						<div class="panel-head"><h3 class="label">Scoring</h3></div>
+						<div class="fields">
+							<label class="field">
+								<span class="label">Service line</span>
+								<select class="select" bind:value={draft.serviceLine} onchange={() => (dirty = true)}>
+									{#each serviceLines as line (line.id)}
+										<option value={line.key}>{line.name}</option>
 									{/each}
-								</div>
-							{/if}
+									{#if !serviceLines.some((line) => line.key === draft.serviceLine)}
+										<option value={draft.serviceLine}>{draft.serviceLine} (not configured)</option>
+									{/if}
+								</select>
+							</label>
+							<label class="field">
+								<span class="label">Weight</span>
+								<select class="select" bind:value={draft.weightTier} onchange={() => (dirty = true)}>
+									<option value="HIGH">High · +1.5</option>
+									<option value="MEDIUM">Medium · +0.7</option>
+									<option value="LOW">Low · +0.3</option>
+								</select>
+							</label>
+							<label class="field">
+								<span class="label">Polarity</span>
+								<select class="select" bind:value={draft.polarity} onchange={() => (dirty = true)}>
+									<option value="POSITIVE">Positive</option>
+									<option value="NEGATIVE">Counter</option>
+									<option value="DISQUALIFYING">Disqualifying</option>
+								</select>
+							</label>
+							<label class="field">
+								<span class="label">Theme</span>
+								<input class="input" list="themes-present" bind:value={draft.theme} oninput={() => (dirty = true)} />
+								<datalist id="themes-present">
+									{#each themes as name (name)}
+										<option value={name}></option>
+									{/each}
+								</datalist>
+								<span class="sub dim">Rows sharing a theme are capped together, so a single loud topic cannot carry a company.</span>
+							</label>
+							<label class="field">
+								<span class="label">Half-life</span>
+								<select class="select" bind:value={draft.decayClass} onchange={() => (dirty = true)}>
+									{#each decayClasses as decay (decay.name)}
+										<option value={decay.name}>{tier(decay.name)} · {decay.halfLifeDays}d</option>
+									{/each}
+								</select>
+								<span class="sub dim">How long this evidence keeps its weight. A dated event is worth less next quarter; a structural shift is worth less next year.</span>
+								{#if draftHalfLife}
+									<div class="decay">
+										{#each [0, 30, 90, 180, 365] as age (age)}
+											<span class="decay-step">
+												<span class="label">{age === 0 ? 'today' : `${age}d`}</span>
+												<span class="num decay-bar">
+													<span style={`width:${Math.round(weight(age, draftHalfLife) * 100)}%`}></span>
+												</span>
+												<span class="num dim">{weight(age, draftHalfLife).toFixed(2)}</span>
+											</span>
+										{/each}
+									</div>
+								{/if}
+							</label>
+						</div>
+						<label class="check">
+							<input type="checkbox" bind:checked={draft.active} onchange={() => (dirty = true)} />
+							<span>Active — the board scores this question</span>
 						</label>
 					</div>
-					<label class="check">
-						<input type="checkbox" bind:checked={draft.active} onchange={() => (dirty = true)} />
-						<span>Active — the board scores this question</span>
-					</label>
-				</div>
 
-				<div class="panel">
-					<div class="panel-head">
-						<h3 class="label">What this question will look for</h3>
-						{#if (draft.cues ?? []).length === 0}<Tag variant="bare">derived</Tag>{/if}
+					<div class="panel">
+						<div class="panel-head">
+							<h3 class="label">What this question will look for</h3>
+							{#if (draft.cues ?? []).length === 0}<Tag variant="bare">derived</Tag>{/if}
+						</div>
+						{#if (draft.cues ?? []).length > 0}
+							<div class="chips">
+								{#each draft.cues ?? [] as cue (cue)}
+									<button class="chip" type="button" title="Remove this cue" onclick={() => dropCue(cue)}>
+										{cue}<Icon name="close" size={11} />
+									</button>
+								{/each}
+							</div>
+							<div class="cue-add">
+								<input
+									class="input input-sm"
+									placeholder="Add a phrase this question should match"
+									bind:value={cueDraft}
+									onkeydown={(event) => {
+										if (event.key === 'Enter') {
+											event.preventDefault();
+											addCue();
+										}
+									}}
+								/>
+								<button class="btn btn-sm" type="button" onclick={addCue}>Add</button>
+							</div>
+							<p class="sub dim">Set on the question. Empty the list to let the rubric derive its own.</p>
+						{:else if derivedCues.length > 0}
+							<div class="chips">
+								{#each derivedCues as cue (cue)}<Tag variant="wash">{cue}</Tag>{/each}
+							</div>
+							<p class="sub dim">
+								Derived from the wording — nothing is configured, so these are the phrases the engine will match.
+								Keep them to edit the list, or leave it empty and they are re-derived from the rubric.
+							</p>
+							<button class="btn btn-sm" type="button" onclick={keepDerived}>Use these as the cue list</button>
+						{:else}
+							<p class="sub dim">No cue vocabulary yet. Write at least ten characters of question and rubric.</p>
+						{/if}
 					</div>
-					{#if (draft.cues ?? []).length > 0}
+
+					<div class="panel">
+						<div class="panel-head">
+							<h3 class="label">What argues against it</h3>
+						</div>
 						<div class="chips">
-							{#each draft.cues ?? [] as cue (cue)}
-								<button class="chip" type="button" title="Remove this cue" onclick={() => dropCue(cue)}>
+							{#each draft.counterCues ?? [] as cue (cue)}
+								<button class="chip chip-bad" type="button" title="Remove" onclick={() => dropCounterCue(cue)}>
 									{cue}<Icon name="close" size={11} />
 								</button>
 							{/each}
+							{#if (draft.counterCues ?? []).length === 0}
+								<span class="sub dim">
+									None. A passage containing one of these subtracts from the score instead of adding to it.
+								</span>
+							{/if}
 						</div>
 						<div class="cue-add">
 							<input
 								class="input input-sm"
-								placeholder="Add a phrase this question should match"
-								bind:value={cueDraft}
+								placeholder="A phrase that means this is not a buying signal"
+								bind:value={counterDraft}
 								onkeydown={(event) => {
 									if (event.key === 'Enter') {
 										event.preventDefault();
-										addCue();
+										addCounterCue();
 									}
 								}}
 							/>
-							<button class="btn btn-sm" type="button" onclick={addCue}>Add</button>
+							<button class="btn btn-sm" type="button" onclick={addCounterCue}>Add</button>
 						</div>
-						<p class="sub dim">Set on the question. Empty the list to let the rubric derive its own.</p>
-					{:else if derivedCues.length > 0}
-						<div class="chips">
-							{#each derivedCues as cue (cue)}<Tag variant="wash">{cue}</Tag>{/each}
-						</div>
-						<p class="sub dim">
-							Derived from the wording — nothing is configured, so these are the phrases the engine will match.
-							Keep them to edit the list, or leave it empty and they are re-derived from the rubric.
-						</p>
-						<button class="btn btn-sm" type="button" onclick={keepDerived}>Use these as the cue list</button>
-					{:else}
-						<p class="sub dim">No cue vocabulary yet. Write at least ten characters of question and rubric.</p>
-					{/if}
-				</div>
-
-				<div class="panel">
-					<div class="panel-head">
-						<h3 class="label">What argues against it</h3>
-					</div>
-					<div class="chips">
-						{#each draft.counterCues ?? [] as cue (cue)}
-							<button class="chip chip-bad" type="button" title="Remove" onclick={() => dropCounterCue(cue)}>
-								{cue}<Icon name="close" size={11} />
-							</button>
-						{/each}
-						{#if (draft.counterCues ?? []).length === 0}
-							<span class="sub dim">
-								None. A passage containing one of these subtracts from the score instead of adding to it.
-							</span>
-						{/if}
-					</div>
-					<div class="cue-add">
-						<input
-							class="input input-sm"
-							placeholder="A phrase that means this is not a buying signal"
-							bind:value={counterDraft}
-							onkeydown={(event) => {
-								if (event.key === 'Enter') {
-									event.preventDefault();
-									addCounterCue();
-								}
-							}}
-						/>
-						<button class="btn btn-sm" type="button" onclick={addCounterCue}>Add</button>
-					</div>
-				</div>
-
-				<div class="panel">
-					<div class="panel-head">
-						<h3 class="label">Live preview</h3>
-						{#if previewing}<span class="sub dim"><span class="spinner"></span> Loading</span>{/if}
 					</div>
 
-					<div class="preview-body">
-						<LoadingVeil show={veil} label="Loading the preview" />
-
-					{#if !preview}
-						<p class="sub dim">The corpus is scanned as you type on the local rubric engine, so it is instant and deterministic. Applying runs the configured engine.</p>
-					{:else}
-						<div class="metrics">
-							<Metric value={preview.matchedCompanies} label="Companies" />
-							<Metric value={shortNumber(preview.matchedEvidence)} label="Documents" />
-							<Metric value={duration(preview.tookMs)} label="Scan" />
+					<div class="panel">
+						<div class="panel-head">
+							<h3 class="label">Live preview</h3>
+							{#if previewing}<span class="sub dim"><span class="spinner"></span> Loading</span>{/if}
 						</div>
 
-						{#if preview.matches.length > 0}
-							<table class="grid">
-								<thead>
-									<tr>
-										<th scope="col" class="c-name">Company</th>
-										<th scope="col" class="c c-docs">Docs</th>
-										<th scope="col" class="c c-conf">Top conf</th>
-										<th scope="col">Passage</th>
-									</tr>
-								</thead>
-								<tbody>
-									{#each preview.matches.slice(0, 10) as match (match.companyId)}
-										<tr>
-											<td class="c-name"><a href="/?co={match.companyId}">{match.company}</a></td>
-											<td class="num c c-docs">{match.evidence}</td>
-											<td class="num c c-conf">{match.topConfidence.toFixed(2)}</td>
-											<td class="small-quote">“{match.quote}”</td>
-										</tr>
-									{/each}
-								</tbody>
-							</table>
-							{#if preview.matches.length > 10}
-								<p class="sub dim">10 strongest of {preview.matchedCompanies}.</p>
-							{/if}
+						<div class="preview-body">
+							<LoadingVeil show={veil} label="Loading the preview" />
+
+						{#if !preview}
+							<p class="sub dim">The corpus is scanned as you type on the local rubric engine, so it is instant and deterministic. Applying runs the configured engine.</p>
 						{:else}
-							<p class="sub dim">Nothing in the corpus answers this. That is a result: the question would not move the board.</p>
+							<div class="metrics">
+								<Metric value={preview.matchedCompanies} label="Companies" />
+								<Metric value={shortNumber(preview.matchedEvidence)} label="Documents" />
+								<Metric value={duration(preview.tookMs)} label="Scan" />
+							</div>
+
+							{#if preview.matches.length > 0}
+								<table class="grid">
+									<thead>
+										<tr>
+											<th scope="col" class="c-name">Company</th>
+											<th scope="col" class="c c-docs">Docs</th>
+											<th scope="col" class="c c-conf">Top conf</th>
+											<th scope="col">Passage</th>
+										</tr>
+									</thead>
+									<tbody>
+										{#each preview.matches.slice(0, 10) as match (match.companyId)}
+											<tr>
+												<td class="c-name"><a href="/?co={match.companyId}">{match.company}</a></td>
+												<td class="num c c-docs">{match.evidence}</td>
+												<td class="num c c-conf">{match.topConfidence.toFixed(2)}</td>
+												<td class="small-quote">“{match.quote}”</td>
+											</tr>
+										{/each}
+									</tbody>
+								</table>
+								{#if preview.matches.length > 10}
+									<p class="sub dim">10 strongest of {preview.matchedCompanies}.</p>
+								{/if}
+							{:else}
+								<p class="sub dim">Nothing in the corpus answers this. That is a result: the question would not move the board.</p>
+							{/if}
 						{/if}
-					{/if}
+						</div>
 					</div>
-				</div>
+				{:else}
+					<div class="panel">
+						<div class="panel-head">
+							<h2 class="dsp">No question open</h2>
+						</div>
+						{#if loadError}
+							<p class="sub dim">The questions could not be read, so there is nothing to edit.</p>
+						{:else}
+							<p class="sub dim">
+								Choose a question in the list, or start a new one. Until a question exists, the board
+								has nothing to score.
+							</p>
+							<button class="btn btn-sm" onclick={() => newQuestion()}>
+								<Icon name="plus" size={14} />
+								New question
+							</button>
+						{/if}
+					</div>
+				{/if}
 			</div>
 
+			{#if pending}
+				<div class="pending">
+					<Icon name="alert" size={14} />
+					<span>{pendingNote}</span>
+					<span class="spacer"></span>
+					<button class="btn btn-sm btn-quiet" onclick={keepEditing} disabled={saving}>Keep editing</button>
+					<button class="btn btn-sm" onclick={() => resolvePending('discard')} disabled={saving}>
+						Discard and continue
+					</button>
+					<button class="btn btn-sm btn-ink" onclick={() => resolvePending('save')} disabled={saving}>
+						Save and continue
+					</button>
+				</div>
+			{/if}
+
 			<footer class="editor-foot">
-				<button class="btn btn-ink" onclick={save_} disabled={saving}>
-					{#if saving}<span class="spinner"></span>{/if}
-					{creating ? 'Create question' : 'Save'}
-				</button>
-				<button class="btn" onclick={apply} disabled={applying || !draft.serviceLine}>
-					{#if applying}<span class="spinner"></span>{/if}
-					{applying ? 'Scoring' : 'Apply to the board'}
-				</button>
+				{#if editable}
+					<button class="btn btn-ink" onclick={save_} disabled={saving}>
+						{#if saving}<span class="spinner"></span>{/if}
+						{creating ? 'Create question' : 'Save'}
+					</button>
+					<button class="btn" onclick={apply} disabled={applying || !draft.serviceLine}>
+						{#if applying}<span class="spinner"></span>{/if}
+						{applying ? 'Scoring' : 'Apply to the board'}
+					</button>
+				{:else}
+					<button class="btn btn-ink" onclick={() => newQuestion()}>
+						<Icon name="plus" size={15} />
+						New question
+					</button>
+				{/if}
 				<span class="spacer"></span>
 				{#if current}<span class="sub dim num" title="Question key">{current.key}</span>{/if}
 			</footer>
@@ -952,6 +1061,30 @@
 
 	.pad {
 		padding: var(--sp-3);
+	}
+
+	.pad.empty {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--sp-2);
+	}
+
+	.pending {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: var(--sp-2);
+		padding: var(--sp-2) var(--sp-4);
+		border-top: 1px solid var(--rule-strong);
+		background: var(--orange-wash);
+		color: var(--orange-ink);
+		font-size: var(--fs-sm);
+		flex: none;
+	}
+
+	.pending .spacer {
+		margin-left: auto;
 	}
 
 	.editor {

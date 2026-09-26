@@ -51,6 +51,19 @@
 	const words = $derived(body.trim() ? body.trim().split(/\s+/).length : 0);
 	const edited = $derived(draft !== null && (subject !== draft.subject || body !== draft.body));
 
+	const provenance = $derived.by(() => {
+		if (!draft) return '';
+		if (draft.engine.includes('@draft')) return 'Written by the model';
+		const reason = draft.engine
+			.split(',')
+			.slice(1)
+			.join(',')
+			.trim();
+		if (reason.includes('no model')) return 'Drafted from a template — no writing model is configured';
+		if (reason.includes('failed')) return 'Drafted from a template — the writing model was not reachable';
+		return 'Drafted from a template';
+	});
+
 	function mailto(): string {
 		return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 	}
@@ -63,10 +76,13 @@
 
 	$effect(() => {
 		const onKey = (event: KeyboardEvent) => {
-			if (event.key === 'Escape') onclose();
+			if (event.key !== 'Escape') return;
+			event.preventDefault();
+			event.stopPropagation();
+			onclose();
 		};
-		window.addEventListener('keydown', onKey);
-		return () => window.removeEventListener('keydown', onKey);
+		window.addEventListener('keydown', onKey, true);
+		return () => window.removeEventListener('keydown', onKey, true);
 	});
 
 	const asText = $derived(
@@ -115,7 +131,10 @@
 		<header>
 			<div>
 				<p class="label">Outreach draft · {companyName}</p>
-				{#if draft}<p class="sub dim">Aimed at {draft.persona}</p>{/if}
+				{#if draft}
+					<p class="sub dim">Aimed at {draft.persona}</p>
+					<p class="sub dim">{provenance}</p>
+				{/if}
 			</div>
 			<div class="head-tools">
 				<Menu
@@ -170,7 +189,7 @@
 								Reset
 							</button>
 							<span class="spacer"></span>
-							<span class="sub dim">Written from the ledger — edit freely before sending.</span>
+							<span class="sub dim">Edit freely before sending.</span>
 						</div>
 					</div>
 
@@ -200,8 +219,8 @@
 							{/each}
 							{#if draft.citations.length === 0}
 								<p class="sub dim">
-									No positive evidence cleared the floor, so the draft makes no claim. Send it as a research
-									question instead.
+									No source supports a claim, so the draft makes none. Send it as a research question
+									instead.
 								</p>
 							{/if}
 						</div>

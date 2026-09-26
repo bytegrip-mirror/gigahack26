@@ -107,25 +107,35 @@
 							an accuracy figure. Crawling more documents per company is what would power it.
 						</p>
 					{/if}
-					<div class="metrics">
-						<Metric value={String(backtest.called)} label="It would have called" tone="hot" />
-						<Metric
-							value={backtest.calledRate != null ? (backtest.calledRate * 100).toFixed(0) + '%' : '—'}
-							label="Went on to produce the evidence"
-							tone="good"
-						/>
-						<Metric value={String(backtest.control)} label="It would not have" />
-						<Metric
-							value={backtest.controlRate != null ? (backtest.controlRate * 100).toFixed(0) + '%' : '—'}
-							label="Also went on to"
-						/>
-						<Metric
-							value={backtest.lift != null ? backtest.lift.toFixed(1) + '×' : '—'}
-							label="Lift over not calling"
-							tone={(backtest.lift ?? 0) > 1 ? 'good' : 'bad'}
-						/>
-					</div>
-					<p class="sub dim">\n\t\t\t\t\t\tEvery document was hidden from the scorer, the board rebuilt as of {new Date(backtest.asOf).toISOString().slice(0, 10)}, then the later documents read back. This tests whether the score precedes the evidence, not whether it precedes a purchase.\n\t\t\t\t\t</p>
+					{#if backtest.powered}
+						<div class="metrics">
+							<Metric value={String(backtest.called)} label="It would have called" tone="hot" />
+							<Metric
+								value={backtest.calledRate != null ? (backtest.calledRate * 100).toFixed(0) + '%' : '—'}
+								label="Went on to produce the evidence"
+								tone="good"
+							/>
+							<Metric value={String(backtest.control)} label="It would not have" />
+							<Metric
+								value={backtest.controlRate != null ? (backtest.controlRate * 100).toFixed(0) + '%' : '—'}
+								label="Also went on to"
+							/>
+							<Metric
+								value={backtest.lift != null ? backtest.lift.toFixed(1) + '×' : '—'}
+								label="Lift over not calling"
+								tone={(backtest.lift ?? 0) > 1 ? 'good' : 'bad'}
+							/>
+						</div>
+					{:else}
+						<p class="note">
+							{backtest.called}
+							{backtest.called === 1 ? 'company' : 'companies'} called against {backtest.control} not called — too
+							few to read.
+						</p>
+					{/if}
+					<p class="sub dim">
+						Every document was hidden from the scorer, the board rebuilt as of {new Date(backtest.asOf).toISOString().slice(0, 10)}, then the later documents read back. This tests whether the score precedes the evidence, not whether it precedes a purchase.
+					</p>
 				</section>
 			{/if}
 

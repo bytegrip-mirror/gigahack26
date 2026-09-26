@@ -13,6 +13,7 @@
 	import type { MenuItem } from '$lib/components/menu';
 
 	const STAGES = [
+		{ id: 'NEW', label: 'New' },
 		{ id: 'CONTACTED', label: 'Contacted' },
 		{ id: 'REPLIED', label: 'Replied' },
 		{ id: 'QUALIFIED', label: 'Qualified' },
@@ -189,7 +190,7 @@
 		<div class="ident">
 			<h1 class="dsp">Pipeline</h1>
 			<p class="sub num">
-				{plural(leads.length, 'company', 'companies')} worked{#if allLines}
+				{plural(leads.length, 'company', 'companies')} in the pipeline{#if allLines}
 					across every service line{:else}
 					on {serviceLine}{/if}
 			</p>
@@ -197,6 +198,7 @@
 
 		{#if tally}
 			<div class="metrics">
+				<Metric value={tally.NEW} label="New" />
 				<Metric value={tally.CONTACTED} label="Contacted" />
 				<Metric value={tally.REPLIED} label="Replied" tone={tally.REPLIED > 0 ? 'hot' : null} />
 				<Metric value={tally.QUALIFIED} label="Qualified" tone={tally.QUALIFIED > 0 ? 'good' : null} />
@@ -242,10 +244,10 @@
 	{:else if leads.length === 0}
 		<div class="empty">
 			<Icon name="pipeline" size={22} />
-			<h2 class="dsp">Nothing has been worked yet</h2>
+			<h2 class="dsp">Nothing is in the pipeline yet</h2>
 			<p class="sub">
-				Open a company on the board and set a stage, or generate an outreach draft — which marks the company
-				contacted for you. Everything you touch lands here with its evidence still attached.
+				Open a company on the board and push it to HubSpot, or generate an outreach draft — either one lands
+				here as New, with its evidence still attached.
 			</p>
 			<a class="btn btn-ink" href="/">Go to the board</a>
 		</div>
@@ -367,6 +369,7 @@
 		box-shadow: inset 3px 0 0 var(--oxblood);
 	}
 
+	.stage[data-stage='NEW'] .stage-head,
 	.stage[data-stage='CONTACTED'] .stage-head,
 	.stage[data-stage='REPLIED'] .stage-head {
 		box-shadow: inset 3px 0 0 var(--orange);
