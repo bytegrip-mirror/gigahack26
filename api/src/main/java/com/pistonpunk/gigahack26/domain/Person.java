@@ -54,11 +54,17 @@ public class Person {
     private Instant enrichedAt;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(length = 20)
     private LeadStatus status;
 
-    @Column(name = "contact_count", nullable = false)
-    private int contactCount;
+    /**
+     * Boxed, and read through a null-safe getter, because the column was added to
+     * a table that already held people: Hibernate widens the table with the column
+     * empty, and a primitive int cannot hold the null that leaves behind. It threw
+     * on every read of every person until this was boxed.
+     */
+    @Column(name = "contact_count")
+    private Integer contactCount;
 
     @Column(name = "last_contacted_at")
     private Instant lastContactedAt;
@@ -152,7 +158,7 @@ public class Person {
     }
 
     public int getContactCount() {
-        return contactCount;
+        return contactCount == null ? 0 : contactCount;
     }
 
     public Instant getLastContactedAt() {
@@ -174,7 +180,7 @@ public class Person {
      */
     public void moveTo(LeadStatus next, String viaChannel, String subject, Instant now) {
         if (next != this.status) {
-            this.contactCount = this.contactCount + 1;
+            this.contactCount = getContactCount() + 1;
             this.lastContactedAt = now;
         }
         this.status = next;

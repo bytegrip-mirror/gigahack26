@@ -452,7 +452,7 @@ touching one and not the other is the default failure mode.
 | New port or domain | Traefik labels in the `Jenkinsfile`, `docker-compose.yml` |
 | New API dependency | `api/build.gradle.kts`, and check the Dockerfile's build stage still resolves it |
 | New corpus field | `CorpusFiles`, `CorpusSeeder`, `tools/build_corpus.py`, and re-seed |
-| New column on a settings or domain table | a plain `VARCHAR`/number column is added by `ddl-auto: update` on the live database too; an enum-backed one is not — see the row below |
+| New column on a settings or domain table | a plain `VARCHAR`/number column is added by `ddl-auto: update` on the live database too; an enum-backed one is not — see the row below. **On a table that already has rows the column arrives empty, so a primitive `int`/`boolean` field cannot hold it.** Boxing `contact_count` on `person` was the difference between a working board and a 500 on every read — the app boots, the tests pass, and only the deployed data has the null |
 | New value on an enum a column stores | a migration on every database that already exists. Hibernate `ddl-auto: update` creates the check constraint on a fresh database and never widens it on an old one, so adding `NEWSROOM` to `SourceKind` crash-looped the deployed API with `violates check constraint "evidence_source_kind_check"` until the constraint was rewritten by hand. Fresh databases — local compose, CI — are fine; the live one is not |
 | New scoring input | `ScoringProperties`, `WorkspaceSettings`, `SettingsService.effective()`, the Customer profile screen, and the `ScoringServiceTest` literal |
 
