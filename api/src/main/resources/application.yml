@@ -39,6 +39,15 @@ spring:
     type: ${CACHE_TYPE:redis}
     redis:
       time-to-live: ${CACHE_TTL_MS:60000}
+  ai:
+    mcp:
+      server:
+        name: gigahack26-api
+        version: 0.0.1
+        protocol: STATELESS
+        type: SYNC
+        streamable-http:
+          mcp-endpoint: /api/mcp
 
 app:
   cors:

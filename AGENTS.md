@@ -302,6 +302,20 @@ when the network allows. **The demo must never depend on venue Wi-Fi** — that 
 why the default is local and why the UI disables the model option when
 `meta.languageModelAvailable` is false.
 
+**The MCP server is the controllers, translated.** Spring AI's stateless
+streamable-HTTP transport serves `POST /api/mcp`, inside the existing `/api/**`
+CORS mapping. `ControllerToolScanner` reflects over every `@RestController` bean
+and turns each public request-mapped method into one tool named
+`<controller>_<method>` in snake case (`lead_push_to_hubspot`), with one
+`McpToolParameter` per `@PathVariable`, `@RequestParam` or `@RequestBody` — the
+body is one argument called `body`. `ControllerToolInvoker` converts the
+arguments with the app's Jackson mapper, runs bean validation where the controller
+declares `@Valid`, and calls the controller bean itself, so `@CacheEvict` still
+fires; an error `ResponseEntity` becomes an MCP error result. A method with any
+other parameter type is not exposed, and `/api/admin` is never exposed, because
+those routes spend money on model calls. A new endpoint is a new tool with no
+extra code, and two methods that fold to the same name fail the boot.
+
 **The corpus ships with model-extracted signals.** `corpus/raw.json` is real
 crawled documents; `corpus/signals.json`, when present, is an overlay of
 language-model verdicts with their quotes. `CorpusSeeder` applies the overlay where
