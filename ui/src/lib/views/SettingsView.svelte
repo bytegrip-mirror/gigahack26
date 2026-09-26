@@ -5,11 +5,13 @@
 		fetchRegionCountries,
 		fetchServiceLines,
 		fetchSettings,
+		fetchTelemetry,
 		saveSettings,
 		updateServiceLine,
 		type RegionCountry,
 		type ServiceLine,
-		type Settings
+		type Settings,
+		type Telemetry
 	} from '$lib/api';
 	import { workspace } from '$lib/workspace.svelte';
 	import { toasts } from '$lib/toast.svelte';
@@ -26,7 +28,8 @@
 		{ id: 'voice', label: 'Voice and style', hint: 'How drafts read', icon: 'mail' },
 		{ id: 'profile', label: 'Customer profile', hint: 'Who counts as a prospect', icon: 'target' },
 		{ id: 'lines', label: 'Service lines', hint: 'What we sell', icon: 'layers' },
-		{ id: 'scoring', label: 'Scoring', hint: 'Where the bands sit', icon: 'sliders' }
+		{ id: 'scoring', label: 'Scoring', hint: 'Where the bands sit', icon: 'sliders' },
+		{ id: 'pipeline', label: 'Pipeline', hint: 'What the crawl and the model did', icon: 'pipeline' }
 	];
 
 	const TONES = ['direct', 'consultative', 'warm', 'matter-of-fact'];
@@ -35,6 +38,7 @@
 	const LANGUAGES = ['en', 'ro', 'de', 'fr', 'it', 'es'];
 
 	let section = $state('voice');
+	let telemetry = $state<Telemetry | null>(null);
 	let settings = $state<Settings | null>(null);
 	let draft = $state<Settings | null>(null);
 	let lines = $state<ServiceLine[]>([]);
@@ -63,6 +67,9 @@
 			.then(([config, lineList, countryRows]) => {
 				if (cancelled) return;
 				settings = config;
+				fetchTelemetry()
+					.then((result) => (telemetry = result))
+					.catch(() => (telemetry = null));
 				draft = { ...config };
 				countries = config.icpCountries.join(', ');
 				industries = config.icpIndustries.join(', ');
@@ -516,6 +523,61 @@
 							<Metric value={bands.WATCH ?? 0} label="Watch" />
 							<Metric value={bands.THIN ?? 0} label="Thin" />
 							<Metric value={bands.DISQUALIFIED ?? 0} label="Rejected" />
+						</div>
+					</section>
+				{/if}
+
+				{#if section === 'pipeline'}
+					<section class="panel">
+						<div class="panel-head">
+							<h2 class="dsp">What the crawl reached</h2>
+							<span class="sub dim num">
+								{telemetry?.freshness?.newestCaptureAgeHours != null
+									? `newest capture ${telemetry.freshness.newestCaptureAgeHours}h old`
+									: 'no captures'}
+							</span>
+						</div>
+						<div class="metrics">
+							<Metric value={shortNumber(telemetry?.coverage?.companies ?? 0)} label="Companies" />
+							<Metric value={shortNumber(telemetry?.coverage?.documents ?? 0)} label="Documents" />
+							<Metric
+								value={shortNumber(telemetry?.coverage?.withDocuments ?? 0)}
+								label="With evidence"
+							/>
+							<Metric
+								value={String(telemetry?.coverage?.withoutDocuments ?? 0)}
+								label="Blind spots"
+								tone={(telemetry?.coverage?.withoutDocuments ?? 0) > 0 ? 'bad' : 'good'}
+								hint="Companies we hold no document for: nothing can be said about them either way"
+							/>
+						</div>
+						<p class="sub dim">
+							{telemetry?.coverage?.documentsPerCompany ?? 0} documents per company on average. A company with no
+							document is not a company with no signal — it is a company this crawl did not reach, and it is counted
+							here rather than quietly scored at the base rate.
+						</p>
+					</section>
+
+					<section class="panel">
+						<div class="panel-head">
+							<h2 class="dsp">What answered each row</h2>
+						</div>
+						<div class="metrics">
+							{#each Object.entries(telemetry?.signalsByEngine ?? {}) as [engine, count] (engine)}
+								<Metric value={shortNumber(count)} label={engine} />
+							{/each}
+						</div>
+						<div class="metrics">
+							<Metric
+								value={shortNumber(telemetry?.classificationCache?.entries ?? 0)}
+								label="Cached classifications"
+							/>
+							<Metric
+								value={shortNumber(telemetry?.classificationCache?.reused ?? 0)}
+								label="Answers reused"
+								tone="good"
+								hint="A pair already read costs nothing to read again, so a re-run pays only for what it has not seen"
+							/>
 						</div>
 					</section>
 				{/if}

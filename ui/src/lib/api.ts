@@ -673,6 +673,24 @@ export function deleteServiceLine(id: string): Promise<void> {
 	return request<void>(`/api/service-lines/${id}`, { method: 'DELETE' });
 }
 
+export type Telemetry = {
+	checkedAt: string;
+	signalsByEngine: Record<string, number>;
+	coverage: {
+		companies: number;
+		withDocuments: number;
+		withoutDocuments: number;
+		documents: number;
+		documentsPerCompany: number;
+	};
+	freshness: { newestCaptureAt: string | null; newestCaptureAgeHours: number | null };
+	classificationCache: { entries: number; reused: number; byEngine: Record<string, number> };
+};
+
+export function fetchTelemetry(): Promise<Telemetry> {
+	return request<Telemetry>('/api/telemetry');
+}
+
 export type Settings = {
 	icpCountries: string[];
 	icpIndustries: string[];
