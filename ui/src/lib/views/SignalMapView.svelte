@@ -1,32 +1,20 @@
 <script lang="ts">
 	import { fetchBoard, type BoardRow } from '$lib/api';
 	import { session } from '$lib/session.svelte';
-	import { shortNumber, theme } from '$lib/format';
-	import logos from '$lib/logos.json';
+	import { plural, shortNumber, theme } from '$lib/format';
+	import CompanyMark from '$lib/components/CompanyMark.svelte';
 	import LoadingVeil from '$lib/components/LoadingVeil.svelte';
-	import Tag from '$lib/components/Tag.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 
-	const ROW = 48;
-	const NODE_H = 34;
-	const SHOWN_COMPANIES = 16;
+	const SHOWN = 24;
 
-	const WIDE = { themeX: 16, questionX: 300, questionW: 260, companyX: 700, companyW: 288 };
-	const NARROW = { themeX: 12, questionX: 196, questionW: 214, companyX: 448, companyW: 288 };
-
-	let narrow = $state(false);
-
-	$effect(() => {
-		const query = window.matchMedia('(max-width: 1180px)');
-		narrow = query.matches;
-		const update = () => (narrow = query.matches);
-		query.addEventListener('change', update);
-		return () => query.removeEventListener('change', update);
-	});
-
-	const geom = $derived(narrow ? NARROW : WIDE);
-	const WIDTH = $derived(geom.companyX + geom.companyW + 16);
-	const TITLE_CHARS = $derived(Math.floor(geom.questionW / 6.3));
+	type Found = {
+		id: string;
+		name: string;
+		domain: string | null;
+		band: string;
+		evidence: number;
+	};
 
 	type Question = {
 		key: string;
@@ -34,25 +22,15 @@
 		text: string;
 		theme: string;
 		polarity: string;
-		companies: Map<string, number>;
+		found: Found[];
+		total: number;
 	};
-
-	type Company = {
-		id: string;
-		name: string;
-		domain: string | null;
-		band: string;
-		questions: string[];
-		weight: number;
-	};
-
-	const files = logos as Record<string, string>;
 
 	let rows = $state<BoardRow[]>([]);
 	let loading = $state(true);
 	let error = $state<string | null>(null);
-	let asTable = $state(false);
 	let hovered = $state<string | null>(null);
+	let onlyShared = $state(false);
 
 	const serviceLine = $derived(session.serviceLine);
 
@@ -81,118 +59,74 @@
 	const questions = $derived.by(() => {
 		const map = new Map<string, Question>();
 		for (const row of rows) {
+			const perQuestion = new Map<string, number>();
 			for (const chip of row.chips) {
-				const held = map.get(chip.questionKey) ?? {
-					key: chip.questionKey,
+				perQuestion.set(chip.questionKey, (perQuestion.get(chip.questionKey) ?? 0) + 1);
+			}
+			for (const [key, evidence] of perQuestion) {
+				const chip = row.chips.find((entry) => entry.questionKey === key)!;
+				const held = map.get(key) ?? {
+					key,
 					title: chip.questionTitle,
 					text: chip.question,
 					theme: chip.theme,
 					polarity: chip.polarity,
-					companies: new Map<string, number>()
+					found: [],
+					total: 0
 				};
-				held.companies.set(row.id, (held.companies.get(row.id) ?? 0) + 1);
-				map.set(chip.questionKey, held);
-			}
-		}
-		return [...map.values()].sort(
-			(a, b) => a.theme.localeCompare(b.theme) || b.companies.size - a.companies.size
-		);
-	});
-
-	const ranked = $derived.by(() => {
-		const seen = new Map<string, Company>();
-		const byId = new Map(rows.map((row) => [row.id, row]));
-		for (const question of questions) {
-			for (const [id, count] of question.companies) {
-				const row = byId.get(id);
-				if (!row) continue;
-				const held = seen.get(id) ?? {
-					id,
+				held.found.push({
+					id: row.id,
 					name: row.name,
 					domain: row.domain,
 					band: row.band,
-					questions: [],
-					weight: 0
-				};
-				held.questions.push(question.key);
-				held.weight += count;
-				seen.set(id, held);
+					evidence
+				});
+				held.total += 1;
+				map.set(key, held);
 			}
 		}
-		return [...seen.values()].sort(
-			(a, b) =>
-				b.questions.length - a.questions.length ||
-				b.weight - a.weight ||
-				a.name.localeCompare(b.name)
-		);
+		return [...map.values()]
+			.map((question) => ({
+				...question,
+				found: question.found.sort((a, b) => b.evidence - a.evidence || a.name.localeCompare(b.name))
+			}))
+			.sort((a, b) => a.theme.localeCompare(b.theme) || b.total - a.total);
 	});
-
-	const companies = $derived(ranked.slice(0, SHOWN_COMPANIES));
-	const hidden = $derived(ranked.length - companies.length);
 
 	const groups = $derived.by(() => {
-		const seen = new Map<string, string[]>();
+		const seen = new Map<string, Question[]>();
 		for (const question of questions) {
-			seen.set(question.theme, [...(seen.get(question.theme) ?? []), question.key]);
+			seen.set(question.theme, [...(seen.get(question.theme) ?? []), question]);
 		}
-		return [...seen.entries()].map(([name, keys]) => ({ name, keys }));
+		return [...seen.entries()].map(([name, items]) => ({ name, items }));
 	});
 
-	const layout = $derived.by(() => {
-		const questionY = new Map<string, number>();
-		questions.forEach((question, index) => questionY.set(question.key, ROW * (index + 1.6)));
-
-		const themeY = new Map<string, { at: number; first: number; last: number }>();
-		for (const group of groups) {
-			const ys = group.keys.map((key) => questionY.get(key) ?? 0);
-			themeY.set(group.name, {
-				at: ys.reduce((sum, y) => sum + y, 0) / ys.length,
-				first: Math.min(...ys),
-				last: Math.max(...ys)
-			});
+	const appearances = $derived.by(() => {
+		const count = new Map<string, number>();
+		for (const question of questions) {
+			for (const company of question.found) {
+				count.set(company.id, (count.get(company.id) ?? 0) + 1);
+			}
 		}
-
-		const companyY = new Map<string, number>();
-		const order = [...companies];
-		for (let pass = 0; pass < 6; pass++) {
-			order.sort((a, b) => centre(a, questionY) - centre(b, questionY));
-			order.forEach((company, index) => companyY.set(company.id, ROW * (index + 1.6)));
-		}
-
-		return { questionY, themeY, companyY, order };
+		return count;
 	});
 
-	function centre(company: Company, questionY: Map<string, number>): number {
-		const at = company.questions.map((key) => questionY.get(key) ?? 0);
-		return at.reduce((sum, y) => sum + y, 0) / (at.length || 1);
+	const repeated = $derived([...appearances.values()].filter((n) => n > 1).length);
+
+	function shows(company: Found): boolean {
+		return !onlyShared || (appearances.get(company.id) ?? 0) > 1;
 	}
 
-	const height = $derived(ROW * 2.2 + Math.max(questions.length, companies.length) * ROW);
-
-	function curve(fromY: number, toY: number): string {
-		const mid = (geom.questionX + geom.questionW + geom.companyX) / 2;
-		return `M${geom.questionX + geom.questionW} ${fromY} C${mid} ${fromY} ${mid} ${toY} ${geom.companyX} ${toY}`;
+	function lit(company: Found): boolean {
+		return hovered === null || hovered === company.id;
 	}
 
-	function clip(value: string): string {
-		return value.length <= TITLE_CHARS ? value : `${value.slice(0, TITLE_CHARS - 1).trimEnd()}…`;
-	}
-
-	function companyAnswered(id: string, questionKey: string): boolean {
-		return companies.some((company) => company.id === id && company.questions.includes(questionKey));
-	}
-
-	function questionLit(key: string): boolean {
-		if (!hovered) return true;
-		if (hovered === key) return true;
-		return companyAnswered(hovered, key);
-	}
-
-	function companyLit(id: string): boolean {
-		if (!hovered) return true;
-		if (hovered === id) return true;
-		const company = companies.find((entry) => entry.id === id);
-		return company?.questions.includes(hovered) ?? false;
+	function bandWord(band: string): string {
+		if (band === 'PRIORITY') return 'Priority';
+		if (band === 'NURTURE') return 'Nurture';
+		if (band === 'WATCH') return 'Watch';
+		if (band === 'THIN') return 'Unproven';
+		return 'Out of the queue';
 	}
 
 	const signals = $derived(rows.reduce((sum, row) => sum + row.signalCount, 0));
@@ -203,34 +137,24 @@
 		<div class="ident">
 			<h1 class="dsp">Signal map</h1>
 			<p class="sub">
-				{serviceLine} · every question the board asks, what it found, and who it found it in. A company under
-				more than one question has more than one reason to call.
+				{serviceLine} · every question the board asks and the companies it found. A mark that appears under
+				more than one question is a company with more than one reason to call.
 			</p>
-		</div>
-		<div class="topbar-tools">
-			<div class="seg" role="tablist" aria-label="How to read it">
-				<button class="seg-btn" class:on={!asTable} onclick={() => (asTable = false)}>Map</button>
-				<button class="seg-btn" class:on={asTable} onclick={() => (asTable = true)}>Table</button>
-			</div>
 		</div>
 	</header>
 
 	<div class="toolbar">
-		<span class="legend">
-			<span class="legend-item"><span class="swatch swatch-for"></span> counts for the company</span>
-			<span class="legend-item"><span class="swatch swatch-against"></span> counts against the company</span>
-			<span class="legend-item"><span class="swatch swatch-line"></span> a question that found them</span>
-			<span class="legend-item"><span class="swatch swatch-priority"></span> on the board</span>
-			<span class="legend-item"><span class="swatch swatch-out"></span> out of the queue</span>
-		</span>
+		<label class="check">
+			<input type="checkbox" bind:checked={onlyShared} />
+			<span>Only the {repeated} found by more than one question</span>
+		</label>
 		<span class="spacer"></span>
 		<span class="sub dim num">
 			{questions.length} questions · {shortNumber(signals)} signals · {rows.length} companies
-			{#if hidden > 0}· top {SHOWN_COMPANIES}, {hidden} below{/if}
 		</span>
 	</div>
 
-	<section class="pane scroll" aria-label="How the questions reach companies">
+	<section class="pane scroll" aria-label="Every question and what it found">
 		<LoadingVeil show={loading} label="Building the map" />
 
 		{#if error}
@@ -240,169 +164,45 @@
 				<Icon name="inbox" size={22} />
 				<p>No question on this service line has found anything yet. Ask one in the Studio.</p>
 			</div>
-		{:else if asTable}
-			<div class="table-wrap">
-				<table class="tbl">
-					<thead>
-						<tr>
-							<th scope="col">Question</th>
-							<th scope="col">Theme</th>
-							<th scope="col">Asks</th>
-							<th scope="col" class="m">Found</th>
-							<th scope="col">Carried by</th>
-						</tr>
-					</thead>
-					<tbody>
-						{#each questions as question (question.key)}
-							{@const top = companies.filter((c) => c.questions.includes(question.key))}
-							<tr>
-								<td class="c-q">
-									<a class="link" href={`/studio?q=${encodeURIComponent(question.key)}`}>{question.title}</a>
-									<span class="sub dim">{question.text}</span>
-								</td>
-								<td><Tag>{theme(question.theme)}</Tag></td>
-								<td>
-									<Tag variant={question.polarity === 'POSITIVE' ? 'wash' : 'oxblood'}>
-										{question.polarity === 'POSITIVE' ? 'for' : 'against'}
-									</Tag>
-								</td>
-								<td class="m num">{question.companies.size}</td>
-								<td class="c-carried">
-									{#each top.slice(0, 4) as company (company.id)}
-										<a class="link" href={`/?co=${company.id}`}>{company.name}</a>
-									{/each}
-									{#if top.length === 0}<span class="sub dim">nobody in the top {SHOWN_COMPANIES}</span>{/if}
-								</td>
-							</tr>
-						{/each}
-					</tbody>
-				</table>
-			</div>
 		{:else}
 			<div class="map">
-				<svg viewBox={`0 0 ${WIDTH} ${height}`} width={WIDTH} height={height} role="img">
-					<title>How each question reaches the companies it found</title>
-
-					<g class="axes">
-						<text x={geom.themeX} y="14">THEME</text>
-						<text x={geom.questionX} y="14">QUESTION</text>
-						<text x={geom.companyX} y="14">COMPANY</text>
-					</g>
-
-					<g class="edges">
-						{#each questions as question (question.key)}
-							{@const qy = layout.questionY.get(question.key) ?? 0}
-							{#each companies as company (company.id)}
-								{#if company.questions.includes(question.key)}
-									<path
-										class="edge"
-										class:against={question.polarity !== 'POSITIVE'}
-										class:lit={questionLit(question.key) && companyLit(company.id)}
-										d={curve(qy, layout.companyY.get(company.id) ?? 0)}
-									/>
-								{/if}
-							{/each}
+				{#each groups as group (group.name)}
+					<div class="group">
+						<p class="group-name">
+							{theme(group.name)}
+							<span class="num group-count">{group.items.length}</span>
+						</p>
+						{#each group.items as question (question.key)}
+							<div class="row" class:quiet={question.polarity !== 'POSITIVE'}>
+								<a class="q" href={`/studio?q=${encodeURIComponent(question.key)}`} title={question.text}>
+									<span class="q-title">{question.title}</span>
+									<span class="q-count num">{question.total}</span>
+								</a>
+								<div class="found">
+									{#each question.found.filter(shows).slice(0, SHOWN) as company (company.id)}
+										<a
+											class="mark"
+											class:lit={lit(company)}
+											class:dim={!lit(company)}
+											href={`/companies/${company.id}`}
+											data-band={company.band}
+											title={`${company.name} — ${bandWord(company.band)}, ${plural(company.evidence, 'document')}`}
+											onmouseenter={() => (hovered = company.id)}
+											onmouseleave={() => (hovered = null)}
+										>
+											<CompanyMark name={company.name} domain={company.domain} />
+										</a>
+									{/each}
+									{#if question.found.filter(shows).length === 0}
+										<span class="sub dim">nobody here is found by another question</span>
+									{:else if !onlyShared && question.total > SHOWN}
+										<span class="more sub dim">+{question.total - SHOWN}</span>
+									{/if}
+								</div>
+							</div>
 						{/each}
-					</g>
-
-					<g class="themes">
-						{#each groups as group (group.name)}
-							{@const spot = layout.themeY.get(group.name)}
-							{#if spot}
-								<text class="theme-name" x={geom.themeX} y={spot.at + 4}>
-									{theme(group.name)}<tspan class="theme-count" dx="6">{group.keys.length}</tspan>
-								</text>
-								<path
-									class="bracket"
-									d={`M${geom.questionX - 12} ${spot.first} H${geom.questionX - 22} V${spot.last} H${geom.questionX - 12}`}
-								/>
-								{#each group.keys as key (key)}
-									<line
-										class="bracket"
-										x1={geom.questionX - 22}
-										y1={layout.questionY.get(key) ?? 0}
-										x2={geom.questionX}
-										y2={layout.questionY.get(key) ?? 0}
-									/>
-								{/each}
-							{/if}
-						{/each}
-					</g>
-
-					<g class="questions">
-						{#each questions as question (question.key)}
-							{@const qy = layout.questionY.get(question.key) ?? 0}
-							<g
-								class="node"
-								class:lit={questionLit(question.key)}
-								role="link"
-								tabindex="0"
-								onmouseenter={() => (hovered = question.key)}
-								onmouseleave={() => (hovered = null)}
-								onclick={() => (window.location.href = `/studio?q=${encodeURIComponent(question.key)}`)}
-								onkeydown={(event) => {
-									if (event.key === 'Enter') window.location.href = `/studio?q=${encodeURIComponent(question.key)}`;
-								}}
-							>
-								<title>{question.title} — {question.text}</title>
-								<rect
-									class="q-bar"
-									class:against={question.polarity !== 'POSITIVE'}
-									x={geom.questionX}
-									y={qy - NODE_H / 2}
-									width={geom.questionW}
-									height={NODE_H}
-									rx="2"
-								/>
-								<text class="q-title" x={geom.questionX + 12} y={qy - 1}>{clip(question.title)}</text>
-								<text class="q-count" x={geom.questionX + 12} y={qy + 13}>
-									{question.companies.size} {question.companies.size === 1 ? 'company' : 'companies'}
-								</text>
-							</g>
-						{/each}
-					</g>
-
-					<g class="companies">
-						{#each layout.order as company (company.id)}
-							{@const cy = layout.companyY.get(company.id) ?? 0}
-							<g
-								class="node"
-								class:lit={companyLit(company.id)}
-								role="link"
-								tabindex="0"
-								onmouseenter={() => (hovered = company.id)}
-								onmouseleave={() => (hovered = null)}
-								onclick={() => (window.location.href = `/?co=${company.id}`)}
-								onkeydown={(event) => {
-									if (event.key === 'Enter') window.location.href = `/?co=${company.id}`;
-								}}
-							>
-								<rect
-									class="c-pill"
-									data-band={company.band}
-									x={geom.companyX}
-									y={cy - NODE_H / 2}
-									width={geom.companyW}
-									height={NODE_H}
-									rx="2"
-								/>
-								{#if company.domain && files[company.domain.toLowerCase()]}
-									<image
-										href={`/logos/${files[company.domain.toLowerCase()]}`}
-										x={geom.companyX + 8}
-										y={cy - 9}
-										width="18"
-										height="18"
-									/>
-								{/if}
-								<text class="c-name" x={geom.companyX + 34} y={cy + 4}>{clip(company.name)}</text>
-								<text class="c-count" x={geom.companyX + geom.companyW - 10} y={cy + 4} text-anchor="end">
-									{company.questions.length}×
-								</text>
-							</g>
-						{/each}
-					</g>
-				</svg>
+					</div>
+				{/each}
 			</div>
 		{/if}
 	</section>
@@ -413,49 +213,13 @@
 		margin-left: auto;
 	}
 
-	.legend {
+	.check {
 		display: flex;
 		align-items: center;
-		flex-wrap: wrap;
-		gap: var(--spacing-4);
+		gap: var(--spacing-2);
 		font-size: var(--text-sm);
-		color: var(--color-ink-3);
-	}
-
-	.legend-item {
-		display: inline-flex;
-		align-items: center;
-		gap: var(--spacing-1);
-	}
-
-	.swatch {
-		width: 12px;
-		height: 8px;
-		border-radius: 1px;
-	}
-
-	.swatch-for {
-		background: var(--color-ink);
-	}
-
-	.swatch-against {
-		background: var(--color-oxblood);
-	}
-
-	.swatch-line {
-		width: 16px;
-		height: 2px;
-		background: var(--color-rule-strong);
-	}
-
-	.swatch-priority {
-		background: var(--color-orange-wash);
-		border: 1px solid var(--color-orange-line);
-	}
-
-	.swatch-out {
-		background: var(--color-oxblood-wash);
-		border: 1px solid var(--color-oxblood-line);
+		color: var(--color-ink-2);
+		cursor: pointer;
 	}
 
 	.pane {
@@ -466,149 +230,112 @@
 	}
 
 	.map {
-		padding: var(--spacing-3) var(--spacing-4) var(--spacing-5);
-		min-width: min-content;
+		padding: var(--spacing-2) 0 var(--spacing-5);
 	}
 
-	.map svg {
-		display: block;
+	.group + .group {
+		border-top: 1px solid var(--color-rule);
+		margin-top: var(--spacing-3);
+		padding-top: var(--spacing-3);
 	}
 
-	.axes text {
-		font-size: var(--text-micro);
-		font-weight: 600;
-		letter-spacing: 0.09em;
-		fill: var(--color-ink-4);
-	}
-
-	.edge {
-		fill: none;
-		stroke: var(--color-rule-strong);
-		stroke-width: 1;
-		opacity: 0.45;
-		transition: opacity var(--ease), stroke var(--ease);
-	}
-
-	.edge.against {
-		stroke: var(--color-oxblood-line);
-	}
-
-	.edge.lit {
-		opacity: 0.7;
-		stroke-width: 1.5;
-	}
-
-	.edge:not(.lit) {
-		opacity: 0.08;
-	}
-
-	.bracket {
-		fill: none;
-		stroke: var(--color-rule);
-		stroke-width: 1;
-	}
-
-	.theme-name {
+	.group-name {
+		display: flex;
+		align-items: baseline;
+		gap: var(--spacing-2);
+		padding: 0 var(--spacing-4) var(--spacing-1);
 		font-family: var(--font-display);
 		font-size: var(--text-md);
 		font-weight: 600;
-		fill: var(--color-ink);
+		color: var(--color-ink);
 	}
 
-	.theme-count {
-		font-family: var(--font-ui);
+	.group-count {
 		font-size: var(--text-micro);
-		font-weight: 400;
-		fill: var(--color-ink-4);
+		color: var(--color-ink-4);
 	}
 
-	.node {
-		cursor: pointer;
-		transition: opacity var(--ease);
+	.row {
+		display: grid;
+		grid-template-columns: 300px minmax(0, 1fr);
+		align-items: center;
+		gap: var(--spacing-3);
+		padding: var(--spacing-1) var(--spacing-4);
 	}
 
-	.node:not(.lit) {
-		opacity: 0.3;
+	.row:hover {
+		background: var(--color-paper);
 	}
 
-	.q-bar {
-		fill: var(--color-ink);
+	.q {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: var(--spacing-2);
+		min-width: 0;
+		padding: 3px var(--spacing-2);
+		border-left: 3px solid var(--color-ink);
+		background: var(--color-paper);
 	}
 
-	.q-bar.against {
-		fill: var(--color-oxblood);
+	.row.quiet .q {
+		border-left-color: var(--color-oxblood);
 	}
 
-	.node:hover .q-bar {
-		fill: var(--color-orange);
+	.q:hover {
+		background: var(--color-orange-wash);
 	}
 
 	.q-title {
-		font-size: var(--text-sm);
-		fill: var(--color-surface);
-		pointer-events: none;
-	}
-
-	.q-count {
-		font-size: var(--text-micro);
-		fill: var(--color-surface);
-		opacity: 0.72;
-		pointer-events: none;
-	}
-
-	.c-pill {
-		fill: var(--color-paper);
-		stroke: var(--color-rule);
-		stroke-width: 1;
-	}
-
-	.c-pill[data-band='PRIORITY'] {
-		fill: var(--color-orange-wash);
-		stroke: var(--color-orange-line);
-	}
-
-	.c-pill[data-band='NURTURE'] {
-		fill: var(--color-orange-wash);
-		stroke: var(--color-rule);
-	}
-
-	.c-pill[data-band='DISQUALIFIED'] {
-		fill: var(--color-oxblood-wash);
-		stroke: var(--color-oxblood-line);
-	}
-
-	.node:hover .c-pill {
-		stroke: var(--color-ink);
-	}
-
-	.c-name {
-		font-size: var(--text-base);
-		fill: var(--color-ink);
-		pointer-events: none;
-	}
-
-	.c-count {
-		font-size: var(--text-micro);
-		fill: var(--color-ink-3);
-		pointer-events: none;
-	}
-
-	.table-wrap {
-		padding: var(--spacing-3) var(--spacing-4);
-	}
-
-	.c-q .sub {
-		display: block;
-		max-width: 60ch;
+		min-width: 0;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
+		font-size: var(--text-base);
+		font-weight: 500;
+		color: var(--color-ink);
 	}
 
-	.c-carried {
+	.q-count {
+		flex: none;
+		font-size: var(--text-micro);
+		color: var(--color-ink-3);
+	}
+
+	.found {
 		display: flex;
+		align-items: center;
 		flex-wrap: wrap;
-		gap: var(--spacing-1) var(--spacing-2);
+		gap: 4px;
+		min-width: 0;
+	}
+
+	.mark {
+		display: block;
+		border-radius: 2px;
+		transition: opacity var(--ease), box-shadow var(--ease);
+	}
+
+	.mark :global(.co-mark) {
+		width: 26px;
+		height: 26px;
+	}
+
+	.mark.dim {
+		opacity: 0.22;
+	}
+
+	.mark.lit {
+		box-shadow: 0 0 0 2px var(--color-surface), 0 0 0 3px var(--color-ink);
+	}
+
+	.mark[data-band='DISQUALIFIED'] :global(.co-mark) {
+		opacity: 0.45;
+	}
+
+	.more {
+		font-size: var(--text-micro);
+		padding-left: var(--spacing-1);
 	}
 
 	.empty {
@@ -621,19 +348,11 @@
 		color: var(--color-ink-3);
 	}
 
-	.seg-btn {
-		font: inherit;
-		font-size: var(--text-sm);
-		padding: 2px var(--spacing-3);
-		border: 0;
-		background: transparent;
-		color: var(--color-ink-2);
-		cursor: pointer;
-	}
-
-	.seg-btn.on {
-		background: var(--color-surface);
-		color: var(--color-ink);
-		font-weight: 600;
+	@media (max-width: 1100px) {
+		.row {
+			grid-template-columns: minmax(0, 1fr);
+			gap: var(--spacing-1);
+			padding-bottom: var(--spacing-2);
+		}
 	}
 </style>

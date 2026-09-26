@@ -22,10 +22,11 @@
 		type Rescore,
 		type WeightTier
 	} from '$lib/api';
+	import { markCompetitor } from '$lib/api';
 	import { session } from '$lib/session.svelte';
 	import { workspace } from '$lib/workspace.svelte';
 	import { toasts } from '$lib/toast.svelte';
-	import { ageShort, duration, fit, fitTone, fitWord, precise, shortNumber } from '$lib/format';
+	import { ageShort, duration, fit, fitTone, fitWord, plural, precise, shortNumber } from '$lib/format';
 	import { regionLabel } from '$lib/regions';
 	import { copy, csv, save } from '$lib/export';
 	import Tag from '$lib/components/Tag.svelte';
@@ -38,6 +39,7 @@
 	import Menu from '$lib/components/Menu.svelte';
 	import type { MenuItem } from '$lib/components/menu';
 	import Metric from '$lib/components/Metric.svelte';
+	import SignalTrace from '$lib/components/SignalTrace.svelte';
 	import Pager from '$lib/components/Pager.svelte';
 	import Th from '$lib/components/Th.svelte';
 
@@ -108,6 +110,7 @@
 
 	let filter = $state('to-call');
 	let engineFilter = $state<'all' | 'model' | 'local'>('all');
+	let profileFilter = $state('');
 	let stage = $state('');
 	let query = $state('');
 	let selected = $state<string | null>(untrack(() => initialSelected));
@@ -134,6 +137,9 @@
 	let askCues = $state<string[]>([]);
 
 	let capture = $state<{ id: string; focus: { start: number; end: number } | null } | null>(null);
+	let peeking = $state<string | null>(null);
+	let peek = $state<Awaited<ReturnType<typeof fetchCompany>> | null>(null);
+	let peekTimer: ReturnType<typeof setTimeout> | null = null;
 
 	const meta = $derived(workspace.meta);
 	const serviceLine = $derived(session.serviceLine);
@@ -154,7 +160,10 @@
 	const narrowed = $derived(
 		session.region !== 'world' || stage !== '' || query !== '' || applied !== null || filter !== 'to-call'
 	);
-	const activeFilters = $derived((stage === '' ? 0 : 1) + (engineFilter === 'all' ? 0 : 1));
+	const activeFilters = $derived(
+		(stage === '' ? 0 : 1) + (engineFilter === 'all' ? 0 : 1) + (profileFilter === '' ? 0 : 1)
+	);
+	const profiles = $derived(workspace.profiles);
 	const STAGE_LABEL = $derived(STAGES.find((option) => option.id === stage)?.label ?? 'Any lead stage');
 	const ENGINE_LABEL = $derived(
 		engineFilter === 'all' ? 'Any engine' : engineFilter === 'model' ? 'Read by the model' : 'Matched by the rules'
@@ -167,6 +176,17 @@
 			label: option.label,
 			checked: stage === option.id
 		})),
+		...(profiles.length > 0
+			? [
+					{ id: 'head-icp', label: 'Customer profile', heading: true, separatorBefore: true },
+					{ id: 'icp:', label: 'Any profile', checked: profileFilter === '' },
+					...profiles.map((name) => ({
+						id: `icp:${name}`,
+						label: name,
+						checked: profileFilter === name
+					}))
+				]
+			: []),
 		{ id: 'head-engine', label: 'Read by', heading: true, separatorBefore: true },
 		...(
 			[
@@ -180,6 +200,7 @@
 	function runFilter(id: string) {
 		const [kind, value] = id.split(':');
 		if (kind === 'stage') stage = value;
+		else if (kind === 'icp') profileFilter = value;
 		else engineFilter = value as 'all' | 'model' | 'local';
 	}
 	const allLines = $derived(session.allLines);
@@ -215,7 +236,7 @@
 	const visible = $derived.by(() => {
 		const wanted = VIEWS[filter] ?? VIEWS.everyone;
 		return rows.filter((row) => {
-			const passesBand = wanted(row);
+			const passesBand = wanted(row) && (profileFilter === '' || row.profiles.includes(profileFilter));
 			const passesEngine =
 				engineFilter === 'all' ||
 				(row.engine !== null &&
@@ -431,6 +452,24 @@
 		return () => clearInterval(timer);
 	});
 
+	function openPeek(row: ScopedRow) {
+		if (peekTimer) clearTimeout(peekTimer);
+		peekTimer = setTimeout(() => {
+			peeking = row.id;
+			fetchCompany(row.id, row.serviceLine)
+				.then((result) => {
+					if (peeking === row.id) peek = result;
+				})
+				.catch(() => {});
+		}, 260);
+	}
+
+	function closePeek() {
+		if (peekTimer) clearTimeout(peekTimer);
+		peeking = null;
+		peek = null;
+	}
+
 	function select(id: string | null) {
 		selected = id;
 		echoed = id;
@@ -530,6 +569,7 @@
 		stage = '';
 		filter = 'to-call';
 		engineFilter = 'all';
+		profileFilter = '';
 		session.setRegion('world');
 		applied = null;
 	}
@@ -758,7 +798,7 @@
 			disabled: !narrowed,
 			separatorBefore: true
 		},
-		{ id: 'rescore', label: 'Re-score on the local engine', icon: 'refresh' }
+		{ id: 'rescore', label: 'Read everything again', icon: 'refresh' }
 	]);
 
 	async function runSecondary(id: string) {
@@ -793,6 +833,13 @@
 			{ id: 'link', label: 'Copy link to this company', icon: 'link' },
 			{ id: 'export', label: 'Export this row', icon: 'download' },
 			{ id: 'ledger', label: 'Export its evidence ledger', icon: 'download' },
+			{
+				id: 'competitor',
+				label: row.competitor ? 'Not a competitor after all' : 'Mark as a competitor',
+				icon: row.competitor ? 'check' : 'shield',
+				hint: row.competitor ? 'back into the queue' : 'out of the queue',
+				separatorBefore: true
+			},
 			...LEAD_STAGES.map((entry, index) => ({
 				id: `lead-${entry.id}`,
 				label: `Mark ${entry.label.toLowerCase()}`,
@@ -811,6 +858,18 @@
 		} else if (id === 'export') exportRows([row], `${row.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.csv`);
 		else if (id === 'ledger')
 			exportLedger([row], `${row.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-ledger.csv`);
+		else if (id === 'competitor') {
+			try {
+				await markCompetitor(row.id, !row.competitor);
+				rows = await loadBoard();
+				toasts.push(
+					row.competitor ? `${row.name} is callable again.` : `${row.name} is marked as a competitor and leaves the queue.`,
+					'success'
+				);
+			} catch (cause) {
+				toasts.push((cause as Error).message, 'error');
+			}
+		}
 		else if (id.startsWith('lead-')) {
 			const status = id.slice(5);
 			const label = LEAD_STAGES.find((entry) => entry.id === status)?.label.toLowerCase() ?? '';
@@ -892,7 +951,7 @@
 			<h1 class="dsp">Board</h1>
 			<p class="sub num">
 				{#if error}
-					The board could not be read from the API — a failure, not an empty result
+					The board could not be read.
 				{:else}
 					{subtitle} · {regionLabel(meta?.regions ?? [], session.region)}{#if stage}
 						· {STAGES.find((s) => s.id === stage)?.label}{/if}
@@ -904,7 +963,7 @@
 			<div class="metrics">
 				<Metric value={shortNumber(counts.PRIORITY ?? 0)} label="Priority" tone="hot" title="Companies above the Priority line, in view" />
 				<Metric value={shortNumber(counts.HOT ?? 0)} label="Hot" title="Priority and Nurture together, in view" />
-				<Metric value={shortNumber(meta.captures)} label="Captures" title="Stored documents the board was scored against" />
+				<Metric value={shortNumber(meta.captures)} label="Captures" title="Documents the board read" />
 			</div>
 		{/if}
 
@@ -922,7 +981,7 @@
 			{#if !applied}
 				<div class="ask-row">
 				<div class="ask-input">
-					<label class="label" for="ask">Question the corpus has not been scored against</label>
+					<label class="label" for="ask">A question nobody has asked yet</label>
 					<textarea
 						id="ask"
 						class="textarea"
@@ -994,28 +1053,28 @@
 					{:else}
 						<span class="sub dim ask-note">
 							Ask about the company itself (“in Romania”, “large German banks”) and the board filters. Anything else is
-							read as a signal question and every stored document is classified against it.
+							read as a signal question and every document we hold is read for it.
 						</span>
 					{/if}
 				</div>
 
 				{#if askCues.length > 0 && !rescoring}
 					<div class="ask-cues">
-						<span class="label">The rule matcher would look for</span>
+						<span class="label">The words it would look for</span>
 						{#each askCues as cue (cue)}<Tag variant={weakCues.includes(cue) ? 'oxblood' : 'wash'}>{cue}</Tag>{/each}
 						{#if weakCues.length > 0}
 							<p class="note warn">
 								<Icon name="alert" size={14} />
 								<span>
 									{weakCues.length === 1 ? 'One of these is' : `${weakCues.length} of these are`} too general to be a
-									signal — {weakCues.join(', ')} will match most of the corpus. {meta?.languageModelAvailable
+									signal — {weakCues.join(', ')} will match almost every company we hold. {meta?.languageModelAvailable
 										? 'Send it to the model instead, or write the question with the words you would actually look for.'
 										: 'Write the question with the words you would actually look for.'}
 								</span>
 							</p>
 						{/if}
 						<span class="sub dim">
-							Nothing is configured for this question, so the rule matcher derives these from the wording.
+							This question has no word list of its own, so these werese were taken from the wording of the question.
 						</span>
 					</div>
 				{/if}
@@ -1031,7 +1090,7 @@
 								<Metric
 									value={shortNumber(applied.answeredFromOverlay)}
 									label="Already read by the model"
-									title="Questions the model had already answered were kept, not re-read"
+									title="Kept what was already read, so nothing was paid for twice"
 								/>
 							{/if}
 						</div>
@@ -1177,7 +1236,7 @@
 	{/if}
 
 		<section class="list scroll" aria-label="Ranked companies">
-			<LoadingVeil show={loading} label="Scoring the board" />
+			<LoadingVeil show={loading} label="Ranking the board" />
 			{#if error}
 				<p class="note warn"><Icon name="alert" size={15} /> {error}</p>
 			{:else if visible.length === 0 && !loading}
@@ -1207,9 +1266,10 @@
 							<th class="c-mark" scope="col"><span class="sr-only">Company mark</span></th>
 							<Th id="name" label="Company" sort={sort} {dir} onsort={sortBy} width="23%" />
 							<Th id="fit" label="Fit" sort={sort} {dir} onsort={sortBy} width="118px" title="How strong the evidence is, and whether the queue will act on it" />
-							<th class="c-sig" scope="col">Why we would call</th>
+							<th class="c-sig" scope="col">Signals</th>
+							<th class="c-trend" scope="col"><span class="sr-only">Signal trend over the last year</span></th>
 							<Th id="docs" label="Docs" sort={sort} {dir} onsort={sortBy} align="right" width="56px" className="c-doc" />
-							<Th id="newest" label="Newest" sort={sort} {dir} onsort={sortBy} align="right" width="66px" className="c-age" />
+							<Th id="newest" label="Latest" sort={sort} {dir} onsort={sortBy} align="right" width="66px" className="c-age" />
 							<th class="c-star" scope="col"><span class="sr-only">Saved</span></th>
 							<th class="c-act" scope="col"><span class="sr-only">Actions</span></th>
 						</tr>
@@ -1222,7 +1282,12 @@
 								class:active={selected === row.id}
 								class:rejected={row.band === 'DISQUALIFIED'}
 								class:pickedrow={picked.has(row.id)}
-								onclick={() => select(row.id)}
+								onclick={() => {
+									closePeek();
+									window.location.href = `/companies/${row.id}?line=${encodeURIComponent(row.serviceLine)}`;
+								}}
+								onmouseenter={() => openPeek(row)}
+								onmouseleave={closePeek}
 							>
 								<td class="c-chk" onclick={(event) => event.stopPropagation()}>
 									<span class="chk">
@@ -1257,6 +1322,9 @@
 											{row.leadStatusLabel}{#if row.contactCount > 1} ×{row.contactCount}{/if}
 										</span>
 									{/if}
+									{#each row.profiles as name (name)}
+										<span class="profile-tag" title="The customer profile this company falls into">{name}</span>
+									{/each}
 								</td>
 								<td class="c-fit">
 									{#if row.band === 'DISQUALIFIED'}
@@ -1265,7 +1333,7 @@
 											<span class="gate" title={row.gateReason}>{gateCause(row.gateReason)}</span>
 										{/if}
 									{:else if row.band === 'THIN'}
-										<span class="fitval dsp" data-tone="weak" title="No document in the corpus answers your questions about this company, so nothing can be said either way.">
+										<span class="fitval dsp" data-tone="weak" title="No document answers your questions about this company, so nothing can be said either way.">
 											Unproven
 										</span>
 									{:else}
@@ -1300,12 +1368,20 @@
 											</p>
 										{/if}
 									{:else}
-										<span class="sub dim">nothing in the corpus answers your questions about them</span>
+										<span class="sub dim">nothing on file answers your questions about them</span>
 									{/if}
+								</td>
+								<td class="c-trend">
+									<SignalTrace
+										spark={row.spark ?? []}
+										title={row.newestSignalAgeDays === null
+											? 'Nothing dated has been read about this company'
+											: `Signal strength by month for the last year. Most recent, ${ageShort(row.newestSignalAgeDays)}.`}
+									/>
 								</td>
 								<td class="num c-doc">
 									{#if row.evidenceCount === 0}
-										<span class="blind" title="No document was ever captured for this company. Nothing can be said either way — this is a gap in the crawl, not a finding.">no evidence</span>
+										<span class="blind" title="No document was ever found for this company. Nothing can be said either way.">no evidence</span>
 									{:else}
 										{row.evidenceCount}
 									{/if}
@@ -1356,6 +1432,44 @@
 		</aside>
 	{/if}
 </div>
+
+{#if peek && peeking}
+	<aside class="peek" aria-label="Company preview" onmouseleave={closePeek}>
+		<div class="peek-head">
+			<CompanyMark name={peek.name} domain={peek.domain} size="md" />
+			<div class="peek-ident">
+				<span class="peek-name">{peek.name}</span>
+				<span class="sub dim">
+					{peek.industry ?? 'unclassified'} · {peek.country ?? '—'}{peek.sizeBand ? ` · ${peek.sizeBand}` : ''}
+				</span>
+			</div>
+			<span class="verdict dsp" data-tone={fitTone(peek.probability, thresholds)}>
+				{fitWord(peek.probability, thresholds)}
+			</span>
+		</div>
+
+		<p class="peek-why">{peek.whyNow?.headline ?? 'Nothing to say about this company yet.'}</p>
+
+		{#if peek.whyNow && peek.whyNow.triggers.length > 0}
+			<ul class="peek-signals">
+				{#each peek.whyNow.triggers.slice(0, 3) as row (row.evidenceId + row.spanStart)}
+					<li>
+						<span class="dot" data-polarity={row.polarity}></span>
+						<span class="peek-q">{row.questionTitle}</span>
+					</li>
+				{/each}
+			</ul>
+		{/if}
+
+		<div class="peek-foot">
+			<span class="sub dim num">
+				{plural(peek.scannedDocuments, 'document')} read · {plural(peek.themeCount, 'theme')}
+			</span>
+			<span class="spacer"></span>
+			<span class="sub dim">Click for the full page</span>
+		</div>
+	</aside>
+{/if}
 
 {#if capture}
 	<CaptureSheet evidenceId={capture.id} focus={capture.focus} onclose={() => (capture = null)} />
@@ -1573,6 +1687,103 @@
 		text-overflow: ellipsis;
 	}
 
+	.peek {
+		position: fixed;
+		left: 244px;
+		bottom: var(--spacing-4);
+		width: 380px;
+		z-index: var(--z-index-menu);
+		background: var(--color-surface);
+		border: 1px solid var(--color-ink);
+		padding: var(--spacing-3);
+		animation: rise var(--ease-enter) both;
+	}
+
+	.peek-head {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-2);
+	}
+
+	.peek-ident {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.peek-name {
+		display: block;
+		font-family: var(--font-display);
+		font-size: var(--text-lg);
+		font-weight: 600;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.peek .verdict {
+		flex: none;
+		font-size: var(--text-md);
+		color: var(--color-ink-2);
+	}
+
+	.peek .verdict[data-tone='strong'] {
+		color: var(--color-orange-ink);
+	}
+
+	.peek .verdict[data-tone='weak'] {
+		color: var(--color-ink-4);
+	}
+
+	.peek-why {
+		margin: var(--spacing-2) 0 0;
+		font-size: var(--text-base);
+		line-height: 1.5;
+		color: var(--color-ink-2);
+	}
+
+	.peek-signals {
+		list-style: none;
+		margin: var(--spacing-2) 0 0;
+		padding: 0;
+	}
+
+	.peek-signals li {
+		display: flex;
+		align-items: baseline;
+		gap: var(--spacing-2);
+		padding: 2px 0;
+	}
+
+	.peek-signals .dot {
+		width: 5px;
+		height: 5px;
+		flex: none;
+		background: var(--color-accent);
+	}
+
+	.peek-signals .dot[data-polarity='NEGATIVE'],
+	.peek-signals .dot[data-polarity='DISQUALIFYING'] {
+		background: var(--color-oxblood);
+	}
+
+	.peek-q {
+		font-size: var(--text-base);
+		color: var(--color-ink-2);
+	}
+
+	.peek-foot {
+		display: flex;
+		align-items: baseline;
+		gap: var(--spacing-2);
+		margin-top: var(--spacing-3);
+		padding-top: var(--spacing-2);
+		border-top: 1px solid var(--color-rule);
+	}
+
+	.peek-foot .spacer {
+		margin-left: auto;
+	}
+
 	.list {
 		position: relative;
 		flex: 1;
@@ -1646,6 +1857,11 @@
 
 	.c-act {
 		width: 36px;
+		padding-left: 0;
+	}
+
+	.c-trend {
+		width: 52px;
 		padding-left: 0;
 	}
 
@@ -1824,6 +2040,19 @@
 	.line-tag {
 		color: var(--color-orange-ink);
 		font-weight: 500;
+	}
+
+	.profile-tag {
+		display: inline-block;
+		margin: 3px 0 0 var(--spacing-1);
+		font-size: var(--text-micro);
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.07em;
+		padding: 1px 5px;
+		border: 1px solid var(--color-accent-line);
+		background: var(--color-accent-wash);
+		color: var(--color-accent);
 	}
 
 	.stage-tag {

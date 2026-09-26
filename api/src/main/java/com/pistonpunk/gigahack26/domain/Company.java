@@ -134,6 +134,10 @@ public class Company {
         return competitor;
     }
 
+    public void markCompetitor(boolean value) {
+        this.competitor = value;
+    }
+
     public String getCoverageNotes() {
         return coverageNotes;
     }

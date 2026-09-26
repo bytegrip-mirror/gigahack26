@@ -52,13 +52,14 @@ public class BoardService {
     private final CaptureStore captureStore;
     private final ScoringConfig settings;
     private final RegionService regions;
+    private final IcpProfileService icpProfiles;
     private final Clock clock;
 
     public BoardService(CompanyRepository companies, CompanyAliasRepository aliases, EvidenceRepository evidence,
                         SignalRepository signals, PolicyScoreRepository scores, ScoreboardService scoreboard,
                         ScoringService scoringService, WhyNowService whyNow, LeadService leads,
                         ClassifierRouter router, LocalRubricEngine localEngine, CaptureStore captureStore,
-                        ScoringConfig settings, RegionService regions, Clock clock) {
+                        ScoringConfig settings, RegionService regions, IcpProfileService icpProfiles, Clock clock) {
         this.companies = companies;
         this.aliases = aliases;
         this.evidence = evidence;
@@ -73,6 +74,7 @@ public class BoardService {
         this.captureStore = captureStore;
         this.settings = settings;
         this.regions = regions;
+        this.icpProfiles = icpProfiles;
         this.clock = clock;
     }
 
@@ -94,13 +96,15 @@ public class BoardService {
             return List.of();
         }
 
-        Map<UUID, Company> companiesById = companies.findAll().stream()
+        List<Company> companyList = companies.findAll();
+        Map<UUID, Company> companiesById = companyList.stream()
                 .collect(Collectors.toMap(Company::getId, company -> company));
         Map<UUID, List<Evidence>> evidenceByCompany = evidence.findAll().stream()
                 .collect(Collectors.groupingBy(Evidence::getCompanyId));
         Map<UUID, List<Signal>> signalsByCompany = signals.findAll().stream()
                 .collect(Collectors.groupingBy(Signal::getCompanyId));
         Map<UUID, Lead> leadsByCompany = leads.byCompany(serviceLine);
+        Map<UUID, List<String>> profiles = icpProfiles.membership(companyList);
         Instant now = clock.instant();
 
         String needle = query == null ? "" : query.trim().toLowerCase(Locale.ROOT);
@@ -130,7 +134,7 @@ public class BoardService {
             List<Evidence> companyEvidence = evidenceByCompany.getOrDefault(company.getId(), List.of());
             rows.add(toRow(company, detail, companyEvidence,
                     signalsByCompany.getOrDefault(company.getId(), List.of()),
-                    leadsByCompany.get(company.getId()), now));
+                    leadsByCompany.get(company.getId()), now, profiles));
         }
 
         rows.sort(comparator(sort));
@@ -293,8 +297,34 @@ public class BoardService {
         return router.localEngineId();
     }
 
+    private static final int SPARK_MONTHS = 12;
+
+    /**
+     * One bar per month for the last year, oldest first: the strength of everything
+     * read about this company in that month. It is the shape of the company's year,
+     * so the row can show at a glance whether the evidence is arriving or has gone
+     * quiet — the same reading a rep gets from a customer's order history.
+     */
+    private static List<Double> spark(List<LedgerRow> rows, Instant now) {
+        double[] months = new double[SPARK_MONTHS];
+        for (LedgerRow row : rows) {
+            long days = Duration.between(row.anchor(), now).toDays();
+            int back = (int) Math.max(0, days / 30);
+            if (back >= SPARK_MONTHS) {
+                continue;
+            }
+            months[SPARK_MONTHS - 1 - back] += Math.abs(row.contributionNats());
+        }
+        List<Double> out = new ArrayList<>(SPARK_MONTHS);
+        for (double month : months) {
+            out.add(round(month));
+        }
+        return out;
+    }
+
     private BoardRow toRow(Company company, ScoreComputation detail, List<Evidence> companyEvidence,
-                           List<Signal> companySignals, Lead lead, Instant now) {
+                           List<Signal> companySignals, Lead lead, Instant now,
+                           Map<UUID, List<String>> profiles) {
         List<LedgerRow> ranked = detail.rows().stream()
                 .filter(row -> !row.blocking() && row.asserted())
                 .sorted(Comparator.comparingDouble((LedgerRow row) -> Math.abs(row.contributionNats())).reversed())
@@ -338,9 +368,11 @@ public class BoardService {
                 detail.silentDocuments(),
                 newest,
                 newest == null ? null : round(Duration.between(newest, now).toHours() / 24.0),
+                spark(ranked, now),
                 strongest,
                 chips,
                 new ArrayList<>(detail.themeTotals().keySet()),
+                profiles.getOrDefault(company.getId(), List.of()),
                 engine,
                 lead == null ? null : lead.getStatus().name(),
                 lead == null ? null : lead.getStatus().label(),
@@ -483,8 +515,8 @@ public class BoardService {
                 row.sizeBand(), row.competitor(), row.probability(), row.band(), row.bandLabel(), row.bandShort(),
                 row.gateReason(),
                 row.nats(), row.signalCount(), row.themeCount(), row.evidenceCount(), row.scannedDocuments(),
-                row.silentDocuments(), row.newestSignalAt(), row.newestSignalAgeDays(), row.strongest(),
-                row.chips(), row.themes(), row.engine(), row.leadStatus(), row.leadStatusLabel(),
+                row.silentDocuments(), row.newestSignalAt(), row.newestSignalAgeDays(), row.spark(), row.strongest(),
+                row.chips(), row.themes(), row.profiles(), row.engine(), row.leadStatus(), row.leadStatusLabel(),
                 row.lastContactedAt(),
                 row.contactCount(), row.urgency(), row.whyNow());
     }

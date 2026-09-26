@@ -31,6 +31,8 @@
 	let loading = $state(true);
 	let busy = $state<string | null>(null);
 	let query = $state('');
+	let boardId = $state<'work' | 'backlog' | 'all'>('work');
+	let sort = $state('contact');
 
 	const ALL_LINES = '__all__';
 	const serviceLine = $derived(session.serviceLine);
@@ -96,12 +98,51 @@
 		);
 	});
 
+	const BOARDS = [
+		{ id: 'work', label: 'In work', title: 'Leads somebody has already worked', stages: ['CONTACTED', 'REPLIED', 'QUALIFIED'] },
+		{ id: 'backlog', label: 'Backlog', title: 'Worked and put down, and never picked up', stages: ['NEW', 'REJECTED'] },
+		{ id: 'all', label: 'Everything', title: 'Every lead, whatever stage', stages: STAGES.map((s) => s.id) }
+	] as const;
+
+	const SORTS = [
+		{ id: 'contact', label: 'Most recently worked' },
+		{ id: 'name', label: 'Company, A to Z' },
+		{ id: 'fit', label: 'Best fit' },
+		{ id: 'stage', label: 'Furthest along' }
+	];
+
+	const board = $derived(BOARDS.find((entry) => entry.id === boardId) ?? BOARDS[0]);
+	const STAGE_ORDER: Record<string, number> = { NEW: 0, CONTACTED: 1, REPLIED: 2, QUALIFIED: 3, REJECTED: 4 };
+
+	function ordered(rows: LeadView[]): LeadView[] {
+		const list = [...rows];
+		const sign = sort === 'name' ? 1 : -1;
+		list.sort((a, b) => {
+			if (sort === 'name') return a.company.localeCompare(b.company);
+			if (sort === 'fit') return sign * ((a.probability ?? 0) - (b.probability ?? 0));
+			if (sort === 'stage')
+				return sign * ((STAGE_ORDER[a.status] ?? 9) - (STAGE_ORDER[b.status] ?? 9)) || a.company.localeCompare(b.company);
+			return (
+				sign *
+					((daysSince(a.lastContactedAt) ?? Number.POSITIVE_INFINITY) -
+						(daysSince(b.lastContactedAt) ?? Number.POSITIVE_INFINITY)) || a.company.localeCompare(b.company)
+			);
+		});
+		return list;
+	}
+
 	const grouped = $derived(
-		STAGES.map((stage) => ({
+		STAGES.filter((stage) => (board.stages as readonly string[]).includes(stage.id)).map((stage) => ({
 			...stage,
-			rows: matched.filter((lead) => lead.status === stage.id)
+			rows: ordered(matched.filter((lead) => lead.status === stage.id))
 		}))
 	);
+
+	const onBoard = $derived(BOARDS.map((entry) => ({
+		id: entry.id,
+		label: entry.label,
+		count: matched.filter((lead) => (entry.stages as readonly string[]).includes(lead.status)).length
+	})));
 
 	function daysSince(iso: string | null): number | null {
 		return iso ? Math.max(0, (Date.now() - new Date(iso).getTime()) / 86_400_000) : null;
@@ -227,13 +268,37 @@
 		{#if workspace.switching}<span class="spinner"></span>{/if}
 		<span class="sep"></span>
 
+		<div class="seg" role="tablist" aria-label="Which leads">
+			{#each onBoard as entry (entry.id)}
+				<button
+					role="tab"
+					aria-selected={boardId === entry.id}
+					title={BOARDS.find((b) => b.id === entry.id)?.title}
+					onclick={() => (boardId = entry.id as 'work' | 'backlog' | 'all')}
+				>
+					{entry.label}
+					<span class="num">{entry.count}</span>
+				</button>
+			{/each}
+		</div>
+
+		<span class="sep"></span>
+
 		<label class="search">
 			<span class="sr-only">Filter leads</span>
 			<Icon name="search" size={14} />
 			<input class="input input-sm" placeholder="Company or subject" bind:value={query} />
 		</label>
 		<span class="spacer"></span>
-		<span class="sub dim num">{matched.length} of {leads.length} shown</span>
+		<Menu
+			text={SORTS.find((entry) => entry.id === sort)?.label ?? 'Sort'}
+			icon="sort"
+			size="sm"
+			align="end"
+			label="Sort the leads"
+			items={SORTS.map((entry) => ({ id: entry.id, label: entry.label, checked: sort === entry.id }))}
+			onselect={(id) => (sort = id)}
+		/>
 		<Menu
 			items={[
 				{ id: 'export', label: 'Export the pipeline as CSV', icon: 'download' },
@@ -339,8 +404,18 @@
 					</section>
 				{/if}
 			{/each}
-			{#if matched.length === 0}
-				<p class="note">Nothing in the pipeline matches “{query}”.</p>
+			{#if grouped.every((stage) => stage.rows.length === 0)}
+				<p class="note">
+					{#if query}
+						Nothing matches “{query}”.
+					{:else if boardId === 'work'}
+						Nobody is in work on this service line. Leads land here once you have contacted or replied to one.
+					{:else if boardId === 'backlog'}
+						Nothing has been put down.
+					{:else}
+						No lead has been worked on this service line yet.
+					{/if}
+				</p>
 			{/if}
 		</div>
 	{/if}

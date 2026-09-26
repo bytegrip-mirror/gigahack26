@@ -1,5 +1,6 @@
 package com.pistonpunk.gigahack26.web;
 
+import com.pistonpunk.gigahack26.repository.jpa.CompanyRepository;
 import com.pistonpunk.gigahack26.service.BoardService;
 import com.pistonpunk.gigahack26.service.CaptureStore;
 import com.pistonpunk.gigahack26.service.LeadService;
@@ -14,6 +15,8 @@ import com.pistonpunk.gigahack26.web.dto.CompanyDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +31,7 @@ import java.util.UUID;
 public class BoardController {
 
     private final BoardService board;
+    private final CompanyRepository companies;
     private final ScoreboardService scoreboard;
     private final SettingsService settingsService;
     private final CaptureStore captures;
@@ -35,9 +39,10 @@ public class BoardController {
     private final RefreshScheduler refresh;
     private final RegionService regions;
 
-    public BoardController(BoardService board, ScoreboardService scoreboard, SettingsService settingsService,
+    public BoardController(BoardService board, CompanyRepository companies, ScoreboardService scoreboard, SettingsService settingsService,
                            CaptureStore captures, LeadService leads, RefreshScheduler refresh, RegionService regions) {
         this.board = board;
+        this.companies = companies;
         this.scoreboard = scoreboard;
         this.settingsService = settingsService;
         this.captures = captures;
@@ -63,6 +68,27 @@ public class BoardController {
         return board.detail(id, line(serviceLine))
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/companies/{id}/competitor")
+    @org.springframework.cache.annotation.CacheEvict(value = "board", allEntries = true)
+    public ResponseEntity<Map<String, Object>> competitor(@PathVariable UUID id,
+                                                          @RequestBody CompetitorRequest request) {
+        return companies.findById(id)
+                .map(company -> {
+                    company.markCompetitor(Boolean.TRUE.equals(request.competitor()));
+                    companies.save(company);
+                    scoreboard.rescoreAll();
+                    Map<String, Object> body = new java.util.LinkedHashMap<>();
+                    body.put("id", company.getId().toString());
+                    body.put("name", company.getName());
+                    body.put("competitor", company.isCompetitor());
+                    return ResponseEntity.ok(body);
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    public record CompetitorRequest(Boolean competitor) {
     }
 
     @GetMapping("/meta")

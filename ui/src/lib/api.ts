@@ -47,9 +47,11 @@ export type BoardRow = {
 	silentDocuments: number;
 	newestSignalAt: string | null;
 	newestSignalAgeDays: number | null;
+	spark: number[];
 	strongest: Chip | null;
 	chips: Chip[];
 	themes: string[];
+	profiles: string[];
 	engine: string | null;
 	leadStatus: string | null;
 	leadStatusLabel: string | null;
@@ -819,9 +821,51 @@ export function fetchTelemetry(): Promise<Telemetry> {
 	return request<Telemetry>('/api/telemetry');
 }
 
+export type IcpProfile = {
+	id: string;
+	name: string;
+	countries: string[];
+	industries: string[];
+	minEmployees: number;
+	active: boolean;
+	sortOrder: number;
+	companies: number;
+};
+
+export type IcpProfileInput = {
+	name: string;
+	countries: string;
+	industries: string;
+	minEmployees: number;
+	active: boolean;
+};
+
+export function fetchIcpProfiles(): Promise<IcpProfile[]> {
+	return request<IcpProfile[]>('/api/icp-profiles');
+}
+
+export function createIcpProfile(input: IcpProfileInput): Promise<IcpProfile> {
+	return request<IcpProfile>('/api/icp-profiles', { method: 'POST', body: JSON.stringify(input) });
+}
+
+export function updateIcpProfile(id: string, input: IcpProfileInput): Promise<IcpProfile> {
+	return request<IcpProfile>(`/api/icp-profiles/${id}`, { method: 'PUT', body: JSON.stringify(input) });
+}
+
+export function deleteIcpProfile(id: string): Promise<void> {
+	return request<void>(`/api/icp-profiles/${id}`, { method: 'DELETE' });
+}
+
+export function markCompetitor(companyId: string, competitor: boolean): Promise<{ id: string; name: string; competitor: boolean }> {
+	return request(`/api/companies/${companyId}/competitor`, {
+		method: 'POST',
+		body: JSON.stringify({ competitor })
+	});
+}
+
 export type Settings = {
 	blacklist: string[];
-	shippedExclusions: string[];
+	exclusions: { id: string; name: string }[];
 	icpCountries: string[];
 	icpIndustries: string[];
 	icpMinEmployees: number;
@@ -866,7 +910,7 @@ export function saveSettings(
 		| 'indexedCompanies'
 		| 'modelWritesDrafts'
 		| 'industriesPresent'
-		| 'shippedExclusions'
+		| 'exclusions'
 		| 'blacklist'
 	> & { blacklist: string }
 ): Promise<Settings> {

@@ -488,7 +488,7 @@
 			<h1 class="dsp">Signal Studio</h1>
 			<p class="sub num">
 				{#if loadError}
-					The policy set could not be read — a failure, not an empty set
+					The questions could not be read.
 				{:else}
 					{policies.length} questions · {scored} producing signals on {serviceLine}
 				{/if}
@@ -557,7 +557,7 @@
 					{#if !loading && policies.length === 0}
 						<div class="pad empty">
 							{#if loadError}
-								<p class="sub dim">The questions could not be read — a failure, not an empty set.</p>
+								<p class="sub dim">The questions could not be read.</p>
 							{:else}
 								<p class="sub dim">No questions yet. The board scores nothing until a question exists.</p>
 								<button class="btn btn-sm" onclick={() => newQuestion()}>
@@ -758,8 +758,7 @@
 
 						{#if !preview}
 							<p class="sub dim">
-								The corpus is read as you type, on the local engine, so this costs nothing and answers the same
-								way twice. Applying runs the engine you have configured.
+								This reads every document as you type. It costs nothing and gives the same answer twice.
 							</p>
 						{:else}
 							<div class="metrics">
@@ -795,7 +794,7 @@
 								{/if}
 							{:else}
 								<p class="sub dim">
-									Nothing in the corpus answers this. That is a result: the question would not move the board.
+									Nothing on file answers this. The question would not move the board.
 								</p>
 							{/if}
 						{/if}

@@ -46,7 +46,7 @@
 		<div class="ident">
 			<h1 class="dsp">Where the demand is moving</h1>
 			<p class="sub">
-				{session.serviceLine} · every company in the corpus, grouped by what they have in common, not by what they
+				{session.serviceLine} · every company we hold, grouped by what they have in common, not by what they
 				scored. The lead list is the by-product of this view.
 			</p>
 		</div>
@@ -74,10 +74,10 @@
 
 	<div class="panes">
 		<div class="scroll">
-			<LoadingVeil show={loading} label="Aggregating the corpus" />
+			<LoadingVeil show={loading} label="Building the market" />
 
 			{#if error}
-				<div class="empty">The market could not be built: {error}</div>
+				<div class="empty">The market could not be read: {error}</div>
 			{:else if slices.length === 0 && !loading}
 				<div class="empty">Nothing in this service line has enough companies to group yet.</div>
 			{:else}

@@ -62,10 +62,10 @@ public class SettingsController {
                         || company.getEmployees() >= row.getIcpMinEmployees()).count());
         inScope.put("competitors", all.stream().filter(Company::isCompetitor).count());
         inScope.put("inIndustry", all.stream().filter(company -> inIndustry(company, row)).count());
-        List<String> shippedExclusions = all.stream()
+        List<SettingsView.Exclusion> exclusions = all.stream()
                 .filter(Company::isCompetitor)
-                .map(Company::getName)
-                .sorted()
+                .sorted(java.util.Comparator.comparing(Company::getName))
+                .map(company -> new SettingsView.Exclusion(company.getId().toString(), company.getName()))
                 .toList();
         List<String> industriesPresent = all.stream()
                 .map(Company::getIndustry)
@@ -76,7 +76,7 @@ public class SettingsController {
 
         return new SettingsView(
                 splitAsWritten(row.getBlacklist()),
-                shippedExclusions,
+                exclusions,
                 split(row.getIcpCountries()),
                 split(row.getIcpIndustries()),
                 row.getIcpMinEmployees(),

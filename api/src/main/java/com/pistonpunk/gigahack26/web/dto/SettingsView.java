@@ -6,7 +6,7 @@ import java.util.Map;
 
 public record SettingsView(
         List<String> blacklist,
-        List<String> shippedExclusions,
+        List<Exclusion> exclusions,
         List<String> icpCountries,
         List<String> icpIndustries,
         int icpMinEmployees,
@@ -36,4 +36,7 @@ public record SettingsView(
         Map<String, Long> inScope,
         List<String> industriesPresent,
         long indexedCompanies) {
+
+    public record Exclusion(String id, String name) {
+    }
 }

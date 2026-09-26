@@ -50,7 +50,7 @@
 		Strong: 'The evidence here is well clear of what a company in your market shows by default.',
 		Good: 'The evidence here sits above what a company in your market shows by default.',
 		Fair: 'The evidence here is close to what a company in your market shows by default.',
-		Weak: 'Nothing the corpus holds lifts this company above the market default.'
+		Weak: 'Nothing we hold lifts this company above the market default.'
 	};
 
 	let detail = $state<CompanyDetail | null>(null);

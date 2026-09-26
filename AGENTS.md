@@ -125,6 +125,18 @@ questions, and all of them scored positive**; the top company on the live board 
 top because a `COUNTER` reading was paid +0.63. Rows that do not assert are still
 stored, still shown on the card under "Read, not evidence", and contribute nothing.
 
+**A customer profile is a named book of business, and it is data.** `icp_profile`
+holds a name, the countries, the industries, the size floor and an on/off switch;
+a company belongs to a profile when its own country, industry and headcount
+satisfy that profile's rules, computed in `IcpProfile.covers`. A company can
+belong to several, because books of business overlap — that is the point of naming
+them. **The scoring thresholds are not per profile**: the base rate, the band cuts
+and the rank discount stay on the single `workspace_settings` row, because they
+describe how the desk scores rather than who it sells to, and one score has to stay
+comparable across profiles or the board's ranking stops meaning anything when a rep
+switches. Turning a profile off takes it out of the filter and off the row tags and
+changes no score.
+
 **The operator can exclude a company without a deploy.** `workspace_settings.blacklist`
 holds names and domains; `Blacklist.match` compares them folded, on the whole name
 with the legal suffix dropped, or on the domain, and `ScoringService.gate` runs it
@@ -161,6 +173,13 @@ still exists and the Studio still offers it; the shipped set does not use it.
 weight is a product of what was read, where it was published, how old it is and how
 sure the reader was. `counterEvidence()` now returns both the negative rows and the
 rows that assert nothing, because both are reasons not to call.
+
+**What a company is worth is shown as a shape, not a chart.** `BoardService.spark`
+bins the year's readings into twelve monthly buckets of absolute contribution, and
+`SignalTrace` draws them as bare bars — no axis, no points, no tooltip of its own.
+A row of them is read as shape ("this one spiked last week", "this one has gone
+quiet"), which is the question a rep actually has; anything more is a chart
+pretending to be a row, and the numbers live in the hover card.
 
 **The board opens on the work, not on the book.** The default view is `To call`:
 worth calling and untouched. It was `All`, so a company contacted six times still

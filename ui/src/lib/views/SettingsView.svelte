@@ -1,3 +1,22 @@
+						{#if exclusions.length > 0}
+							<p class="label against-label">Also kept out</p>
+							<p class="sub dim">
+								Companies that sell what we sell. Take one off and it is callable again.
+							</p>
+							<div class="chips">
+								{#each exclusions as company (company.id)}
+									<button
+										class="chip"
+										type="button"
+										title={`Bring ${company.name} back into the queue`}
+										disabled={profileBusy === company.id}
+										onclick={() => bringBack(company)}
+									>
+										{company.name}<Icon name="close" size={11} />
+									</button>
+								{/each}
+							</div>
+						{/if}
 <script lang="ts">
 	import {
 		createServiceLine,
@@ -5,7 +24,12 @@
 		fetchRegionCountries,
 		fetchServiceLines,
 		fetchPrecision,
+		markCompetitor,
 		fetchBoard,
+		fetchIcpProfiles,
+		createIcpProfile,
+		updateIcpProfile,
+		deleteIcpProfile,
 		fetchSettings,
 		fetchTelemetry,
 		saveSettings,
@@ -13,6 +37,8 @@
 		type RegionCountry,
 		type ServiceLine,
 		type Settings,
+		type IcpProfile,
+		type IcpProfileInput,
 		type Telemetry
 	} from '$lib/api';
 	import { workspace } from '$lib/workspace.svelte';
@@ -54,8 +80,12 @@
 	let countries = $state('');
 	let industries = $state('');
 	let blacklist = $state<string[]>([]);
-	const shipped = $derived(settings?.shippedExclusions ?? []);
+	const exclusions = $derived(settings?.exclusions ?? []);
 	let blacklistDraft = $state('');
+	let profiles = $state<IcpProfile[]>([]);
+	let profileDraft = $state<IcpProfileInput>({ name: '', countries: '', industries: '', minEmployees: 0, active: true });
+	let editingProfile = $state<string | null>(null);
+	let profileBusy = $state<string | null>(null);
 	let newLine = $state({ name: '', valueProposition: '' });
 	let lineBusy = $state<string | null>(null);
 
@@ -112,6 +142,103 @@
 			grouped.set(entry.continentKey, group);
 		}
 		return [...grouped.entries()].map(([key, group]) => ({ key, name: label(key), codes: group.codes }));
+	}
+
+	function reloadProfiles() {
+		return fetchIcpProfiles()
+			.then((list) => (profiles = list))
+			.catch(() => {});
+	}
+
+	function editProfile(profile: IcpProfile) {
+		editingProfile = profile.id;
+		profileDraft = {
+			name: profile.name,
+			countries: profile.countries.join(', '),
+			industries: profile.industries.join(', '),
+			minEmployees: profile.minEmployees,
+			active: profile.active
+		};
+	}
+
+	function resetProfile() {
+		editingProfile = null;
+		profileDraft = { name: '', countries: '', industries: '', minEmployees: 0, active: true };
+	}
+
+	async function saveProfile() {
+		if (profileDraft.name.trim().length < 2) {
+			toasts.push('Give the profile a name a rep would recognise.', 'warn');
+			return;
+		}
+		profileBusy = 'save';
+		try {
+			if (editingProfile) await updateIcpProfile(editingProfile, profileDraft);
+			else await createIcpProfile(profileDraft);
+			await reloadProfiles();
+			resetProfile();
+			workspace.reload();
+			toasts.push('Saved. The board carries it now.', 'success');
+		} catch (cause) {
+			toasts.push((cause as Error).message, 'error');
+		} finally {
+			profileBusy = null;
+		}
+	}
+
+	async function toggleProfile(profile: IcpProfile) {
+		profileBusy = profile.id;
+		try {
+			await updateIcpProfile(profile.id, {
+				name: profile.name,
+				countries: profile.countries.join(','),
+				industries: profile.industries.join(','),
+				minEmployees: profile.minEmployees,
+				active: !profile.active
+			});
+			await reloadProfiles();
+			workspace.reload();
+		} catch (cause) {
+			toasts.push((cause as Error).message, 'error');
+		} finally {
+			profileBusy = null;
+		}
+	}
+
+	async function bringBack(company: { id: string; name: string }) {
+		profileBusy = company.id;
+		try {
+			await markCompetitor(company.id, false);
+			await refreshSettings();
+			workspace.reload();
+			toasts.push(`${company.name} is callable again.`, 'success');
+		} catch (cause) {
+			toasts.push((cause as Error).message, 'error');
+		} finally {
+			profileBusy = null;
+		}
+	}
+
+	async function refreshSettings() {
+		const fresh = await fetchSettings();
+		settings = fresh;
+		draft = { ...fresh };
+		blacklist = [...(fresh.blacklist ?? [])];
+	}
+
+	async function removeProfile(profile: IcpProfile) {
+		profileBusy = profile.id;
+		try {
+			await deleteIcpProfile(profile.id);
+			await reloadProfiles();
+			if (editingProfile === profile.id) resetProfile();
+			workspace.reload();
+			toasts.push('Profile deleted. No company changed.', 'success');
+		} catch (cause) {
+			toasts.push((cause as Error).message, 'error');
+		} finally {
+			profileBusy = null;
+		}
 	}
 
 	function addBlacklist() {
@@ -284,7 +411,7 @@
 			<h1 class="dsp">Settings</h1>
 			<p class="sub num">
 				{#if loadError}
-					The settings could not be read from the API — a failure, not a reset
+					The settings could not be read.
 				{:else}
 					{shortNumber(settings?.indexedCompanies ?? 0)} companies indexed · {lines.length} service lines · applies to
 				{/if}
@@ -405,8 +532,97 @@
 				{#if section === 'profile'}
 					<section class="panel">
 						<div class="panel-head">
+							<h2 class="dsp">Customer profiles</h2>
+							<span class="sub dim">
+								{profiles.filter((p) => p.active).length} of {profiles.length} on
+							</span>
+						</div>
+						<p class="sub dim">
+							A named book of business — the countries, industries and size you sell into. A company shows
+							the profile it belongs to on the board, and the board filters by it. Switching one off takes
+							it out of both.
+						</p>
+
+						{#if profiles.length > 0}
+							<ul class="profiles">
+								{#each profiles as profile (profile.id)}
+									<li>
+										<span class="p-name">
+											{profile.name}
+											{#if !profile.active}<span class="p-off">off</span>{/if}
+										</span>
+										<span class="sub dim p-where">
+											{profile.countries.length > 0 ? profile.countries.join(', ') : 'everywhere'}{profile.industries.length > 0
+												? ` · ${profile.industries.join(', ')}`
+												: ''}{profile.minEmployees > 0 ? ` · ${profile.minEmployees}+ staff` : ''}
+										</span>
+										<span class="p-count num">{profile.companies} companies</span>
+										<button
+											class="btn btn-sm btn-quiet"
+											disabled={profileBusy === profile.id}
+											onclick={() => editProfile(profile)}
+										>
+											Edit
+										</button>
+										<button
+											class="btn btn-sm btn-quiet"
+											disabled={profileBusy === profile.id}
+											onclick={() => toggleProfile(profile)}
+										>
+											{profile.active ? 'Turn off' : 'Turn on'}
+										</button>
+										<button
+											class="btn btn-sm btn-quiet"
+											disabled={profileBusy === profile.id}
+											title="Deleting a profile changes no company — it only stops being a way to group them"
+											onclick={() => removeProfile(profile)}
+										>
+											<Icon name="trash" size={13} />
+										</button>
+									</li>
+								{/each}
+							</ul>
+						{/if}
+
+						<div class="profile-form">
+							<div class="fields">
+								<label class="field">
+									<span class="label">Name</span>
+									<input class="input" bind:value={profileDraft.name} placeholder="DACH industrials" />
+								</label>
+								<label class="field">
+									<span class="label">Countries</span>
+									<input class="input" bind:value={profileDraft.countries} placeholder="DE, AT, CH" />
+								</label>
+								<label class="field">
+									<span class="label">Industries</span>
+									<input class="input" bind:value={profileDraft.industries} placeholder="Manufacturing, Logistics" />
+								</label>
+								<label class="field">
+									<span class="label">Minimum employees</span>
+									<input class="input" type="number" min="0" bind:value={profileDraft.minEmployees} />
+								</label>
+							</div>
+							<div class="profile-actions">
+								<label class="check">
+									<input type="checkbox" bind:checked={profileDraft.active} />
+									<span>On</span>
+								</label>
+								<span class="spacer"></span>
+								{#if editingProfile}
+									<button class="btn btn-sm" onclick={resetProfile}>Cancel</button>
+								{/if}
+								<button class="btn btn-sm btn-ink" disabled={profileBusy === 'save'} onclick={saveProfile}>
+									{editingProfile ? 'Save the profile' : 'Add the profile'}
+								</button>
+							</div>
+						</div>
+					</section>
+
+					<section class="panel">
+						<div class="panel-head">
 							<h2 class="dsp">Where we sell</h2>
-							<span class="sub dim">{draft.geographyGate ? 'gate on' : 'gate off'}</span>
+							<span class="sub dim">{draft.geographyGate ? 'on' : 'off'}</span>
 						</div>
 						<div class="field">
 							<span class="label">Add a whole region</span>
@@ -431,7 +647,7 @@
 						</div>
 						<label class="check">
 							<input type="checkbox" bind:checked={draft.geographyGate} />
-							<span>Remove companies outside these markets — the reason is shown on the card</span>
+							<span>Keep out companies outside these markets</span>
 						</label>
 					</section>
 
@@ -455,15 +671,15 @@
 						<div class="checks">
 							<label class="check">
 								<input type="checkbox" bind:checked={draft.sizeGate} />
-								<span>Remove companies below the size floor</span>
+								<span>Keep out companies below the size floor</span>
 							</label>
 							<label class="check">
 								<input type="checkbox" bind:checked={draft.competitorGate} />
-								<span>Remove competitors — firms that sell what we sell</span>
+								<span>Keep out competitors — firms that sell what we sell</span>
 							</label>
 							<label class="check">
 								<input type="checkbox" bind:checked={draft.industryGate} />
-								<span>Remove companies outside those industries — the reason is shown on the card</span>
+								<span>Keep out companies outside those industries</span>
 							</label>
 						</div>
 					</section>
@@ -475,7 +691,7 @@
 						</div>
 						<p class="sub dim">
 							A name or a domain. A company on this list leaves the queue with the reason shown on its card,
-							wherever it sits on the board — the same way the gates work, and without a deploy. This list
+							wherever it sits on the board — and it takes effect straight away. This list
 							adds to the exclusions below; it cannot remove one of them.
 						</p>
 						<div class="chips">
@@ -508,21 +724,22 @@
 							<button class="btn btn-sm" type="button" onclick={addBlacklist}>Add</button>
 						</div>
 
-						{#if shipped.length > 0}
-							<details class="shipped">
-								<summary>
-									{shipped.length} more are excluded as competitors by the vendor list the corpus ships
-									with
-								</summary>
-								<p class="sub dim">
-									Those come from <span class="key">tools/vendor_registry.py</span>, applied when the corpus is
-									built, and they are part of the corpus rather than of your settings. Change one there and
-									re-seed.
-								</p>
-								<div class="chips">
-									{#each shipped as name (name)}<Tag variant="bare">{name}</Tag>{/each}
-								</div>
-							</details>
+						{#if exclusions.length > 0}
+							<p class="label against-label">Also kept out</p>
+							<p class="sub dim">Companies that sell what we sell. Take one off and it is callable again.</p>
+							<div class="chips">
+								{#each exclusions as company (company.id)}
+									<button
+										class="chip"
+										type="button"
+										title={`Bring ${company.name} back into the queue`}
+										disabled={profileBusy === company.id}
+										onclick={() => bringBack(company)}
+									>
+										{company.name}<Icon name="close" size={11} />
+									</button>
+								{/each}
+							</div>
 						{/if}
 					</section>
 
@@ -962,25 +1179,69 @@
 		max-width: 340px;
 	}
 
-	.shipped {
-		margin-top: var(--spacing-3);
+	.profiles {
+		list-style: none;
+		margin: var(--spacing-2) 0 0;
+		padding: 0;
 		border-top: 1px solid var(--color-rule);
-		padding-top: var(--spacing-2);
 	}
 
-	.shipped summary {
+	.profiles li {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-2);
+		padding: var(--spacing-2) 0;
+		border-bottom: 1px solid var(--color-rule);
+	}
+
+	.p-name {
+		font-family: var(--font-display);
+		font-size: var(--text-md);
+		font-weight: 600;
+		min-width: 150px;
+	}
+
+	.p-off {
+		margin-left: var(--spacing-1);
+		font-family: var(--font-ui);
+		font-size: var(--text-micro);
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: var(--color-ink-4);
+	}
+
+	.p-where {
+		flex: 1;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.p-count {
+		flex: none;
 		font-size: var(--text-sm);
 		color: var(--color-ink-3);
-		cursor: pointer;
 	}
 
-	.shipped summary:hover {
-		color: var(--color-ink);
+	.profile-form {
+		margin-top: var(--spacing-3);
 	}
 
-	.shipped .sub {
+	.profile-actions {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-2);
 		margin-top: var(--spacing-2);
-		max-width: 70ch;
+	}
+
+	.profile-actions .spacer {
+		margin-left: auto;
+	}
+
+	.against-label {
+		margin-top: var(--spacing-4);
 	}
 
 	.region-pick {

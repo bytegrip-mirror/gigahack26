@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import BoardView from '$lib/views/BoardView.svelte';
+	import { session } from '$lib/session.svelte';
+	import CompanyView from '$lib/views/CompanyView.svelte';
 
-	const id = $derived(page.params.id ?? null);
+	const id = $derived(page.params.id ?? '');
+	const line = $derived(page.url.searchParams.get('line') ?? session.serviceLine);
 </script>
 
 <svelte:head><title>Company · Signal Desk</title></svelte:head>
 
-<BoardView initialSelected={id} />
+<CompanyView companyId={id} serviceLine={line} />

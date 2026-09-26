@@ -1,4 +1,4 @@
-import { fetchMeta, fetchStatus, type Meta, type Status } from '$lib/api';
+import { fetchIcpProfiles, fetchMeta, fetchStatus, type Meta, type Status } from '$lib/api';
 import { session } from '$lib/session.svelte';
 import { toasts } from '$lib/toast.svelte';
 
@@ -9,6 +9,7 @@ class Workspace {
 	loading = $state(true);
 	switching = $state(false);
 	savedRevision = $state(0);
+	profileNames = $state<string[]>([]);
 	#token = 0;
 
 	/**
@@ -21,6 +22,19 @@ class Workspace {
 	 */
 	savedChanged() {
 		this.savedRevision += 1;
+	}
+
+	get profiles(): string[] {
+		return this.profileNames;
+	}
+
+	async loadProfiles() {
+		try {
+			const list = await fetchIcpProfiles();
+			this.profileNames = list.filter((profile) => profile.active).map((profile) => profile.name);
+		} catch {
+			this.profileNames = [];
+		}
 	}
 
 	get lines(): string[] {
@@ -41,6 +55,7 @@ class Workspace {
 		this.meta = meta;
 		this.status = status;
 		this.loading = false;
+		void this.loadProfiles();
 		if (!session.serviceLine) session.set(meta.defaultServiceLine);
 		if (meta.degraded) {
 			toasts.push(

@@ -85,10 +85,10 @@
 		if (event.target === event.currentTarget) onclose();
 	}}
 >
-	<div class="sheet" role="dialog" aria-modal="true" aria-label="Stored capture">
+	<div class="sheet" role="dialog" aria-modal="true" aria-label="The document">
 		<header>
 			<div class="head-main">
-				<p class="label">Stored capture</p>
+				<p class="label">The document</p>
 				<h2 class="dsp">{detail?.title ?? 'Reading'}</h2>
 			</div>
 			<button class="icon-btn" onclick={onclose} aria-label="Close the capture" title="Close">
@@ -159,7 +159,7 @@
 
 		<footer>
 			<a class="btn btn-sm" href={`${apiBase}/api/evidence/${evidenceId}/capture`} target="_blank" rel="noreferrer noopener">
-				Raw capture
+				The full document
 			</a>
 			{#if detail}
 				<a class="btn btn-sm" href={detail.sourceUrl} target="_blank" rel="noreferrer noopener">Open source</a>
