@@ -2,12 +2,15 @@ package com.pistonpunk.gigahack26.web;
 
 import com.pistonpunk.gigahack26.domain.Company;
 import com.pistonpunk.gigahack26.domain.Person;
+import com.pistonpunk.gigahack26.domain.PersonSignal;
 import com.pistonpunk.gigahack26.repository.jpa.CompanyRepository;
 import com.pistonpunk.gigahack26.service.BoardService;
 import com.pistonpunk.gigahack26.service.EnrichmentService;
+import com.pistonpunk.gigahack26.service.PersonSeeder;
 import com.pistonpunk.gigahack26.service.PersonService;
 import com.pistonpunk.gigahack26.web.dto.BoardRow;
 import com.pistonpunk.gigahack26.web.dto.PersonRow;
+import com.pistonpunk.gigahack26.web.dto.PersonSignalRow;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,13 +31,15 @@ import java.util.UUID;
 public class PersonController {
 
     private final PersonService people;
+    private final PersonSeeder seeder;
     private final BoardService board;
     private final CompanyRepository companies;
     private final EnrichmentService enrichment;
 
-    public PersonController(PersonService people, BoardService board, CompanyRepository companies,
-                            EnrichmentService enrichment) {
+    public PersonController(PersonService people, PersonSeeder seeder, BoardService board,
+                            CompanyRepository companies, EnrichmentService enrichment) {
         this.people = people;
+        this.seeder = seeder;
         this.board = board;
         this.companies = companies;
         this.enrichment = enrichment;
@@ -45,7 +50,7 @@ public class PersonController {
                 null, 0, null, person.getSourceUrl(), person.getPublisher(), person.getPublishedAt(),
                 person.getEmail(), person.getLinkedinUrl(), person.getHeadline(), person.getEnrichedAt(),
                 person.getStatus().name(), person.getStatus().label(), person.getContactCount(),
-                person.getLastContactedAt(), person.getOutreachSubject(), List.of());
+                person.getLastContactedAt(), person.getOutreachSubject(), List.of(), List.of());
     }
 
     @GetMapping("/provider")
@@ -70,6 +75,8 @@ public class PersonController {
         for (Company company : companies.findAll()) {
             domains.put(company.getId(), company.getDomain());
         }
+
+        Map<UUID, List<PersonSignal>> said = people.signalsFor(found.stream().map(Person::getId).toList());
 
         List<PersonRow> out = new ArrayList<>();
         for (Person person : found) {
@@ -99,9 +106,15 @@ public class PersonController {
                     person.getContactCount(),
                     person.getLastContactedAt(),
                     person.getOutreachSubject(),
-                    row.profiles()));
+                    row.profiles(),
+                    said.getOrDefault(person.getId(), List.of()).stream().map(PersonController::signalRow).toList()));
         }
         return out;
+    }
+
+    private static PersonSignalRow signalRow(PersonSignal signal) {
+        return new PersonSignalRow(signal.getId(), signal.getKind(), signal.getStrength(), signal.getText(),
+                signal.getSourceUrl(), signal.getPublisher(), signal.getPublishedAt());
     }
 
     public record StageRequest(String status, String channel, String subject) {
@@ -144,8 +157,10 @@ public class PersonController {
             people.forget();
         }
         int added = people.extract(all);
+        int seeded = reset ? seeder.seed() : 0;
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("added", added);
+        body.put("seeded", seeded);
         body.put("reset", reset);
         body.put("total", people.forCompanies(all.stream().map(Company::getId).toList()).size());
         return body;

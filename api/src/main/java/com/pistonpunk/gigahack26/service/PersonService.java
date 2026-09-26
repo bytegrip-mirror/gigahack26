@@ -4,9 +4,11 @@ import com.pistonpunk.gigahack26.domain.Company;
 import com.pistonpunk.gigahack26.domain.Evidence;
 import com.pistonpunk.gigahack26.domain.LeadStatus;
 import com.pistonpunk.gigahack26.domain.Person;
+import com.pistonpunk.gigahack26.domain.PersonSignal;
 import com.pistonpunk.gigahack26.repository.jpa.CompanyRepository;
 import com.pistonpunk.gigahack26.repository.jpa.EvidenceRepository;
 import com.pistonpunk.gigahack26.repository.jpa.PersonRepository;
+import com.pistonpunk.gigahack26.repository.jpa.PersonSignalRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,18 +35,50 @@ import java.util.UUID;
 public class PersonService {
 
     private final PersonRepository people;
+    private final PersonSignalRepository signals;
     private final EvidenceRepository evidence;
     private final CompanyRepository companies;
     private final CaptureStore captures;
     private final Clock clock;
 
-    public PersonService(PersonRepository people, EvidenceRepository evidence, CompanyRepository companies,
-                         CaptureStore captures, Clock clock) {
+    public PersonService(PersonRepository people, PersonSignalRepository signals, EvidenceRepository evidence,
+                         CompanyRepository companies, CaptureStore captures, Clock clock) {
         this.people = people;
+        this.signals = signals;
         this.evidence = evidence;
         this.companies = companies;
         this.captures = captures;
         this.clock = clock;
+    }
+
+    /**
+     * What each of these people has said, strongest first, so the caller does not
+     * have to rank them and every screen shows the same one at the top.
+     */
+    @Transactional(readOnly = true)
+    public Map<UUID, List<PersonSignal>> signalsFor(List<UUID> personIds) {
+        Map<UUID, List<PersonSignal>> out = new LinkedHashMap<>();
+        if (personIds.isEmpty()) {
+            return out;
+        }
+        for (PersonSignal signal : signals.findByPersonIdIn(personIds)) {
+            out.computeIfAbsent(signal.getPersonId(), key -> new ArrayList<>()).add(signal);
+        }
+        for (List<PersonSignal> held : out.values()) {
+            held.sort((left, right) -> rank(right.getStrength()) - rank(left.getStrength()));
+        }
+        return out;
+    }
+
+    private static int rank(String strength) {
+        if (strength == null) {
+            return 0;
+        }
+        return switch (strength.toUpperCase(Locale.ROOT)) {
+            case "STRONG" -> 2;
+            case "MEDIUM" -> 1;
+            default -> 0;
+        };
     }
 
     @Transactional(readOnly = true)
@@ -124,6 +158,7 @@ public class PersonService {
 
     @Transactional
     public void forget() {
+        signals.deleteAll();
         people.deleteAll();
     }
 

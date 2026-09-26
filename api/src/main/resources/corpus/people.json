@@ -1,0 +1,216 @@
+{
+ "generatedAt": "2026-09-26T00:00:00Z",
+ "note": "Authored demo data. These people and their signals are written by hand, not extracted from the corpus, and carry origin=demo-seed so nothing reads as a quote from a stored page.",
+ "people": [
+  {
+   "companyKey": "deutsche-telekom",
+   "name": "Katrin Vogel",
+   "role": "Chief Technology Officer",
+   "signals": [
+    {
+     "kind": "BLOG",
+     "strength": "STRONG",
+     "text": "Wrote a blog post setting out a two-year plan to consolidate shared service centres and automate the back office across four countries.",
+     "publisher": "Personal blog",
+     "publishedAt": "2026-08-14T00:00:00Z"
+    },
+    {
+     "kind": "X_POST",
+     "strength": "MEDIUM",
+     "text": "Posted that the group is hiring process-mining engineers for a new operations excellence team.",
+     "publisher": "X",
+     "publishedAt": "2026-07-02T00:00:00Z"
+    },
+    {
+     "kind": "CONFERENCE",
+     "strength": "SMALL",
+     "text": "Named on the speaker list for a telecom operations summit in Vienna.",
+     "publisher": "Summit programme",
+     "publishedAt": "2026-05-20T00:00:00Z"
+    }
+   ]
+  },
+  {
+   "companyKey": "deutsche-telekom",
+   "name": "Marek Dvořák",
+   "role": "Head of Intelligent Automation",
+   "signals": [
+    {
+     "kind": "LINKEDIN_POST",
+     "strength": "STRONG",
+     "text": "Announced a new automation centre of excellence and said the team will double within the year.",
+     "publisher": "LinkedIn",
+     "publishedAt": "2026-09-01T00:00:00Z"
+    }
+   ]
+  },
+  {
+   "companyKey": "sap",
+   "name": "Anke Bremer",
+   "role": "Chief Information Officer",
+   "signals": [
+    {
+     "kind": "BLOG",
+     "strength": "MEDIUM",
+     "text": "Argued that finance close should be automated end to end and said the company is evaluating partners for the process layer.",
+     "publisher": "Company blog",
+     "publishedAt": "2026-06-11T00:00:00Z"
+    },
+    {
+     "kind": "PODCAST",
+     "strength": "SMALL",
+     "text": "Spoke on a podcast about the difficulty of measuring automation returns.",
+     "publisher": "Industry podcast",
+     "publishedAt": "2026-04-02T00:00:00Z"
+    }
+   ]
+  },
+  {
+   "companyKey": "allianz",
+   "name": "Sofia Lindqvist",
+   "role": "Chief Operating Officer",
+   "signals": [
+    {
+     "kind": "PRESS",
+     "strength": "STRONG",
+     "text": "Told a trade paper the insurer will automate claims handling and expects a quantified headcount reduction by next year.",
+     "publisher": "Insurance press",
+     "publishedAt": "2026-08-28T00:00:00Z"
+    }
+   ]
+  },
+  {
+   "companyKey": "ing-group",
+   "name": "Bram de Vries",
+   "role": "Head of Digital Transformation",
+   "signals": [
+    {
+     "kind": "X_POST",
+     "strength": "MEDIUM",
+     "text": "Posted that the bank is piloting document processing automation in three markets and wants to hear from vendors.",
+     "publisher": "X",
+     "publishedAt": "2026-07-19T00:00:00Z"
+    },
+    {
+     "kind": "BLOG",
+     "strength": "MEDIUM",
+     "text": "Wrote that robotics has plateaued at the bank and the next step is process intelligence rather than more bots.",
+     "publisher": "Personal blog",
+     "publishedAt": "2026-06-05T00:00:00Z"
+    }
+   ]
+  },
+  {
+   "companyKey": "bmw-group",
+   "name": "Jonas Weiß",
+   "role": "Head of Production IT",
+   "signals": [
+    {
+     "kind": "CONFERENCE",
+     "strength": "MEDIUM",
+     "text": "Gave a keynote saying the plants will be re-planned around automated quality inspection next year.",
+     "publisher": "Manufacturing conference",
+     "publishedAt": "2026-09-08T00:00:00Z"
+    }
+   ]
+  },
+  {
+   "companyKey": "carrefour",
+   "name": "Élodie Marchand",
+   "role": "Chief Digital Officer",
+   "signals": [
+    {
+     "kind": "PRESS",
+     "strength": "STRONG",
+     "text": "Announced a cost-reduction programme with a quantified headcount target and named back-office automation as the lever.",
+     "publisher": "Retail press",
+     "publishedAt": "2026-08-05T00:00:00Z"
+    },
+    {
+     "kind": "X_POST",
+     "strength": "SMALL",
+     "text": "Shared a photograph from a store visit with no commentary on technology.",
+     "publisher": "X",
+     "publishedAt": "2026-03-30T00:00:00Z"
+    }
+   ]
+  },
+  {
+   "companyKey": "heineken",
+   "name": "Pieter Bakker",
+   "role": "Global Head of Supply Chain",
+   "signals": [
+    {
+     "kind": "BLOG",
+     "strength": "MEDIUM",
+     "text": "Wrote about removing manual planning steps across the breweries and said the next budget cycle will fund it.",
+     "publisher": "Company blog",
+     "publishedAt": "2026-07-25T00:00:00Z"
+    }
+   ]
+  },
+  {
+   "companyKey": "philips",
+   "name": "Femke Jansen",
+   "role": "Chief Information Security Officer",
+   "signals": [
+    {
+     "kind": "LINKEDIN_POST",
+     "strength": "STRONG",
+     "text": "Posted that the security operations centre is being rebuilt around automated triage and that she is hiring for it.",
+     "publisher": "LinkedIn",
+     "publishedAt": "2026-09-12T00:00:00Z"
+    }
+   ]
+  },
+  {
+   "companyKey": "nestle",
+   "name": "Luca Bernasconi",
+   "role": "Head of Global Business Services",
+   "signals": [
+    {
+     "kind": "PRESS",
+     "strength": "MEDIUM",
+     "text": "Said in an interview that the shared service centres will absorb more work before any new ones are opened.",
+     "publisher": "Business press",
+     "publishedAt": "2026-06-22T00:00:00Z"
+    },
+    {
+     "kind": "PODCAST",
+     "strength": "SMALL",
+     "text": "Discussed shared services careers on a finance podcast.",
+     "publisher": "Finance podcast",
+     "publishedAt": "2026-02-18T00:00:00Z"
+    }
+   ]
+  },
+  {
+   "companyKey": "dhl-group",
+   "name": "Anna Kowalczyk",
+   "role": "Chief Information Officer",
+   "signals": [
+    {
+     "kind": "CONFERENCE",
+     "strength": "MEDIUM",
+     "text": "Told a logistics conference that the network runs on documents and that the documents are the next thing to go.",
+     "publisher": "Logistics conference",
+     "publishedAt": "2026-08-30T00:00:00Z"
+    }
+   ]
+  },
+  {
+   "companyKey": "siemens",
+   "name": "Thomas Reuter",
+   "role": "Head of Automation Systems",
+   "signals": [
+    {
+     "kind": "BLOG",
+     "strength": "STRONG",
+     "text": "Wrote that the company builds its own automation platforms and will keep that capability in-house rather than buy it.",
+     "publisher": "Company blog",
+     "publishedAt": "2026-07-08T00:00:00Z"
+    }
+   ]
+  }
+ ]
+}

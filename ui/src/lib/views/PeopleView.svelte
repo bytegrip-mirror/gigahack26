@@ -5,8 +5,8 @@
 		fetchEnrichmentProvider,
 		fetchPeople,
 		movePerson,
-		setPersonEmail,
-		type PersonRow
+		type PersonRow,
+		type PersonSignal
 	} from '$lib/api';
 	import { session } from '$lib/session.svelte';
 	import { workspace } from '$lib/workspace.svelte';
@@ -18,6 +18,7 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import Menu from '$lib/components/Menu.svelte';
 	import Metric from '$lib/components/Metric.svelte';
+	import Tag from '$lib/components/Tag.svelte';
 
 	const SORTS = [
 		{ id: 'company', label: 'Best company first' },
@@ -34,19 +35,47 @@
 	let provider = $state<{ provider: string; available: boolean } | null>(null);
 	let stage = $state('NEW');
 	let busyOn = $state<string | null>(null);
-	let mailFor = $state<{ id: string; value: string } | null>(null);
 
-	async function saveEmail(id: string, value: string) {
-		busyOn = id;
-		try {
-			await setPersonEmail(id, value);
-			await load();
-			mailFor = null;
-		} catch (cause) {
-			toasts.push((cause as Error).message, 'error');
-		} finally {
-			busyOn = null;
-		}
+	function signalsOf(person: PersonRow): PersonSignal[] {
+		return person.signals ?? [];
+	}
+
+	function strongest(person: PersonRow): PersonSignal | null {
+		return signalsOf(person)[0] ?? null;
+	}
+
+	const STRENGTH_WORD: Record<string, string> = { STRONG: 'Strong', MEDIUM: 'Medium', SMALL: 'Small' };
+
+	/** The palette reserves orange for the score and oxblood for rejection, so a
+	 * strength is said in weight and not in a colour that already means something. */
+	const STRENGTH_VARIANT: Record<string, 'default' | 'wash' | 'bare'> = {
+		STRONG: 'default',
+		MEDIUM: 'wash',
+		SMALL: 'bare'
+	};
+
+	function strengthWord(strength: string | undefined): string {
+		const key = (strength ?? '').toUpperCase();
+		return STRENGTH_WORD[key] ?? key;
+	}
+
+	function strengthVariant(strength: string | undefined): 'default' | 'wash' | 'bare' {
+		return STRENGTH_VARIANT[(strength ?? '').toUpperCase()] ?? 'bare';
+	}
+
+	const KIND_WORD: Record<string, string> = {
+		BLOG: 'Blog post',
+		X_POST: 'Post on X',
+		LINKEDIN_POST: 'LinkedIn post',
+		CONFERENCE: 'Conference',
+		PRESS: 'Press',
+		PODCAST: 'Podcast',
+		NOTE: 'Note'
+	};
+
+	function kindWord(kind: string | undefined): string {
+		const key = (kind ?? '').toUpperCase();
+		return KIND_WORD[key] ?? key;
 	}
 
 	const STAGES = [
@@ -195,17 +224,21 @@
 		save(
 			`people-${serviceLine.toLowerCase().replace(/\s+/g, '-')}.csv`,
 			csv(
-				['name', 'role', 'company', 'domain', 'fit', 'latest_signal', 'publisher', 'source'],
-				matched.map((row) => [
-					row.name,
-					row.role,
-					row.company,
-					row.domain ?? '',
-					row.probability.toFixed(2),
-					row.publishedAt ?? '',
-					row.publisher,
-					row.sourceUrl
-				])
+				['name', 'role', 'company', 'domain', 'fit', 'signal', 'signal_strength', 'signal_from', 'seen_in'],
+				matched.map((row) => {
+					const top = strongest(row);
+					return [
+						row.name,
+						row.role,
+						row.company,
+						row.domain ?? '',
+						row.probability.toFixed(2),
+						top?.text ?? '',
+						top ? strengthWord(top.strength) : '',
+						top?.publisher ?? '',
+						row.publishedAt ?? ''
+					];
+				})
 			)
 		);
 		toasts.push(`Exported ${matched.length} people.`, 'success');
@@ -326,63 +359,24 @@
 				<thead>
 					<tr>
 						<th scope="col" class="c-person">Person</th>
-						<th scope="col">Company</th>
 						<th scope="col" class="c-stage">Stage</th>
 						<th scope="col" class="c-fit">Fit</th>
 						<th scope="col" class="c-when">Said</th>
 						<th scope="col" class="c-src">Where</th>
+						<th scope="col" class="c-signal">Signals</th>
 					</tr>
 				</thead>
 				<tbody>
 					{#each matched as person (person.id)}
+						{@const top = strongest(person)}
 						<tr onclick={() => (window.location.href = `/companies/${person.companyId}?line=${encodeURIComponent(person.serviceLine)}`)}>
 							<td class="c-person">
 								<span class="p-name">{person.name}</span>
-								<span class="sub dim">{person.role}</span>
-								{#if mailFor?.id === person.id}
-									<span class="mail-edit" role="presentation" onclick={(event) => event.stopPropagation()}>
-										<input
-											class="input input-sm"
-											bind:value={mailFor.value}
-											placeholder="name@company.com"
-											onkeydown={(event) => {
-												if (event.key === 'Enter') saveEmail(person.id, mailFor?.value ?? '');
-												if (event.key === 'Escape') mailFor = null;
-											}}
-										/>
-										<button class="btn btn-sm btn-ink" disabled={busyOn === person.id} onclick={() => saveEmail(person.id, mailFor?.value ?? '')}>
-											Save
-										</button>
-									</span>
-								{:else if person.email}
-									<button
-										class="mail"
-										title="Click to correct it"
-										onclick={(event) => {
-											event.stopPropagation();
-											mailFor = { id: person.id, value: person.email ?? '' };
-										}}
-									>
-										{person.email}
-									</button>
-								{:else}
-									<button
-										class="mail-add"
-										title="Add an address for this person"
-										onclick={(event) => {
-											event.stopPropagation();
-											mailFor = { id: person.id, value: '' };
-										}}
-									>
-										no address
-									</button>
-								{/if}
-							</td>
-							<td class="c-co">
 								<span class="co-line">
 									<CompanyMark name={person.company} domain={person.domain} />
 									<span class="co">{person.company}</span>
 								</span>
+								<span class="sub dim">{person.role}</span>
 							</td>
 							<td class="c-stage" onclick={(event) => event.stopPropagation()}>
 								{#if person.status === 'NEW'}
@@ -446,6 +440,19 @@
 									<span class="dim">{person.publisher}</span>
 								{/if}
 							</td>
+							<td class="c-signal">
+								{#if top}
+									<span class="sig-text">{top.text}</span>
+									<span class="sig-meta">
+										<Tag variant={strengthVariant(top.strength)}>{strengthWord(top.strength)}</Tag>
+										<span class="sub dim">
+											{kindWord(top.kind)}{#if signalsOf(person).length > 1} · {signalsOf(person).length} signals{/if}{#if top.publishedAt} · {date(top.publishedAt)}{/if}
+										</span>
+									</span>
+								{:else}
+									<span class="dim">Nothing said yet</span>
+								{/if}
+							</td>
 						</tr>
 					{/each}
 				</tbody>
@@ -498,27 +505,19 @@
 	}
 
 	/*
-	 * The table stretched to the whole window and the columns spread with it, so
-	 * the headings sat hundreds of pixels apart and stopped reading as one row of
-	 * labels over their own data. It stops at the width the columns actually need
-	 * and the rest of the pane stays empty.
+	 * The table fills the pane. Capping it stopped the headings spreading, but it
+	 * left the rest of the pane as a band of nothing, which reads as a table that
+	 * failed to load rather than one that is deliberately narrow. Only the person
+	 * column is left unsized, so it takes the room the others do not use and the
+	 * headings stay where they are however wide the window gets.
 	 */
-	.pane table.tbl {
-		max-width: 1080px;
-	}
-
 	.c-person {
-		width: 30%;
 		vertical-align: top;
 	}
 
 	.c-fit {
 		width: 96px;
 		vertical-align: top;
-	}
-
-	.c-co {
-		width: 260px;
 	}
 
 	.c-stage {
@@ -571,6 +570,25 @@
 		width: 190px;
 	}
 
+	.c-signal {
+		width: 340px;
+		vertical-align: top;
+	}
+
+	.sig-text {
+		display: block;
+		font-size: var(--text-base);
+		line-height: 1.4;
+		color: var(--color-ink-2);
+	}
+
+	.sig-meta {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-2);
+		margin-top: 4px;
+	}
+
 	.p-name {
 		display: block;
 		font-family: var(--font-display);
@@ -579,52 +597,12 @@
 		line-height: 1.2;
 	}
 
-	.mail {
-		display: block;
-		margin-top: 2px;
-		font-family: var(--font-ui);
-		font-size: var(--text-sm);
-		color: var(--color-ink-2);
-		text-decoration: underline;
-		text-underline-offset: 2px;
-		text-decoration-color: var(--color-rule-strong);
-		cursor: pointer;
-	}
-
-	.mail:hover {
-		text-decoration-color: var(--color-orange);
-		color: var(--color-orange-ink);
-	}
-
-	.mail-add {
-		display: block;
-		margin-top: 2px;
-		font-size: var(--text-micro);
-		letter-spacing: 0.04em;
-		color: var(--color-ink-4);
-		cursor: pointer;
-	}
-
-	.mail-add:hover {
-		color: var(--color-orange-ink);
-	}
-
-	.mail-edit {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-1);
-		margin-top: var(--spacing-1);
-	}
-
-	.mail-edit .input {
-		max-width: 200px;
-	}
-
 	.co-line {
 		display: flex;
 		align-items: center;
 		gap: var(--spacing-2);
 		min-width: 0;
+		margin-top: 2px;
 	}
 
 	.co {
@@ -659,5 +637,17 @@
 		padding: var(--spacing-5);
 		text-align: center;
 		color: var(--color-ink-3);
+	}
+
+	/*
+	 * Columns drop in a fixed order rather than squeezing, and the signal is the
+	 * one that must survive to a projector: the document a person was read out of
+	 * and the date it was published are on the signal itself.
+	 */
+	@media (max-width: 1180px) {
+		.c-when,
+		.c-src {
+			display: none;
+		}
 	}
 </style>

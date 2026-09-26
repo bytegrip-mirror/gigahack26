@@ -879,6 +879,16 @@ export function markCompetitor(companyId: string, competitor: boolean): Promise<
 	});
 }
 
+export type PersonSignal = {
+	id: string;
+	kind: string;
+	strength: string;
+	text: string;
+	sourceUrl: string | null;
+	publisher: string | null;
+	publishedAt: string | null;
+};
+
 export type PersonRow = {
 	id: string;
 	companyId: string;
@@ -902,6 +912,7 @@ export type PersonRow = {
 	lastContactedAt: string | null;
 	outreachSubject: string | null;
 	profiles: string[];
+	signals: PersonSignal[];
 };
 
 export function movePerson(id: string, status: string, subject?: string): Promise<PersonRow> {

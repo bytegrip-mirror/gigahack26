@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record CorpusProperties(
         String rawPath,
         String signalsPath,
+        String peoplePath,
         boolean seedOnStartup,
         boolean forceReseed,
         boolean adminEnabled) {

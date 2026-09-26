@@ -481,25 +481,7 @@ public class CorpusSeeder implements ApplicationRunner {
     }
 
     private <T> T readJson(String location, Class<T> type) {
-        if (location == null || location.isBlank()) {
-            return null;
-        }
-        try {
-            ClassPathResource resource = new ClassPathResource(location);
-            if (resource.exists()) {
-                try (InputStream stream = resource.getInputStream()) {
-                    return mapper.readValue(stream, type);
-                }
-            }
-            Path path = Path.of(location);
-            if (Files.exists(path)) {
-                return mapper.readValue(Files.readString(path, StandardCharsets.UTF_8), type);
-            }
-            log.info("{} is not present", location);
-        } catch (Exception e) {
-            log.warn("could not read {}: {}", location, e.toString());
-        }
-        return null;
+        return CorpusFiles.read(mapper, location, type);
     }
 
     static UUID deterministicId(String seed) {

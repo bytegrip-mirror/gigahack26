@@ -26,5 +26,6 @@ public record PersonRow(
         int contactCount,
         Instant lastContactedAt,
         String outreachSubject,
-        List<String> profiles) {
+        List<String> profiles,
+        List<PersonSignalRow> signals) {
 }

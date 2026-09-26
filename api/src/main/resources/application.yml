@@ -86,6 +86,7 @@ app:
   corpus:
     raw-path: ${CORPUS_RAW_PATH:corpus/raw.json}
     signals-path: ${CORPUS_SIGNALS_PATH:corpus/signals.json}
+    people-path: ${CORPUS_PEOPLE_PATH:corpus/people.json}
     seed-on-startup: ${CORPUS_SEED:true}
     force-reseed: ${CORPUS_FORCE_RESEED:false}
     admin-enabled: ${ADMIN_ENABLED:false}
