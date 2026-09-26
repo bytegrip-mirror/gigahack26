@@ -91,7 +91,7 @@
 				<p class="label">The document</p>
 				<h2 class="dsp">{detail?.title ?? 'Reading'}</h2>
 			</div>
-			<button class="icon-btn" onclick={onclose} aria-label="Close the capture" title="Close">
+			<button class="icon-btn" onclick={onclose} aria-label="Close the document" title="Close">
 				<Icon name="close" size={16} />
 			</button>
 		</header>
@@ -146,11 +146,10 @@
 					<pre bind:this={pane}>{#if !capture.whole && !whole && capture.before}<span class="fade">…</span>{/if}{capture.before}{#if capture.span}<mark class="span">{capture.span}</mark>{/if}{capture.after}{#if capture.truncated}<span class="fade">…</span>{/if}</pre>
 					<p class="sub dim">
 						{#if capture.span}
-							Characters {focus?.start}–{focus?.end} of the stored capture. The quote is a slice of what the
-							crawler fetched, not text a model wrote.
+							Characters {focus?.start}–{focus?.end} of the document as it was fetched. The quote is cut from
+							the page, not written by a model.
 						{:else}
-							No signal cleared the floor for this document under the current policy. It is kept so you can see
-							what was read and rejected.
+							Nothing in this document answered a question. It is kept so you can see what was read.
 						{/if}
 					</p>
 				</section>

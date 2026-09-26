@@ -754,7 +754,7 @@
 						</div>
 
 						<div class="preview-body">
-							<LoadingVeil show={veil} label="Reading the corpus" />
+							<LoadingVeil show={veil} label="Reading every document" />
 
 						{#if !preview}
 							<p class="sub dim">

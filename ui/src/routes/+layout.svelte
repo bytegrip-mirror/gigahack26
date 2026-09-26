@@ -102,7 +102,7 @@
 		<div class="rail-foot">
 			{#if workspace.status}
 				<section class="panel-block">
-					<p class="label">Corpus</p>
+					<p class="label">On file</p>
 					<div class="corpus">
 						<Metric value={shortNumber(workspace.status.companies)} label="Companies" />
 						<Metric value={shortNumber(workspace.status.evidence)} label="Documents" />

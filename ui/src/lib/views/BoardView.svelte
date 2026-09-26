@@ -51,10 +51,10 @@
 	const FILTERS = [
 		{ id: 'to-call', label: 'To call', title: 'Worth calling, and nobody has worked them yet. Set the lead stage under Filters to see the ones already worked.' },
 		{ id: 'priority', label: 'Priority', title: 'Above the Priority line' },
-		{ id: 'thin', label: 'Unproven', title: 'No document in the corpus answers your questions about them' },
+		{ id: 'thin', label: 'Unproven', title: 'No document answers your questions about them' },
 		{ id: 'rejected', label: 'Out of the queue', title: 'Removed by a gate or the blacklist' },
 		{ id: 'saved', label: 'Saved', title: 'Bookmarked' },
-		{ id: 'everyone', label: 'Everyone', title: 'Every company the corpus holds, whatever the queue decided and whoever has worked them' }
+		{ id: 'everyone', label: 'Everyone', title: 'Every company we hold, whatever the queue decided and whoever has worked them' }
 	];
 
 	const WEAK_OPENERS = new Set([
@@ -152,7 +152,7 @@
 
 	const subtitle = $derived.by(() => {
 		const total = shortNumber(rows.length);
-		if (filter === 'everyone') return `${total} companies in the corpus`;
+		if (filter === 'everyone') return `${total} companies we hold`;
 		const view = FILTERS.find((option) => option.id === filter)?.label.toLowerCase() ?? 'companies';
 		return `${shortNumber(sorted.length)} ${view} of ${total}`;
 	});
@@ -527,7 +527,7 @@
 
 	const KIND_ACTION: Record<string, string> = {
 		FILTER: 'Filter the board',
-		SIGNAL: 'Score the corpus',
+		SIGNAL: 'Read every document for it',
 		FILTER_AND_SIGNAL: 'Filter and score'
 	};
 
@@ -828,8 +828,8 @@
 		return [
 			{ id: 'open', label: 'Open scorecard', icon: 'eye' },
 			row.strongest
-				? { id: 'capture', label: 'Open the quoted capture', icon: 'external' }
-				: { id: 'capture', label: 'No quoted capture', icon: 'external', disabled: true },
+				? { id: 'capture', label: 'Open the quoted document', icon: 'external' }
+				: { id: 'capture', label: 'No quoted document', icon: 'external', disabled: true },
 			{ id: 'link', label: 'Copy link to this company', icon: 'link' },
 			{ id: 'export', label: 'Export this row', icon: 'download' },
 			{ id: 'ledger', label: 'Export its evidence ledger', icon: 'download' },
@@ -963,7 +963,7 @@
 			<div class="metrics">
 				<Metric value={shortNumber(counts.PRIORITY ?? 0)} label="Priority" tone="hot" title="Companies above the Priority line, in view" />
 				<Metric value={shortNumber(counts.HOT ?? 0)} label="Hot" title="Priority and Nurture together, in view" />
-				<Metric value={shortNumber(meta.captures)} label="Captures" title="Documents the board read" />
+				<Metric value={shortNumber(meta.captures)} label="Documents" title="Documents the board read" />
 			</div>
 		{/if}
 
@@ -1046,7 +1046,7 @@
 
 				<div class="ask-read">
 					{#if rescoring}
-						<span class="label pulsing">Classifying {shortNumber(meta?.captures ?? 0)} documents</span>
+						<span class="label pulsing">Reading {shortNumber(meta?.captures ?? 0)} documents</span>
 					{:else if reading}
 						<span class="read-kind" data-kind={reading.kind}>{KIND_LABEL[reading.kind]}</span>
 						<span class="sub ask-note">{reading.reading}</span>

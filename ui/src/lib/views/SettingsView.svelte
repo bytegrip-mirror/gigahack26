@@ -57,7 +57,7 @@
 		{ id: 'profile', label: 'Customer profile', hint: 'Who counts as a prospect', icon: 'target' },
 		{ id: 'lines', label: 'Service lines', hint: 'What we sell', icon: 'layers' },
 		{ id: 'scoring', label: 'Scoring', hint: 'Where the bands sit', icon: 'sliders' },
-		{ id: 'pipeline', label: 'Pipeline', hint: 'What the crawl and the model did', icon: 'pipeline' }
+		{ id: 'pipeline', label: 'Pipeline', hint: 'What has been read, and when', icon: 'pipeline' }
 	];
 
 	const TONES = ['direct', 'consultative', 'warm', 'matter-of-fact'];
@@ -297,7 +297,7 @@
 			countries = saved.icpCountries.join(', ');
 			industries = saved.icpIndustries.join(', ');
 			workspace.reload();
-			toasts.push('Saved. Every service line re-scored.', 'success');
+			toasts.push('Saved. The board is ranked on it now.', 'success');
 		} catch (cause) {
 			toasts.push((cause as Error).message, 'error');
 		} finally {
@@ -917,7 +917,7 @@
 								<input class="input" type="number" min="0" step="0.1" bind:value={perThousand} />
 								<span class="sub dim">
 									We do not know your contract, so the rate is yours to set and the counts are the system's. At the
-									rate you enter, reading this corpus costs
+									rate you enter, reading every document costs
 									<strong>{(read / 1000 * perThousand).toFixed(2)}</strong> and would have cost
 									<strong>{(pairs / 1000 * perThousand).toFixed(2)}</strong> asked question by question.
 								</span>
@@ -946,7 +946,7 @@
 								/>
 								<Metric
 									value={shortNumber(telemetry.signalsBySource?.classificationPairs ?? 0)}
-									label="Pairs in the corpus"
+									label="Pairs if every question read every document"
 								/>
 								<Metric
 									value={((telemetry.overlay.strikeRate ?? 0) * 100).toFixed(2) + '%'}
@@ -973,8 +973,8 @@
 							<h2 class="dsp">What the crawl reached</h2>
 							<span class="sub dim num">
 								{telemetry?.freshness?.newestCaptureAgeHours != null
-									? `newest capture ${telemetry.freshness.newestCaptureAgeHours}h old`
-									: 'no captures'}
+									? `newest document ${telemetry.freshness.newestCaptureAgeHours}h old`
+									: 'no documents yet'}
 							</span>
 						</div>
 						<div class="metrics">
