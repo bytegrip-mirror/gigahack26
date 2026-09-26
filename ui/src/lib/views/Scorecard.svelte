@@ -321,7 +321,7 @@
 
 				<section class="panel why" data-urgency={detail.whyNow.urgency}>
 					<div class="panel-head">
-						<h3 class="label">Why now</h3>
+						<h3 class="label">AI Overview</h3>
 						<span class="urgency" data-urgency={detail.whyNow.urgency}>{detail.whyNow.urgencyLabel}</span>
 					</div>
 					<p class="why-text">{detail.whyNow.narrative || detail.whyNow.headline}</p>
