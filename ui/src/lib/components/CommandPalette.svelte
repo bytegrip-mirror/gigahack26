@@ -55,8 +55,7 @@
 
 		const views: { href: string; label: string; icon: IconName; keys: string }[] = [
 			{ href: '/', label: 'Board', icon: 'board', keys: 'board companies queue' },
-			{ href: '/icp', label: 'ICP Studio', icon: 'target', keys: 'icp profiles segment book of business filters' },
-			{ href: '/studio', label: 'Signal Studio', icon: 'studio', keys: 'studio questions policies' },
+			{ href: '/icp', label: 'ICP Studio', icon: 'studio', keys: 'icp profiles segment book of business filters' },
 			{ href: '/pipeline', label: 'Pipeline', icon: 'pipeline', keys: 'pipeline leads stages' },
 			{ href: '/market', label: 'Market', icon: 'board', keys: 'market demand countries industries map' },
 			{ href: '/settings', label: 'Settings', icon: 'settings', keys: 'settings profile voice scoring pipeline' }

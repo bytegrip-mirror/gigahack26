@@ -162,7 +162,7 @@
 		{:else if questions.length === 0 && !loading}
 			<div class="empty">
 				<Icon name="inbox" size={22} />
-				<p>No question on this service line has found anything yet. Ask one in the Studio.</p>
+				<p>No question on this service line has found anything yet.</p>
 			</div>
 		{:else}
 			<div class="map">
@@ -174,10 +174,10 @@
 						</p>
 						{#each group.items as question (question.key)}
 							<div class="row" class:quiet={question.polarity !== 'POSITIVE'}>
-								<a class="q" href={`/studio?q=${encodeURIComponent(question.key)}`} title={question.text}>
+								<span class="q" title={question.text}>
 									<span class="q-title">{question.title}</span>
 									<span class="q-count num">{question.total}</span>
-								</a>
+								</span>
 								<div class="found">
 									{#each question.found.filter(shows).slice(0, SHOWN) as company (company.id)}
 										<a

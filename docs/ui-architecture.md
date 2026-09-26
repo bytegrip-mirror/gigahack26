@@ -213,7 +213,6 @@ one `Menu` away, and every row carries the same `⋯` in the last column.
 | Company pane | *Generate outreach*, then *Push to HubSpot* | copy the summary, open the website, count as a lead, count as rejected, close |
 | Pipeline | per-row *advance to the next stage* | open on the board, copy a link, export the row, move to any stage; screen-level: export the pipeline, open the board |
 | ICP Studio | *New profile* | per row: open it, switch it on or off, delete it; on the open profile: save, discard |
-| Signal Studio | *New question* | export every question, duplicate, delete; per row: edit, duplicate, turn on/off, copy the key, delete |
 | Signal map | *Table* (a reading, not an action) | — |
 
 | Settings | *Save and re-score* | read the writer brief; per service line: enable/disable, delete |
@@ -302,8 +301,8 @@ Two settings reach across screens, and each sits where its effect is visible.
 This is deliberate: a control that silently does nothing on the screen you are
 looking at is worse than no control.
 
-**Service line** scopes the board, the pipeline and the studio's default for a
-new question. The switcher is therefore the **first control in the toolbar of
+**Service line** scopes the board and the pipeline. The switcher is therefore the
+**first control in the toolbar of
 the board and the pipeline** — the same component in the same position, reading
 and writing one session value so the two never disagree — and it never appears
 on Settings or in the rail. The workspace settings row is global, so that screen
@@ -322,39 +321,9 @@ per-view filter, so it lives in the **rail footer**, bottom-left, labelled *Boar
 region* to say what it applies to. The board states the active region in its
 subtitle, so the effect is legible from the screen it changes.
 
-The studio is a library, not a scoped view: it lists every question grouped by
-service line, with the session's line first, and offers no scope control at all.
-
-**The studio's editor is three panes: the question list, the form, and the
-preview.** The question list
-stays on the left; the editor puts the fields in the middle and the live preview
-in a column on the right, each scrolling on its own — the preview is the feedback
-loop for what you are typing, so it cannot be a panel you have to scroll past four
-others to reach. The fields are **one column**, in the order the decisions are
-made in: what to ask, how it scores, what it matches. Below 1280px the preview
-drops under the fields and the whole body scrolls as one.
-
-The form was briefly a two-column grid and it was wrong: at 1440 that left the
-question and the rubric about 230px each, so a single sentence wrapped four times
-in a field the width of a phone. The question, the rubric and the phrases are all
-prose, and prose needs a measure — the list and the preview give up the width
-instead, and the form stops at 760px so a line never runs past a comfortable
-read.
-
-The editor's own title carries the question's state — tier, polarity, theme,
-whether it is on, and how many signals it has produced — so nothing on this
-screen requires scrolling to find out what you are editing.
-
-**Half-life is a sentence, not a chart.** It used to be five bars labelled
-`today`, `30d`, `90d`, `180d` and `365d` with a decayed weight against each. The
-weights are the scoring model's arithmetic, the reader is a rep deciding how long
-a piece of evidence should stay worth something, and the sentence says the same
-thing in the terms they think in.
-
-**Apply to the board is only offered when the question is saved.** It re-reads the
-corpus against the stored question; offering it while the form was dirty meant it
-silently scored a question the board did not hold. It is disabled with the reason
-in its tooltip, and the footer says the board still has the saved version.
+The signal questions themselves no longer have a screen. They are seeded from
+`PolicyLibrary` and read by the scorer; the interface shows their effect — on the
+board, and as the shape of the Signal map — and does not offer to author them.
 
 The board's band counts are tallied from the rows in hand, not read from the
 server's per-line totals, so the Priority metric always counts the Priority
@@ -375,8 +344,9 @@ them**, not all 124, with the count in the toolbar saying what is below the cut.
 The column is ordered by the average height of the questions feeding it, which is
 what stops the edges from braiding.
 
-Every node is a link: a question opens in the Studio, a company opens its
-scorecard. Hovering dims everything not connected to the node under the cursor.
+Every company node is a link and opens its scorecard; a question is a label, not
+a destination, now that there is nowhere to edit one. Hovering dims everything
+not connected to the node under the cursor.
 
 **The ICP Studio keeps the books of business.** A profile is a title, a colour and
 a set of filters — where the companies are, what they do, how big they are, and
