@@ -303,7 +303,10 @@ fetched directly. Do not try to resolve Google News article links: the
 `batchexecute` endpoint it needs answers 429 from this host. The sweep is
 breadth-first and flushes partial output every 20 companies, so a long run never
 loses everything. Every document is re-hashable and the script will not write a
-document it could not actually fetch.
+document it could not actually fetch. `python3 tools/fetch_logos.py` walks the
+same list for the board's company marks and is a separate step because it is
+network-heavy and an icon does not change when a document does; adding a company
+to the list is what makes it worth re-running.
 
 **Regions are a two-level taxonomy, and the board filters by them.** `Region` holds
 continents and the commercial regions beneath them, each with the country codes it
