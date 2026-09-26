@@ -131,17 +131,6 @@
 
 		const actions: { id: string; label: string; hint: string; icon: IconName; keys: string; run: () => void }[] = [
 			{
-				id: 'act-ask',
-				label: 'Ask a question',
-				hint: 'write one and re-rank the board',
-				icon: 'studio',
-				keys: 'ask question signal studio new',
-				run: () => {
-					sessionStorage.setItem('gigahack26.openAsk', '1');
-					goto('/');
-				}
-			},
-			{
 				id: 'act-saved',
 				label: 'Show only what you saved',
 				hint: 'the board filtered to what you saved',

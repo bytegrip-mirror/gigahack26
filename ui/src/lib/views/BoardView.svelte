@@ -3,24 +3,14 @@
 	import { pushState } from '$app/navigation';
 	import {
 		addBookmark,
-		ask,
 		fetchBoard,
 		fetchBookmarks,
 		fetchCompany,
-		deriveCues,
-		readAsk,
 		recordLead,
 		removeBookmark,
 		rescore,
-		type AskOutcome,
-		type AskReading,
 		type BoardRow,
-		type Chip,
-		type Engine,
-		type Move,
-		type Polarity,
-		type Rescore,
-		type WeightTier
+		type Chip
 	} from '$lib/api';
 	import { markCompetitor } from '$lib/api';
 	import { session } from '$lib/session.svelte';
@@ -58,12 +48,6 @@
 		{ id: 'everyone', label: 'Everyone', title: 'Every company we hold, whatever the queue decided — still only the ones nobody has worked. Set the lead stage under Filters to bring the worked ones back.' }
 	];
 
-	const WEAK_OPENERS = new Set([
-		'companies', 'company', 'banks', 'bank', 'firms', 'firm', 'businesses', 'business',
-		'organisations', 'organizations', 'employers', 'employer', 'groups', 'agencies', 'operators',
-		'retailers', 'insurers', 'carriers', 'makers', 'players', 'giants', 'enterprises', 'corporations'
-	]);
-
 	const STAGES = [
 		{ id: '', label: 'Any lead stage' },
 		{ id: 'worked', label: 'Worked' },
@@ -72,13 +56,6 @@
 		{ id: 'REPLIED', label: 'Replied' },
 		{ id: 'QUALIFIED', label: 'Qualified' },
 		{ id: 'REJECTED', label: 'Rejected' }
-	];
-
-	const ASKS = [
-		'Is the company building automation capability in-house rather than buying it?',
-		'Has the company announced a cost-reduction programme with a quantified headcount target?',
-		'Is the company hiring process-mining or process-excellence roles?',
-		'Has the company appointed a new security leader in the last two quarters?'
 	];
 
 	const ALL_LINES = '__all__';
@@ -140,29 +117,10 @@
 	let saved = $state<Set<string>>(new Set());
 	let busy = $state(false);
 
-	let askOpen = $state(false);
-	let questionText = $state('');
-	let weightTier = $state<WeightTier>('HIGH');
-	let polarity = $state<Polarity>('POSITIVE');
-	let engine = $state<Engine>('local');
-	let engineChosen = $state(false);
-	let rescoring = $state(false);
-	let elapsed = $state(0);
-	let applied = $state<AskOutcome | null>(null);
-	let reading = $state<AskReading | null>(null);
-	let askCues = $state<string[]>([]);
-
 	let capture = $state<{ id: string; focus: { start: number; end: number } | null } | null>(null);
 
 	const meta = $derived(workspace.meta);
 	const serviceLine = $derived(session.serviceLine);
-	const moved = $derived(
-		(applied?.moves ?? [])
-			.filter((move) => move.direction !== 'flat')
-			.sort((a, b) => (a.afterRank ?? 0) - (b.afterRank ?? 0))
-			.slice(0, 6)
-	);
-
 	const subtitle = $derived.by(() => {
 		const total = shortNumber(rows.length);
 		if (stage !== '' && stage !== 'untouched') {
@@ -176,7 +134,7 @@
 	});
 
 	const narrowed = $derived(
-		session.region !== 'world' || stage !== '' || query !== '' || applied !== null || filter !== 'to-call'
+		session.region !== 'world' || stage !== '' || query !== '' || filter !== 'to-call'
 	);
 	const activeFilters = $derived(
 		(stage === '' ? 0 : 1) + (engineFilter === 'all' ? 0 : 1) + (profileFilter === '' ? 0 : 1)
@@ -237,12 +195,6 @@
 		}))
 	]);
 
-	const movements = $derived.by(() => {
-		const map = new Map<string, Move>();
-		applied?.moves?.forEach((move) => map.set(move.companyId, move));
-		return map;
-	});
-
 	const localEngine = $derived(workspace.meta?.localEngine ?? 'local-rubric-v1');
 
 	const thresholds = $derived({
@@ -260,7 +212,7 @@
 				engineFilter === 'all' ||
 				(row.engine !== null &&
 					(engineFilter === 'model' ? row.engine !== localEngine : row.engine === localEngine));
-			return passesBand && passesEngine && (!askIds || askIds.has(row.id));
+			return passesBand && passesEngine;
 		});
 	});
 
@@ -349,7 +301,6 @@
 			if (value !== null) sessionStorage.removeItem(key);
 			return value;
 		};
-		if (consume('gigahack26.openAsk')) askOpen = true;
 		const wantedFilter = consume('gigahack26.openFilter');
 		if (wantedFilter) filter = wantedFilter;
 		const wantedStage = consume('gigahack26.openStage');
@@ -428,49 +379,6 @@
 		loadSaved();
 	});
 
-	$effect(() => {
-		if (!engineChosen && meta?.languageModelAvailable) engine = 'deepseek';
-	});
-
-	$effect(() => {
-		const text = questionText.trim();
-		if (text.length < 4) {
-			reading = null;
-			askCues = [];
-			return;
-		}
-		let cancelled = false;
-		const timer = setTimeout(() => {
-			readAsk(text)
-				.then((result) => {
-					if (!cancelled) reading = result;
-				})
-				.catch(() => {
-					if (!cancelled) reading = null;
-				});
-			if (text.length >= 10) {
-				deriveCues(text)
-					.then((list) => {
-						if (!cancelled) askCues = list;
-					})
-					.catch(() => {
-						if (!cancelled) askCues = [];
-					});
-			}
-		}, 260);
-		return () => {
-			cancelled = true;
-			clearTimeout(timer);
-		};
-	});
-
-	$effect(() => {
-		if (!rescoring) return;
-		const started = performance.now();
-		const timer = setInterval(() => (elapsed = performance.now() - started), 90);
-		return () => clearInterval(timer);
-	});
-
 	function select(id: string | null) {
 		selected = id;
 		echoed = id;
@@ -520,35 +428,6 @@
 			.slice(0, 3);
 	}
 
-	const KIND_LABEL: Record<string, string> = {
-		FILTER: 'Read as a filter',
-		SIGNAL: 'Read as a signal question',
-		FILTER_AND_SIGNAL: 'Filter and classify'
-	};
-
-	const KIND_ACTION: Record<string, string> = {
-		FILTER: 'Filter the board',
-		SIGNAL: 'Read every document for it',
-		FILTER_AND_SIGNAL: 'Filter and score'
-	};
-
-	const askIds = $derived(applied?.companyIds ? new Set(applied.companyIds) : null);
-
-	function summarise(result: AskOutcome): string {
-		if (result.movedRows !== undefined && result.facets.length > 0) {
-			return `${result.matchedCompanies} companies match, and ${result.movedRows} rows moved.`;
-		}
-		if (result.movedRows !== undefined) {
-			return `${result.movedRows} rows moved in ${duration(result.tookMs ?? 0)}. The question is now policy.`;
-		}
-		return `${result.matchedCompanies} of ${rows.length} companies match. The board is filtered.`;
-	}
-
-	function clearAsk() {
-		applied = null;
-		questionText = '';
-	}
-
 	function partial(node: HTMLInputElement, value: boolean) {
 		node.indeterminate = value;
 		return {
@@ -572,7 +451,6 @@
 		engineFilter = 'all';
 		profileFilter = '';
 		session.setRegion('world');
-		applied = null;
 	}
 
 	async function mark(ids: string[], status: string, label: string) {
@@ -745,35 +623,6 @@
 			if (filter === 'saved') rows = await loadBoard();
 		} finally {
 			busy = false;
-		}
-	}
-
-	const weakCues = $derived(askCues.filter((cue) => !cue.includes(' ') || WEAK_OPENERS.has(cue.split(' ')[0])));
-
-	async function runAsk() {
-		const text = questionText.trim();
-		if (text.length < 4 || rescoring) return;
-		rescoring = true;
-		elapsed = 0;
-		applied = null;
-		try {
-			const result = await ask({ serviceLine, question: text, engine, tier: weightTier, polarity });
-			applied = result;
-			if (result.board) {
-				rows = allLines
-					? await loadBoard()
-					: result.board.map((row) => ({ ...row, serviceLine, fitRank: row.rank }));
-			} else {
-				rows = await loadBoard();
-			}
-			elapsed = result.tookMs ?? 0;
-			if (filter !== 'to-call') filter = 'to-call';
-			toasts.push(summarise(result), 'success');
-			workspace.reload();
-		} catch (cause) {
-			toasts.push((cause as Error).message, 'error');
-		} finally {
-			rescoring = false;
 		}
 	}
 
@@ -969,184 +818,9 @@
 		{/if}
 
 		<div class="topbar-tools">
-			<button class="btn btn-primary" onclick={() => (askOpen = !askOpen)} aria-expanded={askOpen}>
-				<Icon name="target" size={15} />
-				{askOpen ? 'Close' : 'Ask a question'}
-			</button>
 			<Menu items={secondary} onselect={runSecondary} label="More board actions" />
 		</div>
 	</header>
-
-	{#if askOpen || applied}
-		<div class="ask">
-			{#if !applied}
-				<div class="ask-row">
-				<div class="ask-input">
-					<label class="label" for="ask">A question nobody has asked yet</label>
-					<textarea
-						id="ask"
-						class="textarea"
-						rows="2"
-						bind:value={questionText}
-						placeholder="Is the company consolidating shared service centres into a captive operation?"
-					></textarea>
-				</div>
-
-				<div class="ask-opts">
-					<label class="field">
-						<span class="label">Weight</span>
-						<select class="select select-sm" bind:value={weightTier}>
-							<option value="HIGH">High</option>
-							<option value="MEDIUM">Medium</option>
-							<option value="LOW">Low</option>
-						</select>
-					</label>
-					<label class="field">
-						<span class="label">Polarity</span>
-						<select class="select select-sm" bind:value={polarity}>
-							<option value="POSITIVE">Counts for the company</option>
-							<option value="NEGATIVE">Counts against the company</option>
-							<option value="DISQUALIFYING">Removes the company from the queue</option>
-						</select>
-					</label>
-					<label class="field">
-						<span class="label">Engine</span>
-						<select
-							class="select select-sm"
-							value={engine}
-							onchange={(event) => {
-								engineChosen = true;
-								engine = (event.currentTarget as HTMLSelectElement).value as Engine;
-							}}
-						>
-							<option value="deepseek" disabled={!meta?.languageModelAvailable}>
-								Reads the documents{meta?.languageModelAvailable ? ' (recommended)' : ' — unavailable'}
-							</option>
-							<option value="local">Matches words</option>
-						</select>
-					</label>
-					<Menu
-						text="Examples"
-						size="sm"
-						align="start"
-						label="Example questions"
-						items={ASKS.map((ask, index) => ({ id: String(index), label: ask }))}
-						onselect={(id) => (questionText = ASKS[Number(id)])}
-					/>
-					<button
-						class="btn btn-primary"
-						onclick={runAsk}
-						disabled={rescoring || questionText.trim().length < 4}
-					>
-						{#if rescoring}<span class="spinner"></span>{/if}
-						{rescoring ? duration(elapsed) : reading ? KIND_ACTION[reading.kind] : 'Ask'}
-					</button>
-				</div>
-
-				</div>
-
-				<div class="ask-read">
-					{#if rescoring}
-						<span class="label pulsing">Reading {shortNumber(meta?.captures ?? 0)} documents</span>
-					{:else if reading}
-						<span class="read-kind" data-kind={reading.kind}>{KIND_LABEL[reading.kind]}</span>
-						<span class="sub ask-note">{reading.reading}</span>
-					{:else}
-						<span class="sub dim ask-note">
-							Ask about the company itself (“in Romania”, “large German banks”) and the board filters. Anything else is
-							read as a signal question and every document we hold is read for it.
-						</span>
-					{/if}
-				</div>
-
-				{#if askCues.length > 0 && !rescoring}
-					<div class="ask-cues">
-						<span class="label">The words it would look for</span>
-						{#each askCues as cue (cue)}<Tag variant={weakCues.includes(cue) ? 'oxblood' : 'wash'}>{cue}</Tag>{/each}
-						{#if weakCues.length > 0}
-							<p class="note warn">
-								<Icon name="alert" size={14} />
-								<span>
-									{weakCues.length === 1 ? 'One of these is' : `${weakCues.length} of these are`} too general to be a
-									signal — {weakCues.join(', ')} will match almost every company we hold. {meta?.languageModelAvailable
-										? 'Send it to the model instead, or write the question with the words you would actually look for.'
-										: 'Write the question with the words you would actually look for.'}
-								</span>
-							</p>
-						{/if}
-						<span class="sub dim">
-							This question has no word list of its own, so these werese were taken from the wording of the question.
-						</span>
-					</div>
-				{/if}
-			{:else}
-				<div class="result">
-					{#if applied.movedRows !== undefined}
-						<div class="metrics">
-							<Metric value={applied.movedRows} label="Rows moved" tone="hot" />
-							<Metric value={duration(applied.tookMs ?? 0)} label="Elapsed" />
-							<Metric value={shortNumber(applied.documentsScanned ?? 0)} label="Documents" />
-							<Metric value={shortNumber(applied.signalsProduced ?? 0)} label="Signals" />
-							{#if applied.answeredFromOverlay}
-								<Metric
-									value={shortNumber(applied.answeredFromOverlay)}
-									label="Already read by the model"
-									title="Kept what was already read, so nothing was paid for twice"
-								/>
-							{/if}
-						</div>
-					{:else}
-						<div class="metrics">
-							<Metric value={applied.matchedCompanies ?? 0} label="Companies match" tone="hot" />
-							<Metric value={applied.facets.length} label="Attributes read" />
-						</div>
-					{/if}
-					{#if applied.keptPrevious}
-						<p class="note warn">
-							Every classification in that run failed, so the signals already stored were kept rather than
-							replaced. The board is unchanged — re-run when the engine is reachable.
-						</p>
-					{/if}
-					{#if moved.length > 0}
-						<ul class="moved">
-							{#each moved as entry (entry.companyId)}
-								<li>
-									<button class="moved-row" type="button" onclick={() => select(entry.companyId)}>
-										<span class="moved-name">{entry.company}</span>
-										<span class="num muted">
-											{entry.beforeRank > 0 ? `#${entry.beforeRank}` : 'new'} → #{entry.afterRank}
-										</span>
-										<span class="moved-delta" data-dir={entry.direction}>
-											{entry.direction === 'up' ? '▲' : entry.direction === 'down' ? '▼' : '='}
-											{Math.abs((entry.beforeProbability ?? 0) - entry.afterProbability).toFixed(2)}
-										</span>
-									</button>
-								</li>
-							{/each}
-						</ul>
-					{/if}
-					<div class="result-text">
-						<p class="result-q dsp">“{applied.question}”</p>
-						{#if applied.movedRows !== undefined}
-							<p class="sub dim">
-								The question is policy now. Open it in the Studio to write the rubric that decides what counts —
-								a question without one is scored on its wording alone.
-								<a class="link" href={`/studio?q=${encodeURIComponent(applied.questionKey ?? '')}`}>Refine in the Studio →</a>
-							</p>
-						{/if}
-						{#if applied.facets.length > 0}
-							<p class="sub chips">
-								{#each applied.facets as facet (facet.kind + facet.value)}
-									<span class="tag tag-wash">{facet.label} <span class="num">{facet.matches}</span></span>
-								{/each}
-							</p>
-						{/if}
-					</div>
-					<button class="btn btn-sm" onclick={clearAsk}>Clear</button>
-				</div>
-			{/if}
-		</div>
-	{/if}
 
 	{#if picked.size > 0}
 		<div class="bulkbar">
@@ -1277,7 +951,6 @@
 					</thead>
 					<tbody>
 						{#each current as row (row.id)}
-							{@const move = movements.get(row.id)}
 							<tr
 								data-company={row.id}
 								class:active={selected === row.id}
@@ -1297,11 +970,6 @@
 								</td>
 								<td class="num c-rank">
 									{allLines ? row.fitRank : row.rank}
-									{#if move && move.delta !== 0}
-										<span class="delta" data-dir={move.delta > 0 ? 'up' : 'down'}>
-											{move.delta > 0 ? '▲' : '▼'}{Math.abs(move.delta)}
-										</span>
-									{/if}
 								</td>
 								<td class="c-mark">
 									<CompanyMark name={row.name} domain={row.domain} />
@@ -1445,113 +1113,6 @@
 
 	.topbar-tools {
 		margin-left: var(--spacing-4);
-	}
-
-	.ask {
-		display: flex;
-		flex-direction: column;
-		gap: var(--spacing-2);
-		padding: var(--spacing-3) var(--spacing-4);
-		background: var(--color-orange-wash);
-		border-bottom: 1px solid var(--color-orange-line);
-		flex: none;
-	}
-
-	.ask-row {
-		display: flex;
-		align-items: flex-end;
-		gap: var(--spacing-3);
-		flex-wrap: wrap;
-	}
-
-	.ask-input {
-		flex: 1;
-		min-width: 260px;
-		display: flex;
-		flex-direction: column;
-		gap: var(--spacing-1);
-	}
-
-	.ask-input .textarea {
-		background: var(--color-surface);
-	}
-
-	.ask-opts {
-		display: flex;
-		align-items: flex-end;
-		gap: var(--spacing-2);
-		flex: none;
-	}
-
-	.ask-opts .field .select {
-		min-width: 108px;
-	}
-
-	.ask-read {
-		display: flex;
-		align-items: baseline;
-		gap: var(--spacing-2);
-		flex-wrap: wrap;
-	}
-
-	.ask-note {
-		margin: 0;
-	}
-
-	.read-kind {
-		font-size: var(--text-micro);
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.09em;
-		padding: 1px 6px;
-		border: 1px solid var(--color-orange-line);
-		background: var(--color-surface);
-		color: var(--color-orange-ink);
-		white-space: nowrap;
-	}
-
-	.read-kind[data-kind='SIGNAL'] {
-		border-color: var(--color-rule-strong);
-		color: var(--color-ink-3);
-	}
-
-	.result-text {
-		display: flex;
-		flex-direction: column;
-		gap: var(--spacing-1);
-		flex: 1;
-		min-width: 0;
-	}
-
-	.chips {
-		display: flex;
-		flex-wrap: wrap;
-		gap: var(--spacing-1);
-	}
-
-	.chips .tag {
-		background: var(--color-surface);
-	}
-
-	.result {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-5);
-		width: 100%;
-	}
-
-	.result .metrics {
-		margin-left: 0;
-	}
-
-	.result-q {
-		flex: 1;
-		min-width: 0;
-		font-size: var(--text-lg);
-		color: var(--color-ink-2);
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
 	}
 
 	.toolbar {
@@ -1791,20 +1352,6 @@
 		line-height: 1.4;
 	}
 
-	.delta {
-		display: inline-block;
-		margin-left: 4px;
-		font-size: var(--text-micro);
-	}
-
-	.delta[data-dir='up'] {
-		color: var(--color-accent);
-	}
-
-	.delta[data-dir='down'] {
-		color: var(--color-oxblood);
-	}
-
 	.fitval {
 		display: block;
 		font-size: var(--text-lg);
@@ -1819,56 +1366,6 @@
 
 	.fitval[data-tone='weak'] {
 		color: var(--color-ink-3);
-	}
-
-	.moved {
-		list-style: none;
-		margin: var(--spacing-3) 0 0;
-		padding: 0;
-		border-top: 1px solid var(--color-rule);
-	}
-
-	.moved-row {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-3);
-		width: 100%;
-		padding: var(--spacing-2) var(--spacing-3);
-		border: 0;
-		border-bottom: 1px solid var(--color-rule);
-		background: transparent;
-		font: inherit;
-		text-align: left;
-		cursor: pointer;
-	}
-
-	.moved-row:hover {
-		background: var(--color-sunken);
-	}
-
-	.moved-name {
-		flex: 1;
-		min-width: 0;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	.moved-delta[data-dir='up'] {
-		color: var(--color-accent);
-	}
-
-	.moved-delta[data-dir='down'] {
-		color: var(--color-oxblood);
-	}
-
-	.ask-cues {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: var(--spacing-2);
-		padding: var(--spacing-2) var(--spacing-3);
-		border-top: 1px solid var(--color-rule);
 	}
 
 	.blind {
@@ -2000,10 +1497,6 @@
 		.metrics {
 			display: none;
 		}
-		.ask {
-			flex-wrap: wrap;
-		}
-
 	}
 
 	@media (max-width: 760px) {
