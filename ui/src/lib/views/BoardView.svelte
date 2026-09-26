@@ -988,6 +988,12 @@
 			<span class="count"><span class="num">{picked.size}</span> selected</span>
 			<span class="bulk-hint">·</span>
 			<Menu items={bulkItems} onselect={(id) => mark([...picked], id, LEAD_STAGES.find((s) => s.id === id)?.label.toLowerCase() ?? '')} text="Set stage" size="sm" align="start" label="Set lead stage for the selection" />
+			<button class="btn btn-sm" onclick={() => saveMany([...picked])} disabled={busy}>
+				<Icon name="star" size={14} /> Save
+			</button>
+			<button class="btn btn-sm" onclick={() => unsaveMany([...picked])} disabled={busy}>
+				<Icon name="star" size={14} /> Unsave
+			</button>
 			<button class="btn btn-sm" onclick={() => exportRows(sorted.filter((row) => picked.has(row.id)), 'selection.csv')}>
 				<Icon name="download" size={14} /> Export
 			</button>
