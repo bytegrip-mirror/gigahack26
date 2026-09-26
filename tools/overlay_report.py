@@ -7,6 +7,11 @@ any signal the model returns there is a signal the cheap engine would have
 missed. Reporting the rate turns "the model reads documents properly" from a
 claim into a measurement with a sample size.
 
+The question set is read from the committed `tools/questions.json` snapshot, not
+from a running service, so the figure printed on the board can be recomputed
+from a clone. Refresh the snapshot after a policy change with
+`tools/model_overlay.py --write-questions`.
+
     python3 tools/overlay_report.py            # print
     python3 tools/overlay_report.py --write    # fold the numbers into signals.json
 """
@@ -26,6 +31,34 @@ RAW = os.path.join(ROOT, "api", "src", "main", "resources", "corpus", "raw.json"
 SIGNALS = os.path.join(ROOT, "api", "src", "main", "resources", "corpus", "signals.json")
 SAMPLE = 0.10
 SEED = 20260926
+
+
+def unreachable_quotes(corpus, built):
+    """Rows whose quote is not in the stored capture, which the seeder strikes.
+
+    Computed from the two shipped files rather than carried over from the build
+    that produced them, so the number on the settings screen describes the
+    artefact a juror is holding.
+    """
+    text = {item["key"]: re.sub(r"\s+", " ", item.get("text") or "") for item in corpus["evidence"]}
+    missed = 0
+    checked = 0
+    for row in built["signals"]:
+        if row.get("verdict") == "NONE":
+            continue
+        document = text.get(row.get("evidenceKey"))
+        if document is None:
+            missed += 1
+            continue
+        quote = re.sub(r"\s+", " ", row.get("quote") or "").strip()
+        if not quote:
+            missed += 1
+            continue
+        checked += 1
+        if quote not in document:
+            missed += 1
+    return {"quotesChecked": checked, "quotesStruck": missed,
+            "strikeRate": round(missed / max(1, checked + missed), 6)}
 
 
 def report(policies_url="https://hackapi.pistonpunk.com"):
@@ -54,6 +87,7 @@ def report(policies_url="https://hackapi.pistonpunk.com"):
     silent_hits = sum(1 for pair in silent if pair in found)
 
     return {
+        "pairsSeen": len(built["signals"]),
         "cueLivePairs": len(live),
         "cueLiveSignals": live_hits,
         "cueLiveYield": round(live_hits / max(1, len(live)), 4),
@@ -78,6 +112,16 @@ def main():
         return 0
     with open(SIGNALS, encoding="utf-8") as handle:
         built = json.load(handle)
+    with open(RAW, encoding="utf-8") as handle:
+        corpus = json.load(handle)
+    quotes = unreachable_quotes(corpus, built)
+
+    built.pop("supplemented", None)
+    built["pairsSeen"] = len(built["signals"])
+    built["rows"] = len(built["signals"])
+    built["strikeRate"] = quotes["strikeRate"]
+    built["quotesChecked"] = quotes["quotesChecked"]
+    built["quotesStruck"] = quotes["quotesStruck"]
     built["sampling"] = summary
     with open(SIGNALS, "w", encoding="utf-8") as handle:
         json.dump(built, handle, ensure_ascii=False, indent=1)

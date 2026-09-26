@@ -254,7 +254,31 @@ def classify(job):
             "rationale": str(answer.get("reason") or "")[:200]}
 
 
-def load_questions(base_url, attempts=8):
+SNAPSHOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "questions.json")
+
+
+def snapshot_questions():
+    """The policy set as committed, so a measurement can be reproduced offline."""
+    if not os.path.exists(SNAPSHOT):
+        return None
+    with open(SNAPSHOT, encoding="utf-8") as handle:
+        policies = json.load(handle)
+    return shape_questions(policies)
+
+
+def write_snapshot(base_url):
+    with urllib.request.urlopen(base_url + "/api/policies", timeout=30) as response:
+        policies = json.loads(response.read())
+    with open(SNAPSHOT, "w", encoding="utf-8") as handle:
+        json.dump(policies, handle, ensure_ascii=False, indent=1)
+    return shape_questions(policies)
+
+
+def load_questions(base_url, attempts=8, prefer_snapshot=True):
+    if prefer_snapshot:
+        held = snapshot_questions()
+        if held:
+            return held
     policies = None
     last = None
     for attempt in range(attempts):
@@ -267,6 +291,10 @@ def load_questions(base_url, attempts=8):
             time.sleep(2 * (attempt + 1))
     if policies is None:
         raise RuntimeError("could not read the policy set: %s" % last)
+    return shape_questions(policies)
+
+
+def shape_questions(policies):
     out = []
     for policy in policies:
         if not policy.get("active"):
@@ -295,7 +323,14 @@ def main():
     parser.add_argument("--only-questions", default="")
     parser.add_argument("--only-companies", default="")
     parser.add_argument("--seed", type=int, default=20260926)
+    parser.add_argument("--write-questions", action="store_true",
+                        help="refresh the committed question snapshot from the service and stop")
     args = parser.parse_args()
+
+    if args.write_questions:
+        written = write_snapshot(args.policies_url)
+        print("wrote %d questions to %s" % (len(written), SNAPSHOT))
+        return 0
 
     if not KEY and not args.dry_run:
         print("DEEPSEEK_API_KEY is not set", file=sys.stderr)

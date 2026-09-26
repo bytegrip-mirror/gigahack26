@@ -106,16 +106,43 @@ applies the same containment check to the committed overlay, so a hand-edited
 each one has a test: rows answering the same question are rank-discounted at ρ
 (`correlated evidence`), each theme is capped so a single loud topic cannot breach
 the Priority line (`applyThemeCap`), and disqualifiers are **boolean gates outside
-the sum** — a company building in-house, a competitor, or one below the ICP size
-floor leaves the queue with a stated reason while its score is still computed and
-shown. **The gate fires on configuration, never on a verdict**: only a question
-whose polarity is `DISQUALIFYING` can remove a company, and a `COUNTER` reading
-from the model on that question releases it. That distinction was learned the
-hard way — a model allowed to gate on its own verdict disqualified six of ten
-Priority companies by reading "runs AI internally, hires data staff" as "is a
-vendor", which is the buying signal read backwards.
+the sum** — a competitor, or a company below the ICP size floor, leaves the queue
+with a stated reason while its score is still computed and shown.
 
-The card prints the whole derivation, so a juror can check it with a calculator.
+**A reading only carries weight when it asserts what the question asks.**
+`PolicyQuestion.magnitudeFor` zeroes the weight of a verdict that answers the
+question by denying it, and `LedgerRow.asserted()` reads that off the tier weight,
+which is why there is no second field to keep in step. Each engine says "the thing
+is present" its own way — the cue matcher answers BUY for a positive question,
+COUNTER for counter-evidence, BUILD for a disqualifier — so a `BUILD` reading on a
+positive question means the company *sells* the capability, and paying it the
+positive weight ranked vendors as buyers. That was measured: **238 of the 772 rows
+in the shipped overlay were model verdicts of BUILD or COUNTER on positive
+questions, and all of them scored positive**; the top company on the live board was
+top because a `COUNTER` reading was paid +0.63. Rows that do not assert are still
+stored, still shown on the card under "Read, not evidence", and contribute nothing.
+
+**No shipped question removes a company on a model reading.** All three `*.insourcing`
+questions are `NEGATIVE`: a company that sells automation, security operations or a
+data platform of its own counts against calling them, which lowers the score and
+shows as counter-evidence, rather than deleting them. Vendor exclusion runs on the
+curated name and industry list in `tools/vendor_registry.py` — 92 companies, all of
+them right — because a model reading of "is this company a vendor" wrong a third of
+the time is worse than no gate at all. Measured on the live board: of the 18
+companies removed for "building in-house", ING was removed for having 600 AI staff,
+Admiral for creating a GenAI Center of Excellence, KPN for a job ad that
+simultaneously fired a positive hiring signal, and VINCI and LPP because the
+documents were about different companies entirely. The `DISQUALIFYING` polarity
+still exists and the Studio still offers it; the shipped set does not use it.
+
+**The trade is never the same twice.** `local.decay` is per half-life by class,
+`source_authority` is per kind, and `confidence` is the engine's own — so a row's
+weight is a product of what was read, where it was published, how old it is and how
+sure the reader was. `counterEvidence()` now returns both the negative rows and the
+rows that assert nothing, because both are reasons not to call.
+
+The card prints the whole derivation behind a disclosure, so a juror can check it
+with a calculator without a rep having to read it.
 
 **The bands are calibrated to the corpus, and the cap enforces the top one.** The
 theme cap is *derived* from the Priority line (`priorityLogit − baseLogit`), not
@@ -128,18 +155,39 @@ came from the observed score distribution over the 578-company corpus rather tha
 from intuition; re-derive them the same way if the corpus changes shape. All four
 are environment-overridable (`SCORING_*`), so recalibrating is a restart.
 
+**A re-score keeps every model answer it already paid for.** `SignalOverlayStore`
+is read by the seeder *and* by `RescoreService`, so asking one question in the
+Studio classifies that question with the configured engine and leaves the rest of
+the service line's model verdicts alone. It used to re-classify the whole service
+line on the local engine, which meant typing one question silently replaced every
+model classification on that line — the same failure the boot path was fixed for,
+still live on the demo path. The seeder's `overlayUnapplied()` now compares what
+the board holds from the overlay's engine against what the overlay declares, so a
+partial loss is noticed rather than only a total one.
+
 **The two engines trade recall for precision, measurably, and both are shipped.**
 The local rubric engine is the recall layer; the overlay is the precision layer.
-On the live corpus the overlay answers 8,476 document-question pairs and returns
-752 signals where the cue matcher returns about 2,500 — the model reads a document
-properly and rejects most of what the cue lists accept. Both numbers are on the
-pipeline panel, along with the rate at which the model finds signals on pairs the
-cue matcher said nothing about (3.3% on a 6,866-pair sample), which is the cheap
-engine's miss rate measured rather than assumed. `tools/grouped_overlay.py` reads
-a document once per service line — 2,688 calls where question-by-question takes
-10,883 — but asks the three disqualifying questions on their own, because asked
-together with the rest the model reaches for the disqualifier. Treat any
-specific count in this file as a measurement from one corpus, not an invariant.
+On the shipped corpus the overlay answers 8,516 document-question pairs and returns
+761 signals. Recompute both from a clone with `tools/overlay_report.py`; the
+figures below come from that run and every one of them describes the two files in
+`corpus/`, not a build that has since been overwritten:
+
+- **the cue matcher fires on 1,768 pairs** and the model keeps a signal on 541 of
+  them (30.6%) — so the model rejects roughly seven of every ten passages the cue
+  lists accept, which is the precision half of the story;
+- **the cheap engine's miss rate is 0.41%**: on 6,537 sampled pairs the cue matcher
+  said nothing about, the model found a signal on 27. That is the recall half, and
+  it is much smaller than the figure the panel used to print, which came from an
+  artefact that no longer existed;
+- **0 of the 761 quotes fail containment** against their stored capture
+  (`quotesChecked` / `quotesStruck` in the overlay header), recomputed offline
+  rather than carried over from the build.
+
+Treat any specific count in this file as a measurement from one corpus, not an
+invariant. `tools/grouped_overlay.py` reads a document once per service line —
+2,688 calls where question-by-question takes 10,883 — and it asks any question that
+can remove a company on its own, because asked together with the rest the model
+reaches for the disqualifier.
 
 **A signal question is the unit of configuration.** `policy_question` carries the
 plain-language `text`, an `instructions` rubric, a `weight_tier`, a `polarity`
@@ -147,7 +195,16 @@ plain-language `text`, an `instructions` rubric, a `weight_tier`, a `polarity`
 half-life, and `cues`/`counter_cues` for the local engine. The rubric is what makes
 the system work: it lets the classifier make the business inference a senior rep
 would instead of matching the word "automation". `LocalRubricEngine.deriveCues`
-means a question typed cold in the Studio — with no cues configured — still scores.
+means a question typed cold in the Studio — with no cues configured — still scores,
+but only through a phrase that says something: it refuses a phrase that opens on the
+subject of the sentence ("companies hiring", "banks migrating", "firms with")
+because those describe the audience rather than the signal, and it refuses a single
+word that is not a term this domain uses. It used to accept any two adjacent words
+whose letters added to eight, so "companies hiring RPA developers" derived the cues
+"companies" and "hiring" — and one two-word cue clears the confidence floor on its
+own, so that question matched 1,913 of 4,466 documents and put the whole board in
+Priority. The Studio shows the derived cues before the run and marks the ones that
+are too general to be a signal.
 
 **Two classifier engines, chosen per request.** `ClassifierRouter` fronts a
 `LocalRubricEngine` (deterministic, offline, ~2s over the whole corpus) and a
@@ -164,15 +221,43 @@ language-model verdicts with their quotes. `CorpusSeeder` applies the overlay wh
 it exists and falls back to the local engine everywhere else, verifying every
 overlay quote against its capture. Regenerate the overlay with
 `POST /api/admin/signals/build` with `ADMIN_ENABLED=true` and a key configured,
-or offline with `tools/model_overlay.py`.
+or offline with `tools/model_overlay.py`. The published accuracy figure is folded
+in by `tools/overlay_report.py --write`, which reads the question set from the
+committed `tools/questions.json` snapshot rather than from a running service, so a
+juror can recompute it from a clone. Refresh that snapshot with
+`tools/model_overlay.py --write-questions` after a policy change.
+
+**A document has to be about the company it is filed under, and that is checked.**
+`tools/attribution.py` holds the rules the crawlers, the sanitiser and the CI gate
+all share: a whole-token match on the name or an alias (so `nexi` no longer matches
+"NexImmune"), folded so a diacritic does not hide a real document (so "Komerční
+banka" is "Komercni banka"), case-sensitive for the short names that are also
+given names (SEB, KONE), and an ATS board accepted only when its slug is part of
+the company's own domain or the posting names the company. Attribution used to be
+`if variant.lower() in text.lower()`, and the shipped corpus carried a New Zealand
+yachting report under SEB, a Czech cruise-missile story and a Nigerian election
+story under LPP, "Best Orange Cake Ever" under Orange, and a physics-AI startup's
+job ads under VINCI. `tools/sanitize_corpus.py` applies the rules to the committed
+corpus and prunes the overlay rows that pointed at what it drops;
+`tools/verify_corpus.py` fails the build on any document that would be rejected, so
+the shape cannot come back. It is deliberately conservative and prints what it
+drops and why.
 
 **A changed corpus reloads itself, and a boot cannot throw the overlay away.**
 Both files are fingerprinted, so a deployment that ships a new `signals.json`
 re-reads it — fingerprinting only the raw corpus would have kept serving the
 classifications the overlay was built to replace while looking like it had
-applied them. The skip path re-applies the overlay whenever the board carries no
-row from the engine the overlay names, and `POST /api/admin/corpus/reload` does
-the same on a running instance without a restart.
+applied them. The skip path re-applies the overlay whenever the board carries
+materially fewer rows from the engine the overlay names than the overlay declares,
+and `POST /api/admin/corpus/reload` does the same on a running instance without a
+restart.
+
+**What a source is worth is real, not documented.** `SourceKind` carries the
+authority each kind is weighed at, and the two kinds the docs used to claim and the
+enum did not have — `NEWSROOM(0.9)` and `STRATEGY(0.95)` — now exist, so the 292
+documents from a company's own site are weighed above a wire's rewrite of them
+rather than being parsed as `NEWS`. `CorpusSeeder.parseKind` and
+`authorityFor` are the two places a new kind has to be added.
 
 **Rebuilding the corpus.** `python3 tools/fast_corpus.py` refreshes
 `corpus/raw.json` from the company list in `tools/build_corpus.py`. It discovers
@@ -249,6 +334,7 @@ touching one and not the other is the default failure mode.
 | New port or domain | Traefik labels in the `Jenkinsfile`, `docker-compose.yml` |
 | New API dependency | `api/build.gradle.kts`, and check the Dockerfile's build stage still resolves it |
 | New corpus field | `CorpusFiles`, `CorpusSeeder`, `tools/build_corpus.py`, and re-seed |
+| New value on an enum a column stores | a migration on every database that already exists. Hibernate `ddl-auto: update` creates the check constraint on a fresh database and never widens it on an old one, so adding `NEWSROOM` to `SourceKind` crash-looped the deployed API with `violates check constraint "evidence_source_kind_check"` until the constraint was rewritten by hand. Fresh databases — local compose, CI — are fine; the live one is not |
 | New scoring input | `ScoringProperties`, `WorkspaceSettings`, `SettingsService.effective()`, the Customer profile screen, and the `ScoringServiceTest` literal |
 
 Verify with the gates CI runs, not just the one you touched: `./gradlew test` and

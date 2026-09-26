@@ -35,7 +35,7 @@ cd ui  && pnpm install && pnpm run dev
 | --- | --- |
 | `api/` | Spring Boot. The pipeline, the scoring ledger, the classifier engines |
 | `ui/` | SvelteKit SPA. Board, Signal Studio, Pipeline, Settings, Market |
-| `tools/` | Corpus builders and the language-model overlay |
+| `tools/` | Corpus builders, the attribution rules, the sanitiser and the language-model overlay |
 | `docs/` | The research this was built from, and the audit trail |
 | `new_goals.md` | The fifty changes this pass set out to make, and where each stands |
 
@@ -50,7 +50,16 @@ the interface.
 python3 tools/fast_corpus.py --only=dhl-group,lufthansa-group   # news sweep
 python3 tools/newsroom_corpus.py --tier=empty                   # company sites
 python3 tools/build_corpus.py --tier=empty --sources=job_posting,news
+python3 tools/sanitize_corpus.py            # what is not about its company
+python3 tools/verify_corpus.py              # the gate CI runs
 ```
+
+`tools/attribution.py` is the rule both of those use: a document belongs to a
+company only when it names it as a whole token, an ATS board only when its slug is
+part of the company's own domain, and a registry row only when the legal entity is
+the operating company. Attribution used to be a lowercase substring test, which is
+how the corpus shipped a New Zealand yachting report under SEB, a Czech
+cruise-missile story under LPP and "Best Orange Cake Ever" under Orange.
 
 Every sweep is additive: a document is only removed when the same pass produced
 a document of the same kind for the same company. A changed `corpus/raw.json` is
@@ -81,10 +90,11 @@ engine's miss rate is measured rather than assumed — and it resumes if
 interrupted.
 
 `tools/grouped_overlay.py` does the same work by asking once per service line
-instead of once per question: 2,061 calls where question-by-question takes
-12,409, covering more pairs because a line is escalated whole. `tools/overlay_report.py`
-prints what the artefact cost and what the cue matcher missed, with the sample
-size the rate rests on.
+instead of once per question, covering more pairs because a line is escalated
+whole. `tools/overlay_report.py` prints what the artefact cost and what the cue
+matcher missed, with the sample size the rate rests on; `--write` folds those
+numbers into `signals.json`, and it reads the question set from the committed
+`tools/questions.json` so anyone can recompute the figure from a clone.
 
 ## Deploy
 
