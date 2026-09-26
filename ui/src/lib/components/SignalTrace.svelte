@@ -21,12 +21,12 @@
 	.trace {
 		display: flex;
 		align-items: flex-end;
-		gap: 2px;
+		gap: 3px;
 		height: 18px;
 	}
 
 	.bar {
-		width: 3px;
+		width: 4px;
 		background: var(--color-ink-4);
 		border-radius: 1px 1px 0 0;
 	}

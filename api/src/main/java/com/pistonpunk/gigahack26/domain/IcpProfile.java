@@ -101,17 +101,13 @@ public class IcpProfile {
     }
 
     private boolean coversCountry(String country) {
-        Set<String> wanted = codes();
-        return wanted.isEmpty() || (country != null && wanted.contains(country.toUpperCase(Locale.ROOT)));
+        Set<String> wanted = listed(countries);
+        return wanted.isEmpty() || (country != null && wanted.contains(country.toLowerCase(Locale.ROOT)));
     }
 
     private boolean coversIndustry(String industry) {
         Set<String> wanted = listed(industries);
         return wanted.isEmpty() || (industry != null && wanted.contains(industry.toLowerCase(Locale.ROOT)));
-    }
-
-    private Set<String> codes() {
-        return listed(countries);
     }
 
     private static Set<String> listed(String value) {

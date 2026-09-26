@@ -1861,8 +1861,9 @@
 	}
 
 	.c-trend {
-		width: 52px;
+		width: 88px;
 		padding-left: 0;
+		vertical-align: middle;
 	}
 
 	.c-star {
