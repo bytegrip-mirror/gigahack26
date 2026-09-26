@@ -630,6 +630,7 @@
 				done === ids.length ? 'success' : 'warn'
 			);
 			loadSaved();
+			workspace.savedChanged();
 		} finally {
 			busy = false;
 		}
@@ -648,6 +649,7 @@
 				done === ids.length ? 'success' : 'warn'
 			);
 			loadSaved();
+			workspace.savedChanged();
 			if (filter === 'saved') rows = await loadBoard();
 		} finally {
 			busy = false;
@@ -816,8 +818,14 @@
 		} else if (event.key === 's' && selected) {
 			event.preventDefault();
 			const id = selected;
-			if (saved.has(id)) removeBookmark(id, lineOf(id)).then(loadSaved);
-			else addBookmark(id, lineOf(id)).then(loadSaved);
+			if (saved.has(id)) removeBookmark(id, lineOf(id)).then(() => {
+				loadSaved();
+				workspace.savedChanged();
+			});
+			else addBookmark(id, lineOf(id)).then(() => {
+				loadSaved();
+				workspace.savedChanged();
+			});
 		}
 	}
 </script>

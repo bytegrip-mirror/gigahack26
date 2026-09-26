@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { addBookmark, removeBookmark } from '$lib/api';
+	import { workspace } from '$lib/workspace.svelte';
 	import { toasts } from '$lib/toast.svelte';
 	import Icon from './Icon.svelte';
 
@@ -34,6 +35,7 @@
 				toasts.push(`${companyName} removed from saved.`, 'info');
 			}
 			onsaved?.(wanted);
+			workspace.savedChanged();
 		} catch (cause) {
 			toasts.push((cause as Error).message, 'error');
 		} finally {

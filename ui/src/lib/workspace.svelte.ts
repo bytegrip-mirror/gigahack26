@@ -8,7 +8,20 @@ class Workspace {
 	counts = $state<Record<string, number>>({});
 	loading = $state(true);
 	switching = $state(false);
+	savedRevision = $state(0);
 	#token = 0;
+
+	/**
+	 * Bumped whenever the set of saved companies changes.
+	 *
+	 * The rail's count and the board's Saved filter read the same server state
+	 * and were refreshed by different code paths, so starring a row moved one
+	 * and not the other. One counter both watch is cheaper than making every
+	 * caller remember to refresh both.
+	 */
+	savedChanged() {
+		this.savedRevision += 1;
+	}
 
 	get lines(): string[] {
 		return this.meta?.serviceLines ?? [];

@@ -38,6 +38,7 @@
 
 	$effect(() => {
 		void page.url.pathname;
+		void workspace.savedRevision;
 		fetchBookmarks()
 			.then((list) => (savedCount = list.length))
 			.catch(() => (savedCount = 0));
