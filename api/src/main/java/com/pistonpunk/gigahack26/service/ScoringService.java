@@ -62,12 +62,10 @@ public class ScoringService {
             double halfLife = question.getDecayClass().halfLifeDays();
             double decay = Math.max(MIN_DECAY, Math.pow(2.0, -ageDays / halfLife));
             double shrink = shrinkOf(signal.getConfidence(), properties);
-            double tierNats = question.signedMagnitude();
+            double tierNats = question.magnitudeFor(signal.getVerdict());
             double raw = tierNats * source.getSourceAuthority() * decay * shrink;
-            boolean blocking = question.getPolarity() == Polarity.DISQUALIFYING;
-            if (blocking && signal.getVerdict() == Verdict.COUNTER) {
-                blocking = false;
-            }
+            boolean blocking = question.getPolarity() == Polarity.DISQUALIFYING
+                    && question.asserts(signal.getVerdict());
             if (blocking) {
                 blockedByBuild = true;
                 buildReason = source.getPublisher() + " — " + question.getText();
@@ -141,7 +139,7 @@ public class ScoringService {
                 gateLine(company, gate.orElse(null), blockedByBuild, properties),
                 rows,
                 themeTotals(rows),
-                (int) rows.stream().filter(row -> !row.blocking()).count(),
+                (int) rows.stream().filter(row -> !row.blocking() && row.asserted()).count(),
                 themes.size(),
                 scanned,
                 silent.size(),
@@ -392,7 +390,7 @@ public class ScoringService {
 
     private String weakestLink(List<LedgerRow> rows) {
         return rows.stream()
-                .filter(row -> !row.blocking())
+                .filter(row -> !row.blocking() && row.asserted())
                 .min(Comparator.comparingDouble(row -> Math.abs(row.contributionNats())))
                 .map(row -> row.questionKey() + " — " + trim(row.spanText(), 140))
                 .orElse(null);

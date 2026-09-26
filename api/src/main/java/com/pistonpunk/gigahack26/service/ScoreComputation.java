@@ -31,6 +31,8 @@ public record ScoreComputation(
     }
 
     public List<LedgerRow> counterEvidence() {
-        return rows.stream().filter(row -> row.contributionNats() < 0).toList();
+        return rows.stream()
+                .filter(row -> row.contributionNats() < 0 || (!row.blocking() && !row.asserted()))
+                .toList();
     }
 }

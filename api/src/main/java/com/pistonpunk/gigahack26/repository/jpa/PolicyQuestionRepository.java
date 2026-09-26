@@ -15,5 +15,7 @@ public interface PolicyQuestionRepository extends JpaRepository<PolicyQuestion, 
 
     List<PolicyQuestion> findByActiveTrue();
 
+    long countByActiveTrue();
+
     List<PolicyQuestion> findByActiveTrueAndServiceLine(String serviceLine);
 }

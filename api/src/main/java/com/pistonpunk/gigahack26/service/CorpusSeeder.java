@@ -55,6 +55,7 @@ public class CorpusSeeder implements ApplicationRunner {
 
     private static final Logger log = LoggerFactory.getLogger(CorpusSeeder.class);
     private static final double ESTIMATED_SIZE_CONFIDENCE = 0.85;
+    private static final double OVERLAY_INTACT = 0.85;
 
     private final CompanyRepository companies;
     private final CorpusStateRepository corpusState;
@@ -71,6 +72,7 @@ public class CorpusSeeder implements ApplicationRunner {
     private final ClassifierRouter router;
     private final CaptureStore captureStore;
     private final CorpusProperties properties;
+    private final SignalOverlayStore overlay;
     private final Readiness readiness;
     private final CorpusEviction eviction;
     private final ObjectMapper mapper;
@@ -82,8 +84,8 @@ public class CorpusSeeder implements ApplicationRunner {
                         PolicyLibrary library, ServiceLineService serviceLines, RegionService regions,
                         ScoreboardService scoreboard,
                         RescoreService rescore, ClassifierRouter router,
-                        CaptureStore captureStore, CorpusProperties properties, Readiness readiness,
-                        CorpusEviction eviction, ObjectMapper mapper, Clock clock) {
+                        CaptureStore captureStore, CorpusProperties properties, SignalOverlayStore overlay,
+                        Readiness readiness, CorpusEviction eviction, ObjectMapper mapper, Clock clock) {
         this.companies = companies;
         this.corpusState = corpusState;
         this.aliases = aliases;
@@ -99,13 +101,11 @@ public class CorpusSeeder implements ApplicationRunner {
         this.router = router;
         this.captureStore = captureStore;
         this.properties = properties;
+        this.overlay = overlay;
         this.readiness = readiness;
         this.eviction = eviction;
         this.mapper = mapper;
         this.clock = clock;
-    }
-
-    record Overlay(String engine, Verdict verdict, double confidence, String quote, String rationale) {
     }
 
     /**
@@ -124,6 +124,7 @@ public class CorpusSeeder implements ApplicationRunner {
         }
         long started = System.nanoTime();
         readiness.seeding(true);
+        overlay.reset();
         try {
             Map<String, UUID> companyIds = persistCompanies(raw.companies());
             persistEvidence(raw.evidence(), companyIds);
@@ -279,19 +280,30 @@ public class CorpusSeeder implements ApplicationRunner {
     }
 
     /**
-     * True when the board carries no row from the engine the overlay declares.
+     * True when the board is carrying materially fewer rows from the overlay's
+     * engine than the overlay says it carries.
      *
      * The overlay is an artefact with an owner: if one is shipped, the rows that
-     * answer its pairs must be its rows. Checking for that costs one count and
-     * catches the case where the signals were rebuilt by something that did not
-     * know the overlay existed.
+     * answer its pairs must be its rows. This used to ask whether the board held
+     * *any* row from that engine, which answered "yes" as soon as one service
+     * line survived — so a run that replaced one service line's model verdicts
+     * with the cue matcher's left the deployment looking healthy. Counting
+     * against what the overlay declares notices a partial loss, not only a total
+     * one, and costs one query.
      */
     private boolean overlayUnapplied() {
-        CorpusFiles.SignalOverlay declared = readJson(properties.signalsPath(), CorpusFiles.SignalOverlay.class);
-        if (declared == null || declared.engine() == null) {
+        String engine = overlay.engine();
+        int expected = overlay.expected();
+        if (engine == null || expected == 0) {
             return false;
         }
-        return signals.countByEngine(declared.engine()) == 0;
+        long held = signals.countByEngine(engine);
+        if (held >= expected * OVERLAY_INTACT) {
+            return false;
+        }
+        log.warn("the board carries {} rows from {} against the {} the overlay declares; re-reading the overlay",
+                held, engine, expected);
+        return true;
     }
 
     private Map<String, UUID> persistCompanies(List<CorpusFiles.RawCompany> raw) {
@@ -390,7 +402,6 @@ public class CorpusSeeder implements ApplicationRunner {
         List<PolicyQuestion> active = ScoreboardService.distinct(questions.findByActiveTrue());
         List<Evidence> all = evidence.findAll();
         signals.deleteAll();
-        Map<String, Overlay> overlay = readOverlay();
         Map<UUID, String> names = new ConcurrentHashMap<>();
         companies.findAll().forEach(company -> names.put(company.getId(), company.getName()));
 
@@ -408,7 +419,7 @@ public class CorpusSeeder implements ApplicationRunner {
                 String document = captureStore.text(item.getKey());
                 for (PolicyQuestion question : active) {
                     futures.add(pool.submit(() ->
-                            classifyOne(item, question, companyName, document, overlay, struck, fromModel)));
+                            classifyOne(item, question, companyName, document, struck, fromModel)));
                 }
             }
 
@@ -429,12 +440,12 @@ public class CorpusSeeder implements ApplicationRunner {
     }
 
     private List<Signal> classifyOne(Evidence item, PolicyQuestion question, String companyName, String document,
-                                     Map<String, Overlay> overlay, AtomicInteger struck, AtomicInteger fromModel) {
+                                     AtomicInteger struck, AtomicInteger fromModel) {
         if (document == null || document.isBlank()) {
             return List.of();
         }
 
-        Overlay over = overlay.get(item.getKey() + "|" + question.getKey());
+        SignalOverlayStore.Entry over = overlay.find(item.getKey(), question.getKey());
         if (over != null) {
             if (over.verdict() == Verdict.NONE) {
                 return List.of();
@@ -467,26 +478,6 @@ public class CorpusSeeder implements ApplicationRunner {
                           int start, int end, String rationale, String engine, boolean verified) {
         return new Signal(UUID.randomUUID(), item.getId(), item.getCompanyId(), question.getId(), verdict,
                 confidence, start, end, rationale, engine, verified, clock.instant());
-    }
-
-    private Map<String, Overlay> readOverlay() {
-        Map<String, Overlay> overlay = new LinkedHashMap<>();
-        CorpusFiles.SignalOverlay parsed =
-                readJson(properties.signalsPath(), CorpusFiles.SignalOverlay.class);
-        if (parsed == null || parsed.signals() == null) {
-            return overlay;
-        }
-        String engine = parsed.engine() == null ? "language-model" : parsed.engine();
-        for (CorpusFiles.OverlaySignal entry : parsed.signals()) {
-            overlay.put(entry.evidenceKey() + "|" + entry.questionKey(), new Overlay(
-                    engine,
-                    Verdict.parse(entry.verdict()),
-                    entry.confidence() == null ? 0.0 : entry.confidence(),
-                    entry.quote(),
-                    entry.rationale()));
-        }
-        log.info("loaded {} pre-extracted signals from {}", overlay.size(), properties.signalsPath());
-        return overlay;
     }
 
     private <T> T readJson(String location, Class<T> type) {
@@ -540,6 +531,8 @@ public class CorpusSeeder implements ApplicationRunner {
             case "job_posting", "job", "jobs" -> SourceKind.JOB_POSTING;
             case "registry" -> SourceKind.REGISTRY;
             case "filing" -> SourceKind.FILING;
+            case "newsroom" -> SourceKind.NEWSROOM;
+            case "strategy" -> SourceKind.STRATEGY;
             default -> SourceKind.NEWS;
         };
     }

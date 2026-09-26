@@ -110,6 +110,22 @@ class LocalRubricEngineTest {
         assertTrue(cues.stream().noneMatch(cue -> cue.length() < 6));
     }
 
+    @Test
+    void derivedCuesRefuseAPhraseThatOpensOnTheSubjectOfTheSentence() {
+        List<String> cues = LocalRubricEngine.deriveCues("companies hiring RPA developers", "");
+
+        assertTrue(cues.stream().noneMatch(cue -> cue.startsWith("companies")), cues.toString());
+        assertTrue(cues.contains("rpa developers"), cues.toString());
+    }
+
+    @Test
+    void derivedCuesKeepTheContentPhraseOfAColdQuestion() {
+        List<String> cues = LocalRubricEngine.deriveCues(
+                "Is the company consolidating shared service centres into a captive operation?", "");
+
+        assertTrue(cues.contains("shared service") || cues.contains("captive operation"), cues.toString());
+    }
+
     private PolicyQuestion question(Polarity polarity, List<String> cues) {
         return new PolicyQuestion(UUID.randomUUID(), "q", "Q", PolicyLibrary.AUTOMATION,
                 "Is the company hiring for automation roles?", "Counts: automation hiring.",

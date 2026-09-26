@@ -77,7 +77,7 @@ public class StatusController {
                 count(companies::count),
                 count(evidence::count),
                 count(signals::count),
-                count(questions::count),
+                count(questions::countByActiveTrue),
                 captures.size(),
                 board.primaryEngine(),
                 board.languageModelAvailable(),

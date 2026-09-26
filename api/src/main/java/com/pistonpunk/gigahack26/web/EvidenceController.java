@@ -107,7 +107,8 @@ public class EvidenceController {
                     double halfLife = question.getDecayClass().halfLifeDays();
                     double decay = Math.pow(2.0, -ageDays / halfLife);
                     double shrink = 2.0 * signal.getConfidence() - 1.0;
-                    double raw = question.signedMagnitude() * item.getSourceAuthority() * decay * shrink;
+                    double tierNats = question.magnitudeFor(signal.getVerdict());
+                    double raw = tierNats * item.getSourceAuthority() * decay * shrink;
                     return new LedgerRow(
                             item.getId(), question.getId(), question.getKey(), question.getTitle(), question.getText(),
                             question.getTheme(), question.getWeightTier(), question.getPolarity(),
@@ -115,10 +116,10 @@ public class EvidenceController {
                             slice(text, signal.getSpanStart(), signal.getSpanEnd()), signal.getRationale(),
                             signal.getEngine(), signal.isSpanVerified(), item.getSourceUrl(), item.getPublisher(),
                             item.getSourceKind(), item.getTitle(), item.decayAnchor(), item.decayAnchorKind(),
-                            round(ageDays), halfLife, question.signedMagnitude(), item.getSourceAuthority(),
+                            round(ageDays), halfLife, tierNats, item.getSourceAuthority(),
                             round(decay), round(shrink), round(raw), 0, 1.0, round(raw), false,
-                            signal.getVerdict() == Verdict.BUILD
-                                    || question.getPolarity() == Polarity.DISQUALIFYING);
+                            question.getPolarity() == Polarity.DISQUALIFYING
+                                    && question.asserts(signal.getVerdict()));
                 })
                 .sorted((a, b) -> Double.compare(b.confidence(), a.confidence()))
                 .toList();

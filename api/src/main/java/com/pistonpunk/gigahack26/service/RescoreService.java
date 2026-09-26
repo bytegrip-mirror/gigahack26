@@ -6,6 +6,7 @@ import com.pistonpunk.gigahack26.domain.Polarity;
 import com.pistonpunk.gigahack26.domain.WeightTier;
 import com.pistonpunk.gigahack26.domain.PolicyQuestion;
 import com.pistonpunk.gigahack26.domain.Signal;
+import com.pistonpunk.gigahack26.domain.Verdict;
 import com.pistonpunk.gigahack26.repository.jpa.CompanyRepository;
 import com.pistonpunk.gigahack26.repository.jpa.EvidenceRepository;
 import com.pistonpunk.gigahack26.repository.jpa.PolicyQuestionRepository;
@@ -46,12 +47,13 @@ public class RescoreService {
     private final ClassifierRouter router;
     private final ScoringProperties scoring;
     private final CaptureStore captures;
+    private final SignalOverlayStore overlay;
     private final Clock clock;
 
     public RescoreService(CompanyRepository companies, EvidenceRepository evidence, SignalRepository signals,
                           PolicyQuestionRepository questions, ScoreboardService scoreboard, BoardService board,
                           PolicyService policies, ClassifierRouter router, ScoringProperties scoring,
-                          CaptureStore captures, Clock clock) {
+                          CaptureStore captures, SignalOverlayStore overlay, Clock clock) {
         this.policies = policies;
         this.scoring = scoring;
         this.companies = companies;
@@ -62,11 +64,12 @@ public class RescoreService {
         this.board = board;
         this.router = router;
         this.captures = captures;
+        this.overlay = overlay;
         this.clock = clock;
     }
 
-    public record Outcome(int signalsProduced, int documentsScanned, long tookMs, String engine,
-                          boolean keptPrevious) {
+    public record Outcome(int signalsProduced, int documentsScanned, int answeredFromOverlay, long tookMs,
+                          String engine, boolean keptPrevious) {
     }
 
     @Transactional
@@ -79,6 +82,7 @@ public class RescoreService {
 
         AtomicInteger produced = new AtomicInteger();
         AtomicInteger failures = new AtomicInteger();
+        AtomicInteger fromOverlay = new AtomicInteger();
         List<Signal> collected;
         try (ExecutorService pool = Executors.newVirtualThreadPerTaskExecutor()) {
             List<Future<List<Signal>>> futures = new ArrayList<>(all.size() * target.size());
@@ -90,7 +94,7 @@ public class RescoreService {
                 String companyName = names.getOrDefault(item.getCompanyId(), "");
                 for (PolicyQuestion question : target) {
                     futures.add(pool.submit(() ->
-                            classify(item, question, companyName, document, engineOverride)));
+                            classify(item, question, companyName, document, engineOverride, fromOverlay)));
                 }
             }
             collected = new ArrayList<>();
@@ -104,6 +108,10 @@ public class RescoreService {
             }
         }
         produced.set(collected.size());
+        log.info("classified {} pairs against {} questions: {} answered from the shipped model overlay, "
+                        + "{} from {}, {} tasks failed",
+                (long) all.size() * target.size(), target.size(), fromOverlay.get(),
+                produced.get() - fromOverlay.get(), router.engineId(engineOverride), failures.get());
 
         boolean keptPrevious = replace && !target.isEmpty() && collected.isEmpty()
                 && failures.get() > 0 && heldByTarget(target) > 0;
@@ -120,8 +128,8 @@ public class RescoreService {
             signals.saveAll(collected);
         }
 
-        return new Outcome(produced.get(), all.size(), (System.nanoTime() - started) / 1_000_000,
-                router.engineId(engineOverride), keptPrevious);
+        return new Outcome(produced.get(), all.size(), fromOverlay.get(),
+                (System.nanoTime() - started) / 1_000_000, router.engineId(engineOverride), keptPrevious);
     }
 
     private long heldByTarget(List<PolicyQuestion> target) {
@@ -200,6 +208,7 @@ public class RescoreService {
                 after.size(),
                 outcome.documentsScanned(),
                 outcome.signalsProduced(),
+                outcome.answeredFromOverlay(),
                 outcome.engine(),
                 label,
                 askedKey,
@@ -220,8 +229,35 @@ public class RescoreService {
         return active.stream().filter(question -> question.getId().equals(questionId)).toList();
     }
 
+    /**
+     * The overlay first, the configured engine only for pairs it does not answer.
+     *
+     * A re-score used to ask the engine about every pair, so a question typed in
+     * the Studio replaced the whole service line's model verdicts with the cue
+     * matcher's — the same failure the boot path was fixed for. A pair the
+     * language model has already read keeps that reading, whoever started the
+     * run.
+     */
     private List<Signal> classify(Evidence item, PolicyQuestion question, String companyName, String document,
-                                  String engineOverride) {
+                                  String engineOverride, AtomicInteger fromOverlay) {
+        SignalOverlayStore.Entry over = overlay.find(item.getKey(), question.getKey());
+        if (over != null) {
+            if (over.verdict() == Verdict.NONE) {
+                fromOverlay.incrementAndGet();
+                return List.of();
+            }
+            Optional<SpanLocator.Span> span = SpanLocator.locate(document, over.quote());
+            if (span.isEmpty()) {
+                log.info("struck a stored row: quote not found in {} for question {}",
+                        item.getKey(), question.getKey());
+                return List.of();
+            }
+            fromOverlay.incrementAndGet();
+            return List.of(new Signal(UUID.randomUUID(), item.getId(), item.getCompanyId(), question.getId(),
+                    over.verdict(), over.confidence(), span.get().start(), span.get().end(), over.rationale(),
+                    over.engine(), span.get().exact(), clock.instant()));
+        }
+
         ClassifierRouter.Answer answer = router.answer(companyName, question, document, engineOverride);
         List<Signal> produced = new ArrayList<>();
         for (ClassifierEngine.Finding finding : answer.findings()) {

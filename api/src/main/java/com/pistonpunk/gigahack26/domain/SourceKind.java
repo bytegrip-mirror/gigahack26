@@ -3,6 +3,8 @@ package com.pistonpunk.gigahack26.domain;
 public enum SourceKind {
     JOB_POSTING(0.9),
     NEWS(0.85),
+    NEWSROOM(0.9),
+    STRATEGY(0.95),
     REGISTRY(1.0),
     FILING(1.0);
 

@@ -47,4 +47,14 @@ public record LedgerRow(
     public double odds() {
         return Math.exp(rawNats);
     }
+
+    /**
+     * Whether this reading asserts what its question asks. The tier weight is
+     * zeroed by {@code PolicyQuestion.magnitudeFor} for a verdict that answers
+     * the question by denying it — a company that sells the capability is not a
+     * buyer of it — so the weight carries the answer and needs no second field.
+     */
+    public boolean asserted() {
+        return tierNats != 0.0;
+    }
 }

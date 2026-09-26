@@ -71,7 +71,7 @@ public class WhyNowService {
     }
 
     private String headline(LedgerRow trigger) {
-        return "%s — %s, %s".formatted(shorten(trigger.questionText()), source(trigger.publisher()),
+        return "%s — %s, %s".formatted(trigger.questionTitle(), source(trigger.publisher()),
                 age(trigger));
     }
 

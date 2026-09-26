@@ -323,6 +323,50 @@ class ScoringServiceTest {
     }
 
     @Test
+    void aReadingThatDeniesItsQuestionCarriesNoWeight() {
+        PolicyQuestion positive = question("a", Polarity.POSITIVE, WeightTier.HIGH, "initiative");
+        Evidence source = evidence("e1", "we sell our analytics platform to customers");
+        List<Signal> signals = List.of(signal(source, positive, Verdict.BUILD, 0.95));
+
+        ScoreComputation result = scoring.compute(
+                company(false, "DE", 4000, 0.9), List.of(source), signals, List.of(positive), NOW);
+
+        assertEquals(0.25, result.probability(), 1e-9,
+                "a company that sells the capability is not a buyer of it");
+        assertEquals(Band.THIN, result.band());
+        assertEquals(0, result.signalCount());
+        assertEquals(0.0, result.rows().get(0).contributionNats(), 1e-9);
+    }
+
+    @Test
+    void aCounterReadingOnAPositiveQuestionCarriesNoWeightEither() {
+        PolicyQuestion positive = question("a", Polarity.POSITIVE, WeightTier.HIGH, "efficiency");
+        Evidence source = evidence("e1", "the company announced a hiring freeze");
+        List<Signal> signals = List.of(signal(source, positive, Verdict.COUNTER, 0.9));
+
+        ScoreComputation result = scoring.compute(
+                company(false, "DE", 4000, 0.9), List.of(source), signals, List.of(positive), NOW);
+
+        assertEquals(0.25, result.probability(), 1e-9);
+        assertEquals(1, result.counterEvidence().size(),
+                "a reading that argues against calling is still shown as counter-evidence");
+    }
+
+    @Test
+    void aVendorReadingOnACounterEvidenceQuestionLowersTheScore() {
+        PolicyQuestion counter = question("c", Polarity.NEGATIVE, WeightTier.HIGH, "in-house");
+        Evidence source = evidence("e1", "we provide automation platforms to enterprises");
+        List<Signal> signals = List.of(signal(source, counter, Verdict.BUILD, 0.9));
+
+        ScoreComputation result = scoring.compute(
+                company(false, "DE", 4000, 0.9), List.of(source), signals, List.of(counter), NOW);
+
+        assertTrue(result.nats() < 0);
+        assertTrue(result.probability() < 0.25);
+        assertEquals(1, result.counterEvidence().size());
+    }
+
+    @Test
     void aDisqualifyingQuestionStillRemovesTheCompany() {
         Company buyer = company(false, "DE", 4000, 0.9);
         PolicyQuestion question = question("a", Polarity.DISQUALIFYING, WeightTier.HIGH, "in-house");

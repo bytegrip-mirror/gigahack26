@@ -296,7 +296,7 @@ public class BoardService {
     private BoardRow toRow(Company company, ScoreComputation detail, List<Evidence> companyEvidence,
                            List<Signal> companySignals, Lead lead, Instant now) {
         List<LedgerRow> ranked = detail.rows().stream()
-                .filter(row -> !row.blocking())
+                .filter(row -> !row.blocking() && row.asserted())
                 .sorted(Comparator.comparingDouble((LedgerRow row) -> Math.abs(row.contributionNats())).reversed())
                 .toList();
 
@@ -310,7 +310,7 @@ public class BoardService {
                 .orElse(null);
         WhyNowService.Brief why = whyNow.brief(detail, settings.effective());
 
-        Instant newest = detail.rows().stream()
+        Instant newest = ranked.stream()
                 .map(LedgerRow::anchor)
                 .max(Comparator.naturalOrder())
                 .orElse(null);

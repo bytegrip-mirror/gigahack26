@@ -60,7 +60,35 @@ public class PolicyLibrary {
                     clock.instant());
             questions.save(question);
         }
-        return changed;
+        return retire(declared()) || changed;
+    }
+
+    /**
+     * A question the library no longer declares stops scoring.
+     *
+     * Removing a definition used to leave the stored row active forever, so a
+     * question deleted from the library kept classifying the corpus and kept its
+     * place on the board. It is deactivated rather than deleted, because the
+     * signals, feedback and scores that point at it are still a record of what
+     * the board said at the time.
+     */
+    private boolean retire(Set<String> declared) {
+        boolean retired = false;
+        for (PolicyQuestion question : questions.findAll()) {
+            if (!declared.contains(question.getKey()) && question.isActive()) {
+                question.revise(question.getTitle(), question.getText(), question.getInstructions(),
+                        question.getWeightTier(), question.getPolarity(), question.getTheme(),
+                        question.getDecayClass(), question.getCues(), question.getCounterCues(), false,
+                        clock.instant());
+                questions.save(question);
+                retired = true;
+            }
+        }
+        return retired;
+    }
+
+    private static Set<String> declared() {
+        return definitions().stream().map(Definition::key).collect(java.util.stream.Collectors.toSet());
     }
 
     private static boolean differs(PolicyQuestion question, Definition definition) {
@@ -157,14 +185,16 @@ public class PolicyLibrary {
                         List.of("internship", "intern,", "unpaid", "student worker")),
                 new Definition(
                         "automation.insourcing", "Building automation in-house", AUTOMATION,
-                        "Is the company building automation capability in-house — an internal automation centre of excellence, an in-house platform, or its own automation product?",
+                        "Does the company sell automation, or build it as a product of its own rather than buying the capability?",
                         """
-                        Counts: the company states it develops automation itself, runs an internal automation factory \
-                        or centre of excellence, or sells an automation product of its own. This is a company that \
-                        will build rather than buy, so it is removed from the queue and the reason is recorded.
+                        Counts: the company states it sells or provides automation to others, runs an internal \
+                        automation factory as a business, or has an automation product of its own. This is a company \
+                        that will build rather than buy, so it counts against calling them.
 
-                        Does not count: a company that has an internal team overseeing external delivery partners.""",
-                        WeightTier.HIGH, Polarity.DISQUALIFYING, "in-house", DecayClass.STRUCTURAL,
+                        Does not count: a company that has an internal team overseeing external delivery partners, \
+                        or that hires, uses or runs automation inside its own business. Internal capability is the \
+                        normal state of a large company and is often exactly the buying signal we are looking for.""",
+                        WeightTier.HIGH, Polarity.NEGATIVE, "in-house", DecayClass.STRUCTURAL,
                         List.of("in-house automation", "internal automation team", "automation factory",
                                 "in-house developed", "our automation platform", "our rpa platform",
                                 "our process mining platform", "our low-code platform",
@@ -178,22 +208,6 @@ public class PolicyLibrary {
                                 "centre of excellence is", "center of excellence is", "what is a centre of excellence",
                                 "explainer", "how to set up", "evaluating", "considering", "selecting a platform",
                                 "market guide", "gartner", "forrester", "magic quadrant", "we compared")),
-                new Definition(
-                        "automation.cost_programme", "A cost-reduction programme with a target", AUTOMATION,
-                        "Has the company announced a cost-reduction or efficiency programme with a quantified target?",
-                        """
-                        Counts: a stated programme to cut cost, headcount or the cost base, with a number attached \
-                        — a percentage, an amount, or a number of roles. The brief names this signal directly: a \
-                        quantified target is what turns a vague efficiency ambition into a budget.
-
-                        Does not count: generic cost pressure in a results story, or a bank analyst's estimate.""",
-                        WeightTier.HIGH, Polarity.POSITIVE, "efficiency", DecayClass.EVENT,
-                        List.of("cost reduction programme", "cost-cutting programme", "cost savings programme",
-                                "efficiency programme", "savings target", "reduce costs by", "cut costs by",
-                                "reduce operating costs", "cost base reduction", "reduction in headcount",
-                                "headcount reduction", "restructuring programme", "simplification programme",
-                                "targeted savings", "cost optimisation programme", "cost optimization programme"),
-                        List.of("analysts expect", "could reduce", "may cut", "threatens to")),
                 new Definition(
                         "automation.ssc", "Consolidating shared service centres", AUTOMATION,
                         "Is the company consolidating shared service centres or business services into a captive operation?",
@@ -317,13 +331,16 @@ public class PolicyLibrary {
                         List.of("how to protect", "avoid becoming")),
                 new Definition(
                         "security.insourcing", "Building security operations in-house", SECURITY,
-                        "Is the company building its own security operations capability in-house?",
+                        "Does the company sell security operations as a service, or run its own as a product of its own?",
                         """
-                        Counts: the company says it runs or is building its own security operations centre, or an \
-                        internal security engineering function that replaces external providers.
+                        Counts: the company sells security operations, managed detection or a security product of \
+                        its own. That is a provider of the capability rather than a buyer of it, so it counts \
+                        against calling them.
 
-                        Does not count: a company that outsources to a managed security provider.""",
-                        WeightTier.HIGH, Polarity.DISQUALIFYING, "in-house", DecayClass.STRUCTURAL,
+                        Does not count: a company running an internal security team, or a security operations \
+                        centre of its own. Most large enterprises have one; it does not stop them buying incident \
+                        response, compliance work or specialist engineering.""",
+                        WeightTier.HIGH, Polarity.NEGATIVE, "in-house", DecayClass.STRUCTURAL,
                         List.of("in-house soc", "own soc", "in-house security team", "internal soc team",
                                 "we run our own soc", "internal security operations centre",
                                 "we handle security ourselves", "security operations centre in-house",
@@ -344,7 +361,7 @@ public class PolicyLibrary {
                         it lands in the queue on its own marketing.
 
                         Does not count: a company that has built an internal data team to run platforms it bought.""",
-                        WeightTier.HIGH, Polarity.DISQUALIFYING, "in-house", DecayClass.STRUCTURAL,
+                        WeightTier.HIGH, Polarity.NEGATIVE, "in-house", DecayClass.STRUCTURAL,
                         List.of("our data platform", "our analytics platform", "our ai platform",
                                 "our machine learning platform", "our ml platform", "our data fabric",
                                 "our data warehouse product", "our lakehouse", "customers use our platform",

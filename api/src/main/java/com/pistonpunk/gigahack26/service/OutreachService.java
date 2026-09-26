@@ -107,7 +107,7 @@ public class OutreachService {
             return "you are hiring for " + theme + " roles";
         }
         if (lowered.startsWith("has the company announced")) {
-            return "you have announced a " + theme + " programme";
+            return "you have announced " + article(theme) + " " + theme + " programme";
         }
         if (lowered.startsWith("has the company appointed")) {
             return "you have a new leader owning this";
@@ -122,6 +122,14 @@ public class OutreachService {
             return "you are investing in " + theme;
         }
         return "there is public evidence around " + theme;
+    }
+
+    static String article(String word) {
+        if (word == null || word.isBlank()) {
+            return "a";
+        }
+        char first = Character.toLowerCase(word.charAt(0));
+        return first == 'a' || first == 'e' || first == 'i' || first == 'o' || first == 'u' ? "an" : "a";
     }
 
     static String collapse(String value) {

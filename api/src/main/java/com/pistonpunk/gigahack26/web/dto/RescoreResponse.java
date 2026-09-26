@@ -9,6 +9,7 @@ public record RescoreResponse(
         int companies,
         int documentsScanned,
         int signalsProduced,
+        int answeredFromOverlay,
         String engine,
         String question,
         String questionKey,

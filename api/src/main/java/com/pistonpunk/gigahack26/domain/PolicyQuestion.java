@@ -175,4 +175,28 @@ public class PolicyQuestion {
         double magnitude = weightTier.nats();
         return polarity == Polarity.POSITIVE ? magnitude : -magnitude;
     }
+
+    /**
+     * The weight a reading carries, which is zero unless the reading asserts what
+     * the question asks.
+     *
+     * Each engine says "the thing this question is about is present" with its own
+     * verdict: the cue matcher answers BUY for a positive question, COUNTER for a
+     * counter-evidence question, BUILD for a disqualifier. A verdict that asserts
+     * something else is an answer, not evidence — BUILD on a positive question
+     * means the company *sells* the capability, and paying that the positive
+     * weight ranks vendors as buyers, which is the exact inversion this platform
+     * exists to avoid.
+     */
+    public double magnitudeFor(Verdict verdict) {
+        return asserts(verdict) ? signedMagnitude() : 0.0;
+    }
+
+    public boolean asserts(Verdict verdict) {
+        return switch (polarity) {
+            case POSITIVE -> verdict == Verdict.BUY;
+            case NEGATIVE -> verdict == Verdict.COUNTER || verdict == Verdict.BUILD;
+            case DISQUALIFYING -> verdict == Verdict.BUILD;
+        };
+    }
 }

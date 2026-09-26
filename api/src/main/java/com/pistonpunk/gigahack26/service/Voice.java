@@ -48,6 +48,16 @@ public record Voice(
         text.append("Length: ").append(length).append(". ");
         text.append("Write in ").append(language).append(". ");
         text.append("Address the reader as \"").append(reader).append("\". ");
+        if (signOff != null && !signOff.isBlank()) {
+            text.append("Sign off with exactly \"").append(signOff).append("\". ");
+        }
+        if (signature != null && !signature.isBlank()) {
+            text.append("The line under the sign-off is exactly \"").append(signature)
+                    .append("\" — do not invent a team name, a department or a person's name. ");
+        }
+        if (ask != null && !ask.isBlank()) {
+            text.append("Close with exactly this ask: \"").append(ask).append("\". ");
+        }
         if (!avoid.isEmpty()) {
             text.append("Never use these words or phrases: ").append(String.join(", ", avoid)).append(". ");
         }

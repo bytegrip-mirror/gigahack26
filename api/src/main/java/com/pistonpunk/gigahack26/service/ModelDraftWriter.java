@@ -62,8 +62,14 @@ public class ModelDraftWriter implements DraftWriter {
             }
 
             JsonNode root = mapper.readTree(response.body());
-            JsonNode content = root.path("choices").path(0).path("message").path("content");
+            JsonNode choice = root.path("choices").path(0);
+            JsonNode content = choice.path("message").path("content");
             if (content.isMissingNode() || content.asText().isBlank()) {
+                log.warn("the draft model returned no text: finish reason {}, {} completion tokens of which {} "
+                                + "were reasoning. Raise the token budget if the reasoning is eating all of it.",
+                        choice.path("finish_reason").asText("unknown"),
+                        root.path("usage").path("completion_tokens").asInt(0),
+                        root.path("usage").path("completion_tokens_details").path("reasoning_tokens").asInt(0));
                 return null;
             }
 
@@ -87,7 +93,7 @@ public class ModelDraftWriter implements DraftWriter {
         ObjectNode root = mapper.createObjectNode();
         root.put("model", properties.deepseek().model());
         root.put("temperature", 0.4);
-        root.put("max_tokens", 1100);
+        root.put("max_tokens", 6000);
         root.put("stream", false);
         root.putObject("response_format").put("type", "json_object");
 

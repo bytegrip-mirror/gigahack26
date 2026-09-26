@@ -45,8 +45,15 @@ public class LocalRubricEngine implements ClassifierEngine {
             "month", "months", "quarter", "quarters", "half", "million", "billion", "percent", "employees",
             "employee", "people", "staff", "workforce", "headcount", "position", "positions", "candidate",
             "candidates", "looking", "seeking", "opportunity", "opportunities", "responsible", "responsibilities",
-            "requirements", "required", "preferred", "qualifications", "experience", "skills", "ability");
+            "requirements", "required", "preferred", "qualifications", "experience", "skills", "ability",
+            "companies", "banks", "firms", "employers", "agencies", "operators",
+            "retailers", "insurers", "carriers", "makers", "players", "giants");
     private static final int PREPARED_CACHE_SIZE = 512;
+
+    private static final Set<String> SUBJECT = Set.of(
+            "companies", "company", "banks", "bank", "firms", "firm", "businesses", "business",
+            "organisations", "organizations", "employers", "employer", "groups", "agencies", "operators",
+            "retailers", "insurers", "carriers", "makers", "players", "giants", "enterprises", "corporations");
 
     private static final Set<String> STOPWORDS = Set.of(
             "about", "after", "again", "against", "among", "because", "been", "before", "being", "between",
@@ -55,7 +62,10 @@ public class LocalRubricEngine implements ClassifierEngine {
             "states", "stated", "directly", "imply", "implies", "does", "role", "roles", "rather", "than",
             "that", "this", "from", "have", "having", "into", "more", "most", "much", "only", "over", "same",
             "some", "such", "then", "they", "when", "will", "your", "yours", "announced", "announce",
-            "question", "counts", "evidence", "document", "company's", "within", "whether");
+            "question", "counts", "evidence", "document", "company's", "within", "whether",
+            "the", "and", "for", "with", "its", "was", "were", "are", "has", "had", "not", "but",
+            "all", "any", "can", "may", "one", "two", "our", "who", "what", "how", "why", "them",
+            "also", "very", "is", "of", "in", "to", "on", "at", "by", "or", "as", "an", "it", "be", "do", "we", "us", "if", "no", "so", "up", "am", "he", "me", "my", "out");
 
 
     private static final List<String> CHROME = List.of(
@@ -155,13 +165,30 @@ public class LocalRubricEngine implements ClassifierEngine {
         return true;
     }
 
+    /**
+     * Cues for a question nobody configured, taken from its own wording.
+     *
+     * The rule is that a phrase has to say something. It used to accept any two
+     * adjacent words whose letters added up to eight, so "companies hiring RPA
+     * developers" derived the cues "companies hiring", "companies" and "hiring" —
+     * and since one two-word cue clears the confidence floor on its own, that
+     * question matched 1,913 of 4,466 documents and put the whole board in
+     * Priority. A phrase that opens on the subject of the sentence ("companies
+     * hiring", "banks migrating", "firms with") describes the audience, not the
+     * signal; the content is in what follows it.
+     *
+     * Single words are left alone because the floor already handles them: one
+     * word carries 1.0 and the midpoint is 1.35, so a lone word never reaches the
+     * confidence a signal needs.
+     */
     public static List<String> deriveCues(String text, String instructions) {
         List<String> tokens = contentTokens(text + " " + instructions);
         Set<String> terms = new LinkedHashSet<>();
         for (int i = 0; i + 1 < tokens.size() && terms.size() < MAX_DERIVED_PHRASES; i++) {
             String first = tokens.get(i);
             String second = tokens.get(i + 1);
-            if (first.length() + second.length() >= 8) {
+            if (first.length() + second.length() >= 8 && !SUBJECT.contains(first)
+                    && (!GENERIC.contains(first) || !GENERIC.contains(second))) {
                 terms.add(first + " " + second);
             }
         }
