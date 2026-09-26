@@ -126,7 +126,7 @@ engine for all 64,800 pairs. `tools/model_overlay.py` is written and measured:
 "stored N signals: M from the language model"; a sample row's `engine` reads
 `deepseek-flash@deepseek`.
 
-[ ] A9. Measure the local engine's recall instead of assuming it
+[x] A9. Measure the local engine's recall instead of assuming it
 The sampled (cue-silent) documents in A8 are the instrument: they are pairs
 where the cheap engine said nothing and the model was asked anyway. Report the
 rate at which the model found a signal the local engine missed, on the
@@ -182,7 +182,7 @@ half is which. Unify on the engine's own id. Files: `CorpusSeeder`,
 `ClassificationCacheService.stats()` (which hardcodes two engine strings).
 **Verify:** every distinct `engine` value in `signal` is a real engine id.
 
-[~] B4. A cost meter
+[x] B4. A cost meter
 The classification cache already separates `reusedFromCache` from `modelCalls`.
 Show calls, tokens, cache hits and the money saved, per rebuild and cumulative.
 Files: `AdminController`, new `CostController`, `BoardView` rail or Settings.
@@ -355,7 +355,7 @@ a row moves the rail count.
 
 ## E. Business impact & scalability — 10%, currently 5/10
 
-[ ] E1. The unit economics, corrected and on screen
+[~] E1. The unit economics, corrected and on screen
 The demo script's €61/month and €1.53/signal were corrected to €76.48 and €1.91
 and never propagated; the denominators disagree by 3.8×. Rebuild the panel from
 the system's own numbers — documents crawled, model calls, cache hits, signals —
@@ -449,14 +449,16 @@ what is missing and why — an absence with a reason, not a silent gap.
 - **A8** — the overlay is built and validated; the first build was discarded
   because its BUILD verdicts disqualified 144 companies, reading "runs AI
   internally" as "is a vendor". The corrected prompt is rebuilding.
-- **B4** — the cache's size and reuse are on the pipeline panel. Model calls and
-  token counts per rebuild are not; the overlay tool reports them on stdout only.
 - **B6** — signals per engine are reported. A side-by-side comparison of the same
   question answered by both engines is not built.
 - **C9** — the half-life comes from the API instead of being hardcoded. The
   resulting horizon is not previewed per question.
 - **D6, D7** — the board, the market view and the settings panels were checked at
   1024×768 in a headless browser. The Studio and the capture sheet were not.
+- **E1** — the model half's cost and its measured miss rate are on the pipeline
+  panel, from the artefact's own provenance. A money figure is not, because the
+  only honest one needs the operator's own rate; the counts it would be computed
+  from are all there.
 - **E4** — the README states the scale story. It is not demonstrated end to end.
 - **F1** — a changed corpus file is picked up automatically and the seeder now
   drops what left it. Ingestion is still an offline script; nothing fetches at
