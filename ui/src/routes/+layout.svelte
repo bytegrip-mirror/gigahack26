@@ -4,6 +4,7 @@
 	import '@fontsource-variable/archivo';
 
 	import { page } from '$app/state';
+	import { fetchBookmarks } from '$lib/api';
 	import { session } from '$lib/session.svelte';
 	import { toasts } from '$lib/toast.svelte';
 	import { workspace } from '$lib/workspace.svelte';
@@ -19,6 +20,7 @@
 	let { children } = $props();
 
 	let now = $state(Date.now());
+	let savedCount = $state(0);
 
 	const healthy = $derived(
 		workspace.status !== null &&
@@ -33,6 +35,13 @@
 		{ href: '/market', label: 'Market', icon: 'board' },
 		{ href: '/settings', label: 'Settings', icon: 'settings' }
 	] as const;
+
+	$effect(() => {
+		void page.url.pathname;
+		fetchBookmarks()
+			.then((list) => (savedCount = list.length))
+			.catch(() => (savedCount = 0));
+	});
 
 	function active(href: string): boolean {
 		return href === '/' ? page.url.pathname === '/' : page.url.pathname.startsWith(href);
@@ -96,6 +105,12 @@
 						<Metric value={shortNumber(workspace.status.companies)} label="Companies" />
 						<Metric value={shortNumber(workspace.status.evidence)} label="Documents" />
 						<Metric value={shortNumber(workspace.status.signals)} label="Signals" />
+						<Metric
+							value={String(savedCount)}
+							label="Saved"
+							tone={savedCount > 0 ? 'good' : null}
+							hint="Companies you have starred. The board's Saved filter shows them."
+						/>
 					</div>
 				</section>
 			{/if}

@@ -303,7 +303,10 @@
 					{#each triggers as row (row.evidenceId + row.spanStart)}
 						<button class="line" onclick={() => openRow(row)}>
 							<span class="dot pos"></span>
-							<span class="line-text">{row.questionTitle}</span>
+							<span class="line-text">
+								{row.questionTitle}
+								{#if row.rationale}<span class="why-line">{row.rationale}</span>{/if}
+							</span>
 							<span class="num">{signed(row.contributionNats, 2)}</span>
 						</button>
 					{:else}
@@ -314,7 +317,10 @@
 						{#each counters as row (row.evidenceId + row.spanStart)}
 							<button class="line" onclick={() => openRow(row)}>
 								<span class="dot neg"></span>
-								<span class="line-text">{row.questionTitle}</span>
+								<span class="line-text">
+									{row.questionTitle}
+									{#if row.rationale}<span class="why-line">{row.rationale}</span>{/if}
+								</span>
 								<span class="num">{signed(row.contributionNats, 2)}</span>
 							</button>
 						{/each}
@@ -438,6 +444,17 @@
 {/if}
 
 <style>
+	.why-line {
+		display: block;
+		margin-top: 1px;
+		font-size: var(--fs-micro);
+		color: var(--ink-3);
+		font-weight: 400;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
 	.card {
 		display: flex;
 		flex-direction: column;
