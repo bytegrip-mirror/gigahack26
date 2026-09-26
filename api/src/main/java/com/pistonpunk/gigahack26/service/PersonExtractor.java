@@ -112,6 +112,9 @@ public final class PersonExtractor {
     }
 
     /** Job titles that are written as initials, and are wrong in title case. */
+    private static final java.util.Set<String> SMALL_WORDS =
+            java.util.Set.of("of", "for", "and", "the", "in", "at", "to", "on");
+
     private static final java.util.Set<String> ACRONYMS = java.util.Set.of(
             "ceo", "cfo", "cto", "cio", "ciso", "coo", "cdo", "svp", "evp", "vp", "md", "coo.");
 
@@ -120,11 +123,21 @@ public final class PersonExtractor {
         if (cleaned.length() < 2 || cleaned.length() > MAX_ROLE) {
             return null;
         }
-        return java.util.Arrays.stream(cleaned.split(" "))
-                .map(word -> ACRONYMS.contains(word)
-                        ? word.toUpperCase(java.util.Locale.ROOT)
-                        : word.substring(0, 1).toUpperCase(java.util.Locale.ROOT) + word.substring(1))
+        String[] words = cleaned.split(" ");
+        return java.util.stream.IntStream.range(0, words.length)
+                .mapToObj(index -> title(words[index], index == 0))
                 .collect(java.util.stream.Collectors.joining(" "));
+    }
+
+    /** Title case, except for the words English keeps lowercase in a job title. */
+    private static String title(String word, boolean first) {
+        if (ACRONYMS.contains(word)) {
+            return word.toUpperCase(java.util.Locale.ROOT);
+        }
+        if (!first && SMALL_WORDS.contains(word)) {
+            return word;
+        }
+        return word.substring(0, 1).toUpperCase(java.util.Locale.ROOT) + word.substring(1);
     }
 
     public static List<String> roles() {

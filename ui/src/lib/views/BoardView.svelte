@@ -143,7 +143,8 @@
 	const peekOn = $derived(selected !== null ? 'left' : peekSide);
 	let peekAt = $state(0);
 	let peek = $state<Awaited<ReturnType<typeof fetchCompany>> | null>(null);
-	let peekTimer: ReturnType<typeof setTimeout> | null = null;
+	let peekOpenTimer: ReturnType<typeof setTimeout> | null = null;
+	let peekCloseTimer: ReturnType<typeof setTimeout> | null = null;
 
 	const meta = $derived(workspace.meta);
 	const serviceLine = $derived(session.serviceLine);
@@ -483,22 +484,48 @@
 		return anchors.length === 0 ? null : Math.max(0, (Date.now() - Math.max(...anchors)) / 86_400_000);
 	}
 
+	const OPEN_DELAY = 260;
+	const CLOSE_DELAY = 320;
+
+	/**
+	 * The card is not inside the row, so leaving the row to reach it fires the
+	 * row's own mouseleave. Opening and closing therefore each wait: a short one
+	 * before opening, so dragging the mouse down the board does not flash cards,
+	 * and a longer one before closing, which the card cancels when the pointer
+	 * arrives on it.
+	 */
 	function openPeek(row: ScopedRow, event: MouseEvent) {
-		if (peekTimer) clearTimeout(peekTimer);
+		if (peekCloseTimer) clearTimeout(peekCloseTimer);
+		if (peekOpenTimer) clearTimeout(peekOpenTimer);
 		peekSide = event.clientX > window.innerWidth / 2 ? 'left' : 'right';
 		peekAt = event.clientY;
-		peekTimer = setTimeout(() => {
+		peekOpenTimer = setTimeout(() => {
 			peeking = row.id;
 			fetchCompany(row.id, row.serviceLine)
 				.then((result) => {
 					if (peeking === row.id) peek = result;
 				})
 				.catch(() => {});
-		}, 260);
+		}, OPEN_DELAY);
+	}
+
+	function holdPeek() {
+		if (peekOpenTimer) clearTimeout(peekOpenTimer);
+		if (peekCloseTimer) clearTimeout(peekCloseTimer);
+	}
+
+	function scheduleClosePeek() {
+		if (peekOpenTimer) clearTimeout(peekOpenTimer);
+		if (peekCloseTimer) clearTimeout(peekCloseTimer);
+		peekCloseTimer = setTimeout(() => {
+			peeking = null;
+			peek = null;
+		}, CLOSE_DELAY);
 	}
 
 	function closePeek() {
-		if (peekTimer) clearTimeout(peekTimer);
+		if (peekOpenTimer) clearTimeout(peekOpenTimer);
+		if (peekCloseTimer) clearTimeout(peekCloseTimer);
 		peeking = null;
 		peek = null;
 	}
@@ -1321,7 +1348,7 @@
 									select(row.id);
 								}}
 								onmouseenter={(event) => openPeek(row, event)}
-								onmouseleave={closePeek}
+								onmouseleave={scheduleClosePeek}
 							>
 								<td class="c-chk" onclick={(event) => event.stopPropagation()}>
 									<span class="chk">
@@ -1472,8 +1499,8 @@
 		class="peek"
 		data-side={peekOn}
 		aria-label={`${peek.name} at a glance`}
-		onmouseenter={() => peekTimer && clearTimeout(peekTimer)}
-		onmouseleave={closePeek}
+		onmouseenter={holdPeek}
+		onmouseleave={scheduleClosePeek}
 	>
 		<header class="peek-head">
 			<CompanyMark name={peek.name} domain={peek.domain} size="lg" />
