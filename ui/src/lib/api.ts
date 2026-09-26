@@ -683,6 +683,13 @@ export function deleteServiceLine(id: string): Promise<void> {
 	return request<void>(`/api/service-lines/${id}`, { method: 'DELETE' });
 }
 
+export type Precision = {
+	decisions: number;
+	accepted: number;
+	rejected: number;
+	queuePrecision: number | null;
+};
+
 export type MarketSlice = {
 	key: string;
 	companies: number;

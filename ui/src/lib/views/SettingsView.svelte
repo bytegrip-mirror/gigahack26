@@ -4,6 +4,7 @@
 		deleteServiceLine,
 		fetchRegionCountries,
 		fetchServiceLines,
+		fetchPrecision,
 		fetchSettings,
 		fetchTelemetry,
 		saveSettings,
@@ -39,6 +40,7 @@
 
 	let section = $state('voice');
 	let telemetry = $state<Telemetry | null>(null);
+	let precision = $state<Awaited<ReturnType<typeof fetchPrecision>> | null>(null);
 	let settings = $state<Settings | null>(null);
 	let draft = $state<Settings | null>(null);
 	let lines = $state<ServiceLine[]>([]);
@@ -70,6 +72,9 @@
 				fetchTelemetry()
 					.then((result) => (telemetry = result))
 					.catch(() => (telemetry = null));
+				fetchPrecision()
+					.then((result) => (precision = result))
+					.catch(() => (precision = null));
 				draft = { ...config };
 				countries = config.icpCountries.join(', ');
 				industries = config.icpIndustries.join(', ');
@@ -579,6 +584,33 @@
 								hint="A pair already read costs nothing to read again, so a re-run pays only for what it has not seen"
 							/>
 						</div>
+					</section>
+
+					<section class="panel">
+						<div class="panel-head">
+							<h2 class="dsp">What the team did with what it was shown</h2>
+						</div>
+						{#if (precision?.decisions ?? 0) === 0}
+							<p class="sub dim">
+								No row has been accepted or rejected yet. Mark a company from its card and the number appears here —
+								it is the only accuracy figure in the product that the system did not mark itself.
+							</p>
+						{:else}
+							<div class="metrics">
+								<Metric value={String(precision?.decisions ?? 0)} label="Rows reviewed" />
+								<Metric value={String(precision?.accepted ?? 0)} label="Accepted" tone="good" />
+								<Metric value={String(precision?.rejected ?? 0)} label="Rejected" tone="bad" />
+								<Metric
+									value={precision?.queuePrecision != null ? precision.queuePrecision.toFixed(2) : '—'}
+									label="Accepted share"
+									hint="Of the rows a rep looked at. Reviews are not a random sample of the queue, so treat this as a floor on agreement, not as precision."
+								/>
+							</div>
+							<p class="sub dim">
+								This is measured against the team's own judgement rather than a rubric we wrote, which is why it is
+								worth more than a self-marked score — and why it is labelled for what it is.
+							</p>
+						{/if}
 					</section>
 				{/if}
 			</div>
