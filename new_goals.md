@@ -463,15 +463,17 @@ what is missing and why — an absence with a reason, not a silent gap.
 - **F3, F4** — the hardcoded engine identifiers in the cache report are gone and
   the cache groups by what is stored. `maxCandidatesPerDocument`,
   `Voice.targetWords()`, the unused tokens and `PolicyScore.computedMs` remain.
-- **F5** — 28 tests became 42: eight for the vendor register, six for the gate
-  invariant, the rest for the new configuration paths. The corpus tools have no
-  tests.
-- **F6** — the pipeline now fetches the board, its metadata and the settings
-  profile and fails on an empty array or a missing field, which is what let the
-  production outage through. A corpus-integrity check is not built.
+- **F5** — 28 tests became 48: eight for the vendor register, six for the gate
+  invariant, three for the eviction's transaction, three for cue comparison, the
+  rest for the new configuration paths. The corpus tools have no unit tests; the
+  corpus check is the pipeline's instead.
+- **F6** — the pipeline fetches the board, its metadata and the settings
+  profile and fails on an empty array or a missing field, and a corpus check
+  runs before anything is built. Both are what caught the two faults this pass
+  introduced and the one it inherited.
 - **F7** — the README is written. This file is the status record.
 
-## Three things that were not on the list
+## What was not on the list
 
 1. **The deployed database answered with the union of every corpus ever seeded.**
    Evidence rows were written and never removed, so the board was scoring 404
@@ -488,3 +490,24 @@ what is missing and why — an absence with a reason, not a silent gap.
    stayed green.** Verify fetched `/api/status` and the board's HTML and never
    the board's data, so a green build meant the process was up rather than that
    reads worked. It now fetches the board, its metadata and the settings profile.
+4. **The corpus keyed every company's first news document `nws-1`.** The builder
+   named documents by their index within a company, and the database keys
+   evidence by that value, so nine keys covered 125 documents and 116 of them
+   were dropped at seed time without a word — the board was scoring 4,066 of a
+   4,182-document corpus. Prefixing the keys with the company, and a pipeline
+   check that fails on repeated keys, on a content hash that does not match its
+   text, and on overlay rows pointing at evidence the corpus does not carry.
+5. **The overlay was loaded and then thrown away.** A boot that noticed any
+   policy difference re-classified through the re-score service, which asks the
+   configured engine and has never heard of the overlay, so an edit to one
+   question silently replaced every model classification on the board with the
+   cheaper engine's. The comparison that decided a policy had changed compared
+   cue lists as sequences, and an element collection has no order column, so it
+   reported a change on every boot. Cues are compared as sets now, the refresh
+   path re-classifies from the overlay first, and the skip path re-applies the
+   overlay whenever the board carries no row from the engine the overlay names.
+6. **My own eviction ran without a transaction** and took the site down: a bulk
+   delete needs one, the seeder deliberately has none, and the application
+   failed to start and crash-looped for twenty minutes. Found from the API log
+   the pipeline had just started printing on a successful deploy, and caught by
+   the verification stage that fetches the board instead of its status.
