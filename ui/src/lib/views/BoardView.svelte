@@ -6,6 +6,7 @@
 		ask,
 		fetchBoard,
 		fetchBookmarks,
+		fetchCompany,
 		deriveCues,
 		readAsk,
 		recordLead,
@@ -24,7 +25,7 @@
 	import { session } from '$lib/session.svelte';
 	import { workspace } from '$lib/workspace.svelte';
 	import { toasts } from '$lib/toast.svelte';
-	import { ageShort, duration, fit, shortNumber, signed, theme } from '$lib/format';
+	import { ageShort, duration, fit, precise, shortNumber, signed, theme } from '$lib/format';
 	import { regionLabel } from '$lib/regions';
 	import { copy, csv, save } from '$lib/export';
 	import Tag from '$lib/components/Tag.svelte';
@@ -510,6 +511,79 @@
 		toasts.push(`Exported ${list.length} rows.`, 'success');
 	}
 
+	async function exportLedger(list: ScopedRow[], name: string) {
+		if (list.length === 0) return;
+		busy = true;
+		try {
+			const details = await Promise.allSettled(
+				list.map((row) => fetchCompany(row.id, row.serviceLine ?? lineOf(row.id)))
+			);
+			const lines: (string | number)[][] = [];
+			details.forEach((result, index) => {
+				if (result.status !== 'fulfilled') return;
+				const company = list[index];
+				for (const entry of result.value.ledger) {
+					lines.push([
+						company.name,
+						company.serviceLine ?? lineOf(company.id),
+						entry.questionKey,
+						entry.questionTitle,
+						entry.verdict,
+						entry.polarity,
+						precise(entry.confidence),
+						entry.theme,
+						entry.sourceKind,
+						entry.publisher,
+						entry.title ?? '',
+						entry.sourceUrl,
+						entry.spanStart,
+						entry.spanEnd,
+						(entry.spanText ?? '').replace(/\s+/g, ' '),
+						entry.engine,
+						entry.spanVerified ? 'verified' : 'unverified',
+						precise(entry.contributionNats),
+						entry.rationale ?? ''
+					]);
+				}
+			});
+			save(
+				name,
+				csv(
+					[
+						'company',
+						'service_line',
+						'question_key',
+						'question',
+						'verdict',
+						'polarity',
+						'confidence',
+						'theme',
+						'source_kind',
+						'publisher',
+						'document_title',
+						'source_url',
+						'span_start',
+						'span_end',
+						'verbatim_span',
+						'engine',
+						'span_check',
+						'contribution_nats',
+						'model_reason'
+					],
+					lines
+				)
+			);
+			toasts.push(
+				lines.length === 0
+					? 'Nothing to export: those companies carry no scored evidence.'
+					: `Exported ${lines.length} evidence rows with their byte ranges.`,
+				lines.length === 0 ? 'warn' : 'success'
+			);
+		} finally {
+			busy = false;
+		}
+	}
+
 	async function runAsk() {
 		const text = questionText.trim();
 		if (text.length < 4 || rescoring) return;
@@ -544,6 +618,13 @@
 
 	const secondary: MenuItem[] = $derived([
 		{ id: 'export-all', label: 'Export the board as CSV', icon: 'download', hint: shortNumber(sorted.length) },
+		{
+			id: 'export-ledger',
+			label: 'Export the evidence ledger',
+			icon: 'download',
+			hint: picked.size > 0 ? `${picked.size} selected` : 'every visible row',
+			disabled: sorted.length === 0
+		},
 		{ id: 'copy-link', label: 'Copy a link to this view', icon: 'link' },
 		{
 			id: 'clear',
@@ -558,7 +639,11 @@
 	async function runSecondary(id: string) {
 		if (id === 'export-all')
 			exportRows(sorted, `board-${(allLines ? 'all' : serviceLine).toLowerCase().replace(/\s+/g, '-')}.csv`);
-		else if (id === 'copy-link') copyLink();
+		else if (id === 'export-ledger') {
+			const list = picked.size > 0 ? sorted.filter((row) => picked.has(row.id)) : sorted;
+			const slug = (allLines ? 'all' : serviceLine).toLowerCase().replace(/\s+/g, '-');
+			await exportLedger(list, `ledger-${slug}.csv`);
+		} else if (id === 'copy-link') copyLink();
 		else if (id === 'clear') clearFilters();
 		else if (id === 'rescore') {
 			try {
@@ -582,6 +667,7 @@
 				: { id: 'capture', label: 'No quoted capture', icon: 'external', disabled: true },
 			{ id: 'link', label: 'Copy link to this company', icon: 'link' },
 			{ id: 'export', label: 'Export this row', icon: 'download' },
+			{ id: 'ledger', label: 'Export its evidence ledger', icon: 'download' },
 			...LEAD_STAGES.map((entry, index) => ({
 				id: `lead-${entry.id}`,
 				label: `Mark ${entry.label.toLowerCase()}`,
@@ -598,6 +684,8 @@
 			const ok = await copy(`${window.location.origin}/?co=${row.id}`);
 			toasts.push(ok ? `Link to ${row.name} copied.` : 'This browser blocked the clipboard.', ok ? 'success' : 'warn');
 		} else if (id === 'export') exportRows([row], `${row.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.csv`);
+		else if (id === 'ledger')
+			exportLedger([row], `${row.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-ledger.csv`);
 		else if (id.startsWith('lead-')) {
 			const status = id.slice(5);
 			const label = LEAD_STAGES.find((entry) => entry.id === status)?.label.toLowerCase() ?? '';

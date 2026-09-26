@@ -1,7 +1,7 @@
 {
  "engine": "deepseek-flash@deepseek",
- "generatedAt": "2026-09-26T07:46:49Z",
- "pairsSeen": 7000,
+ "generatedAt": "2026-09-26T07:47:32Z",
+ "pairsSeen": 7400,
  "signals": [
   {
    "evidenceKey": "air-france-klm:bing:f0ba6667f526",
@@ -55998,6 +55998,3206 @@
   {
    "evidenceKey": "sr-744000151844057",
    "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000151844057",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "sr-744000151844057",
+   "questionKey": "data.hiring",
+   "verdict": "BUY",
+   "confidence": 0.85,
+   "quote": "We are looking for a Senior Risk Analyst – Data Science & Analytics to join our Commercial Bureau Analytics & Pre-Sales Consulting team, with a dedicated focus on MSME bureau analytics.",
+   "rationale": "Experian posting its own data science and analytics role, hiring internally."
+  },
+  {
+   "evidenceKey": "sr-744000151844057",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000151844057",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000151855339",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000151863359",
+   "questionKey": "data.insourcing",
+   "verdict": "BUILD",
+   "confidence": 0.9,
+   "quote": "A Experian é uma empresa global de dados e tecnologia que impulsiona oportunidades para pessoas e empresas ao redor do mundo.",
+   "rationale": "Experian describes itself as a global data and technology provider, not a buyer."
+  },
+  {
+   "evidenceKey": "sr-744000151863359",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000151874450",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000151874706",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "sr-744000151876339",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000151876339",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000151876339",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000151877379",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000151877379",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000151878829",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000151878829",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000151881775",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000151881909",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "sr-744000151881909",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000151882004",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000151886098",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000151886098",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "sr-744000151896909",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000151911589",
+   "questionKey": "data.initiative",
+   "verdict": "BUILD",
+   "confidence": 0.6,
+   "quote": "soluções de ciência de dados em como aplicar inteligência na jornada do aplicativo da Serasa Consumidor",
+   "rationale": "Named AI/ML use case, but company is hiring its own data science team in-house."
+  },
+  {
+   "evidenceKey": "sr-744000151911999",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "sr-744000151911999",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000151911999",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-635400RKRK5EGXSPC782",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-635400RKRK5EGXSPC782",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001104659-26-097836",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001104659-26-107511",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001104659-26-107511",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-ZW60VP5WZXJZ9R4U8M57",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-ZW60VP5WZXJZ9R4U8M57",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001648416-26-000118",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001648416-26-000121",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-9845003H1F880CB0U143",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-9845003H1F880CB0U143",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-9845003H1F880CB0U143",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-9845003H1F880CB0U143",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-529900WZFF6RZX82MF78",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-529900WZFF6RZX82MF78",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-529900WZFF6RZX82MF78",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-7SYW24KV1ZVZV0LVU670",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-7SYW24KV1ZVZV0LVU670",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-8156004FFDFF2CA6CE46",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001136893-26-000046",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001136893-26-000050",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-254900FMARGRAV718D37",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-98450046473E70758635",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-98450046473E70758635",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-98450046473E70758635",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-5493002MYXUSBFE0LY84",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-5493002MYXUSBFE0LY84",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-815600AD6F9ED2B66835",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-815600AD6F9ED2B66835",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-815600AD6F9ED2B66835",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300BCU0GW2NDZ8U96",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300BCU0GW2NDZ8U96",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300BCU0GW2NDZ8U96",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300BCU0GW2NDZ8U96",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300BCU0GW2NDZ8U96",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-5299001ERX0K10IZUL40",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-5299001ERX0K10IZUL40",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-5299001ERX0K10IZUL40",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-XDFJ0CYCOO1FXRFTQS51",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-XDFJ0CYCOO1FXRFTQS51",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-XDFJ0CYCOO1FXRFTQS51",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300CP8NY40UP89Q40",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300CP8NY40UP89Q40",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-529900PNXFIBS8K81X34",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-529900PNXFIBS8K81X34",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-529900PNXFIBS8K81X34",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gh-4667019005",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "gh-4683133005",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gh-4683133005",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gh-4683133005",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gh-4683133005",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "gh-4683133005",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gh-4683133005",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gh-4683185005",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gh-4683185005",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gh-4683185005",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gh-4683185005",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "gh-4683271005",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gh-4683271005",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gh-4683271005",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gh-4722301005",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gh-4727680005",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gh-4727826005",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gh-4727826005",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gh-4735365005",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gh-4735365005",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gh-4735365005",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001932393-26-000050",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001932393-26-000053",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001932393-26-000053",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lv-3ed8931a-ab1e-49bf-b30f-d3c33e9fef2a",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lv-3ed8931a-ab1e-49bf-b30f-d3c33e9fef2a",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lv-89702c95-6766-4073-9e9a-d756ea798a4d",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lv-89702c95-6766-4073-9e9a-d756ea798a4d",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lv-89702c95-6766-4073-9e9a-d756ea798a4d",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lv-89702c95-6766-4073-9e9a-d756ea798a4d",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lv-a5f95cac-d51f-4d9d-811f-70948bfcdc0b",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lv-a5f95cac-d51f-4d9d-811f-70948bfcdc0b",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lv-f3febd60-0083-4bee-9856-c6d779a72177",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lv-f3febd60-0083-4bee-9856-c6d779a72177",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lv-f3febd60-0083-4bee-9856-c6d779a72177",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300OI9J7XOWZMUN85",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300OI9J7XOWZMUN85",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001104659-26-105722",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001104659-26-105722",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001398659-26-000014",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-529900OSEC6Q0L4L5B35",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-529900OSEC6Q0L4L5B35",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-4469000001BRM5Q6PA10",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-5299002FNBSGW23ULF72",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0000882095-26-000028",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0000882095-26-000028",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0000882095-26-000028",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0000882095-26-000031",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0000882095-26-000031",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-5493003MQVQXRKDWOH85",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-5493003MQVQXRKDWOH85",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-5493003MQVQXRKDWOH85",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-5967007LIEEXZX6FAO47",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-5967007LIEEXZX6FAO47",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-5967007LIEEXZX6FAO47",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-635400OMCPD3RTSRNI26",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-2138002658CPO9NBH955",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001104659-26-095916",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001104659-26-095916",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001104659-26-095916",
+   "questionKey": "data.initiative",
+   "verdict": "BUILD",
+   "confidence": 0.55,
+   "quote": "On August 18, 2026, Sarabdeep Narang will join the Company as Chief Executive Officer of Glob. AI.",
+   "rationale": "Named AI programme Glob. AI with owner; company builds AI in-house, not buying."
+  },
+  {
+   "evidenceKey": "sec-0001104659-26-095916",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001104659-26-095916",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001104659-26-095916",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001104659-26-099228",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001104659-26-099228",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001104659-26-099228",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-254900PK4043U0Q50W93",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-254900PK4043U0Q50W93",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-254900PK4043U0Q50W93",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-254900PK4043U0Q50W93",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-254900PK4043U0Q50W93",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-743700JIW1LAUZDH9012",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-743700JIW1LAUZDH9012",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0000886982-26-000297",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0000886982-26-000297",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0000886982-26-000297",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0000886982-26-000297",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001193125-26-344912",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001193125-26-344912",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-959800HSSNXWRKBK4N60",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-52990007PTGDTY54X103",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-52990007PTGDTY54X103",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-52990007PTGDTY54X103",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001528396-26-000039",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001528396-26-000039",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001528396-26-000039",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001528396-26-000046",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001528396-26-000046",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300WXSG0J8IXZCK32",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300WXSG0J8IXZCK32",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300WXSG0J8IXZCK32",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300WXSG0J8IXZCK32",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-529900O5RR7R39FRDM42",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-529900O5RR7R39FRDM42",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300DJ3E7I0GMNUZ72",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300FVJF18WHPAXG16",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-LZ2C6E0W5W7LQMX5ZI37",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-5493000BU7V35IS8OQ17",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-5493000BU7V35IS8OQ17",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-5493000BU7V35IS8OQ17",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300TYRTSM05QC6Z74",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300TYRTSM05QC6Z74",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300TYRTSM05QC6Z74",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300TYRTSM05QC6Z74",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300TYRTSM05QC6Z74",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300BNS685UXH4JI75",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-5493001XCHZV2UM1TF97",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0000354950-26-000148",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-097900BFHJ0000029454",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-097900BFHJ0000029454",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-213800UVQRQC2HOEPK06",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-959800TZHQRUSH1ESL13",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-959800TZHQRUSH1ESL13",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-5QK37QC7NWOJ8D7WVQ45",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-5QK37QC7NWOJ8D7WVQ45",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-VGRQXHF3J8VDLUA7XE92",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-VGRQXHF3J8VDLUA7XE92",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-VGRQXHF3J8VDLUA7XE92",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-VGRQXHF3J8VDLUA7XE92",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300ZEFN8VKPK9I111",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300ZEFN8VKPK9I111",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gh-6088727003",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gh-6088727003",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gh-6088727003",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "gh-6088727003",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gh-7747462003",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "lei-9598004YCFER8AFHFN23",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-95980020140005308793",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-95980020140005308793",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-95980020140005308793",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001067491-26-000036",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-984500ZBCG1479D6A424",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-254900TITG96Z244Z767",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300NYKK9MWM7GGW15",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300NYKK9MWM7GGW15",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300ZWF2ZJDD9EOR96",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001193125-26-326847",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001193125-26-326847",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001193125-26-347753",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001193125-26-347753",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-259400A8SZP10GB5IB19",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0000200406-26-000163",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0000200406-26-000163",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0000200406-26-000167",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0000200406-26-000167",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0000200406-26-000167",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001193125-26-314128",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001193125-26-314128",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001628280-26-054343",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001628280-26-054343",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001628280-26-054343",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-8I5DZWZKVSZI1NUHU748",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-8I5DZWZKVSZI1NUHU748",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-8I5DZWZKVSZI1NUHU748",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-5e0b677a-f677-44de-93c6-f7848ab5a8e6",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-5e0b677a-f677-44de-93c6-f7848ab5a8e6",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-5e0b677a-f677-44de-93c6-f7848ab5a8e6",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-60d60215-a32d-4243-acfb-4fd955a4883b",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-60d60215-a32d-4243-acfb-4fd955a4883b",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-60d60215-a32d-4243-acfb-4fd955a4883b",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-60d60215-a32d-4243-acfb-4fd955a4883b",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-60d60215-a32d-4243-acfb-4fd955a4883b",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-60d60215-a32d-4243-acfb-4fd955a4883b",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-60d60215-a32d-4243-acfb-4fd955a4883b",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-7f3bec99-55b1-4ead-8a2c-4de908909eb3",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-7f3bec99-55b1-4ead-8a2c-4de908909eb3",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-7f3bec99-55b1-4ead-8a2c-4de908909eb3",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-529900YURAYD4IJX2J91",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-529900YURAYD4IJX2J91",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-213800UQDMNASUCVT682",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-213800UQDMNASUCVT682",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-635400HM7V74SUB9OG75",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-984500CE753BBD0F5552",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-IYKCAVNFR8QGF00HV840",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-IYKCAVNFR8QGF00HV840",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-743700LP2LWK5OFFBD65",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-743700LP2LWK5OFFBD65",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000150322363",
+   "questionKey": "data.initiative",
+   "verdict": "BUILD",
+   "confidence": 0.95,
+   "quote": "Werk je aan concrete use-cases zoals AI-agents voor HR/Finance, geautomatiseerd factuurscannen, goedkeuringsworkflows en voorspellende modellen.",
+   "rationale": "KPN's internal CIA team builds AI solutions; named HR/Finance use cases show in-house capability."
+  },
+  {
+   "evidenceKey": "sr-744000150322363",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000150322363",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "sr-744000150322789",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "sr-744000150322789",
+   "questionKey": "automation.insourcing",
+   "verdict": "BUILD",
+   "confidence": 0.62,
+   "quote": "Cloud-native engineers binnen het Customer Enablement-team van de TechHub Private Cloud ontwerpen, implementeren, automatiseren en beheren moderne Cloudomgevingen",
+   "rationale": "KPN's own cloud team builds and automates platforms in-house, not via external providers."
+  },
+  {
+   "evidenceKey": "sr-744000150323159",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000150323159",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000150323159",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000150323989",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "sr-744000150323989",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000150323989",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000150323989",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000150325059",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "sr-744000150328179",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "sr-744000150328179",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000150329661",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000150329661",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000150329661",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "sr-744000150330539",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000150330539",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000150331926",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000150331926",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "sr-744000150332520",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "sr-744000150332520",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "sr-744000150332520",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "sr-744000150332520",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000150332520",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000150332619",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000150332619",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000150332619",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000150333019",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000150333019",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "sr-744000150333019",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "sr-744000150333379",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000150334069",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000150334069",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000150334069",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "sr-744000150344353",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000150344353",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "sr-744000150957858",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000150957858",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000151345659",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000151345659",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000151345659",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000151345659",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000151611209",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "sr-744000151708128",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "sr-744000151708128",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000151708948",
+   "questionKey": "data.initiative",
+   "verdict": "BUY",
+   "confidence": 0.75,
+   "quote": "Within KPN, the CloudDM project is underway: an AI-driven software development effort to replace the current DM application.",
+   "rationale": "Named AI-driven development programme (CloudDM) with concrete use case: rebuilding payment/debt mainframe app."
+  },
+  {
+   "evidenceKey": "sr-744000151861349",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "sr-744000151861349",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-744000151861349",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "sr-744000151861349",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300H9RLRTRTLRUZ73",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001104659-26-106890",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001104659-26-106890",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001104659-26-108926",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001104659-26-108926",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-Y26FEL3Q0AVFZ7GQ5G30",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-Y26FEL3Q0AVFZ7GQ5G30",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-Y26FEL3Q0AVFZ7GQ5G30",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-Y26FEL3Q0AVFZ7GQ5G30",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-Y26FEL3Q0AVFZ7GQ5G30",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-Y26FEL3Q0AVFZ7GQ5G30",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-25490025J0KZ89QV7C70",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-25490025J0KZ89QV7C70",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001104659-26-090725",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300LQ4LWX2R8ZV130",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300LQ4LWX2R8ZV130",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300LQ4LWX2R8ZV130",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "nws-7",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "nws-7",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-213800JH9QQWHLO99821",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-213800JH9QQWHLO99821",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-213800JH9QQWHLO99821",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-213800JH9QQWHLO99821",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300KMQM7BBB7HWF49",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-969500EPD4FTLEL8MK89",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001336920-26-000246",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300IUTGTP6EJP8124",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300IUTGTP6EJP8124",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-549300IUTGTP6EJP8124",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001654954-26-007052",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001654954-26-007052",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001654954-26-007052",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gh-5019478004",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gh-5753313004",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gh-6115719004",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gh-6115719004",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-213800QAUUUP6I445N30",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-91042746",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sr-91042746",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-529900M90DFPXG97IJ03",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-529900M90DFPXG97IJ03",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-UIUPNLHSQI58ZL7O2J82",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001141391-26-000081",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001141391-26-000081",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001141391-26-000083",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sec-0001141391-26-000083",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "lei-FC84SDXS4OIPCPCJUB92",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-1fa4ebb9-9314-4e4b-94f1-43c8844ae706",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-1fa4ebb9-9314-4e4b-94f1-43c8844ae706",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-26bea2bf-bdd3-44a5-bea0-6c58d09c53b5",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-26bea2bf-bdd3-44a5-bea0-6c58d09c53b5",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-26bea2bf-bdd3-44a5-bea0-6c58d09c53b5",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-39df5dd3-d593-403c-a0fa-e23851507643",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-39df5dd3-d593-403c-a0fa-e23851507643",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-3f8575a7-1428-4457-bf84-ded1a3d201bc",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-3f8575a7-1428-4457-bf84-ded1a3d201bc",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-3f8575a7-1428-4457-bf84-ded1a3d201bc",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-50d338a9-d0f1-4203-8f74-ea01a0647b82",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-50d338a9-d0f1-4203-8f74-ea01a0647b82",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-50d338a9-d0f1-4203-8f74-ea01a0647b82",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-50d338a9-d0f1-4203-8f74-ea01a0647b82",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-50d338a9-d0f1-4203-8f74-ea01a0647b82",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-50d338a9-d0f1-4203-8f74-ea01a0647b82",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-50d338a9-d0f1-4203-8f74-ea01a0647b82",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-579373ad-a9f4-4d03-b38f-94d86bf09988",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-579373ad-a9f4-4d03-b38f-94d86bf09988",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-579373ad-a9f4-4d03-b38f-94d86bf09988",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-632da5a7-b2a2-4190-9463-fc4391cefcfb",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-632da5a7-b2a2-4190-9463-fc4391cefcfb",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-632da5a7-b2a2-4190-9463-fc4391cefcfb",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-645f08a2-bf64-4328-a10f-6dbd8bedde8a",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-64a9545b-00e2-43ca-96ce-0b20d9253675",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-64a9545b-00e2-43ca-96ce-0b20d9253675",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-64a9545b-00e2-43ca-96ce-0b20d9253675",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-64a9545b-00e2-43ca-96ce-0b20d9253675",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-66131fba-0d5c-4231-8785-2c9409db2514",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-66131fba-0d5c-4231-8785-2c9409db2514",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-66131fba-0d5c-4231-8785-2c9409db2514",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-a5dab8d7-23f9-4b5c-a109-ee0afc22d257",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-a5dab8d7-23f9-4b5c-a109-ee0afc22d257",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-a79cfbb2-9938-4c04-96cc-4d377c21bfb0",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-a79cfbb2-9938-4c04-96cc-4d377c21bfb0",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-a79cfbb2-9938-4c04-96cc-4d377c21bfb0",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-a79cfbb2-9938-4c04-96cc-4d377c21bfb0",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-a79cfbb2-9938-4c04-96cc-4d377c21bfb0",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-a79cfbb2-9938-4c04-96cc-4d377c21bfb0",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-a79cfbb2-9938-4c04-96cc-4d377c21bfb0",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-afeea060-51d3-4bfc-a97d-4332f52e081d",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-afeea060-51d3-4bfc-a97d-4332f52e081d",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-afeea060-51d3-4bfc-a97d-4332f52e081d",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-afeea060-51d3-4bfc-a97d-4332f52e081d",
+   "questionKey": "data.insourcing",
+   "verdict": "BUILD",
+   "confidence": 0.8,
+   "quote": "Maxima is the agentic AI platform for enterprise accounting.",
+   "rationale": "Document shows Maxima as an AI platform vendor selling to enterprise customers, not a buyer."
+  },
+  {
+   "evidenceKey": "ash-afeea060-51d3-4bfc-a97d-4332f52e081d",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-c513fc8d-9f63-4e5d-a011-45238bf7d903",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-c513fc8d-9f63-4e5d-a011-45238bf7d903",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-cac7bb68-6a3e-49f9-a5a4-921af7cac56c",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-cac7bb68-6a3e-49f9-a5a4-921af7cac56c",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ash-cac7bb68-6a3e-49f9-a5a4-921af7cac56c",
+   "questionKey": "data.platform_migration",
    "verdict": "NONE",
    "confidence": 0.0,
    "quote": null,
