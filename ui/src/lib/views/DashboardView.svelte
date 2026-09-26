@@ -1,6 +1,13 @@
 <script lang="ts">
 	import NotificationBell from '$lib/components/NotificationBell.svelte';
-	import { fetchBoard, fetchPeople, fetchTelemetry, type BoardRow, type Telemetry } from '$lib/api';
+	import {
+		fetchBoard,
+		fetchIcpProfiles,
+		fetchPeople,
+		fetchTelemetry,
+		type BoardRow,
+		type Telemetry
+	} from '$lib/api';
 	import { workspace } from '$lib/workspace.svelte';
 	import { session } from '$lib/session.svelte';
 	import { fitWord } from '$lib/format';
@@ -16,6 +23,7 @@
 
 	let rows = $state<BoardRow[]>([]);
 	let people = $state(0);
+	let profiles = $state(0);
 	let telemetry = $state<Telemetry | null>(null);
 
 	const status = $derived(workspace.status);
@@ -91,6 +99,14 @@
 			unit: 'this month',
 			foot: change === null ? 'No signals last month' : `${change >= 0 ? '+' : ''}${change}% vs last month`,
 			href: '/companies'
+		},
+		{
+			icon: 'layers',
+			title: 'ICP Profiles',
+			value: exact(profiles),
+			unit: 'profiles',
+			foot: 'Books of business',
+			href: '/icp'
 		}
 	]);
 
@@ -133,6 +149,15 @@
 			})
 			.catch(() => {
 				if (!cancelled) people = 0;
+			});
+		// Every profile, not just the ones switched on: how many books exist is a
+		// different question from how many the board is showing.
+		fetchIcpProfiles()
+			.then((list) => {
+				if (!cancelled) profiles = list.length;
+			})
+			.catch(() => {
+				if (!cancelled) profiles = 0;
 			});
 		return () => {
 			cancelled = true;
