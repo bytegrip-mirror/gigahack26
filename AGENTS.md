@@ -108,8 +108,14 @@ each one has a test: rows answering the same question are rank-discounted at ρ
 the Priority line (`applyThemeCap`), and disqualifiers are **boolean gates outside
 the sum** — a company building in-house, a competitor, or one below the ICP size
 floor leaves the queue with a stated reason while its score is still computed and
-shown. The card prints the whole derivation, so a juror can check it with a
-calculator.
+shown. **The gate fires on configuration, never on a verdict**: only a question
+whose polarity is `DISQUALIFYING` can remove a company, and a `COUNTER` reading
+from the model on that question releases it. That distinction was learned the
+hard way — a model allowed to gate on its own verdict disqualified six of ten
+Priority companies by reading "runs AI internally, hires data staff" as "is a
+vendor", which is the buying signal read backwards.
+
+The card prints the whole derivation, so a juror can check it with a calculator.
 
 **The bands are calibrated to the corpus, and the cap enforces the top one.** The
 theme cap is *derived* from the Priority line (`priorityLogit − baseLogit`), not
@@ -122,14 +128,17 @@ came from the observed score distribution over the 578-company corpus rather tha
 from intuition; re-derive them the same way if the corpus changes shape. All four
 are environment-overridable (`SCORING_*`), so recalibrating is a restart.
 
-**The two engines trade recall for precision, measurably.** On the same thirteen
-documents the local rubric engine produced 19 signals and the language model
-produced 3. The local engine is why the board carries roughly two thousand signals
-across a few hundred companies; the model reads a document properly and rejects
-most of what the cue lists accept — it disqualified Siemens by reading Siemens' own
-automation content and concluding the company builds automation rather than buys
-it. That is why the engine is a per-request choice and why the seeded board is
-local: an LLM-only board is honest and sparse, and the demo needs both. Treat any
+**The two engines trade recall for precision, measurably, and both are shipped.**
+The local rubric engine is the recall layer; the overlay is the precision layer.
+On the live corpus the overlay answers 8,476 document-question pairs and returns
+752 signals where the cue matcher returns about 2,500 — the model reads a document
+properly and rejects most of what the cue lists accept. Both numbers are on the
+pipeline panel, along with the rate at which the model finds signals on pairs the
+cue matcher said nothing about (3.3% on a 6,866-pair sample), which is the cheap
+engine's miss rate measured rather than assumed. `tools/grouped_overlay.py` reads
+a document once per service line — 2,688 calls where question-by-question takes
+10,883 — but asks the three disqualifying questions on their own, because asked
+together with the rest the model reaches for the disqualifier. Treat any
 specific count in this file as a measurement from one corpus, not an invariant.
 
 **A signal question is the unit of configuration.** `policy_question` carries the
@@ -154,7 +163,16 @@ crawled documents; `corpus/signals.json`, when present, is an overlay of
 language-model verdicts with their quotes. `CorpusSeeder` applies the overlay where
 it exists and falls back to the local engine everywhere else, verifying every
 overlay quote against its capture. Regenerate the overlay with
-`POST /api/admin/signals/build` with `ADMIN_ENABLED=true` and a key configured.
+`POST /api/admin/signals/build` with `ADMIN_ENABLED=true` and a key configured,
+or offline with `tools/model_overlay.py`.
+
+**A changed corpus reloads itself, and a boot cannot throw the overlay away.**
+Both files are fingerprinted, so a deployment that ships a new `signals.json`
+re-reads it — fingerprinting only the raw corpus would have kept serving the
+classifications the overlay was built to replace while looking like it had
+applied them. The skip path re-applies the overlay whenever the board carries no
+row from the engine the overlay names, and `POST /api/admin/corpus/reload` does
+the same on a running instance without a restart.
 
 **Rebuilding the corpus.** `python3 tools/fast_corpus.py` refreshes
 `corpus/raw.json` from the company list in `tools/build_corpus.py`. It discovers
