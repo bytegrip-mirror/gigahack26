@@ -305,7 +305,7 @@
 				<section class="panel">
 					<div class="panel-head">
 						<h3 class="label">Why we would call</h3>
-						<span class="sub dim num">{triggers.length} of {plural(detail.scannedDocuments, 'document')}</span>
+						<span class="sub dim num">{plural(triggers.length, 'reason')}</span>
 					</div>
 					<div class="lines">
 						{#each triggers as row (row.evidenceId + row.spanStart)}
@@ -537,7 +537,7 @@
 	}
 
 	.verdict[data-tone='weak'] {
-		color: var(--color-ink-4);
+		color: var(--color-ink-3);
 	}
 
 	.reading {

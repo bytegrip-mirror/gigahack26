@@ -1230,7 +1230,9 @@
 									<span
 										class="fitval dsp"
 										data-tone={fitTone(row.probability, thresholds)}
-										title={`Fit ${fit(row.probability)} — the evidence ${fitWord(row.probability, thresholds).toLowerCase()} compared with what a company in your market shows by default (${fit(meta?.scoring.baseRate ?? 0)}).`}
+										title={meta
+											? `Fit ${fit(row.probability)} — the evidence is ${fitWord(row.probability, thresholds).toLowerCase()} against the ${fit(meta.scoring.baseRate)} a company in your market shows by default.`
+											: `Fit ${fit(row.probability)}`}
 									>{fitWord(row.probability, thresholds)}</span>
 								</td>
 								<td class="m">
@@ -1642,7 +1644,7 @@
 	}
 
 	.fitval[data-tone='weak'] {
-		color: var(--color-ink-4);
+		color: var(--color-ink-3);
 	}
 
 	.moved {
