@@ -118,7 +118,7 @@ Lever, Ashby and SmartRecruiters; run that path for the empty set and for the
 brief's examples. Files: `tools/build_corpus.py` (`--only`, `--tier=empty`).
 **Verify:** zero-document count falls; `/api/status` captures rises.
 
-[~] A8. Ship the model overlay — every row's engine becomes the model
+[x] A8. Ship the model overlay — every row's engine becomes the model
 `corpus/signals.json` is absent, so `CorpusSeeder` falls back to the local
 engine for all 64,800 pairs. `tools/model_overlay.py` is written and measured:
 1,670 cue-live pairs plus a 10% sample of the rest ≈ 8,000 calls, ~6 minutes at
@@ -446,9 +446,6 @@ what is missing and why — an absence with a reason, not a silent gap.
 
 ## What the partials are missing
 
-- **A8** — the overlay is built and validated; the first build was discarded
-  because its BUILD verdicts disqualified 144 companies, reading "runs AI
-  internally" as "is a vendor". The corrected prompt is rebuilding.
 - **B6** — signals per engine are reported. A side-by-side comparison of the same
   question answered by both engines is not built.
 - **C9** — the half-life comes from the API instead of being hardcoded. The
