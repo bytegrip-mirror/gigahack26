@@ -413,8 +413,7 @@ by stage, and the row's own menu advances it inline. The contact count moves onl
 The HubSpot push records the intent and marks the lead when `HUBSPOT_TOKEN` is
 absent rather than pretending to have synced.
 
-**The outreach draft can be steered, and the sheet that steers it is the whole
-window.** `DraftWriter.Brief` carries an optional `instruction` that
+**The outreach draft can be steered, from a centred dialog.** `DraftWriter.Brief` carries an optional `instruction` that
 `OutreachController` takes from the request body (POST) or the query string
 (GET), so the six preprompts on the sheet and anything typed into the box go to
 the same place: `ModelDraftWriter` appends them to the user message under a line
@@ -422,7 +421,8 @@ that ranks them above its own judgement on tone, length and emphasis, without
 licensing a fact the findings do not support. The template writer cannot honour
 one, so the router's provenance string still ends in `no model configured` and the
 sheet says the wording could not be changed rather than returning the same draft
-as though it had been. The sheet is full-window and mounts through `use:portal`:
+as though it had been. The dialog holds the email in the middle and the channel, the quick edits and
+the sources on the right. It mounts through `use:portal`:
 the detail pane enters with a filled `transform` animation, and a filled animation
 makes its element a containing block, which sized every `position: fixed`
 descendant to the pane instead of the viewport.
