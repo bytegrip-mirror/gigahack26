@@ -103,7 +103,8 @@ and it gates at scoring time exactly as the shipped list does.
 | --- | --- | --- |
 | 6.1 | A board of companies and a separate board of people | **done** — People, in the rail |
 | 6.2 | People come from somewhere real | **done** — named in a document we hold, with the sentence they came from |
-| 6.3 | Add LinkedIn scraping | **not built — deliberately.** See below |
+| 6.3 | Add LinkedIn scraping | **not built.** A licensed-provider connector is, at 6.4 |
+| 6.4 | Get more than a name — profile, headline, seniority | **done** — `POST /api/people/enrich`, off until a provider key is set |
 
 A lead used to be a company: `contactCount` counted approaches to an account and
 the desk had no idea who at that account had ever been named. `person` now holds
@@ -127,6 +128,22 @@ argument. A profile scraped from LinkedIn is a claim with no stored page behind
 it: nothing to show a juror, nothing to re-check when the person changes job, and
 a different data-protection posture entirely — a person's profile is personal
 data, and the corpus is deliberately full of nothing but public company pages.
+
+### What was built instead
+
+`POST /api/people/enrich` asks a provider that **already licenses** the data —
+People Data Labs by default, and the shape is the same for Apollo or Cognito —
+for a named person at a company the desk already holds. The provider carries the
+licensing and the consent; the desk carries the name and the domain, stores only
+what comes back, and remembers a miss so the same person is not paid for twice.
+
+It is off until a key exists. `ENRICHMENT_PROVIDER` and `ENRICHMENT_API_KEY` are
+the switch, and with them unset the button says so rather than failing — the same
+way the drafting model degrades. **The live path is untested**: there is no key in
+this environment, so what is verified is that it compiles, that the disabled path
+behaves, and that the request shape matches the provider's published API. Point it
+at a key and it either works or it does not, and it is one class to fix
+(`EnrichmentService`) if the provider's field names differ.
 
 ### The routes that do work
 

@@ -877,8 +877,21 @@ export type PersonRow = {
 	sourceUrl: string;
 	publisher: string;
 	publishedAt: string | null;
+	linkedinUrl: string | null;
+	headline: string | null;
+	enrichedAt: string | null;
 	profiles: string[];
 };
+
+export type EnrichmentProvider = { provider: string; available: boolean };
+
+export function fetchEnrichmentProvider(): Promise<EnrichmentProvider> {
+	return request<EnrichmentProvider>('/api/people/provider');
+}
+
+export function enrichPeople(serviceLine: string, limit = 25): Promise<{ enriched: number; provider: string }> {
+	return request(`/api/people/enrich${query({ serviceLine, limit })}`, { method: 'POST' });
+}
 
 export function fetchPeople(serviceLine: string): Promise<PersonRow[]> {
 	return request<PersonRow[]>(`/api/people${query({ serviceLine })}`);

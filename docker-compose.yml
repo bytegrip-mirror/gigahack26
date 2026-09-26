@@ -58,6 +58,8 @@ services:
       MONGO_URI: mongodb://gigahack:${MONGO_PASSWORD:-gigahack}@mongo:27017/gigahack26?authSource=admin
       CORS_ALLOWED_ORIGINS: http://localhost:${UI_PORT:-3000},http://localhost:5173
       CLASSIFIER_ENGINE: ${CLASSIFIER_ENGINE:-local}
+      ENRICHMENT_PROVIDER: ${ENRICHMENT_PROVIDER:-none}
+      ENRICHMENT_API_KEY: ${ENRICHMENT_API_KEY:-}
       DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
       DEEPSEEK_MODEL: ${DEEPSEEK_MODEL:-deepseek-flash}
       CORPUS_SEED: 'true'

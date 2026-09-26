@@ -42,6 +42,15 @@ public class Person {
     @Column(name = "published_at")
     private Instant publishedAt;
 
+    @Column(name = "linkedin_url", length = 300)
+    private String linkedinUrl;
+
+    @Column(length = 160)
+    private String headline;
+
+    @Column(name = "enriched_at")
+    private Instant enrichedAt;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
@@ -105,5 +114,23 @@ public class Person {
 
     public Instant getCreatedAt() {
         return createdAt;
+    }
+
+    public String getLinkedinUrl() {
+        return linkedinUrl;
+    }
+
+    public String getHeadline() {
+        return headline;
+    }
+
+    public Instant getEnrichedAt() {
+        return enrichedAt;
+    }
+
+    public void enrich(String linkedinUrl, String headline, Instant now) {
+        this.linkedinUrl = linkedinUrl;
+        this.headline = headline;
+        this.enrichedAt = now;
     }
 }

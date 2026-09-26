@@ -17,5 +17,8 @@ public record PersonRow(
         String sourceUrl,
         String publisher,
         Instant publishedAt,
+        String linkedinUrl,
+        String headline,
+        Instant enrichedAt,
         List<String> profiles) {
 }

@@ -234,6 +234,8 @@ pipeline {
                             -e MONGO_URI=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_CONTAINER}:27017/${MONGO_DB_NAME}?authSource=admin \
                             -e CORS_ALLOWED_ORIGINS=https://${UI_DOMAIN} \
                             -e CLASSIFIER_ENGINE=${CLASSIFIER_ENGINE} \
+                            -e ENRICHMENT_PROVIDER=${ENRICHMENT_PROVIDER:-none} \
+                            -e ENRICHMENT_API_KEY=${ENRICHMENT_API_KEY:-} \
                             -e DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-} \
                             -e DEEPSEEK_MODEL=${DEEPSEEK_MODEL} \
                             -e CORPUS_SEED=true \

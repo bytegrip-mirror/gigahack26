@@ -1,5 +1,11 @@
 <script lang="ts">
-	import { extractPeople, fetchPeople, type PersonRow } from '$lib/api';
+	import {
+		enrichPeople,
+		extractPeople,
+		fetchEnrichmentProvider,
+		fetchPeople,
+		type PersonRow
+	} from '$lib/api';
 	import { session } from '$lib/session.svelte';
 	import { workspace } from '$lib/workspace.svelte';
 	import { toasts } from '$lib/toast.svelte';
@@ -23,6 +29,7 @@
 	let query = $state('');
 	let sort = $state('company');
 	let busy = $state(false);
+	let provider = $state<{ provider: string; available: boolean } | null>(null);
 
 	const serviceLine = $derived(session.serviceLine);
 	const thresholds = $derived({
@@ -35,6 +42,12 @@
 		if (!serviceLine) return;
 		rows = await fetchPeople(serviceLine);
 	}
+
+	$effect(() => {
+		fetchEnrichmentProvider()
+			.then((result) => (provider = result))
+			.catch(() => (provider = null));
+	});
 
 	$effect(() => {
 		const line = serviceLine;
@@ -72,6 +85,24 @@
 	});
 
 	const companies = $derived(new Set(rows.map((row) => row.companyId)).size);
+
+	async function runEnrich() {
+		busy = true;
+		try {
+			const result = await enrichPeople(serviceLine, 25);
+			await load();
+			toasts.push(
+				result.enriched === 0
+					? `Nothing new came back from ${result.provider}.`
+					: `${result.provider} filled in ${result.enriched} more.`,
+				result.enriched === 0 ? 'warn' : 'success'
+			);
+		} catch (cause) {
+			toasts.push((cause as Error).message, 'error');
+		} finally {
+			busy = false;
+		}
+	}
 
 	async function runExtract(reset = false) {
 		busy = true;
@@ -124,6 +155,15 @@
 			label: 'Throw the list away and read again',
 			icon: 'trash' as const,
 			hint: 'after a change to how names are read'
+		},
+		{
+			id: 'provider',
+			label: provider?.available
+				? `Profiles from ${provider.provider}`
+				: 'No people-data provider configured',
+			icon: 'shield' as const,
+			disabled: true,
+			separatorBefore: true
 		}
 	]);
 
@@ -154,6 +194,16 @@
 				{#if busy}<span class="spinner"></span>{/if}
 				<Icon name="search" size={15} />
 				Read for names
+			</button>
+			<button
+				class="btn"
+				onclick={runEnrich}
+				disabled={busy || !provider?.available}
+				title={provider?.available
+					? `Ask ${provider.provider} for the profiles, headlines and links behind these names`
+					: 'No licensed people-data provider is configured, so there is nothing to ask. Set ENRICHMENT_PROVIDER and ENRICHMENT_API_KEY to turn this on.'}
+			>
+				Fill in profiles
 			</button>
 			<Menu items={overflow} onselect={runOverflow} label="More on people" />
 		</div>
@@ -226,7 +276,19 @@
 							</td>
 							<td class="c-when num">{person.publishedAt ? date(person.publishedAt) : '—'}</td>
 							<td class="c-src">
-								{#if safeHref(person.sourceUrl)}
+								{#if person.enrichedAt && !person.linkedinUrl}
+									<span class="dim">no profile found</span>
+								{:else if safeHref(person.linkedinUrl)}
+									<a
+										class="link"
+										href={safeHref(person.linkedinUrl)}
+										target="_blank"
+										rel="noreferrer noopener"
+										onclick={(event) => event.stopPropagation()}
+									>
+										{person.headline ?? 'profile'}
+									</a>
+								{:else if safeHref(person.sourceUrl)}
 									<a
 										class="link"
 										href={safeHref(person.sourceUrl)}

@@ -10,6 +10,8 @@ public interface PersonRepository extends JpaRepository<Person, UUID> {
 
     List<Person> findByCompanyIdIn(List<UUID> companyIds);
 
+    List<Person> findByEnrichedAtIsNull();
+
     long countByCompanyId(UUID companyId);
 
     void deleteByCompanyId(UUID companyId);

@@ -4,10 +4,13 @@ import com.pistonpunk.gigahack26.domain.Company;
 import com.pistonpunk.gigahack26.domain.Person;
 import com.pistonpunk.gigahack26.repository.jpa.CompanyRepository;
 import com.pistonpunk.gigahack26.service.BoardService;
+import com.pistonpunk.gigahack26.service.EnrichmentService;
 import com.pistonpunk.gigahack26.service.PersonService;
 import com.pistonpunk.gigahack26.web.dto.BoardRow;
 import com.pistonpunk.gigahack26.web.dto.PersonRow;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,11 +29,28 @@ public class PersonController {
     private final PersonService people;
     private final BoardService board;
     private final CompanyRepository companies;
+    private final EnrichmentService enrichment;
 
-    public PersonController(PersonService people, BoardService board, CompanyRepository companies) {
+    public PersonController(PersonService people, BoardService board, CompanyRepository companies,
+                            EnrichmentService enrichment) {
         this.people = people;
         this.board = board;
         this.companies = companies;
+        this.enrichment = enrichment;
+    }
+
+    private PersonRow row(Person person) {
+        return new PersonRow(person.getId(), person.getCompanyId(), null, null, person.getName(), person.getRole(),
+                null, 0, null, person.getSourceUrl(), person.getPublisher(), person.getPublishedAt(),
+                person.getLinkedinUrl(), person.getHeadline(), person.getEnrichedAt(), List.of());
+    }
+
+    @GetMapping("/provider")
+    public Map<String, Object> provider() {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("provider", enrichment.provider());
+        body.put("available", enrichment.available());
+        return body;
     }
 
     @GetMapping
@@ -67,9 +87,25 @@ public class PersonController {
                     person.getSourceUrl(),
                     person.getPublisher(),
                     person.getPublishedAt(),
+                    person.getLinkedinUrl(),
+                    person.getHeadline(),
+                    person.getEnrichedAt(),
                     row.profiles()));
         }
         return out;
+    }
+
+    @PostMapping("/{id}/enrich")
+    public ResponseEntity<PersonRow> enrichOne(@PathVariable UUID id) {
+        return people.enrich(id, enrichment)
+                .map(person -> ResponseEntity.ok(row(person)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/enrich")
+    public Map<String, Object> enrichMany(@RequestParam(name = "serviceLine") String serviceLine,
+                                          @RequestParam(name = "limit", defaultValue = "25") int limit) {
+        return people.enrichAll(serviceLine, Math.max(1, Math.min(200, limit)), enrichment);
     }
 
     @PostMapping("/extract")

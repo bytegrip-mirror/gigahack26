@@ -16,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -128,5 +129,71 @@ public class PersonService {
     @Transactional(readOnly = true)
     public long count() {
         return people.count();
+    }
+
+    @Transactional
+    public Optional<Person> enrich(UUID id, EnrichmentService enrichment) {
+        if (!enrichment.available()) {
+            return Optional.empty();
+        }
+        return people.findById(id).map(person -> {
+            String domain = domains().get(person.getCompanyId());
+            enrichment.enrich(person, domain).ifPresent(found -> {
+                if (found.found()) {
+                    person.enrich(found.linkedinUrl(), found.headline(), clock.instant());
+                }
+            });
+            return people.save(person);
+        });
+    }
+
+    /**
+     * Enriches the people at the companies a rep is actually looking at, in the
+     * order the board puts them, and never the same person twice.
+     */
+    @Transactional
+    public Map<String, Object> enrichAll(String serviceLine, int limit, EnrichmentService enrichment) {
+        Map<String, Object> report = new LinkedHashMap<>();
+        report.put("provider", enrichment.provider());
+        report.put("available", enrichment.available());
+        if (!enrichment.available()) {
+            report.put("enriched", 0);
+            return report;
+        }
+        Map<UUID, String> domains = domains();
+        int done = 0;
+        int missed = 0;
+        for (Person person : people.findByEnrichedAtIsNull()) {
+            if (done + missed >= limit) {
+                break;
+            }
+            String domain = domains.get(person.getCompanyId());
+            Optional<EnrichmentService.Enriched> found = enrichment.enrich(person, domain);
+            if (found.isEmpty()) {
+                continue;
+            }
+            if (found.get().found()) {
+                person.enrich(found.get().linkedinUrl(), found.get().headline(), clock.instant());
+                people.save(person);
+                done += 1;
+            } else {
+                // Remember the miss as an empty answer, or the same name is asked
+                // for again on every pass and the provider is paid twice.
+                person.enrich(null, null, clock.instant());
+                people.save(person);
+                missed += 1;
+            }
+        }
+        report.put("enriched", done);
+        report.put("notFound", missed);
+        return report;
+    }
+
+    private Map<UUID, String> domains() {
+        Map<UUID, String> domains = new LinkedHashMap<>();
+        for (Company company : companies.findAll()) {
+            domains.put(company.getId(), company.getDomain());
+        }
+        return domains;
     }
 }
