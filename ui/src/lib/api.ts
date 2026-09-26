@@ -771,6 +771,7 @@ export type Settings = {
 	sizeGate: boolean;
 	competitorGate: boolean;
 	industryGate: boolean;
+	confidenceShrink: number;
 	baseRate: number;
 	priorityThreshold: number;
 	nurtureThreshold: number;

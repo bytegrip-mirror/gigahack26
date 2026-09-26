@@ -5,7 +5,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "app.classifier")
 public record ClassifierProperties(
         String engine,
-        int maxCandidatesPerDocument,
         double confidenceFloor,
         DeepSeek deepseek) {
 

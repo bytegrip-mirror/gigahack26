@@ -28,7 +28,7 @@ class ScoringServiceTest {
     private static final Instant NOW = Instant.parse("2026-09-25T12:00:00Z");
 
     private final ScoringProperties properties = new ScoringProperties(
-            0.25, 0.75, 0.50, 0.30, 0.5, 200, "MD,RO,DE,FR", true, true, true, false, "");
+            0.25, 0.75, 0.50, 0.30, 0.5, 200, "MD,RO,DE,FR", true, true, true, false, 1.0, "");
 
     private final CaptureStore captures = new CaptureStore(null);
     private final ScoringService scoring = new ScoringService(() -> properties, captures);
@@ -245,6 +245,48 @@ class ScoringServiceTest {
     }
 
     @Test
+    void confidenceIsUntouchedAtAShrinkOfOne() {
+        ScoreComputation plain = scoreWithShrink(1.0);
+        ScoreComputation same = scoreWithShrink(1.0);
+        assertEquals(plain.probability(), same.probability(), 1e-9);
+    }
+
+    @Test
+    void shrinkingConfidencePullsTheScoreTowardTheBaseRate() {
+        ScoreComputation plain = scoreWithShrink(1.0);
+        ScoreComputation shrunk = scoreWithShrink(0.5);
+        assertTrue(shrunk.probability() < plain.probability(),
+                "a shrunk row must carry less weight, not more");
+        assertTrue(shrunk.probability() > 0.25,
+                "shrinking must not push a positive row below the base rate");
+    }
+
+    @Test
+    void shrinkingChangesNothingWhenTheCompanyHasNoEvidence() {
+        Company silent = company(false, "DE", 4000, 0.9);
+        PolicyQuestion question = question("a", Polarity.POSITIVE, WeightTier.HIGH, "automation");
+        ScoringService service = new ScoringService(
+                () -> new ScoringProperties(0.25, 0.75, 0.50, 0.30, 0.5, 200, "MD,RO,DE,FR",
+                        true, true, true, false, 0.2, ""), captures);
+
+        ScoreComputation result = service.compute(silent, List.of(), List.of(), List.of(question), NOW);
+
+        assertEquals(0.25, result.probability(), 1e-9,
+                "there is no confidence to shrink when there is no evidence");
+    }
+
+    private ScoreComputation scoreWithShrink(double shrink) {
+        Company manufacturer = company(false, "DE", 4000, 0.9);
+        PolicyQuestion question = question("a", Polarity.POSITIVE, WeightTier.HIGH, "automation");
+        Evidence source = evidence("e1", "cue here");
+        List<Signal> signals = List.of(signal(source, question, Verdict.BUY, 0.9));
+        ScoringService service = new ScoringService(
+                () -> new ScoringProperties(0.25, 0.75, 0.50, 0.30, 0.5, 200, "MD,RO,DE,FR",
+                        true, true, true, false, shrink, ""), captures);
+        return service.compute(manufacturer, List.of(source), signals, List.of(question), NOW);
+    }
+
+    @Test
     void anIndustryListWithoutItsGateDoesNotFilter() {
         ScoreComputation result = scoreWith(true, "banking,retail");
         assertNotEquals(Band.DISQUALIFIED, result.band(),
@@ -312,7 +354,7 @@ class ScoringServiceTest {
         List<Signal> signals = List.of(signal(source, question, Verdict.BUY, 0.9));
         ScoringService service = new ScoringService(
                 () -> new ScoringProperties(0.25, 0.75, 0.50, 0.30, 0.5, 200, "MD,RO,DE,FR",
-                        true, true, true, !gateOff, industries), captures);
+                        true, true, true, !gateOff, 1.0, industries), captures);
         return service.compute(manufacturer, List.of(source), signals, List.of(question), NOW);
     }
 

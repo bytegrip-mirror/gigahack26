@@ -170,6 +170,14 @@
 		draft = { ...BLANK, serviceLine: line || '' };
 	}
 
+	function decayOf(name: string): number | null {
+		return decayClasses.find((entry) => entry.name === name)?.halfLifeDays ?? null;
+	}
+
+	function weight(ageDays: number, halfLifeDays: number): number {
+		return Math.max(0.02, Math.pow(2, -ageDays / halfLifeDays));
+	}
+
 	function normaliseCue(value: string) {
 		return value.trim().toLowerCase().replace(/\s+/g, ' ');
 	}
@@ -305,6 +313,7 @@
 	});
 
 	const scored = $derived(policies.filter((policy) => policy.active && policy.signalCount > 0).length);
+	const draftHalfLife = $derived(decayOf(draft.decayClass) ?? 0);
 
 	function exportPolicies() {
 		save(
@@ -577,6 +586,19 @@
 								{/each}
 							</select>
 							<span class="sub dim">How long this evidence keeps its weight. A dated event is worth less next quarter; a structural shift is worth less next year.</span>
+							{#if draftHalfLife}
+								<div class="decay">
+									{#each [0, 30, 90, 180, 365] as age (age)}
+										<span class="decay-step">
+											<span class="label">{age === 0 ? 'today' : `${age}d`}</span>
+											<span class="num decay-bar">
+												<span style={`width:${Math.round(weight(age, draftHalfLife) * 100)}%`}></span>
+											</span>
+											<span class="num dim">{weight(age, draftHalfLife).toFixed(2)}</span>
+										</span>
+									{/each}
+								</div>
+							{/if}
 						</label>
 					</div>
 					<label class="check">
@@ -726,6 +748,34 @@
 </div>
 
 <style>
+	.decay {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		margin-top: var(--sp-2);
+	}
+
+	.decay-step {
+		display: grid;
+		grid-template-columns: 44px 1fr 34px;
+		align-items: center;
+		gap: var(--sp-2);
+	}
+
+	.decay-bar {
+		display: block;
+		height: 5px;
+		background: var(--sunken);
+		border-radius: 1px;
+		overflow: hidden;
+	}
+
+	.decay-bar span {
+		display: block;
+		height: 100%;
+		background: var(--orange);
+	}
+
 	.chip {
 		display: inline-flex;
 		align-items: center;

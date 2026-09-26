@@ -12,6 +12,7 @@ public record SettingsView(
         boolean sizeGate,
         boolean competitorGate,
         boolean industryGate,
+        double confidenceShrink,
         double baseRate,
         double priorityThreshold,
         double nurtureThreshold,

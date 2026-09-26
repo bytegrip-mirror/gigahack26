@@ -21,7 +21,7 @@ public class RefreshScheduler {
     private volatile Instant lastRunAt;
     private volatile Instant nextRunAt;
     private volatile long lastRunMs;
-    private volatile int lastCompanies;
+    private volatile int lastServiceLines;
 
     public RefreshScheduler(ScoreboardService scoreboard, RefreshProperties properties, Clock clock) {
         this.scoreboard = scoreboard;
@@ -43,7 +43,7 @@ public class RefreshScheduler {
                 scoreboard.rescore(serviceLine);
                 scored++;
             }
-            lastCompanies = scored;
+            lastServiceLines = scored;
             log.info("scheduled refresh re-scored {} service lines in {} ms", scored,
                     (System.nanoTime() - started) / 1_000_000);
         } catch (RuntimeException e) {
@@ -71,7 +71,7 @@ public class RefreshScheduler {
     }
 
     public int serviceLinesRefreshed() {
-        return lastCompanies;
+        return lastServiceLines;
     }
 
     public Duration interval() {

@@ -77,6 +77,7 @@ public class SettingsController {
                 row.isSizeGate(),
                 row.isCompetitorGate(),
                 row.isIndustryGate(),
+                row.getConfidenceShrink(),
                 row.getBaseRate(),
                 row.getPriorityThreshold(),
                 row.getNurtureThreshold(),

@@ -529,6 +529,21 @@
 								<span class="label">Watch at</span>
 								<input class="input" type="number" step="0.01" bind:value={draft.watchThreshold} />
 							</label>
+							<label class="field">
+								<span class="label">Confidence shrink</span>
+								<input
+									class="input"
+									type="number"
+									step="0.05"
+									min="0.1"
+									max="1"
+									bind:value={draft.confidenceShrink}
+								/>
+								<span class="sub dim">
+									At 1 a row counts for what its confidence says. Lower pulls every row toward "don't know",
+									so one over-confident reading cannot carry a company on its own.
+								</span>
+							</label>
 						</div>
 						<p class="sub dim">
 							The base rate is the share of the pool worth calling. The theme cap follows the Priority line, so one

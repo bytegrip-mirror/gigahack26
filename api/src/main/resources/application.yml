@@ -45,7 +45,6 @@ app:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
   classifier:
     engine: ${CLASSIFIER_ENGINE:local}
-    max-candidates-per-document: 4
     confidence-floor: 0.5
     deepseek:
       base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
@@ -64,6 +63,7 @@ app:
     size-gate: ${ICP_SIZE_GATE:true}
     competitor-gate: ${ICP_COMPETITOR_GATE:true}
     industry-gate: ${ICP_INDUSTRY_GATE:false}
+    confidence-shrink: ${SCORING_CONFIDENCE_SHRINK:1.0}
     icp-industries: ${ICP_INDUSTRIES:}
     icp-countries: ${ICP_COUNTRIES:MD,RO,DE,FR,IT,ES,PT,NL,BE,LU,AT,CH,PL,CZ,SK,HU,BG,RS,UA,TR,GB,IE,SE,NO,DK,FI,GR,HR,SI,EE,LV,LT,US,CA}
   refresh:

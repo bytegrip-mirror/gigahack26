@@ -61,7 +61,7 @@ public class ScoringService {
             double ageDays = ageDays(source.decayAnchor(), now);
             double halfLife = question.getDecayClass().halfLifeDays();
             double decay = Math.max(MIN_DECAY, Math.pow(2.0, -ageDays / halfLife));
-            double shrink = 2.0 * signal.getConfidence() - 1.0;
+            double shrink = shrinkOf(signal.getConfidence(), properties);
             double tierNats = question.signedMagnitude();
             double raw = tierNats * source.getSourceAuthority() * decay * shrink;
             boolean blocking = question.getPolarity() == Polarity.DISQUALIFYING;
@@ -422,6 +422,23 @@ public class ScoringService {
 
     private static double sigmoid(double value) {
         return 1.0 / (1.0 + Math.exp(-value));
+    }
+
+    /**
+     * Confidence pulled toward the point of maximum uncertainty.
+     *
+     * The local engine's confidence is its own logistic and the model's is its
+     * self-report, and a model asked for a number is optimistic about it. The
+     * weight a row carries is 2c-1, so shrinking c toward 0.5 is exactly the
+     * statement "believe this less", and it is a setting rather than a constant
+     * because the right amount is a property of the engine in use. At 1.0 the
+     * arithmetic is untouched, which is the default so that nothing changes
+     * until someone decides it should.
+     */
+    private static double shrinkOf(double confidence, ScoringProperties properties) {
+        double k = properties.confidenceShrink();
+        double centred = 0.5 + (confidence - 0.5) * Math.max(0.0, Math.min(1.0, k));
+        return 2.0 * centred - 1.0;
     }
 
     private static double round(double value) {

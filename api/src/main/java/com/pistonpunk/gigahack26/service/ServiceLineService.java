@@ -160,10 +160,6 @@ public class ServiceLineService {
         });
     }
 
-    public static String normalise(String raw) {
-        return raw == null ? null : raw.trim().replaceAll("\\s+", " ");
-    }
-
     private ServiceLineView view(ServiceLine line) {
         long attached = questions.findAll().stream()
                 .filter(question -> question.getServiceLine().equals(line.getKey()))
@@ -176,7 +172,4 @@ public class ServiceLineService {
         return value == null || value.isBlank() ? null : value.trim();
     }
 
-    public static String slug(String name) {
-        return normalise(name) == null ? "" : normalise(name).toLowerCase(Locale.ROOT);
-    }
 }

@@ -82,7 +82,6 @@ public class PolicyQuestion {
         this.key = key;
         this.title = title;
         this.serviceLine = serviceLine;
-        this.title = title;
         this.text = text;
         this.instructions = instructions;
         this.weightTier = weightTier;

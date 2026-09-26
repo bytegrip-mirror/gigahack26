@@ -10,6 +10,7 @@ public record SettingsRequest(
         boolean sizeGate,
         boolean competitorGate,
         Boolean industryGate,
+        Double confidenceShrink,
         double baseRate,
         double priorityThreshold,
         double nurtureThreshold,

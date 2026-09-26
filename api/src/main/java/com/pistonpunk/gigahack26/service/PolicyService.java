@@ -1,11 +1,9 @@
 package com.pistonpunk.gigahack26.service;
 
-import com.pistonpunk.gigahack26.domain.Company;
 import com.pistonpunk.gigahack26.domain.DecayClass;
 import com.pistonpunk.gigahack26.domain.Evidence;
 import com.pistonpunk.gigahack26.domain.Polarity;
 import com.pistonpunk.gigahack26.domain.PolicyQuestion;
-import com.pistonpunk.gigahack26.domain.Signal;
 import com.pistonpunk.gigahack26.domain.WeightTier;
 import com.pistonpunk.gigahack26.repository.jpa.CompanyRepository;
 import com.pistonpunk.gigahack26.repository.jpa.EvidenceRepository;
@@ -435,19 +433,8 @@ public class PolicyService {
         private String quote;
     }
 
-    public Map<String, Long> signalCounts() {
-        Map<String, Long> counts = new LinkedHashMap<>();
-        for (Signal signal : signals.findAll()) {
-            counts.merge(signal.getEngine(), 1L, Long::sum);
-        }
-        return counts;
-    }
-
     public List<String> knownThemes() {
         return questions.findAll().stream().map(PolicyQuestion::getTheme).distinct().sorted().toList();
     }
 
-    List<Company> companyList() {
-        return companies.findAll();
-    }
 }

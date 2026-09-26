@@ -57,11 +57,4 @@ public record Voice(
         return text.toString().trim();
     }
 
-    public int targetWords() {
-        return switch (length == null ? "short" : length.toLowerCase()) {
-            case "long" -> 220;
-            case "medium" -> 150;
-            default -> 95;
-        };
-    }
 }

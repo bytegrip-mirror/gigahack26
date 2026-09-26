@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class LocalRubricEngineTest {
 
     private final ClassifierProperties properties =
-            new ClassifierProperties("local", 4, 0.5, new ClassifierProperties.DeepSeek("", "", "", 1, 1000));
+            new ClassifierProperties("local", 0.5, new ClassifierProperties.DeepSeek("", "", "", 1, 1000));
 
     private final LocalRubricEngine engine = new LocalRubricEngine(properties);
 

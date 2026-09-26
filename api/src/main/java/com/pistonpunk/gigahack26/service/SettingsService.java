@@ -32,6 +32,7 @@ public class SettingsService implements ScoringConfig {
                 true,
                 true,
                 defaults.industryGate(),
+                defaults.confidenceShrink(),
                 defaults.baseRate(),
                 defaults.priorityThreshold(),
                 defaults.nurtureThreshold(),
@@ -54,6 +55,7 @@ public class SettingsService implements ScoringConfig {
                 request.sizeGate(),
                 request.competitorGate(),
                 Boolean.TRUE.equals(request.industryGate()),
+                clampShrink(request.confidenceShrink()),
                 clamp(request.baseRate(), 0.01, 0.9),
                 priority,
                 nurture,
@@ -81,6 +83,7 @@ public class SettingsService implements ScoringConfig {
                 row.isSizeGate(),
                 row.isCompetitorGate(),
                 row.isIndustryGate(),
+                row.getConfidenceShrink(),
                 row.getIcpIndustries());
     }
 
@@ -89,6 +92,13 @@ public class SettingsService implements ScoringConfig {
             return "";
         }
         return String.join(",", value.toUpperCase().split("\\s*,\\s*")).replaceAll(",+", ",").replaceAll("^,|,$", "");
+    }
+
+    private static Double clampShrink(Double value) {
+        if (value == null || Double.isNaN(value)) {
+            return null;
+        }
+        return Math.max(0.1, Math.min(1.0, value));
     }
 
     private static double clamp(double value, double low, double high) {
