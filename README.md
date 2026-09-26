@@ -72,12 +72,19 @@ struck.
 export DEEPSEEK_API_KEY=...
 python3 tools/model_overlay.py --dry-run          # what it would cost
 python3 tools/model_overlay.py --sample=0.10      # write corpus/signals.json
+python3 tools/grouped_overlay.py                  # one call per service line
 ```
 
 It spends calls where they change the answer — every document sharing vocabulary
 with a question, plus a random sample of the ones that do not, so the cheap
 engine's miss rate is measured rather than assumed — and it resumes if
 interrupted.
+
+`tools/grouped_overlay.py` does the same work by asking once per service line
+instead of once per question: 2,061 calls where question-by-question takes
+12,409, covering more pairs because a line is escalated whole. `tools/overlay_report.py`
+prints what the artefact cost and what the cue matcher missed, with the sample
+size the rate rests on.
 
 ## Deploy
 
