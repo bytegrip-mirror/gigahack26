@@ -21,6 +21,7 @@ repositories {
 dependencyManagement {
     imports {
         mavenBom("org.springframework.ai:spring-ai-bom:2.1.0-M1")
+        mavenBom("org.springframework.modulith:spring-modulith-bom:2.1.1")
     }
 }
 
@@ -33,10 +34,12 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("org.springframework.ai:spring-ai-starter-mcp-server-webmvc")
+    implementation("org.springframework.modulith:spring-modulith-starter-core")
 
     runtimeOnly("org.postgresql:postgresql")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.modulith:spring-modulith-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

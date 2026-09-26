@@ -1,0 +1,13 @@
+package com.pistonpunk.gigahack26.evidence.application;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+@ConfigurationProperties(prefix = "app.corpus")
+public record CorpusProperties(
+        String rawPath,
+        String signalsPath,
+        String peoplePath,
+        boolean seedOnStartup,
+        boolean forceReseed,
+        boolean adminEnabled) {
+}
