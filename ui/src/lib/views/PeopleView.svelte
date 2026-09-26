@@ -470,7 +470,7 @@
 		flex: 0 1 280px;
 		padding-left: var(--spacing-2);
 		border: 1px solid var(--color-rule-strong);
-		border-radius: 2px;
+		border-radius: var(--radius);
 		background: var(--color-surface);
 		color: var(--color-ink-3);
 	}
@@ -529,9 +529,7 @@
 	.p-stage {
 		display: inline-block;
 		font-size: var(--text-micro);
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.07em;
+		font-weight: 700;
 		padding: 1px 5px;
 		border: 1px solid var(--color-rule-strong);
 		color: var(--color-ink-3);

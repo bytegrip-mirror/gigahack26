@@ -344,7 +344,7 @@
 	.scrim {
 		position: fixed;
 		inset: 0;
-		background: rgb(18 16 13 / 0.34);
+		background: rgb(0 0 0 / 0.34);
 		display: flex;
 		align-items: flex-start;
 		justify-content: center;
@@ -397,9 +397,7 @@
 	.menu-label {
 		padding: var(--spacing-2) var(--spacing-3) 3px;
 		font-size: var(--text-micro);
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.09em;
+		font-weight: 700;
 		color: var(--color-ink-4);
 	}
 
@@ -456,7 +454,7 @@
 	kbd {
 		display: inline-block;
 		border: 1px solid var(--color-rule-strong);
-		border-radius: 2px;
+		border-radius: var(--radius);
 		padding: 0 4px;
 		margin-right: 3px;
 		font-family: var(--font-ui);

@@ -614,9 +614,7 @@
 	.p-stage {
 		display: inline-block;
 		font-size: var(--text-micro);
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.07em;
+		font-weight: 700;
 		padding: 1px 5px;
 		border: 1px solid var(--color-rule-strong);
 		color: var(--color-ink-3);

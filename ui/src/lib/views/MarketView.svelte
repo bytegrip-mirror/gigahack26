@@ -134,7 +134,7 @@
 
 	.hot {
 		color: var(--color-orange-ink);
-		font-weight: 600;
+		font-weight: 700;
 	}
 
 	.c-bar {
@@ -145,7 +145,7 @@
 		display: block;
 		height: 6px;
 		background: var(--color-orange);
-		border-radius: 1px;
+		border-radius: var(--radius);
 		min-width: 1px;
 	}
 
@@ -162,5 +162,5 @@
 	.seg-btn.on {
 		background: var(--color-surface);
 		color: var(--color-ink);
-		font-weight: 600;
+		font-weight: 700;
 	}</style>

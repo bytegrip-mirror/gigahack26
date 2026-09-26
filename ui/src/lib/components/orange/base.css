@@ -1,0 +1,97 @@
+@layer base {
+	*,
+	*::before,
+	*::after {
+		box-sizing: border-box;
+	}
+
+	html,
+	body {
+		margin: 0;
+		height: 100%;
+		overflow: hidden;
+	}
+
+	/* Boosted body: black on white, Helvetica, 1.25 line height, -0.1px tracking,
+	   no synthetic bold or italic. */
+	body {
+		background: var(--color-paper);
+		color: var(--color-ink);
+		font-family: var(--font-ui);
+		font-synthesis: none;
+		font-size: 14px;
+		line-height: 1.4;
+		letter-spacing: -0.00625rem;
+		font-variant-numeric: tabular-nums;
+		-webkit-font-smoothing: antialiased;
+	}
+
+	h1,
+	h2,
+	h3,
+	h4,
+	p,
+	figure,
+	blockquote {
+		margin: 0;
+	}
+
+	h1,
+	h2,
+	h3,
+	h4,
+	strong,
+	b {
+		font-weight: 700;
+	}
+
+	button,
+	input,
+	textarea,
+	select {
+		font: inherit;
+		color: inherit;
+		letter-spacing: inherit;
+	}
+
+	button {
+		cursor: pointer;
+		background: none;
+		border: 0;
+		border-radius: var(--radius);
+		padding: 0;
+	}
+
+	/* Boosted links are black and turn Orange 2 on hover. */
+	a {
+		color: var(--color-ink);
+		text-decoration: none;
+		transition: color var(--ease), outline-offset var(--ease);
+	}
+
+	a:hover {
+		color: var(--color-orange-deep);
+	}
+
+	p a {
+		text-decoration: underline;
+		text-underline-offset: 2px;
+	}
+
+	/* Boosted focus: a 2px solid outline in the current ink, never a glow. */
+	:focus-visible {
+		outline: 2px solid var(--color-ink);
+		outline-offset: 2px;
+	}
+
+	::selection {
+		background: var(--color-orange);
+		color: var(--color-ink);
+	}
+}
+
+:root {
+	--ease: 150ms ease-in-out;
+	--ease-enter: 200ms ease-in-out;
+	--enter-shift: 6px;
+}

@@ -497,13 +497,21 @@ themselves. What follows from it, and must be respected:
   raw colours, run-time class strings, non-layout classes on a component, and
   `bits-ui` imports outside `lib/ui`. Do not work around it; add the token to
   `@theme` or the variant to the primitive.
-- Design tokens live in the `@theme` block of `ui/src/app.css`, which starts with
-  `--*: initial`, so the default Tailwind scale does not exist. The palette has
-  exactly three roles: `orange` is the primary and is spent on one action per screen and on the
-  score; ink and paper carry every piece of structure; `accent` (viridian) is
-  spent only on the corroboration mark. Semantic oxblood is for rejection and
-  negative weights, and nothing else. No gradients, no shadows — hierarchy comes
-  from rules and weight. Radii stay between 0 and 2px.
+- The design system is Orange's Boosted 4.4, and it lives in the component
+  library at `ui/src/lib/components/orange/`: `tokens.css` holds the `@theme`
+  block, `base.css` the element rules, and `components.css` the shared classes
+  (`btn`, `tag`, `input`, `seg`, `menu`, `tbl` and the rest). `ui/src/app.css`
+  only imports Tailwind and those three files. The `@theme` block starts with
+  `--*: initial`, so the default Tailwind scale does not exist. The token values
+  come from Boosted's `_variables.scss`: Orange 1 `#ff7900` for fills, Orange 2
+  `#f16e00` for orange on white and the primary button, black ink, Boosted greys,
+  success `#32c832` for the corroboration mark (`accent`) and danger `#cd3c14`
+  for rejection and negative weights (`oxblood`). The role names did not change,
+  so a view restyles by token. Orange is spent on one action per screen and on
+  the score. Controls take Boosted's 2px border (`--border-width-ctl`), bold
+  labels and inversion to black on hover. Nothing is rounded (`--radius: 0`), and
+  there are no gradients and no shadows. Control heights stay at the desk's
+  28px and 22px, below Boosted's 40px, so a board row fits a 1024×768 projector.
 - A project class name must not be a Tailwind utility name. Tailwind generates its
   static utilities whatever the theme says, so a class called `grid`, `block`,
   `flex`, `border`, `hidden`, `static`, `transform` or `transition` silently
@@ -520,9 +528,11 @@ themselves. What follows from it, and must be respected:
   view at 1440×900 and 1024×768, before and after, pixel-diffed. Twelve of the
   twelve were byte-identical apart from seven pixels of ±1 on a rounded border.
   Hold that bar for the next restyle.
-- Type is two roles: `font-display` (Space Grotesk) for page titles, company
-  names and section headings, `font-ui` (Archivo) for everything else. There is
-  no monospace face; numbers use tabular figures in the interface face.
+- Type is Helvetica Neue only, in two weights, 400 and 700. `font-display` and
+  `font-ui` are the same Boosted stack (`HelvNeueOrange`, Helvetica Neue,
+  Helvetica, Arial). The licensed Orange font is not shipped: it resolves only
+  where it is installed. Labels are bold sentence case, never tracked capitals.
+  There is no monospace face; numbers use tabular figures.
 - The shell is fixed-height with independently scrolling panes: a rail, then a
   view that splits into list and detail. Nothing scrolls the document itself, and
   selection lives in the URL so a company stays linkable.

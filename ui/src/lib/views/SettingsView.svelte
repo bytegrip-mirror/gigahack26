@@ -1156,7 +1156,7 @@
 		gap: 4px;
 		padding: 2px var(--spacing-2);
 		border: 1px solid var(--color-rule);
-		border-radius: 2px;
+		border-radius: var(--radius);
 		background: var(--color-surface);
 		font: inherit;
 		font-size: var(--text-sm);
@@ -1198,7 +1198,7 @@
 	.p-name {
 		font-family: var(--font-display);
 		font-size: var(--text-md);
-		font-weight: 600;
+		font-weight: 700;
 		min-width: 150px;
 	}
 
@@ -1206,9 +1206,7 @@
 		margin-left: var(--spacing-1);
 		font-family: var(--font-ui);
 		font-size: var(--text-micro);
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.08em;
+		font-weight: 700;
 		color: var(--color-ink-4);
 	}
 

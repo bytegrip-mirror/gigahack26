@@ -26,7 +26,7 @@
 		object-fit: contain;
 		background: var(--color-surface);
 		border: 1px solid var(--color-rule);
-		border-radius: 2px;
+		border-radius: var(--radius);
 	}
 
 	.co-mark[data-size='sm'] {
@@ -52,7 +52,7 @@
 		border-color: transparent;
 		color: var(--color-ink-3);
 		font-family: var(--font-display);
-		font-weight: 600;
+		font-weight: 700;
 		line-height: 1;
 	}
 

@@ -1,7 +1,5 @@
 <script lang="ts">
 	import '../app.css';
-	import '@fontsource-variable/space-grotesk';
-	import '@fontsource-variable/archivo';
 
 	import { page } from '$app/state';
 	import { fetchBookmarks } from '$lib/api';
@@ -224,8 +222,8 @@
 		padding: 0 var(--spacing-2);
 		height: var(--spacing-ctl);
 		width: calc(100% - var(--spacing-5));
-		border: 1px solid var(--color-rule-strong);
-		border-radius: 2px;
+		border: var(--border-width-ctl) solid var(--color-rule-strong);
+		border-radius: var(--radius);
 		background: var(--color-surface);
 		color: var(--color-ink-3);
 		font-size: var(--text-base);
@@ -244,7 +242,7 @@
 
 	kbd {
 		border: 1px solid var(--color-rule);
-		border-radius: 2px;
+		border-radius: var(--radius);
 		padding: 0 3px;
 		font-family: var(--font-ui);
 		font-size: var(--text-micro);
@@ -278,7 +276,7 @@
 	nav a[aria-current='page'] {
 		border-left-color: var(--color-orange);
 		color: var(--color-ink);
-		font-weight: 500;
+		font-weight: 700;
 	}
 
 	nav a :global(.icon) {
@@ -387,14 +385,19 @@
 		gap: var(--spacing-2);
 		background: var(--color-ink);
 		color: var(--color-paper);
-		border-radius: 2px;
+		border-radius: var(--radius);
 		padding: var(--spacing-2) 10px;
 		font-size: var(--text-base);
 		line-height: 1.4;
 	}
 
 	.toast[data-tone='warn'] {
-		background: #4a3208;
+		background: var(--color-warning);
+		color: var(--color-ink);
+	}
+
+	.toast[data-tone='warn'] :global(.btn) {
+		color: var(--color-ink);
 	}
 
 	.toast[data-tone='error'] {

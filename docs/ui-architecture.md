@@ -61,8 +61,11 @@ Rules that hold across every screen:
 The interface is Tailwind v4, and Tailwind owns the design system rather than
 sitting next to it. Three parts:
 
-1. **The theme.** `ui/src/app.css` opens with `@import 'tailwindcss'` and defines
-   every colour, space, type size and z-index in one `@theme` block. The block
+1. **The theme.** `ui/src/app.css` opens with `@import 'tailwindcss'` and imports
+   the Orange (Boosted 4.4) library from `ui/src/lib/components/orange/`.
+   `tokens.css` defines every colour, space, type size and z-index in one
+   `@theme` block, `base.css` holds the element rules and `components.css` the
+   shared classes. The block
    starts with `--*: initial`, so Tailwind's own scale does not exist: `p-7`,
    `text-gray-500` and `rounded-lg` produce no CSS, and an off-scale value cannot
    be written by accident. The tokens are also plain CSS custom properties, which
@@ -101,7 +104,7 @@ the rendering, and the way to notice is a screenshot diff, not a reading.
 | Sizes | `h-*`, `w-*`, `size-*`, `min-h-*` … | `ctl-sm` 22, `ctl` 28, `row` 34, `bar` 44, `head` 67, `rail` 232 |
 | Colour | `text-*`, `bg-*`, `border-*` … | `orange`, `orange-deep`, `orange-ink`, `orange-wash`, `orange-line`, `accent`, `accent-wash`, `accent-line`, `oxblood`, `oxblood-wash`, `oxblood-line`, `ink`, `ink-2`, `ink-3`, `ink-4`, `paper`, `surface`, `sunken`, `rule`, `rule-strong` |
 | Type size | `text-*` | `micro` 11, `sm` 11.5, `base` 12.5, `md` 13.5, `lg` 15.5, `xl` 18, `title` 22 |
-| Family | `font-*` | `display` (Space Grotesk), `ui` (Archivo) |
+| Family | `font-*` | `display` and `ui`, both the Boosted Helvetica Neue stack |
 | Leading | `leading-*` | `none` 1, `tight` 1.1, `snug` 1.3, `normal` 1.45, `relaxed` 1.6 |
 | Tracking | `tracking-*` | `tight`, `num`, `normal`, `wide`, `caps` |
 | Depth | `z-*` | `sticky` 2, `menu` 200, `sheet` 260, `toast` 300 |
