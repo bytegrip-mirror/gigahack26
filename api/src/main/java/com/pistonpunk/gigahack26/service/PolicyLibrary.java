@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -68,8 +69,22 @@ public class PolicyLibrary {
                 || question.getWeightTier() != definition.tier()
                 || question.getPolarity() != definition.polarity()
                 || question.getDecayClass() != definition.decayClass()
-                || !question.getCues().equals(definition.cues())
-                || !question.getCounterCues().equals(definition.counterCues());
+                || !sameTerms(question.getCues(), definition.cues())
+                || !sameTerms(question.getCounterCues(), definition.counterCues());
+    }
+
+    /**
+     * Cue lists are sets that happen to be stored as lists.
+     *
+     * An element collection has no column to order by, so the order that comes
+     * back is whatever the database returns, and comparing the lists directly
+     * reported a change on every boot. That mattered more than a wasted
+     * comparison: a reported policy change sends the seeder down a path that
+     * reclassified the whole corpus with the local engine and threw away the
+     * model overlay it had just loaded.
+     */
+    static boolean sameTerms(List<String> stored, List<String> declared) {
+        return stored.size() == declared.size() && Set.copyOf(stored).equals(Set.copyOf(declared));
     }
 
     public record Definition(String key, String title, String serviceLine, String text, String instructions,

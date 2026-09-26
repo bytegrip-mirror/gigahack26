@@ -138,7 +138,7 @@ public class CorpusSeeder implements ApplicationRunner {
         if (companies.count() > 0 && !properties.forceReseed() && !corpusChanged) {
             log.info("corpus already present ({} companies, {} evidence); skipping the crawl seed",
                     companies.count(), evidence.count());
-            if (policiesChanged) {
+            if (policiesChanged || overlayUnapplied()) {
                 refreshSignals();
             }
             return;
@@ -221,19 +221,42 @@ public class CorpusSeeder implements ApplicationRunner {
         }
     }
 
+    /**
+     * Re-classifies from the overlay first, exactly as a full seed does.
+     *
+     * This used to hand the work to the re-score path, which asks the configured
+     * engine and knows nothing about the overlay. So a boot that noticed any
+     * policy difference deleted the model's rows and rewrote the board with the
+     * local engine, silently, in about sixteen seconds — the deployment looked
+     * healthy and every classification in it had been replaced.
+     */
     private void refreshSignals() {
         long started = System.nanoTime();
         List<PolicyQuestion> active = ScoreboardService.distinct(questions.findByActiveTrue());
         log.info("the shipped policy set changed; re-classifying {} documents against {} questions",
                 evidence.count(), active.size());
-        signals.deleteAll();
-        RescoreService.Outcome outcome = rescore.reclassify(active, false, null);
+        persistSignals();
         for (String serviceLine : scoreboard.serviceLines()) {
             scoreboard.rescore(serviceLine);
         }
-        log.info("refreshed {} signals in {} ms ({} documents scanned)",
-                outcome.signalsProduced(), (System.nanoTime() - started) / 1_000_000,
-                outcome.documentsScanned());
+        log.info("refreshed signals in {} ms ({} documents scanned)",
+                (System.nanoTime() - started) / 1_000_000, evidence.count());
+    }
+
+    /**
+     * True when the board carries no row from the engine the overlay declares.
+     *
+     * The overlay is an artefact with an owner: if one is shipped, the rows that
+     * answer its pairs must be its rows. Checking for that costs one count and
+     * catches the case where the signals were rebuilt by something that did not
+     * know the overlay existed.
+     */
+    private boolean overlayUnapplied() {
+        CorpusFiles.SignalOverlay declared = readJson(properties.signalsPath(), CorpusFiles.SignalOverlay.class);
+        if (declared == null || declared.engine() == null) {
+            return false;
+        }
+        return signals.countByEngine(declared.engine()) == 0;
     }
 
     private Map<String, UUID> persistCompanies(List<CorpusFiles.RawCompany> raw) {

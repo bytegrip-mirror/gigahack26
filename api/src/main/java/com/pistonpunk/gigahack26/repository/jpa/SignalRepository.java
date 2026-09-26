@@ -19,6 +19,8 @@ public interface SignalRepository extends JpaRepository<Signal, UUID> {
 
     long countByQuestionId(UUID questionId);
 
+    long countByEngine(String engine);
+
     @Query("select s.engine, count(s) from Signal s group by s.engine order by count(s) desc")
     List<Object[]> countGroupedByEngine();
 
