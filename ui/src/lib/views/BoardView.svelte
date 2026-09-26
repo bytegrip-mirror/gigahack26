@@ -40,6 +40,7 @@
 	import type { MenuItem } from '$lib/components/menu';
 	import Metric from '$lib/components/Metric.svelte';
 	import SignalTrace from '$lib/components/SignalTrace.svelte';
+	import SignalChart from '$lib/components/SignalChart.svelte';
 	import Pager from '$lib/components/Pager.svelte';
 	import Th from '$lib/components/Th.svelte';
 
@@ -138,6 +139,9 @@
 
 	let capture = $state<{ id: string; focus: { start: number; end: number } | null } | null>(null);
 	let peeking = $state<string | null>(null);
+	let peekSide = $state<'left' | 'right'>('right');
+	const peekOn = $derived(selected !== null ? 'left' : peekSide);
+	let peekAt = $state(0);
 	let peek = $state<Awaited<ReturnType<typeof fetchCompany>> | null>(null);
 	let peekTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -452,8 +456,37 @@
 		return () => clearInterval(timer);
 	});
 
-	function openPeek(row: ScopedRow) {
+	const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+	function monthLabels(count: number): string[] {
+		const now = new Date();
+		return Array.from({ length: count }, (_, index) => {
+			const back = count - 1 - index;
+			const at = new Date(now.getFullYear(), now.getMonth() - back, 1);
+			return back % 2 === 0 ? MONTHS[at.getMonth()] : '';
+		});
+	}
+
+	function peekSpark(detail: NonNullable<typeof peek>): number[] {
+		const months = new Array(12).fill(0) as number[];
+		const now = Date.now();
+		for (const row of detail.ledger) {
+			if (row.blocking) continue;
+			const days = Math.max(0, (now - new Date(row.anchor).getTime()) / 86_400_000);
+			months[11 - Math.min(11, Math.floor(days / 30))] += 1;
+		}
+		return months;
+	}
+
+	function peekNewest(detail: NonNullable<typeof peek>): number | null {
+		const anchors = detail.ledger.filter((row) => !row.blocking).map((row) => new Date(row.anchor).getTime());
+		return anchors.length === 0 ? null : Math.max(0, (Date.now() - Math.max(...anchors)) / 86_400_000);
+	}
+
+	function openPeek(row: ScopedRow, event: MouseEvent) {
 		if (peekTimer) clearTimeout(peekTimer);
+		peekSide = event.clientX > window.innerWidth / 2 ? 'left' : 'right';
+		peekAt = event.clientY;
 		peekTimer = setTimeout(() => {
 			peeking = row.id;
 			fetchCompany(row.id, row.serviceLine)
@@ -471,6 +504,7 @@
 	}
 
 	function select(id: string | null) {
+		closePeek();
 		selected = id;
 		echoed = id;
 		pushState(id ? `/?co=${id}&line=${encodeURIComponent(lineOf(id))}` : '/', {});
@@ -1282,11 +1316,11 @@
 								class:active={selected === row.id}
 								class:rejected={row.band === 'DISQUALIFIED'}
 								class:pickedrow={picked.has(row.id)}
-								onclick={() => {
+												onclick={() => {
 									closePeek();
-									window.location.href = `/companies/${row.id}?line=${encodeURIComponent(row.serviceLine)}`;
+									select(row.id);
 								}}
-								onmouseenter={() => openPeek(row)}
+								onmouseenter={(event) => openPeek(row, event)}
 								onmouseleave={closePeek}
 							>
 								<td class="c-chk" onclick={(event) => event.stopPropagation()}>
@@ -1434,9 +1468,15 @@
 </div>
 
 {#if peek && peeking}
-	<aside class="peek" aria-label="Company preview" onmouseleave={closePeek}>
-		<div class="peek-head">
-			<CompanyMark name={peek.name} domain={peek.domain} size="md" />
+	<aside
+		class="peek"
+		data-side={peekOn}
+		aria-label={`${peek.name} at a glance`}
+		onmouseenter={() => peekTimer && clearTimeout(peekTimer)}
+		onmouseleave={closePeek}
+	>
+		<header class="peek-head">
+			<CompanyMark name={peek.name} domain={peek.domain} size="lg" />
 			<div class="peek-ident">
 				<span class="peek-name">{peek.name}</span>
 				<span class="sub dim">
@@ -1446,28 +1486,48 @@
 			<span class="verdict dsp" data-tone={fitTone(peek.probability, thresholds)}>
 				{fitWord(peek.probability, thresholds)}
 			</span>
-		</div>
+		</header>
 
-		<p class="peek-why">{peek.whyNow?.headline ?? 'Nothing to say about this company yet.'}</p>
+		<p class="peek-why">{peek.whyNow?.narrative || peek.whyNow?.headline || 'Nothing to say about this company yet.'}</p>
 
-		{#if peek.whyNow && peek.whyNow.triggers.length > 0}
-			<ul class="peek-signals">
-				{#each peek.whyNow.triggers.slice(0, 3) as row (row.evidenceId + row.spanStart)}
-					<li>
-						<span class="dot" data-polarity={row.polarity}></span>
-						<span class="peek-q">{row.questionTitle}</span>
+		<section class="peek-chart">
+			<div class="peek-chart-head">
+				<span class="label">Signals over the last year</span>
+				<span class="sub dim num">
+					{peek.signalCount} in total · latest {ageShort(peekNewest(peek))}
+				</span>
+			</div>
+			<SignalChart spark={peekSpark(peek)} labels={monthLabels(12)} />
+		</section>
+
+		<section class="peek-signals">
+			<span class="label">{plural(peek.whyNow?.triggers.length ?? 0, 'reason')} to call</span>
+			<ul>
+				{#each (peek.whyNow?.triggers ?? []).slice(0, 5) as row (row.evidenceId + row.spanStart)}
+					<li data-polarity={row.polarity}>
+						<span class="dot"></span>
+						<span class="peek-q">
+							{row.questionTitle}
+							{#if row.spanText}<span class="peek-quote">“{row.spanText}”</span>{/if}
+						</span>
+						<span class="num amount">{row.contributionNats.toFixed(2)}</span>
 					</li>
+				{:else}
+					<li class="sub dim">No document answered a question about this company.</li>
 				{/each}
 			</ul>
-		{/if}
+		</section>
 
-		<div class="peek-foot">
-			<span class="sub dim num">
+		<footer class="peek-foot">
+			<span class="sub dim">
 				{plural(peek.scannedDocuments, 'document')} read · {plural(peek.themeCount, 'theme')}
 			</span>
 			<span class="spacer"></span>
-			<span class="sub dim">Click for the full page</span>
-		</div>
+			<a class="btn btn-sm" href={`/companies/${peek.id}?line=${encodeURIComponent(peek.serviceLine)}`}>
+				Open the full page
+				<Icon name="chevronRight" size={13} />
+			</a>
+		</footer>
 	</aside>
 {/if}
 
@@ -1689,14 +1749,31 @@
 
 	.peek {
 		position: fixed;
-		left: 244px;
-		bottom: var(--spacing-4);
-		width: 380px;
+		width: 50vw;
+		min-width: 460px;
+		max-width: 780px;
 		z-index: var(--z-index-menu);
 		background: var(--color-surface);
 		border: 1px solid var(--color-ink);
-		padding: var(--spacing-3);
+		padding: var(--spacing-4);
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-3);
 		animation: rise var(--ease-enter) both;
+	}
+
+	.peek[data-side='right'] {
+		right: var(--spacing-4);
+	}
+
+	.peek[data-side='left'] {
+		left: calc(var(--spacing-rail) + var(--spacing-4));
+	}
+
+	.peek {
+		top: var(--spacing-4);
+		bottom: var(--spacing-4);
+		overflow-y: auto;
 	}
 
 	.peek-head {
@@ -1741,7 +1818,15 @@
 		color: var(--color-ink-2);
 	}
 
-	.peek-signals {
+	.peek-chart-head {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: var(--spacing-2);
+		margin-bottom: var(--spacing-2);
+	}
+
+	.peek-signals ul {
 		list-style: none;
 		margin: var(--spacing-2) 0 0;
 		padding: 0;
@@ -1751,19 +1836,41 @@
 		display: flex;
 		align-items: baseline;
 		gap: var(--spacing-2);
-		padding: 2px 0;
+		padding: var(--spacing-1) 0;
+		border-bottom: 1px solid var(--color-rule);
 	}
 
-	.peek-signals .dot {
-		width: 5px;
-		height: 5px;
+	.peek-signals li .dot {
+		width: 6px;
+		height: 6px;
 		flex: none;
 		background: var(--color-accent);
+		transform: translateY(-1px);
 	}
 
-	.peek-signals .dot[data-polarity='NEGATIVE'],
-	.peek-signals .dot[data-polarity='DISQUALIFYING'] {
+	.peek-signals li[data-polarity='NEGATIVE'] .dot,
+	.peek-signals li[data-polarity='DISQUALIFYING'] .dot {
 		background: var(--color-oxblood);
+	}
+
+	.peek-quote {
+		display: block;
+		margin-top: 2px;
+		font-family: var(--font-display);
+		font-size: var(--text-base);
+		line-height: 1.4;
+		color: var(--color-ink-3);
+		overflow: hidden;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		line-clamp: 2;
+		-webkit-box-orient: vertical;
+	}
+
+	.amount {
+		flex: none;
+		font-size: var(--text-micro);
+		color: var(--color-ink-4);
 	}
 
 	.peek-q {
@@ -1861,8 +1968,8 @@
 	}
 
 	.c-trend {
-		width: 88px;
-		padding-left: 0;
+		width: 128px;
+		padding: var(--spacing-1) var(--spacing-3) var(--spacing-1) 0;
 		vertical-align: middle;
 	}
 
