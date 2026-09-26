@@ -1326,7 +1326,7 @@
 							</th>
 							<Th id="rank" label="#" sort={sort} {dir} onsort={sortBy} align="right" width="58px" title="Position on the board: highest fit first, companies out of the queue at the end" />
 							<th class="c-mark" scope="col"><span class="sr-only">Company mark</span></th>
-							<Th id="name" label="Company" sort={sort} {dir} onsort={sortBy} width="23%" />
+							<Th id="name" label="Company" sort={sort} {dir} onsort={sortBy} width="30%" />
 							<Th id="fit" label="Fit" sort={sort} {dir} onsort={sortBy} width="118px" title="How strong the evidence is, and whether the queue will act on it" />
 							<th class="c-sig" scope="col">Signals</th>
 							<th class="c-trend" scope="col"><span class="sr-only">Signal trend over the last year</span></th>
@@ -1759,6 +1759,7 @@
 		min-height: 0;
 	}
 
+	.view.split .c-trend,
 	.view.split .c-doc,
 	.view.split .c-age,
 	.view.split :global(th.c-doc),
@@ -1995,8 +1996,40 @@
 		padding-left: 0;
 	}
 
+	/*
+	 * A table cell ignores max-width in auto layout, so the cap goes on what is
+	 * inside it: without this the signals column swallows every spare pixel on a
+	 * wide screen and the company names lose the space instead.
+	 */
+	/*
+	 * Auto table layout hands every spare pixel to the column that asks for
+	 * nothing, and a max-width on the cell is ignored, so on a wide screen this
+	 * column swallowed 740px to show 250px of text while the company names
+	 * squeezed. Fixed layout makes the widths the columns actually declare mean
+	 * something.
+	 */
+	.list table.tbl {
+		table-layout: fixed;
+	}
+
+	.c-sig {
+		width: 360px;
+	}
+
+	.c-sig .evidence li {
+		align-items: flex-start;
+	}
+
+	.ev-title {
+		overflow-wrap: anywhere;
+	}
+
+	.c-co {
+		overflow-wrap: anywhere;
+	}
+
 	.c-trend {
-		width: 128px;
+		width: 190px;
 		padding: var(--spacing-1) var(--spacing-3) var(--spacing-1) 0;
 		vertical-align: middle;
 	}
@@ -2163,10 +2196,8 @@
 	.ev-title {
 		flex: 1;
 		min-width: 0;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
 		font-size: var(--text-base);
+		line-height: 1.35;
 		color: var(--color-ink-2);
 	}
 
@@ -2221,6 +2252,7 @@
 	}
 
 	@media (max-width: 1180px) {
+		.c-trend,
 		.c-doc,
 		.c-age,
 		:global(th.c-doc),
