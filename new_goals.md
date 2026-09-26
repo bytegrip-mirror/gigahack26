@@ -34,8 +34,9 @@ Two things the audit already proved, which this plan spends:
 
 ## Where this stands
 
-Thirty of the fifty landed and are on `main` and deployed; nine are partial, and
-the rest are listed with what stopped them. Three things this pass found were not
+Thirty-three of these fifty-two landed and are on `main` and deployed. Twelve are
+partial, each with the gap named in place. Seven are not started, listed rather
+than quietly dropped. Three things this pass found were not
 on the list and mattered more than most of it: the deployed database answered
 with the union of every corpus ever seeded, a model reading was allowed to delete
 a company the team had configured in, and a new nullable column took the board
@@ -411,7 +412,7 @@ re-score, the browser fetch parser, the overlay's span relocation. Files:
 `api/src/test/...`, `tools/tests/`. **Verify:** `./gradlew test` counts rise and
 stay green.
 
-[~] F6. A CI gate for corpus and policy integrity
+[x] F6. A CI gate for corpus and policy integrity
 The pipeline verifies the app answers; it does not verify the corpus is
 coherent. Add a stage: every capture has text, every signal's span resolves,
 every question key is unique, no company is a flagged vendor in PRIORITY.
@@ -467,10 +468,6 @@ what is missing and why — an absence with a reason, not a silent gap.
   invariant, three for the eviction's transaction, three for cue comparison, the
   rest for the new configuration paths. The corpus tools have no unit tests; the
   corpus check is the pipeline's instead.
-- **F6** — the pipeline fetches the board, its metadata and the settings
-  profile and fails on an empty array or a missing field, and a corpus check
-  runs before anything is built. Both are what caught the two faults this pass
-  introduced and the one it inherited.
 - **F7** — the README is written. This file is the status record.
 
 ## What was not on the list
