@@ -3,7 +3,7 @@
 </script>
 
 <svg
-	class="block flex-none"
+	class="icon"
 	width={size}
 	height={size}
 	viewBox="0 0 24 24"

@@ -11,27 +11,17 @@
 	import { toasts } from '$lib/toast.svelte';
 	import { age, date, fit, host, plural, signed, sourceKind, theme } from '$lib/format';
 	import { copy } from '$lib/export';
-	import Tag from '$lib/ui/Tag.svelte';
+	import Tag from '$lib/components/Tag.svelte';
 	import ScoreMeter from '$lib/components/ScoreMeter.svelte';
 	import Ledger from '$lib/components/Ledger.svelte';
 	import OutreachModal from '$lib/components/OutreachModal.svelte';
 	import Hubspot from '$lib/components/Hubspot.svelte';
 	import Star from '$lib/components/Star.svelte';
 	import { fetchBookmarks } from '$lib/api';
-	import Icon from '$lib/ui/Icon.svelte';
-	import Menu from '$lib/ui/Menu.svelte';
-	import Metric from '$lib/ui/Metric.svelte';
-	import Metrics from '$lib/ui/Metrics.svelte';
-	import Tabs from '$lib/ui/Tabs.svelte';
-	import Segmented from '$lib/ui/Segmented.svelte';
-	import Panel from '$lib/ui/Panel.svelte';
-	import Facts from '$lib/ui/Facts.svelte';
-	import Checkbox from '$lib/ui/Checkbox.svelte';
-	import Button from '$lib/ui/Button.svelte';
-	import IconButton from '$lib/ui/IconButton.svelte';
-	import Note from '$lib/ui/Note.svelte';
-	import Spinner from '$lib/ui/Spinner.svelte';
-	import type { MenuItem } from '$lib/ui/menu';
+	import Icon from '$lib/components/Icon.svelte';
+	import Menu from '$lib/components/Menu.svelte';
+	import Metric from '$lib/components/Metric.svelte';
+	import type { MenuItem } from '$lib/components/menu';
 
 	let {
 		companyId,
@@ -51,6 +41,12 @@
 		{ id: 'REPLIED', label: 'Replied' },
 		{ id: 'QUALIFIED', label: 'Qualified' },
 		{ id: 'REJECTED', label: 'Rejected' }
+	];
+
+	const TABS = [
+		{ id: 'overview', label: 'Overview' },
+		{ id: 'ledger', label: 'Ledger' },
+		{ id: 'documents', label: 'Documents' }
 	];
 
 	let detail = $state<CompanyDetail | null>(null);
@@ -106,36 +102,6 @@
 		if (row.verdict === 'COUNTER') return 'the model read this as arguing against buying';
 		return 'the model read this as answering the question';
 	}
-
-	const tabsList = $derived(
-		detail
-			? [
-					{ value: 'overview', label: 'Overview' },
-					{ value: 'ledger', label: 'Ledger', count: scored.length },
-					{ value: 'documents', label: 'Documents', count: detail.evidence.length }
-				]
-			: []
-	);
-
-	const stageOptions = $derived(
-		STAGES.map((option) => ({ value: option.id, label: option.label, disabled: busy === 'stage' }))
-	);
-
-	const factsList = $derived(
-		detail
-			? [
-					...(triggers[0] ? [{ label: 'Strongest signal', value: signed(triggers[0].contributionNats, 2) }] : []),
-					{ label: 'Themes agreeing', value: detail.themeCount },
-					{ label: 'Evidence', value: `${triggers.length} for · ${counters.length} against` },
-					...(detail.band === 'PRIORITY' && detail.priorityHorizonDays !== null
-						? [{ label: 'Holds Priority', value: `${Math.round(detail.priorityHorizonDays)} more days` }]
-						: detail.whyNow.daysInBand !== null
-							? [{ label: 'In this band', value: `${Math.round(detail.whyNow.daysInBand)} days` }]
-							: []),
-					{ label: 'Documents read', value: `${detail.scannedDocuments} · ${detail.silentDocuments} silent` }
-				]
-			: []
-	);
 
 	function daysSince(iso: string): number {
 		return Math.max(0, (Date.now() - new Date(iso).getTime()) / 86_400_000);
@@ -217,32 +183,33 @@
 	}
 </script>
 
-<div class="flex h-full min-h-0 flex-col">
-	<header class="flex min-h-head flex-none items-center justify-between gap-2 border-b border-ink px-4 py-3">
-		<div class="min-w-0 flex-1">
-			<h2 class="type-display text-xl leading-tight">{detail?.name ?? 'Reading'}</h2>
+<div class="card">
+	<header class="head">
+		<div class="head-main">
+			<h2 class="dsp">{detail?.name ?? 'Reading'}</h2>
 			{#if detail}
-				<p class="type-sub mt-0.5">
-					{#if detail.domain}<a href="https://{detail.domain}" target="_blank" rel="noreferrer noopener">{detail.domain}</a
-						>{/if}{detail.hqCity ? ` · ${detail.hqCity}` : ''}{detail.country ? ` · ${detail.country}` : ''}{detail.industry
+				<p class="sub">
+					{#if detail.domain}<a href="https://{detail.domain}" target="_blank" rel="noreferrer noopener">{detail.domain}</a>{/if}{detail.hqCity
+						? ` · ${detail.hqCity}`
+						: ''}{detail.country ? ` · ${detail.country}` : ''}{detail.industry
 						? ` · ${detail.industry}`
 						: ''}{detail.sizeBand ? ` · ${detail.sizeBand}` : ''}
 				</p>
 			{/if}
 		</div>
-		<div class="flex flex-none items-center gap-0.5">
+		<div class="head-tools">
 			{#if detail}
 				<Star
 					companyId={detail.id}
 					companyName={detail.name}
 					{serviceLine}
 					{saved}
-					size="lg"
+					size={17}
 					onsaved={(on) => (saved = on)}
 				/>
 			{/if}
 			<Menu items={overflow} onselect={runOverflow} label={`More actions for ${detail?.name ?? 'this company'}`} />
-			<IconButton icon="close" label="Close detail" size="md" onclick={onclose} />
+			<button class="icon-btn" onclick={onclose} aria-label="Close detail"><Icon name="close" size={16} /></button>
 		</div>
 	</header>
 
@@ -460,24 +427,9 @@
 								</div>
 								<div class="bar">
 									<span
-										class={[
-											'text-micro font-semibold tracking-caps uppercase',
-											current.whyNow.urgency === 'ACT_NOW' ? 'text-orange-ink' : 'text-ink-3'
-										]}
-									>
-										{#if current.whyNow.urgency === 'ACT_NOW' || current.whyNow.urgency === 'THIS_WEEK'}
-											<span class="text-orange">● </span>
-										{/if}{current.whyNow.urgencyLabel}
-									</span>
-									<button
-										class="inline-flex items-center gap-0.5 text-micro font-semibold tracking-caps text-ink-3 uppercase hover:text-ink"
-										aria-expanded={showFacts}
-										title="How this score was reached"
-										onclick={() => (showFacts = !showFacts)}
-									>
-										Facts
-										<Icon name={showFacts ? 'chevronDown' : 'chevronRight'} size="sm" />
-									</button>
+										data-capped={item.capped}
+										style="width:{Math.min(100, (Math.abs(item.total) / detail.themeCap) * 100)}%"
+									></span>
 								</div>
 							</div>
 						{/each}
@@ -488,178 +440,49 @@
 					</div>
 				{/if}
 
-						<Panel>
-							<div class="flex min-h-ctl-sm items-center justify-between gap-2">
-								<h3 class="type-label">Evidence</h3>
-								<span class="num text-sm leading-normal text-ink-4">{triggers.length} for · {counters.length} against</span>
+				{#if tab === 'documents'}
+					{#if (detail?.belowFloor ?? []).length > 0}
+						<section class="panel below-panel">
+							<div class="panel-head">
+								<h3 class="label">Read and not counted</h3>
+								<span class="sub dim num">{detail?.belowFloor?.length ?? 0}</span>
 							</div>
-							<div class="flex flex-col gap-px">
-								{#each triggers as row (row.evidenceId + row.spanStart)}
-									<button
-										class="group flex w-full items-baseline gap-1 py-0.5 text-left text-base leading-snug text-ink-2"
-										onclick={() => openRow(row)}
-									>
-										<span class="size-1 flex-none -translate-y-px bg-accent"></span>
-										<span
-											class="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap group-hover:text-orange-deep group-hover:underline"
-										>
-											{row.questionTitle}
-											{#if row.rationale}<span
-													class="mt-px block overflow-hidden text-micro font-normal text-ellipsis whitespace-nowrap text-ink-3"
-													>{row.rationale}</span
-												>{/if}
-										</span>
-										<span class="num flex-none text-micro text-ink-4">{signed(row.contributionNats, 2)}</span>
-									</button>
-								{:else}
-									<p class="text-sm leading-normal text-ink-4">No signal cleared the confidence floor for this policy.</p>
-								{/each}
-								{#if counters.length > 0}
-									<p class="type-label mt-2">Against</p>
-									{#each counters as row (row.evidenceId + row.spanStart)}
-										<button
-											class="group flex w-full items-baseline gap-1 py-0.5 text-left text-base leading-snug text-ink-2"
-											onclick={() => openRow(row)}
-										>
-											<span class="size-1 flex-none -translate-y-px bg-oxblood"></span>
-											<span
-												class="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap group-hover:text-orange-deep group-hover:underline"
-											>
-												{row.questionTitle}
-												{#if row.rationale}<span
-														class="mt-px block overflow-hidden text-micro font-normal text-ellipsis whitespace-nowrap text-ink-3"
-														>{row.rationale}</span
-													>{/if}
-											</span>
-											<span class="num flex-none text-micro text-ink-4">{signed(row.contributionNats, 2)}</span>
-										</button>
-									{/each}
-								{/if}
-							</div>
-						</Panel>
-
-						<Panel>
-							<div class="flex min-h-ctl-sm items-center justify-between gap-2">
-								<h3 class="type-label">Stage</h3>
-								{#if lead && lead.contactCount > 0}
-									<span class="num text-sm leading-normal text-ink-4">
-										{plural(lead.contactCount, 'contact')}{#if lead.lastContactedAt}
-											· last {age(daysSince(lead.lastContactedAt))}{/if}{#if lead.channel} · {lead.channel}{/if}
-									</span>
-								{:else}
-									<span class="text-sm leading-normal text-ink-4">not contacted yet</span>
-								{/if}
-							</div>
-							<Segmented value={stage} options={stageOptions} label="Lead stage" fill class="w-full" onchange={(id) => setStage(id)} />
-							<Button variant="ink" icon="mail" class="w-full" onclick={() => (outreachOpen = true)}>Generate outreach</Button>
-							<Button
-								class="w-full"
-								disabled={busy === 'crm'}
-								title={current.crmConfigured
-									? 'Push this company to HubSpot'
-									: 'No HubSpot token is configured, so the push is recorded as an intent'}
-								onclick={pushCrm}
-							>
-								{#if busy === 'crm'}<Spinner />{:else}<Hubspot size={17} />{/if}
-								{lead?.crmSyncedAt ? 'Re-push to HubSpot' : 'Push to HubSpot'}
-							</Button>
-						</Panel>
-					{:else if tabValue === 'ledger'}
-						<div class="p-3">
-							<Ledger rows={scored} onopen={openRow} />
-							<div class="num mt-3 border-t border-rule pt-2 text-sm">
-								<div class="flex justify-between gap-3 py-px">
-									<span class="text-ink-4">logit({current.baseRate.toFixed(2)})</span><span>{signed(current.baseLogit)}</span>
-								</div>
-								{#each scored as row (row.evidenceId + row.questionId + row.spanStart)}
-									<div class="flex justify-between gap-3 py-px text-ink-4">
-										<span>{row.questionTitle}{row.themeCapped ? ' · capped' : ''}</span>
-										<span>{signed(row.contributionNats)}</span>
-									</div>
-								{/each}
-								<div class="mt-1 flex justify-between gap-3 border-t border-rule pt-1 font-medium text-ink">
-									<span>logit → fit</span><span>{signed(current.logit)} → {fit(current.probability)}</span>
-								</div>
-							</div>
-							<div class="mt-4 border-t border-rule pt-3">
-								{#each current.themes as item (item.name)}
-									<div class="mb-2">
-										<div class="flex justify-between text-base">
-											<span>{theme(item.name)}</span>
-											<span class="num">{signed(item.total)}{item.capped ? ' · capped' : ''}</span>
-										</div>
-										<div class="mt-1 h-1 bg-sunken">
-											<span
-												class={['block h-full', item.capped ? 'bg-ink' : 'bg-orange']}
-												style:width={`${Math.min(100, (Math.abs(item.total) / current.themeCap) * 100)}%`}
-											></span>
-										</div>
-									</div>
-								{/each}
-								<p class="text-sm leading-normal text-ink-4">Cap {nats(current.themeCap)}, derived from the Priority line.</p>
-							</div>
-						</div>
-					{:else if tabValue === 'documents'}
-						<div class="p-3">
-							{#if (current?.belowFloor ?? []).length > 0}
-								<div class="mb-3">
-									<Panel>
-										<div class="flex min-h-ctl-sm items-center justify-between gap-2">
-											<h3 class="type-label">Read and not counted</h3>
-											<span class="num text-sm leading-normal text-ink-4">{current?.belowFloor?.length ?? 0}</span>
-										</div>
-										{#each (current?.belowFloor ?? []).slice(0, 8) as row (row.evidenceId + row.spanStart)}
-											<button
-												class="flex w-full items-start gap-2 border-b border-rule py-2 text-left hover:bg-sunken"
-												title={row.rationale ?? 'matched the rubric below the floor'}
-												onclick={() => oncapture(row.evidenceId, { start: row.spanStart, end: row.spanEnd })}
-											>
-												<span class="num w-row flex-none text-ink-3">{row.confidence.toFixed(2)}</span>
-												<span class="min-w-0 flex-1 text-sm leading-normal text-ink-2">
-													{row.spanText.slice(0, 130)}
-													<span
-														class="mt-px block overflow-hidden text-micro font-normal text-ellipsis whitespace-nowrap text-ink-3"
-													>
-														{row.questionTitle} · {row.polarity.toLowerCase()}
-													</span>
-												</span>
-											</button>
-										{/each}
-										<p class="text-sm leading-normal text-ink-4">Matched, scored under the floor, not counted.</p>
-									</Panel>
-								</div>
-							{/if}
-
-							<div class="mb-2">
-								<Checkbox bind:checked={silentOnly}>Only the {silent.length} that produced nothing</Checkbox>
-							</div>
-							{#each documents as item (item.id)}
+							{#each (detail?.belowFloor ?? []).slice(0, 8) as row (row.evidenceId + row.spanStart)}
 								<button
-									class="flex w-full flex-col gap-0.5 border-b border-rule py-2 text-left transition-colors hover:bg-paper"
-									onclick={() => oncapture(item.id, null)}
+									class="below-row"
+									title={row.rationale ?? 'matched the rubric below the floor'}
+									onclick={() => oncapture(row.evidenceId, { start: row.spanStart, end: row.spanEnd })}
 								>
-									<span class="flex justify-between gap-3">
-										<span class="type-label">{sourceKind(item.sourceKind)}</span>
-										<span class="num text-sm leading-normal text-ink-4">{date(item.publishedAt ?? item.observedAt)}</span>
-									</span>
-									<span class="line-clamp-2 text-base leading-snug">{item.title ?? host(item.sourceUrl)}</span>
-									<span class="text-sm leading-normal text-ink-3">
-										{item.publisher} · {plural(item.charLength, 'char')}
-										{#if item.signalCount > 0}· {plural(item.signalCount, 'signal')}{:else}· no signal{/if}
+									<span class="num below-score">{row.confidence.toFixed(2)}</span>
+									<span class="below-text">
+										{row.spanText.slice(0, 130)}
+										<span class="why-line">{row.questionTitle} · {row.polarity.toLowerCase()}</span>
 									</span>
 								</button>
 							{/each}
-						</div>
+							<p class="sub dim">Matched, scored under the floor, not counted.</p>
+						</section>
 					{/if}
-				</div>
-			{/snippet}
-		</Tabs>
-	{:else if error}
-		<Note tone="warn" icon="alert">{error}</Note>
-	{:else if loading}
-		<div class="flex flex-1 items-center justify-center gap-2 bg-paper text-md text-ink-3">
-			<Spinner />
-			<span>Reading the scorecard</span>
+
+					<label class="check doc-filter">
+						<input type="checkbox" bind:checked={silentOnly} />
+						<span>Only the {silent.length} that produced nothing</span>
+					</label>
+					{#each documents as item (item.id)}
+						<button class="doc" onclick={() => oncapture(item.id, null)}>
+							<span class="doc-top">
+								<span class="label">{sourceKind(item.sourceKind)}</span>
+								<span class="num dim">{date(item.publishedAt ?? item.observedAt)}</span>
+							</span>
+							<span class="doc-title">{item.title ?? host(item.sourceUrl)}</span>
+							<span class="sub dim">
+								{item.publisher} · {plural(item.charLength, 'char')}
+								{#if item.signalCount > 0}· {plural(item.signalCount, 'signal')}{:else}· no signal{/if}
+							</span>
+						</button>
+					{/each}
+				{/if}
+			</div>
 		</div>
 	{/if}
 </div>

@@ -54,9 +54,9 @@
 </script>
 
 {#if rows.length === 0}
-	<Empty>{empty}</Empty>
+	<p class="empty">{empty}</p>
 {:else}
-	<ul class="m-0 list-none p-0">
+	<ul class="ledger">
 		{#each rows as row (keyOf(row))}
 			{@const expanded = open.has(keyOf(row))}
 			{@const weighable = row.tierNats !== 0}
@@ -69,12 +69,8 @@
 								{row.publisher} · <a href={row.sourceUrl} target="_blank" rel="noreferrer noopener">{sourceKind(row.sourceKind)}</a>
 								· {date(row.anchor)} · {age(row.ageDays)}
 							</span>
-							<button
-								class="inline-flex flex-none items-center gap-0.5 text-micro text-ink-3 hover:text-ink hover:underline"
-								onclick={() => toggle(row)}
-								aria-expanded={expanded}
-							>
-								<Icon name={expanded ? 'chevronDown' : 'chevronRight'} size="sm" />
+							<button class="verbatim" onclick={() => toggle(row)} aria-expanded={expanded}>
+								<Icon name={expanded ? 'chevronDown' : 'chevronRight'} size={12} />
 								{expanded ? 'Hide' : 'Verbatim'}
 							</button>
 						</div>
@@ -90,9 +86,9 @@
 					</div>
 				</div>
 
-				<div class="mt-1">
-					<span class="block text-base leading-snug font-medium text-ink" title={row.questionKey}>{row.questionTitle}</span>
-					<span class="mt-px block text-sm leading-normal text-ink-3">{row.questionText}</span>
+				<div class="col-q">
+					<span class="q-title" title={row.questionKey}>{row.questionTitle}</span>
+					<span class="q-text">{row.questionText}</span>
 				</div>
 
 				<span class="strength">

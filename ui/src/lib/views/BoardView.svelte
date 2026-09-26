@@ -28,32 +28,18 @@
 	import { ageShort, duration, fit, precise, shortNumber, signed, theme } from '$lib/format';
 	import { regionLabel } from '$lib/regions';
 	import { copy, csv, save } from '$lib/export';
+	import Tag from '$lib/components/Tag.svelte';
 	import ScoreMeter from '$lib/components/ScoreMeter.svelte';
 	import CaptureSheet from '$lib/components/CaptureSheet.svelte';
 	import Scorecard from '$lib/views/Scorecard.svelte';
 	import Star from '$lib/components/Star.svelte';
-	import View from '$lib/ui/View.svelte';
-	import Topbar from '$lib/ui/Topbar.svelte';
-	import Toolbar from '$lib/ui/Toolbar.svelte';
-	import Bulkbar from '$lib/ui/Bulkbar.svelte';
-	import Button from '$lib/ui/Button.svelte';
-	import IconButton from '$lib/ui/IconButton.svelte';
-	import Segmented from '$lib/ui/Segmented.svelte';
-	import Select from '$lib/ui/Select.svelte';
-	import Input from '$lib/ui/Input.svelte';
-	import Textarea from '$lib/ui/Textarea.svelte';
-	import Checkbox from '$lib/ui/Checkbox.svelte';
-	import Spinner from '$lib/ui/Spinner.svelte';
-	import Note from '$lib/ui/Note.svelte';
-	import Empty from '$lib/ui/Empty.svelte';
-	import Icon from '$lib/ui/Icon.svelte';
-	import Menu from '$lib/ui/Menu.svelte';
-	import type { MenuItem } from '$lib/ui/menu';
-	import Metric from '$lib/ui/Metric.svelte';
-	import Pager from '$lib/ui/Pager.svelte';
-	import Th from '$lib/ui/Th.svelte';
-	import Tag from '$lib/ui/Tag.svelte';
-	import LoadingVeil from '$lib/ui/LoadingVeil.svelte';
+	import LoadingVeil from '$lib/components/LoadingVeil.svelte';
+	import Icon from '$lib/components/Icon.svelte';
+	import Menu from '$lib/components/Menu.svelte';
+	import type { MenuItem } from '$lib/components/menu';
+	import Metric from '$lib/components/Metric.svelte';
+	import Pager from '$lib/components/Pager.svelte';
+	import Th from '$lib/components/Th.svelte';
 
 	let {
 	initialSelected = null,
@@ -486,6 +472,15 @@
 		questionText = '';
 	}
 
+	function partial(node: HTMLInputElement, value: boolean) {
+		node.indeterminate = value;
+		return {
+			update: (next: boolean) => {
+				node.indeterminate = next;
+			}
+		};
+	}
+
 	function toggleAll() {
 		const next = new Set(picked);
 		if (allPicked) current.forEach((row) => next.delete(row.id));
@@ -818,7 +813,7 @@
 		const inField = typingIn(event.target);
 		if (event.key === '/' && !inField) {
 			event.preventDefault();
-			(document.querySelector('[role="toolbar"] input[type="search"]') as HTMLInputElement | null)?.focus();
+			(document.querySelector('.toolbar input[type="search"]') as HTMLInputElement | null)?.focus();
 			return;
 		}
 		if (inField) return;
@@ -851,10 +846,12 @@
 
 <svelte:window onkeydown={onKey} />
 
-<div class="relative flex min-h-0 flex-1">
-	<View class="min-w-0 flex-1">
-		<Topbar title="Board">
-			{#snippet subtitle()}
+<div class="view" class:split={selected !== null}>
+	<div class="main">
+	<header class="topbar">
+		<div class="ident">
+			<h1 class="dsp">Board</h1>
+			<p class="sub num">
 				{#if error}
 					The board could not be read from the API — a failure, not an empty result
 				{:else}
@@ -999,268 +996,171 @@
 								/>
 							{/if}
 						</div>
-						<div class="flex flex-col gap-1">
-							<span class="type-label">Polarity</span>
-							<Select
-								id="polarity"
-								label="Polarity"
-								size="sm"
-								bind:value={polarity}
-								options={[
-									{ value: 'POSITIVE', label: 'Positive' },
-									{ value: 'NEGATIVE', label: 'Counter' },
-									{ value: 'DISQUALIFYING', label: 'Disqualifying' }
-								]}
-							/>
-						</div>
-						<div class="flex flex-col gap-1">
-							<span class="type-label">Engine</span>
-							<Select
-								id="engine"
-								label="Engine"
-								size="sm"
-								bind:value={engine}
-								options={[
-									{ value: 'local', label: 'Local rubric' },
-									{
-										value: 'deepseek',
-										label: `Model${meta?.languageModelAvailable ? '' : ' — off'}`,
-										disabled: !meta?.languageModelAvailable
-									}
-								]}
-							/>
-						</div>
-						<Menu
-							text="Examples"
-							size="sm"
-							align="start"
-							label="Example questions"
-							items={ASKS.map((ask, index) => ({ id: String(index), label: ask }))}
-							onselect={(id) => (questionText = ASKS[Number(id)])}
-						/>
-						<Button
-							variant="primary"
-							onclick={runAsk}
-							disabled={rescoring || questionText.trim().length < 4}
-						>
-							{#if rescoring}<Spinner />{/if}
-							{rescoring ? duration(elapsed) : reading ? KIND_ACTION[reading.kind] : 'Ask'}
-						</Button>
-					</div>
-
-					</div>
-
-					<div class="flex flex-wrap items-baseline gap-2">
-						{#if rescoring}
-							<span class="type-label">Classifying {shortNumber(meta?.captures ?? 0)} documents</span>
-						{:else if reading}
-							<span
-								class={[
-									'whitespace-nowrap border bg-surface px-2 py-px text-micro font-semibold uppercase tracking-caps',
-									reading.kind === 'SIGNAL' ? 'border-rule-strong text-ink-3' : 'border-orange-line text-orange-ink'
-								]}
-								data-kind={reading.kind}>{KIND_LABEL[reading.kind]}</span
-							>
-							<span class="type-sub">{reading.reading}</span>
-						{:else}
-							<span class="type-sub text-ink-4">
-								Ask about the company itself (“in Romania”, “large German banks”) and the board filters. Anything else is
-								read as a signal question and every stored document is classified against it.
-							</span>
-						{/if}
-					</div>
-
-					{#if askCues.length > 0 && !rescoring}
-						<div class="flex flex-wrap items-center gap-2 border-t border-rule px-3 py-2">
-							<span class="type-label">It will match</span>
-							{#each askCues as cue (cue)}<Tag tone="wash">{cue}</Tag>{/each}
-							<span class="type-sub text-ink-4">Nothing is configured, so the rubric derives these from the wording.</span>
+					{:else}
+						<div class="metrics">
+							<Metric value={applied.matchedCompanies ?? 0} label="Companies match" tone="hot" />
+							<Metric value={applied.facets.length} label="Attributes read" />
 						</div>
 					{/if}
-				{:else}
-					<div class="flex w-full items-center gap-5">
+					{#if applied.keptPrevious}
+						<p class="note warn">
+							Every classification in that run failed, so the signals already stored were kept rather than
+							replaced. The board is unchanged — re-run when the engine is reachable.
+						</p>
+					{/if}
+					{#if moved.length > 0}
+						<ul class="moved">
+							{#each moved as entry (entry.companyId)}
+								<li>
+									<button class="moved-row" type="button" onclick={() => select(entry.companyId)}>
+										<span class="moved-name">{entry.company}</span>
+										<span class="num muted">
+											{entry.beforeRank > 0 ? `#${entry.beforeRank}` : 'new'} → #{entry.afterRank}
+										</span>
+										<span class="moved-delta" data-dir={entry.direction}>
+											{entry.direction === 'up' ? '▲' : entry.direction === 'down' ? '▼' : '='}
+											{Math.abs((entry.beforeProbability ?? 0) - entry.afterProbability).toFixed(2)}
+										</span>
+									</button>
+								</li>
+							{/each}
+						</ul>
+					{/if}
+					<div class="result-text">
+						<p class="result-q dsp">“{applied.question}”</p>
 						{#if applied.movedRows !== undefined}
-							<div class="flex flex-wrap items-stretch">
-								<Metric value={applied.movedRows} label="Rows moved" tone="hot" />
-								<Metric value={duration(applied.tookMs ?? 0)} label="Elapsed" />
-								<Metric value={shortNumber(applied.documentsScanned ?? 0)} label="Documents" />
-								<Metric value={shortNumber(applied.signalsProduced ?? 0)} label="Signals" />
-							</div>
-						{:else}
-							<div class="flex flex-wrap items-stretch">
-								<Metric value={applied.matchedCompanies ?? 0} label="Companies match" tone="hot" />
-								<Metric value={applied.facets.length} label="Attributes read" />
-							</div>
+							<p class="sub dim">
+								The question is policy now. Open it in the Studio to write the rubric that decides what counts —
+								a question without one is scored on its wording alone.
+								<a class="link" href={`/studio?q=${encodeURIComponent(applied.questionKey ?? '')}`}>Refine in the Studio →</a>
+							</p>
 						{/if}
-						{#if applied.keptPrevious}
-							<Note tone="warn">
-								Every classification in that run failed, so the signals already stored were kept rather than
-								replaced. The board is unchanged — re-run when the engine is reachable.
-							</Note>
-						{/if}
-						{#if moved.length > 0}
-							<ul class="m-0 mt-3 list-none border-t border-rule p-0">
-								{#each moved as entry (entry.companyId)}
-									<li>
-										<button
-											type="button"
-											class="flex w-full items-center gap-3 border-b border-rule px-3 py-2 text-left hover:bg-sunken"
-											onclick={() => select(entry.companyId)}
-										>
-											<span class="min-w-0 flex-1 truncate">{entry.company}</span>
-											<span class="num text-ink-3">
-												{entry.beforeRank > 0 ? `#${entry.beforeRank}` : 'new'} → #{entry.afterRank}
-											</span>
-											<span class={entry.direction === 'up' ? 'text-accent' : entry.direction === 'down' ? 'text-oxblood' : ''}>
-												{entry.direction === 'up' ? '▲' : entry.direction === 'down' ? '▼' : '='}
-												{Math.abs((entry.beforeProbability ?? 0) - entry.afterProbability).toFixed(2)}
-											</span>
-										</button>
-									</li>
+						{#if applied.facets.length > 0}
+							<p class="sub chips">
+								{#each applied.facets as facet (facet.kind + facet.value)}
+									<span class="tag tag-wash">{facet.label} <span class="num">{facet.matches}</span></span>
 								{/each}
-							</ul>
+							</p>
 						{/if}
-						<div class="flex min-w-0 flex-1 flex-col gap-1">
-							<p class="type-display min-w-0 flex-1 truncate text-lg text-ink-2">“{applied.question}”</p>
-							{#if applied.movedRows !== undefined}
-								<p class="type-sub text-ink-4">
-									The question is policy now. Open it in the Studio to write the rubric that decides what counts —
-									a question without one is scored on its wording alone.
-									<a href={`/studio?q=${encodeURIComponent(applied.questionKey ?? '')}`}>Refine in the Studio →</a>
-								</p>
-							{/if}
-							{#if applied.facets.length > 0}
-								<p class="flex flex-wrap gap-1">
-									{#each applied.facets as facet (facet.kind + facet.value)}
-										<Tag tone="wash">{facet.label} <span class="num">{facet.matches}</span></Tag>
-									{/each}
-								</p>
-							{/if}
-						</div>
-						<Button size="sm" onclick={clearAsk}>Clear</Button>
 					</div>
-				{/if}
+					<button class="btn btn-sm" onclick={clearAsk}>Clear</button>
+				</div>
+			{/if}
+		</div>
+	{/if}
+
+	{#if picked.size > 0}
+		<div class="bulkbar">
+			<span class="count"><span class="num">{picked.size}</span> selected</span>
+			<span class="bulk-hint">·</span>
+			<Menu items={bulkItems} onselect={(id) => mark([...picked], id, LEAD_STAGES.find((s) => s.id === id)?.label.toLowerCase() ?? '')} text="Set stage" size="sm" align="start" label="Set lead stage for the selection" />
+			<button class="btn btn-sm" onclick={() => saveMany([...picked])} disabled={busy}>
+				<Icon name="star" size={14} /> Save
+			</button>
+			<button class="btn btn-sm" onclick={() => unsaveMany([...picked])} disabled={busy}>
+				<Icon name="star" size={14} /> Unsave
+			</button>
+			<button class="btn btn-sm" onclick={() => exportRows(sorted.filter((row) => picked.has(row.id)), 'selection.csv')}>
+				<Icon name="download" size={14} /> Export
+			</button>
+			<button
+				class="btn btn-sm"
+				onclick={async () => {
+					const ok = await copy([...picked].map((id) => `${window.location.origin}/?co=${id}`).join('\n'));
+					toasts.push(ok ? `Copied ${picked.size} links.` : 'This browser blocked the clipboard.', ok ? 'success' : 'warn');
+				}}
+			>
+				<Icon name="link" size={14} /> Copy links
+			</button>
+			{#if busy}<span class="spinner"></span>{/if}
+			<span class="spacer"></span>
+			<button class="icon-btn" aria-label="Clear the selection" title="Clear the selection" onclick={() => (picked = new Set())}>
+				<Icon name="close" size={16} />
+			</button>
+		</div>
+	{:else}
+		<div class="toolbar">
+			<Menu
+				text={session.scopeLabel()}
+				icon="layers"
+				align="start"
+				searchable
+				label="Service line"
+				title="What the board is ranked for"
+				items={scopeItems}
+				onselect={(line) => (line === ALL_LINES ? session.setAll() : workspace.select(line))}
+			/>
+			{#if workspace.switching}<span class="spinner"></span>{/if}
+			<span class="sep"></span>
+
+			<div class="seg" role="tablist" aria-label="Filter">
+				{#each FILTERS as option (option.id)}
+					<button role="tab" aria-selected={filter === option.id} onclick={() => (filter = option.id)}>
+						{option.label}
+						{#if option.id === 'saved'}<span class="num">{savedCount}</span>{/if}
+					</button>
+				{/each}
 			</div>
-		{/if}
 
-		{#if picked.size > 0}
-			<Bulkbar count={picked.size} onclear={() => (picked = new Set())}>
-				<Menu
-					items={bulkItems}
-					onselect={(id) => mark([...picked], id, LEAD_STAGES.find((s) => s.id === id)?.label.toLowerCase() ?? '')}
-					text="Set stage"
-					size="sm"
-					align="start"
-					label="Set lead stage for the selection"
-					tone="inverse"
-				/>
-				<Button variant="inverse" size="sm" icon="star" onclick={() => saveMany([...picked])} disabled={busy}>Save</Button>
-				<Button variant="inverse" size="sm" icon="star" onclick={() => unsaveMany([...picked])} disabled={busy}>Unsave</Button>
-				<Button
-					variant="inverse"
-					size="sm"
-					icon="download"
-					onclick={() => exportRows(sorted.filter((row) => picked.has(row.id)), 'selection.csv')}
-				>
-					Export
-				</Button>
-				<Button
-					variant="inverse"
-					size="sm"
-					icon="link"
-					onclick={async () => {
-						const ok = await copy([...picked].map((id) => `${window.location.origin}/?co=${id}`).join('\n'));
-						toasts.push(ok ? `Copied ${picked.size} links.` : 'This browser blocked the clipboard.', ok ? 'success' : 'warn');
-					}}
-				>
-					Copy links
-				</Button>
-				{#if busy}<Spinner />{/if}
-			</Bulkbar>
-		{:else}
-			<Toolbar>
-				<Menu
-					text={session.scopeLabel()}
-					icon="layers"
-					align="start"
-					searchable
-					label="Service line"
-					title="What the board is ranked for"
-					items={scopeItems}
-					onselect={(line) => (line === ALL_LINES ? session.setAll() : workspace.select(line))}
-				/>
-				{#if workspace.switching}<Spinner />{/if}
-
-				<Segmented
-					bind:value={filter}
-					label="Filter"
-					class="max-sm:w-full max-sm:overflow-x-auto"
-					options={FILTERS.map((option) => ({
-						value: option.id,
-						label: option.label,
-						count: option.id === 'saved' ? savedCount : undefined
-					}))}
-				/>
-
-				<Input
+			<label class="search">
+				<span class="sr-only">Filter by name, country or industry</span>
+				<Icon name="search" size={14} />
+				<input
+					class="input input-sm"
 					type="search"
-					size="sm"
-					icon="search"
-					aria-label="Filter by name, country or industry"
 					placeholder="Name, country, industry"
 					bind:value={query}
-					class="w-list flex-none max-sm:order-first max-sm:w-full"
 				/>
+			</label>
 
-				<Menu
-					text={engineFilter === 'all' ? 'Any engine' : engineFilter === 'model' ? 'Model only' : 'Rubric only'}
-					icon="studio"
-					size="sm"
-					align="end"
-					label="Filter by the engine that answered"
-					items={[
-						{ id: 'all', label: 'Any engine', checked: engineFilter === 'all' },
-						{ id: 'model', label: 'Model only', checked: engineFilter === 'model' },
-						{ id: 'local', label: 'Rubric only', checked: engineFilter === 'local' }
-					]}
-					onselect={(id) => (engineFilter = id as 'all' | 'model' | 'local')}
-				/>
+			<Menu
+				text={engineFilter === 'all' ? 'Any engine' : engineFilter === 'model' ? 'Model only' : 'Rubric only'}
+				icon="studio"
+				size="sm"
+				align="end"
+				label="Filter by the engine that answered"
+				items={[
+					{ id: 'all', label: 'Any engine', checked: engineFilter === 'all' },
+					{ id: 'model', label: 'Model only', checked: engineFilter === 'model' },
+					{ id: 'local', label: 'Rubric only', checked: engineFilter === 'local' }
+				]}
+				onselect={(id) => (engineFilter = id as 'all' | 'model' | 'local')}
+			/>
+			<span class="spacer"></span>
 
-				<div class="ml-auto">
-					<Select
-						id="stage"
-						label="Lead stage"
-						size="sm"
-						class="w-auto max-sm:min-w-0 max-sm:flex-1"
-						bind:value={stage}
-						options={STAGES.map((option) => ({ value: option.id, label: option.label }))}
-					/>
+			<label class="sr-only" for="stage">Lead stage</label>
+			<select id="stage" class="select select-sm" bind:value={stage}>
+				{#each STAGES as option (option.id)}
+					<option value={option.id}>{option.label}</option>
+				{/each}
+			</select>
+
+			{#if filtered}
+				<button class="btn btn-sm btn-quiet" onclick={clearFilters}>Clear</button>
+			{/if}
+		</div>
+	{/if}
+
+		<section class="list scroll" aria-label="Ranked companies">
+			<LoadingVeil show={loading} label="Scoring the board" />
+			{#if error}
+				<p class="note warn"><Icon name="alert" size={15} /> {error}</p>
+			{:else if visible.length === 0 && !loading}
+				<div class="empty">
+					<Icon name="inbox" size={22} />
+					<p>Nothing matches this filter. Widen the region, clear the stage, or ask a different question.</p>
 				</div>
-
-				{#if filtered}
-					<Button size="sm" variant="quiet" onclick={clearFilters}>Clear</Button>
-				{/if}
-			</Toolbar>
-		{/if}
-
-			<section class="scroll relative min-h-0 flex-1 bg-surface max-sm:overflow-x-auto" aria-label="Ranked companies">
-				<LoadingVeil show={loading} label="Scoring the board" />
-				{#if error}
-					<Note tone="warn" icon="alert">{error}</Note>
-				{:else if visible.length === 0 && !loading}
-					<Empty>
-						<Icon name="inbox" size="xl" />
-						<p>Nothing matches this filter. Widen the region, clear the stage, or ask a different question.</p>
-					</Empty>
-				{:else}
-					<table class="table-grid">
-						<thead>
-							<tr>
-								<th scope="col" class="w-row pr-0">
-									<Checkbox
+			{:else}
+				<table class="grid">
+					<thead>
+						<tr>
+							<th class="c-chk" scope="col">
+								<span class="chk">
+									<input
+										type="checkbox"
 										checked={allPicked}
-										indeterminate={!allPicked && somePicked}
-										label="Select every company on this page"
+										use:partial={!allPicked && somePicked}
+										aria-label="Select every company on this page"
 										onchange={toggleAll}
 									/>
 								</span>
@@ -1292,30 +1192,16 @@
 										<input
 											type="checkbox"
 											checked={picked.has(row.id)}
-											label={`Select ${row.name}`}
+											aria-label={`Select ${row.name}`}
 											onchange={() => togglePick(row.id)}
 										/>
-									</td>
-									<td class="num text-base text-ink-3">
-										{allLines ? row.fitRank : row.rank}
-										{#if move && move.delta !== 0}
-											<span class={['ml-1 inline-block text-micro', move.delta > 0 ? 'text-accent' : 'text-oxblood']}>
-												{move.delta > 0 ? '▲' : '▼'}{Math.abs(move.delta)}
-											</span>
-										{/if}
-									</td>
-									<td class="max-md:whitespace-nowrap">
-										<span class={['block font-display text-lg font-medium leading-snug tracking-num', row.band === 'DISQUALIFIED' && 'text-ink-3']}>{row.name}</span>
-										{#if row.evidenceCount === 0}
-											<span
-												class="ml-2 inline-block cursor-help rounded-sm border border-dotted border-rule-strong px-1 text-micro tracking-wide text-ink-3 uppercase"
-												title="No document was ever captured for this company. Nothing can be said either way — a gap in the crawl, not a finding."
-											>no evidence</span>
-										{/if}
-										<span class={['block type-sub', selected !== null && 'truncate']}>
-											{#if allLines}<span class="font-medium text-orange-ink">{row.serviceLine}</span> · {/if}{#if row.domain}<span>{row.domain}</span> · {/if}{row.country ?? '—'}
-											{#if row.industry}· {row.industry}{/if}
-											{#if row.sizeBand}· {row.sizeBand}{/if}
+									</span>
+								</td>
+								<td class="num c-rank">
+									{allLines ? row.fitRank : row.rank}
+									{#if move && move.delta !== 0}
+										<span class="delta" data-dir={move.delta > 0 ? 'up' : 'down'}>
+											{move.delta > 0 ? '▲' : '▼'}{Math.abs(move.delta)}
 										</span>
 									{/if}
 								</td>
@@ -1370,22 +1256,23 @@
 														>{signed(chip.contribution, 2)}</span>
 												</li>
 											{/each}
-											{#if row.themeCount === 0}
-												<span class="type-sub text-ink-4">—</span>
-											{/if}
-										</div>
-										{#if row.themeCount >= 2}
-											<span class="mt-1 block text-micro font-semibold tracking-caps text-accent uppercase" title="Two independent kinds of evidence — what the Priority band requires">corroborated</span>
+										</ul>
+										{#if row.strongest?.quote}
+											<p class="ev-quote" title={row.signalCount > top.length
+												? `${row.signalCount - top.length} further signals in the ledger`
+												: ''}>“{row.strongest.quote}”</p>
 										{/if}
-									</td>
-									<td class={['num', selected !== null && 'hidden', 'max-lg:hidden']}>
-										{#if row.evidenceCount === 0}
-											<span class="ml-2 inline-block cursor-help rounded-sm border border-dotted border-rule-strong px-1 text-micro tracking-wide text-ink-3 uppercase" title="No document was ever captured for this company. Nothing can be said either way — this is a gap in the crawl, not a finding.">no evidence</span>
-										{:else}
-											{row.evidenceCount}
-											{#if row.silentDocuments > 0}
-												<span class="type-sub text-ink-4" title="Documents read that produced no signal">{row.silentDocuments} silent</span>
-											{/if}
+									{:else}
+										<span class="sub dim">no signal cleared the floor</span>
+									{/if}
+								</td>
+								<td class="c-th">
+									<div class="tags">
+										{#each row.themes as name (name)}
+											<Tag>{theme(name)}</Tag>
+										{/each}
+										{#if row.themeCount === 0}
+											<span class="sub dim">—</span>
 										{/if}
 									</div>
 									{#if row.themeCount >= 2}
@@ -1424,40 +1311,21 @@
 										label={`Actions for ${row.name}`}
 									/>
 								</td>
-								<td class="w-row pl-0" onclick={(event) => event.stopPropagation()}>
-										<Menu
-											items={rowMenu(row)}
-											onselect={(id) => runRow(row, id)}
-											size="sm"
-											label={`Actions for ${row.name}`}
-										/>
-									</td>
-								</tr>
-							{/each}
-						</tbody>
-					</table>
-				{/if}
-			</section>
-
-			{#if sorted.length > 0 && !error}
-				<Pager total={sorted.length} page={Math.min(page, pages)} {size} onsize={(next) => (size = next)} onpage={(next) => (page = next)} />
+							</tr>
+						{/each}
+					</tbody>
+				</table>
 			{/if}
-	</View>
+		</section>
+
+		{#if sorted.length > 0 && !error}
+			<Pager total={sorted.length} page={Math.min(page, pages)} {size} onsize={(next) => (size = next)} onpage={(next) => (page = next)} />
+		{/if}
+	</div>
 
 	{#if selected}
-		<div
-			class="fixed inset-0 z-raised animate-scrim bg-scrim md:hidden"
-			role="presentation"
-			onclick={() => select(null)}
-		></div>
-		<aside
-			class={[
-				'min-h-0 animate-enter-right border-l border-ink bg-surface',
-				'max-md:fixed max-md:inset-y-0 max-md:right-0 max-md:z-overlay max-md:w-full max-md:max-w-palette',
-				'md:relative md:w-2/5 md:max-w-palette md:flex-none'
-			]}
-			aria-label="Company detail"
-		>
+		<div class="scrim" role="presentation" onclick={() => select(null)}></div>
+		<aside class="detail" aria-label="Company detail">
 			<Scorecard
 				companyId={selected}
 				serviceLine={lineOf(selected)}

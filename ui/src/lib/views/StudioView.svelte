@@ -24,25 +24,12 @@
 	import { toasts } from '$lib/toast.svelte';
 	import { duration, shortNumber, theme, tier } from '$lib/format';
 	import { copy, csv, save } from '$lib/export';
-	import Tag from '$lib/ui/Tag.svelte';
-	import LoadingVeil from '$lib/ui/LoadingVeil.svelte';
-	import Icon from '$lib/ui/Icon.svelte';
-	import Menu from '$lib/ui/Menu.svelte';
-	import Metric from '$lib/ui/Metric.svelte';
-	import Metrics from '$lib/ui/Metrics.svelte';
-	import type { MenuItem } from '$lib/ui/menu';
-	import View from '$lib/ui/View.svelte';
-	import Topbar from '$lib/ui/Topbar.svelte';
-	import Toolbar from '$lib/ui/Toolbar.svelte';
-	import Panel from '$lib/ui/Panel.svelte';
-	import Field from '$lib/ui/Field.svelte';
-	import Fields from '$lib/ui/Fields.svelte';
-	import Input from '$lib/ui/Input.svelte';
-	import Textarea from '$lib/ui/Textarea.svelte';
-	import Select from '$lib/ui/Select.svelte';
-	import Checkbox from '$lib/ui/Checkbox.svelte';
-	import Button from '$lib/ui/Button.svelte';
-	import Spinner from '$lib/ui/Spinner.svelte';
+	import Tag from '$lib/components/Tag.svelte';
+	import LoadingVeil from '$lib/components/LoadingVeil.svelte';
+	import Icon from '$lib/components/Icon.svelte';
+	import Menu from '$lib/components/Menu.svelte';
+	import Metric from '$lib/components/Metric.svelte';
+	import type { MenuItem } from '$lib/components/menu';
 
 	type Pending = { kind: 'open' | 'new' | 'delete'; policy?: Policy };
 
@@ -518,54 +505,47 @@
 				New question
 			</button>
 			<Menu items={overflow} onselect={runOverflow} label="More studio actions" />
-		{/snippet}
-	</Topbar>
+		</div>
+	</header>
 
-	<div class="flex min-h-0 flex-1 max-compact:flex-col">
-		<section
-			class="flex w-list min-w-0 flex-none flex-col border-r border-rule bg-paper max-compact:h-rail max-compact:w-full max-compact:max-w-none max-compact:border-r-0 max-compact:border-b"
-			aria-label="Signal questions"
-		>
-			<Toolbar label="Filter questions">
-				<Input
-					size="sm"
-					icon="search"
-					bind:value={query}
-					placeholder="Filter questions"
-					aria-label="Filter questions"
-					class="min-w-0 flex-1"
-				/>
-			</Toolbar>
+	<div class="panes">
+		<section class="questions" aria-label="Signal questions">
+			<div class="q-toolbar">
+				<label class="search">
+					<span class="sr-only">Filter questions</span>
+					<Icon name="search" size={14} />
+					<input class="input input-sm" placeholder="Filter questions" bind:value={query} />
+				</label>
+			</div>
 
-			<div class="scroll relative min-h-0 flex-1">
+			<div class="q-list scroll">
 				<LoadingVeil show={loading} label="Loading questions" />
 				{#if loading && policies.length === 0}
-					<p class="flex items-center gap-2 px-4 py-3 text-md text-ink-3"><Spinner /> Loading</p>
+					<p class="note"><span class="spinner"></span> Loading</p>
 				{:else}
-					{#each grouped as [line, items], index (line)}
-						<div class={index > 0 ? 'border-t border-rule' : ''}>
-							<p class="type-label px-3 pt-2 pb-1">{line} · {items.length}</p>
-							<ul class="m-0 list-none p-0">
+					{#each grouped as [line, items] (line)}
+						<div class="group">
+							<p class="label group-head">{line} · {items.length}</p>
+							<ul>
 								{#each items as policy (policy.id)}
-									<li class={['flex items-start justify-between border-b border-rule pr-1 hover:bg-surface', policy.id === selectedId ? 'bg-surface' : 'bg-paper']}>
+									<li>
 										<button
-											type="button"
-											class={['flex min-w-0 flex-1 flex-col gap-1 border-l-2 py-2 pr-2 pl-3 text-left transition-colors', policy.id === selectedId ? 'border-orange' : 'border-transparent']}
+											class="q"
 											aria-current={policy.id === selectedId ? 'true' : undefined}
 											onclick={() => openQuestion(policy)}
 										>
-											<span class="text-md leading-snug font-medium text-ink">{policy.title}</span>
-											<span class="line-clamp-2 text-sm leading-normal text-ink-3">{policy.text}</span>
-											<span class="mt-0.5 flex flex-wrap items-center gap-1">
+											<span class="q-title">{policy.title}</span>
+											<span class="q-text">{policy.text}</span>
+											<span class="q-meta">
 												<Tag>{tier(policy.weightTier)}</Tag>
 												{#if policy.polarity !== 'POSITIVE'}
-													<Tag tone={policy.polarity === 'DISQUALIFYING' ? 'oxblood' : 'default'}>
+													<Tag variant={policy.polarity === 'DISQUALIFYING' ? 'oxblood' : 'default'}>
 														{policy.polarity === 'DISQUALIFYING' ? 'disqualifying' : 'counter'}
 													</Tag>
 												{/if}
-												<Tag tone="bare">{theme(policy.theme)}</Tag>
-												{#if !policy.active}<Tag tone="bare">off</Tag>{/if}
-												<span class="num text-micro text-ink-4">{policy.signalCount} signals</span>
+												<Tag variant="bare">{theme(policy.theme)}</Tag>
+												{#if !policy.active}<Tag variant="bare">off</Tag>{/if}
+												<span class="num dim">{policy.signalCount} signals</span>
 											</span>
 										</button>
 										<Menu

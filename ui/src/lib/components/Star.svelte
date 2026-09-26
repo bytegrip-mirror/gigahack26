@@ -2,21 +2,21 @@
 	import { addBookmark, removeBookmark } from '$lib/api';
 	import { workspace } from '$lib/workspace.svelte';
 	import { toasts } from '$lib/toast.svelte';
-	import Icon, { type IconSize } from '$lib/ui/Icon.svelte';
+	import Icon from './Icon.svelte';
 
 	let {
 		companyId,
 		companyName,
 		serviceLine,
 		saved = false,
-		size = 'md',
+		size = 15,
 		onsaved
 	}: {
 		companyId: string;
 		companyName: string;
 		serviceLine: string;
 		saved?: boolean;
-		size?: IconSize;
+		size?: number;
 		onsaved?: (saved: boolean) => void;
 	} = $props();
 
@@ -45,11 +45,9 @@
 </script>
 
 <button
-	class={[
-		'inline-flex size-ctl-sm flex-none items-center justify-center rounded-sm border border-transparent transition-colors hover:bg-sunken',
-		saved ? 'text-orange' : 'text-ink-4 hover:text-orange-deep',
-		busy && 'opacity-50'
-	]}
+	class="icon-btn icon-btn-sm star"
+	class:on={saved}
+	class:busy
 	type="button"
 	aria-pressed={saved}
 	title={saved ? `Remove ${companyName} from saved` : `Save ${companyName} for later`}
@@ -61,3 +59,21 @@
 >
 	<Icon name="star" size={size} filled={saved} />
 </button>
+
+<style>
+	.star {
+		color: var(--ink-4);
+	}
+
+	.star:hover {
+		color: var(--orange-deep);
+	}
+
+	.star.on {
+		color: var(--orange);
+	}
+
+	.star.busy {
+		opacity: 0.5;
+	}
+</style>

@@ -5,21 +5,12 @@
 	import { toasts } from '$lib/toast.svelte';
 	import { age, fit, host, plural } from '$lib/format';
 	import { copy, csv, save } from '$lib/export';
-	import Tag from '$lib/ui/Tag.svelte';
-	import LoadingVeil from '$lib/ui/LoadingVeil.svelte';
-	import Icon from '$lib/ui/Icon.svelte';
-	import Menu from '$lib/ui/Menu.svelte';
-	import Metric from '$lib/ui/Metric.svelte';
-	import View from '$lib/ui/View.svelte';
-	import Topbar from '$lib/ui/Topbar.svelte';
-	import Toolbar from '$lib/ui/Toolbar.svelte';
-	import ToolbarSeparator from '$lib/ui/ToolbarSeparator.svelte';
-	import Spinner from '$lib/ui/Spinner.svelte';
-	import Empty from '$lib/ui/Empty.svelte';
-	import Note from '$lib/ui/Note.svelte';
-	import Button from '$lib/ui/Button.svelte';
-	import Input from '$lib/ui/Input.svelte';
-	import type { MenuItem } from '$lib/ui/menu';
+	import Tag from '$lib/components/Tag.svelte';
+	import LoadingVeil from '$lib/components/LoadingVeil.svelte';
+	import Icon from '$lib/components/Icon.svelte';
+	import Menu from '$lib/components/Menu.svelte';
+	import Metric from '$lib/components/Metric.svelte';
+	import type { MenuItem } from '$lib/components/menu';
 
 	const STAGES = [
 		{ id: 'NEW', label: 'New' },
@@ -106,8 +97,6 @@
 			rows: matched.filter((lead) => lead.status === stage.id)
 		}))
 	);
-
-	const visibleStages = $derived(grouped.filter((stage) => stage.rows.length > 0));
 
 	function daysSince(iso: string | null): number | null {
 		return iso ? Math.max(0, (Date.now() - new Date(iso).getTime()) / 86_400_000) : null;
@@ -214,11 +203,12 @@
 				<Metric value={tally.REPLIED} label="Replied" tone={tally.REPLIED > 0 ? 'hot' : null} />
 				<Metric value={tally.QUALIFIED} label="Qualified" tone={tally.QUALIFIED > 0 ? 'good' : null} />
 				<Metric value={tally.REJECTED} label="Rejected" />
-			{/if}
-		{/snippet}
-	</Topbar>
+			</div>
+		{/if}
 
-	<Toolbar>
+	</header>
+
+	<div class="toolbar">
 		<Menu
 			text={session.scopeLabel()}
 			icon="layers"
@@ -229,18 +219,16 @@
 			items={scopeItems}
 			onselect={(line) => (line === ALL_LINES ? session.setAll() : workspace.select(line))}
 		/>
-		{#if workspace.switching}<Spinner />{/if}
-		<ToolbarSeparator />
+		{#if workspace.switching}<span class="spinner"></span>{/if}
+		<span class="sep"></span>
 
-		<Input
-			size="sm"
-			icon="search"
-			placeholder="Company or subject"
-			aria-label="Filter leads"
-			bind:value={query}
-			class="w-rail min-w-0 flex-1 max-sm:w-full"
-		/>
-		<span class="type-sub text-ink-4 num ml-auto">{matched.length} of {leads.length} shown</span>
+		<label class="search">
+			<span class="sr-only">Filter leads</span>
+			<Icon name="search" size={14} />
+			<input class="input input-sm" placeholder="Company or subject" bind:value={query} />
+		</label>
+		<span class="spacer"></span>
+		<span class="sub dim num">{matched.length} of {leads.length} shown</span>
 		<Menu
 			items={[
 				{ id: 'export', label: 'Export the pipeline as CSV', icon: 'download' },
@@ -249,10 +237,10 @@
 			onselect={(id) => (id === 'export' ? exportAll() : window.location.assign('/'))}
 			label="More pipeline actions"
 		/>
-	</Toolbar>
+	</div>
 
 	{#if loading && leads.length === 0}
-		<Note><Spinner /> Reading the pipeline</Note>
+		<p class="note"><span class="spinner"></span> Reading the pipeline</p>
 	{:else if leads.length === 0}
 		<div class="empty">
 			<Icon name="pipeline" size={22} />
@@ -261,95 +249,87 @@
 				Open a company on the board and push it to HubSpot, or generate an outreach draft — either one lands
 				here as New, with its evidence still attached.
 			</p>
-			<Button variant="ink" href="/">Go to the board</Button>
-		</Empty>
+			<a class="btn btn-ink" href="/">Go to the board</a>
+		</div>
 	{:else}
-		<div class="relative block min-h-0 flex-1 scroll max-sm:overflow-x-auto">
+		<div class="panes scroll">
 			<LoadingVeil show={loading} label="Reading the pipeline" />
-			{#each visibleStages as stage, index (stage.id)}
-				<section class={['border-ink', index > 0 && 'border-t']}>
-					<header
-						class={[
-							'sticky top-0 z-sticky flex items-center justify-between gap-3 border-b border-b-rule bg-paper py-2 pr-4 pl-3 border-l-4',
-							stage.id === 'QUALIFIED' && 'border-l-accent',
-							stage.id === 'REJECTED' && 'border-l-oxblood',
-							(stage.id === 'CONTACTED' || stage.id === 'REPLIED') && 'border-l-orange'
-						]}
-					>
-						<h2 class="type-label">{stage.label}</h2>
-						<span class="num">{stage.rows.length}</span>
-					</header>
-					<table class="table-grid">
-						<thead>
-							<tr>
-								<th scope="col" class="w-3/10">Company</th>
-								<th scope="col" class="w-1/16">Fit</th>
-								<th scope="col" class="w-1/12 max-compact:hidden">Band</th>
-								<th scope="col" class="w-3/20 max-compact:hidden">Last contact</th>
-								<th scope="col" class="max-lg:hidden">Draft subject</th>
-								<th scope="col" class="w-1/8"><span class="sr-only">Actions</span></th>
-							</tr>
-						</thead>
-						<tbody>
-							{#each stage.rows as lead (lead.id)}
+			{#each grouped as stage (stage.id)}
+				{#if stage.rows.length > 0}
+					<section class="stage" data-stage={stage.id}>
+						<header class="stage-head">
+							<h2 class="label">{stage.label}</h2>
+							<span class="num">{stage.rows.length}</span>
+						</header>
+						<table class="grid">
+							<thead>
 								<tr>
-									<td>
-										<a
-											class="block font-display text-lg font-medium leading-tight text-ink"
-											href="/?co={lead.companyId}&line={encodeURIComponent(lead.serviceLine)}">{lead.company}</a
-										>
-										<span class="type-sub">{lead.domain ? host(lead.domain) : '—'} · {lead.serviceLine}</span>
-									</td>
-									<td class="num text-lg">
-										{lead.probability === null ? '—' : fit(lead.probability)}
-									</td>
-									<td class="text-center max-compact:hidden">
-										{#if lead.band}<Tag band={lead.band}>{lead.band}</Tag>{:else}—{/if}
-									</td>
-									<td class="max-compact:hidden">
-										{#if lead.lastContactedAt}
-											<span class="num">{age(daysSince(lead.lastContactedAt))}</span>
-											<span class="type-sub">{plural(lead.contactCount, 'contact')}{lead.channel ? ` · ${lead.channel}` : ''}</span>
-										{:else}
-											<span class="type-sub text-ink-4">not contacted yet</span>
-										{/if}
-									</td>
-									<td class="max-lg:hidden">
-										{#if lead.outreachSubject}
-											<span class="line-clamp-2 font-display text-base italic text-ink-2">“{lead.outreachSubject}”</span>
-										{:else}
-											<span class="type-sub text-ink-4">no draft yet</span>
-										{/if}
-									</td>
-									<td>
-										<div class="flex items-center justify-end gap-1">
-											{#if NEXT[lead.status]}
-												<Button
-													size="sm"
-													disabled={busy === lead.id}
-													title={`Mark ${stageLabel(NEXT[lead.status])}`}
-													onclick={() => move(lead, NEXT[lead.status])}
-												>
-													{#if busy === lead.id}<Spinner />{:else}<Icon name="chevronRight" size="sm" />{/if}
-													{stageLabel(NEXT[lead.status])}
-												</Button>
-											{/if}
-											<Menu
-												items={menuFor(lead)}
-												onselect={(id) => runRow(lead, id)}
-												size="sm"
-												label={`Actions for ${lead.company}`}
-											/>
-										</div>
-									</td>
+									<th scope="col" class="c-co">Company</th>
+									<th scope="col" class="c-fit">Fit</th>
+									<th scope="col" class="c-band">Band</th>
+									<th scope="col" class="c-contact">Last contact</th>
+									<th scope="col" class="c-subject">Draft subject</th>
+									<th scope="col" class="c-act"><span class="sr-only">Actions</span></th>
 								</tr>
-							{/each}
-						</tbody>
-					</table>
-				</section>
+							</thead>
+							<tbody>
+								{#each stage.rows as lead (lead.id)}
+									<tr>
+										<td class="c-co">
+											<a class="co" href="/?co={lead.companyId}&line={encodeURIComponent(lead.serviceLine)}">{lead.company}</a>
+											<span class="sub">{lead.domain ? host(lead.domain) : '—'} · {lead.serviceLine}</span>
+										</td>
+										<td class="c-fit num">
+											{lead.probability === null ? '—' : fit(lead.probability)}
+										</td>
+										<td class="c-band m">
+											{#if lead.band}<Tag band={lead.band}>{lead.band}</Tag>{:else}—{/if}
+										</td>
+										<td class="c-contact">
+											{#if lead.lastContactedAt}
+												<span class="num">{age(daysSince(lead.lastContactedAt))}</span>
+												<span class="sub">{plural(lead.contactCount, 'contact')}{lead.channel ? ` · ${lead.channel}` : ''}</span>
+											{:else}
+												<span class="sub dim">not contacted yet</span>
+											{/if}
+										</td>
+										<td class="c-subject">
+											{#if lead.outreachSubject}
+												<span class="subject">“{lead.outreachSubject}”</span>
+											{:else}
+												<span class="sub dim">no draft yet</span>
+											{/if}
+										</td>
+										<td class="c-act">
+											<div class="row-tools">
+												{#if NEXT[lead.status]}
+													<button
+														class="btn btn-sm"
+														disabled={busy === lead.id}
+														title={`Mark ${stageLabel(NEXT[lead.status])}`}
+														onclick={() => move(lead, NEXT[lead.status])}
+													>
+														{#if busy === lead.id}<span class="spinner"></span>{:else}<Icon name="chevronRight" size={13} />{/if}
+														{stageLabel(NEXT[lead.status])}
+													</button>
+												{/if}
+												<Menu
+													items={menuFor(lead)}
+													onselect={(id) => runRow(lead, id)}
+													size="sm"
+													label={`Actions for ${lead.company}`}
+												/>
+											</div>
+										</td>
+									</tr>
+								{/each}
+							</tbody>
+						</table>
+					</section>
+				{/if}
 			{/each}
 			{#if matched.length === 0}
-				<Note>Nothing in the pipeline matches “{query}”.</Note>
+				<p class="note">Nothing in the pipeline matches “{query}”.</p>
 			{/if}
 		</div>
 	{/if}
