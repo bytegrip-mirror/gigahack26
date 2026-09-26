@@ -33,11 +33,12 @@ fills the remaining width.
 └──────────┴────────────────────────────────────────────────────────────┘
 ```
 
-The rail is black. It carries the `on-ink` class from the Orange library, which
-swaps the ink and paper tokens, so the centre pane is the brightest area on the
-screen. The rail reads top-down as identity, navigation, then the facts about the corpus
-and the two workspace-wide settings, pushed to the bottom together so they sit in
-the same place on every screen.
+The rail and every pane's topbar are black. The rail carries the `on-ink` class
+from the Orange library, and `.topbar` takes the same token swap, so the page
+between them is the brightest area on the screen. The rail reads top-down as
+identity, navigation, then the board region and the refresh countdown, pushed to
+the bottom together so they sit in the same place on every screen. It does not
+count the corpus, and the board's topbar carries no metrics.
 
 When a company is open, the view becomes two columns and the detail pane takes the
 **full height of the window** — the topbar, toolbar, list and pager are the left

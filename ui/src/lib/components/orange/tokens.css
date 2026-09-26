@@ -15,6 +15,8 @@
 	   need one. */
 	--color-orange-wash: #ffefe0;
 	--color-orange-line: #ff7900;
+	/* Text on an orange or green fill is black on every surface, dark or light. */
+	--color-on-fill: #000000;
 
 	/* Boosted functional colours. Success marks corroboration, danger marks
 	   rejection and negative weight. */

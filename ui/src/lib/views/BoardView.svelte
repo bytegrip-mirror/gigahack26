@@ -28,7 +28,6 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import Menu from '$lib/components/Menu.svelte';
 	import type { MenuItem } from '$lib/components/menu';
-	import Metric from '$lib/components/Metric.svelte';
 	import SignalTrace from '$lib/components/SignalTrace.svelte';
 	import FitBar from '$lib/components/FitBar.svelte';
 	import Pager from '$lib/components/Pager.svelte';
@@ -247,19 +246,6 @@
 
 	const savedCount = $derived(rows.filter((row) => saved.has(row.id)).length);
 
-	const counts = $derived.by(() => {
-		const tally: Record<string, number> = {
-			ALL: visible.length,
-			PRIORITY: 0,
-			NURTURE: 0,
-			WATCH: 0,
-			THIN: 0,
-			DISQUALIFIED: 0
-		};
-		for (const row of visible) tally[row.band] = (tally[row.band] ?? 0) + 1;
-		tally.HOT = tally.PRIORITY + tally.NURTURE;
-		return tally;
-	});
 
 	const sorted = $derived.by(() => {
 		const list = [...visible];
@@ -838,14 +824,6 @@
 			</p>
 		</div>
 
-		{#if meta}
-			<div class="metrics">
-				<Metric value={shortNumber(counts.PRIORITY ?? 0)} label="Priority" tone="hot" title="Companies above the Priority line, in view" />
-				<Metric value={shortNumber(counts.HOT ?? 0)} label="Hot" title="Priority and Nurture together, in view" />
-				<Metric value={shortNumber(meta.captures)} label="Documents" title="Documents the board read" />
-			</div>
-		{/if}
-
 		<div class="topbar-tools">
 			<Menu items={secondary} onselect={runSecondary} label="More board actions" />
 		</div>
@@ -1131,10 +1109,6 @@
 <style>
 	.topbar .sub {
 		color: var(--color-ink-3);
-	}
-
-	.metrics {
-		margin-left: auto;
 	}
 
 	.topbar-tools {
@@ -1495,12 +1469,6 @@
 		}
 		.view.split {
 			grid-template-columns: minmax(0, 1fr) 400px;
-		}
-	}
-
-	@media (max-width: 1024px) {
-		.metrics {
-			display: none;
 		}
 	}
 

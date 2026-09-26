@@ -2,23 +2,19 @@
 	import '../app.css';
 
 	import { page } from '$app/state';
-	import { fetchBookmarks } from '$lib/api';
 	import { session } from '$lib/session.svelte';
 	import { toasts } from '$lib/toast.svelte';
 	import { workspace } from '$lib/workspace.svelte';
 	import { command } from '$lib/command.svelte';
-	import { shortNumber } from '$lib/format';
 	import { regionChoices, regionLabel } from '$lib/regions';
 	import Logo from '$lib/components/Logo.svelte';
 	import Icon from '$lib/components/Icon.svelte';
-	import Metric from '$lib/components/Metric.svelte';
 	import Menu from '$lib/components/Menu.svelte';
 	import CommandPalette from '$lib/components/CommandPalette.svelte';
 
 	let { children } = $props();
 
 	let now = $state(Date.now());
-	let savedCount = $state(0);
 
 	const healthy = $derived(
 		workspace.status !== null &&
@@ -33,14 +29,6 @@
 		{ href: '/icp', label: 'ICP Studio', icon: 'studio' },
 		{ href: '/settings', label: 'Settings', icon: 'settings' }
 	] as const;
-
-	$effect(() => {
-		void page.url.pathname;
-		void workspace.savedRevision;
-		fetchBookmarks()
-			.then((list) => (savedCount = list.length))
-			.catch(() => (savedCount = 0));
-	});
 
 	function active(href: string): boolean {
 		return href === '/' ? page.url.pathname === '/' : page.url.pathname.startsWith(href);
@@ -97,22 +85,6 @@
 		</nav>
 
 		<div class="rail-foot">
-			{#if workspace.status}
-				<section class="panel-block">
-					<p class="label">On file</p>
-					<div class="corpus">
-						<Metric value={shortNumber(workspace.status.companies)} label="Companies" />
-						<Metric value={shortNumber(workspace.status.evidence)} label="Documents" />
-						<Metric value={shortNumber(workspace.status.signals)} label="Signals" />
-						<Metric
-							value={String(savedCount)}
-							label="Saved"
-							tone={savedCount > 0 ? 'good' : null}
-						/>
-					</div>
-				</section>
-			{/if}
-
 			<div class="region">
 				<p class="label">Board region</p>
 				<Menu
@@ -283,44 +255,12 @@
 		color: var(--color-orange-deep);
 	}
 
-	.panel-block {
-		padding: var(--spacing-3);
-		border-bottom: 1px solid var(--color-rule);
-	}
-
-	.panel-block .label {
-		display: block;
-		margin-bottom: var(--spacing-2);
-	}
-
-
-	.corpus {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: var(--spacing-2) var(--spacing-3);
-	}
-
-	.corpus :global(.metric) {
-		padding: 0;
-		border-left: 0;
-		min-width: 0;
-	}
-
-	.corpus :global(.metric-val) {
-		font-size: var(--text-lg);
-	}
-
 	.rail-foot {
 		margin-top: auto;
 		display: flex;
 		flex-direction: column;
 		padding: 0 var(--spacing-3) var(--spacing-3);
 		gap: var(--spacing-2);
-	}
-
-	.rail-foot .panel-block {
-		padding: var(--spacing-3) 0;
-		border-bottom: 1px solid var(--color-rule);
 	}
 
 	.region {
@@ -457,7 +397,6 @@
 		.nav-label {
 			display: none;
 		}
-		.panel-block,
 		.rail-foot {
 			display: none;
 		}

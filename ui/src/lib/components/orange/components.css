@@ -13,8 +13,10 @@
    override it. */
 @layer utilities {
 	/* Boosted's dark surface: black ground, white ink. The tokens swap inside the
-	   element, so every shared class under it inverts without a second rule. */
-	.on-ink {
+	   element, so every shared class under it inverts without a second rule. The
+	   rail and every pane header take it, so the eye goes to the page between. */
+	.on-ink,
+	.topbar {
 		--color-ink: #ffffff;
 		--color-ink-2: #eeeeee;
 		--color-ink-3: #cccccc;
@@ -26,6 +28,9 @@
 		--color-rule-strong: #666666;
 		--color-orange-deep: #ff7900;
 		--color-orange-ink: #ff7900;
+		--color-orange-wash: #3d1d00;
+		--color-accent-wash: #0f3310;
+		--color-oxblood-wash: #3a1106;
 		background: var(--color-paper);
 		color: var(--color-ink);
 	}
@@ -106,7 +111,7 @@
 		flex-wrap: wrap;
 		gap: var(--spacing-3) var(--spacing-5);
 		padding: var(--spacing-3) var(--spacing-4);
-		border-bottom: 1px solid var(--color-ink);
+		border-bottom: 1px solid var(--color-rule);
 		background: var(--color-surface);
 		flex: none;
 		/*
@@ -262,7 +267,7 @@
 	.tag-orange {
 		border-color: var(--color-orange);
 		background: var(--color-orange);
-		color: var(--color-ink);
+		color: var(--color-on-fill);
 	}
 
 	.tag-wash {
@@ -274,7 +279,7 @@
 	.tag-accent {
 		border-color: var(--color-accent);
 		background: var(--color-accent);
-		color: var(--color-ink);
+		color: var(--color-on-fill);
 	}
 
 	.tag-oxblood {
@@ -300,7 +305,7 @@
 	.tag[data-band='PRIORITY'] {
 		border-color: var(--color-orange);
 		background: var(--color-orange);
-		color: var(--color-ink);
+		color: var(--color-on-fill);
 	}
 
 	.tag[data-band='NURTURE'] {
@@ -362,7 +367,7 @@
 	.btn-primary {
 		background: var(--color-orange-deep);
 		border-color: var(--color-orange-deep);
-		color: var(--color-ink);
+		color: var(--color-on-fill);
 	}
 
 	.btn-primary:hover:not(:disabled) {
