@@ -162,6 +162,7 @@ export type CompanyDetail = {
 	ledger: LedgerRow[];
 	counterEvidence: LedgerRow[];
 	themes: { name: string; total: number; capped: boolean; rows: number }[];
+	profiles: string[];
 	weakestLink: string | null;
 	priorityHorizonDays: number | null;
 	nurtureHorizonDays: number | null;

@@ -260,6 +260,7 @@ public class BoardService {
                 detail.rows(),
                 detail.counterEvidence(),
                 themes,
+                icpProfiles.membership(List.of(company)).getOrDefault(company.getId(), List.of()),
                 detail.weakestLink(),
                 detail.priorityHorizonDays(),
                 detail.nurtureHorizonDays(),

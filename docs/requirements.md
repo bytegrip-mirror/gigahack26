@@ -89,7 +89,56 @@ and it gates at scoring time exactly as the shipped list does.
 | 5.1 | A separate board for leads in work — contacted, replied, qualified — because they are hard to tell apart from the backlog | done — *In work* · *Backlog* · *Everything* |
 | 5.2 | Sorting in the pipeline | done — last worked, company, fit, furthest along |
 
-## 6. Copy
+## 6. People
+
+| # | Requirement | Status |
+| --- | --- | --- |
+| 6.1 | A board of companies and a separate board of people | **done** — People, in the rail |
+| 6.2 | People come from somewhere real | **done** — named in a document we hold, with the sentence they came from |
+| 6.3 | Add LinkedIn scraping | **not built — deliberately.** See below |
+
+A lead used to be a company: `contactCount` counted approaches to an account and
+the desk had no idea who at that account had ever been named. `person` now holds
+the people our documents name, with the role the same sentence gave them and the
+byte range they came from — the same rule the signals follow.
+
+### Why there is no LinkedIn crawler
+
+**It is against LinkedIn's terms.** Their User Agreement prohibits scraping,
+bots and automated access, and they enforce it: technically, by blocking and by
+banning accounts, and legally, by suing. The one case that went their way on the
+scraping question — *hiQ v. LinkedIn* — turned on a statute that has since been
+narrowed, and it settled with the scraper enjoined. Building this would mean
+shipping something that breaks a contract and gets accounts closed, on a machine
+that belongs to somebody else. That is not a judgment call I should make on your
+behalf, and it is certainly not one to make by writing the code first.
+
+**It is also the wrong shape for this product.** Every claim the desk makes
+resolves to a byte range in a page the crawler stored, which is the whole
+argument. A profile scraped from LinkedIn is a claim with no stored page behind
+it: nothing to show a juror, nothing to re-check when the person changes job, and
+a different data-protection posture entirely — a person's profile is personal
+data, and the corpus is deliberately full of nothing but public company pages.
+
+### The routes that do work
+
+- **What we already hold.** `PersonExtractor` reads the documents in the corpus
+  for the one shape press writing always uses: a full name, a comma, a job title.
+  That is live now, and it is where the People board gets its rows.
+- **Company newsrooms and press pages.** Already crawled, and where most
+  appointments get announced first.
+- **Regulatory registers.** Directors and officers are on the public record —
+  Companies House, the commercial register, SEC filings. Structured, current and
+  licensed for reuse.
+- **Conference and award listings.** Speaker pages name senior people and their
+  employer together, with roles.
+- **Their own careers site.** Hiring managers are named in job adverts more often
+  than anywhere else.
+- **A licensed data provider.** If you want emails and direct dials, buy them —
+  Apollo, Cognite, Lusha, People Data Labs all expose an API and carry the
+  consent and the accuracy bill. That is a purchase decision, not a scraper.
+
+## 7. Copy
 
 | # | Requirement | Status |
 | --- | --- | --- |

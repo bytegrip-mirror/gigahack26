@@ -43,6 +43,7 @@ public record CompanyDetail(
         List<LedgerRow> ledger,
         List<LedgerRow> counterEvidence,
         List<Theme> themes,
+        List<String> profiles,
         String weakestLink,
         Double priorityHorizonDays,
         Double nurtureHorizonDays,

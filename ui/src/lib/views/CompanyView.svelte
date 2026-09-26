@@ -23,6 +23,7 @@
 	let error = $state<string | null>(null);
 	let tab = $state('signals');
 	let proposition = $state<string | null>(null);
+	const profiles = $derived(detail?.profiles ?? []);
 
 	const thresholds = $derived({
 		watch: detail?.watchThreshold ?? 0.28,
@@ -100,6 +101,11 @@
 						? ` · ${detail.industry}`
 						: ''}{detail.sizeBand ? ` · ${detail.sizeBand}` : ''} · {detail.serviceLine}
 				</p>
+				{#if profiles.length > 0}
+					<p class="profiles">
+						{#each profiles as name (name)}<Tag variant="wash">{name}</Tag>{/each}
+					</p>
+				{/if}
 			{/if}
 		</div>
 		<div class="topbar-tools">
@@ -248,6 +254,13 @@
 </div>
 
 <style>
+	.profiles {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 4px;
+		margin-top: var(--spacing-1);
+	}
+
 	.title {
 		display: flex;
 		align-items: center;
