@@ -860,6 +860,18 @@
 		</div>
 	{:else}
 		<div class="toolbar">
+			<label class="search-field">
+				<span class="sr-only">Filter by name, country or industry</span>
+				<Icon name="search" size={14} />
+				<input
+					class="input input-sm"
+					type="search"
+					placeholder="Name, country, industry"
+					bind:value={query}
+				/>
+			</label>
+		</div>
+		<div class="toolbar">
 			<Menu
 				text={session.scopeLabel()}
 				icon="layers"
@@ -873,7 +885,7 @@
 			{#if workspace.switching}<span class="spinner"></span>{/if}
 			<span class="sep"></span>
 
-			<div class="seg" role="tablist" aria-label="Which companies to show">
+			<div class="tabs" role="tablist" aria-label="Which companies to show">
 				{#each FILTERS as option (option.id)}
 					<button
 						role="tab"
@@ -886,19 +898,6 @@
 					</button>
 				{/each}
 			</div>
-
-			<span class="spacer"></span>
-
-			<label class="search">
-				<span class="sr-only">Filter by name, country or industry</span>
-				<Icon name="search" size={14} />
-				<input
-					class="input input-sm"
-					type="search"
-					placeholder="Name, country, industry"
-					bind:value={query}
-				/>
-			</label>
 
 			<Menu
 				text={activeFilters > 0 ? `Filters · ${activeFilters}` : 'Filters'}
@@ -948,8 +947,8 @@
 							<th class="c-mark" scope="col"><span class="sr-only">Company mark</span></th>
 							<Th id="name" label="Company" sort={sort} {dir} onsort={sortBy} width="30%" />
 							<Th id="fit" label="Fit" sort={sort} {dir} onsort={sortBy} width="118px" title="How strong the evidence is, and whether the queue will act on it" />
+							<th class="c-stage" scope="col" title="Where the lead stands: new, contacted, replied, qualified or rejected">Stage</th>
 							<th class="c-sig" scope="col">Signals</th>
-							<th class="c-trend" scope="col"><span class="sr-only">Signal trend over the last year</span></th>
 							<Th id="docs" label="Docs" sort={sort} {dir} onsort={sortBy} align="right" width="56px" className="c-doc" />
 							<Th id="newest" label="Latest" sort={sort} {dir} onsort={sortBy} align="right" width="66px" className="c-age" />
 							<th class="c-star" scope="col"><span class="sr-only">Saved</span></th>
@@ -988,11 +987,6 @@
 										{#if row.industry}· {row.industry}{/if}
 										{#if row.sizeBand}· {row.sizeBand}{/if}
 									</span>
-									{#if row.leadStatus && row.leadStatus !== 'NEW'}
-										<span class="stage-tag" data-stage={row.leadStatus}>
-											{row.leadStatusLabel}{#if row.contactCount > 1} ×{row.contactCount}{/if}
-										</span>
-									{/if}
 								</td>
 								<td class="c-fit">
 									{#if row.band === 'DISQUALIFIED'}
@@ -1020,6 +1014,11 @@
 										{/if}
 									{/if}
 								</td>
+								<td class="c-stage">
+									<span class="stage-tag" data-stage={row.leadStatus ?? 'NEW'}>
+										{row.leadStatusLabel ?? 'New'}{#if row.contactCount > 1} ×{row.contactCount}{/if}
+									</span>
+								</td>
 								<td class="c-sig">
 									{#if row.chips.length > 0}
 										{@const top = reasons(row)}
@@ -1039,14 +1038,14 @@
 									{:else}
 										<span class="sub dim">nothing on file answers your questions about them</span>
 									{/if}
-								</td>
-								<td class="c-trend">
-									<SignalTrace
-										spark={row.spark ?? []}
-										title={row.newestSignalAgeDays === null
-											? 'Nothing dated has been read about this company'
-											: `When the signals arrived over the last year. Latest, ${ageShort(row.newestSignalAgeDays)}.`}
-									/>
+									<div class="trend">
+										<SignalTrace
+											spark={row.spark ?? []}
+											title={row.newestSignalAgeDays === null
+												? 'Nothing dated has been read about this company'
+												: `When the signals arrived over the last year. Latest, ${ageShort(row.newestSignalAgeDays)}.`}
+										/>
+									</div>
 								</td>
 								<td class="num c-doc">
 									{#if row.evidenceCount === 0}
@@ -1124,36 +1123,6 @@
 		max-width: 170px;
 	}
 
-	.search {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-1);
-		flex: 1 1 200px;
-		min-width: 150px;
-		max-width: 300px;
-		padding-left: var(--spacing-2);
-		border: 1px solid var(--color-rule-strong);
-		border-radius: var(--radius);
-		background: var(--color-surface);
-		color: var(--color-ink-3);
-	}
-
-	.search:focus-within {
-		border-color: var(--color-orange);
-		box-shadow: 0 0 0 2px var(--color-orange-wash);
-	}
-
-	.search .input {
-		border: 0;
-		background: transparent;
-		box-shadow: none;
-		padding-left: 0;
-	}
-
-	.search .input:focus {
-		box-shadow: none;
-	}
-
 	.bulk-hint {
 		color: var(--color-ink-4);
 	}
@@ -1190,7 +1159,7 @@
 		min-height: 0;
 	}
 
-	.view.split .c-trend,
+	.view.split .trend,
 	.view.split .c-doc,
 	.view.split .c-age,
 	.view.split :global(th.c-doc),
@@ -1299,7 +1268,7 @@
 	}
 
 	.c-sig {
-		width: 360px;
+		min-width: 0;
 	}
 
 	/*
@@ -1319,10 +1288,9 @@
 		overflow-wrap: anywhere;
 	}
 
-	.c-trend {
-		width: 190px;
-		padding: var(--spacing-1) var(--spacing-3) var(--spacing-1) 0;
-		vertical-align: middle;
+	.trend {
+		width: 180px;
+		margin-top: var(--spacing-1);
 	}
 
 	.c-star {
@@ -1433,6 +1401,10 @@
 		font-weight: 500;
 	}
 
+	.c-stage {
+		width: 104px;
+	}
+
 	.stage-tag {
 		display: inline-block;
 		margin-top: 3px;
@@ -1460,7 +1432,7 @@
 	}
 
 	@media (max-width: 1180px) {
-		.c-trend,
+		.trend,
 		.c-doc,
 		.c-age,
 		:global(th.c-doc),
@@ -1483,16 +1455,8 @@
 		.toolbar {
 			flex-wrap: wrap;
 		}
-		.toolbar .spacer {
-			display: none;
-		}
-		.toolbar .seg {
+		.toolbar .tabs {
 			flex: 1 1 100%;
-			overflow-x: auto;
-		}
-		.search {
-			flex: 1 1 100%;
-			order: -1;
 		}
 		.list {
 			overflow-x: auto;
