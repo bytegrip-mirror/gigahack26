@@ -70,7 +70,11 @@
 			against: dated.length - counts,
 			first: new Date(Math.min(...times)),
 			last: new Date(Math.max(...times)),
-			dots: dated.map((entry) => ({
+			dots: dated.map((entry, index) => ({
+				// Keyed by what the signal is, not where it landed: two signals on
+				// one day at one weight share a coordinate, and a coordinate key
+				// threw on the second of them and took the whole pane down with it.
+				key: `${entry.row.evidenceId}:${entry.row.questionId}:${index}`,
 				cx: x(entry.at),
 				cy: y(entry.value),
 				negative: entry.row.polarity !== 'POSITIVE',
@@ -97,7 +101,7 @@
 				<text class="axis" x={PAD.left - 6} y={plotted.high + 3.5}>{plotted.high.toFixed(1)}</text>
 			{/if}
 
-			{#each plotted.dots as dot (dot.cx + ':' + dot.cy + ':' + dot.negative)}
+			{#each plotted.dots as dot (dot.key)}
 				<circle class="dot" class:against={dot.negative} cx={dot.cx} cy={dot.cy} r="4.5">
 					<title>{dot.label}</title>
 				</circle>
