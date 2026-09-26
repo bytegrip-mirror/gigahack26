@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { fetchMarket, type Market, type MarketSlice } from '$lib/api';
+	import { fetchBacktest, fetchMarket, type Backtest, type Market, type MarketSlice } from '$lib/api';
 	import { session } from '$lib/session.svelte';
 	import { workspace } from '$lib/workspace.svelte';
 	import { shortNumber, fit, ageShort } from '$lib/format';
@@ -11,6 +11,8 @@
 	let loading = $state(true);
 	let error = $state<string | null>(null);
 	let axis = $state<'countries' | 'industries' | 'sizeBands'>('countries');
+	let backtest = $state<Backtest | null>(null);
+	let horizon = $state(90);
 
 	const slices = $derived(market ? market[axis] : []);
 	const busiest = $derived(slices.length > 0 ? slices[0].inMarket : 0);
@@ -20,6 +22,7 @@
 
 	$effect(() => {
 		const line = session.serviceLine;
+		const window = horizon;
 		if (!line) return;
 		let cancelled = false;
 		loading = true;
@@ -28,6 +31,11 @@
 				if (cancelled) return;
 				market = result;
 				error = null;
+			})
+			.catch(() => {});
+		fetchBacktest(line, window)
+			.then((result) => {
+				if (!cancelled) backtest = result;
 			})
 			.catch((cause) => {
 				if (!cancelled) error = (cause as Error).message;
@@ -77,6 +85,45 @@
 		<div class="scroll">
 			<LoadingVeil show={loading} label="Aggregating the corpus" />
 
+			{#if backtest && backtest.companies > 0}
+				<section class="panel backtest">
+					<div class="panel-head">
+						<h2 class="dsp">What the board would have said, and what happened next</h2>
+						<div class="seg">
+							{#each [30, 90, 180] as days (days)}
+								<button class="seg-btn" class:on={horizon === days} onclick={() => (horizon = days)}>
+									{days}d
+								</button>
+							{/each}
+						</div>
+					</div>
+					<div class="metrics">
+						<Metric value={String(backtest.called)} label="It would have called" tone="hot" />
+						<Metric
+							value={backtest.calledRate != null ? (backtest.calledRate * 100).toFixed(0) + '%' : '—'}
+							label="Went on to produce the evidence"
+							tone="good"
+						/>
+						<Metric value={String(backtest.control)} label="It would not have" />
+						<Metric
+							value={backtest.controlRate != null ? (backtest.controlRate * 100).toFixed(0) + '%' : '—'}
+							label="Also went on to"
+						/>
+						<Metric
+							value={backtest.lift != null ? backtest.lift.toFixed(1) + '×' : '—'}
+							label="Lift over not calling"
+							tone={(backtest.lift ?? 0) > 1 ? 'good' : 'bad'}
+						/>
+					</div>
+					<p class="sub dim">
+						Every document the corpus holds was hidden from the scorer, the board was rebuilt as of
+						{new Date(backtest.asOf).toISOString().slice(0, 10)}, and then the documents that arrived after that date were
+						read back. This tests whether the score <em>precedes</em> the evidence — the corpus confirming itself — and not
+						whether it precedes a purchase, which only a sales team that has used the system could show.
+					</p>
+				</section>
+			{/if}
+
 			{#if error}
 				<div class="empty">The market could not be built: {error}</div>
 			{:else if slices.length === 0 && !loading}
@@ -124,6 +171,10 @@
 </div>
 
 <style>
+	.backtest {
+		margin-bottom: var(--sp-3);
+	}
+
 	.topbar {
 		gap: var(--sp-4);
 	}

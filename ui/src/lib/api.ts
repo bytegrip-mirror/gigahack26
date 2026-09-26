@@ -715,6 +715,31 @@ export type Precision = {
 	queuePrecision: number | null;
 };
 
+export type Backtest = {
+	asOfDaysAgo: number;
+	asOf: string;
+	companies: number;
+	called: number;
+	control: number;
+	calledConfirmed: number;
+	controlConfirmed: number;
+	calledRate: number | null;
+	controlRate: number | null;
+	lift: number | null;
+	rows: {
+		company: string;
+		band: string;
+		probability: number;
+		before: number;
+		after: number;
+		confirmed: boolean;
+	}[];
+};
+
+export function fetchBacktest(serviceLine: string, daysAgo = 90): Promise<Backtest> {
+	return request<Backtest>(`/api/backtest${query({ serviceLine, daysAgo })}`);
+}
+
 export type MarketSlice = {
 	key: string;
 	companies: number;
