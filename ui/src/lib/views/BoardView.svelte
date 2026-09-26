@@ -26,7 +26,7 @@
 	import { session } from '$lib/session.svelte';
 	import { workspace } from '$lib/workspace.svelte';
 	import { toasts } from '$lib/toast.svelte';
-	import { ageShort, duration, fit, fitTone, fitWord, plural, precise, shortNumber } from '$lib/format';
+	import { ageShort, duration, fit, fitTone, fitWord, precise, shortNumber } from '$lib/format';
 	import { regionLabel } from '$lib/regions';
 	import { copy, csv, save } from '$lib/export';
 	import Tag from '$lib/components/Tag.svelte';
@@ -41,7 +41,6 @@
 	import Metric from '$lib/components/Metric.svelte';
 	import SignalTrace from '$lib/components/SignalTrace.svelte';
 	import FitBar from '$lib/components/FitBar.svelte';
-	import SignalChart from '$lib/components/SignalChart.svelte';
 	import Pager from '$lib/components/Pager.svelte';
 	import Th from '$lib/components/Th.svelte';
 
@@ -154,13 +153,6 @@
 	let askCues = $state<string[]>([]);
 
 	let capture = $state<{ id: string; focus: { start: number; end: number } | null } | null>(null);
-	let peeking = $state<string | null>(null);
-	let peekSide = $state<'left' | 'right'>('right');
-	const peekOn = $derived(selected !== null ? 'left' : peekSide);
-	let peekAt = $state(0);
-	let peek = $state<Awaited<ReturnType<typeof fetchCompany>> | null>(null);
-	let peekOpenTimer: ReturnType<typeof setTimeout> | null = null;
-	let peekCloseTimer: ReturnType<typeof setTimeout> | null = null;
 
 	const meta = $derived(workspace.meta);
 	const serviceLine = $derived(session.serviceLine);
@@ -479,81 +471,7 @@
 		return () => clearInterval(timer);
 	});
 
-	const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-	function monthLabels(count: number): string[] {
-		const now = new Date();
-		return Array.from({ length: count }, (_, index) => {
-			const back = count - 1 - index;
-			const at = new Date(now.getFullYear(), now.getMonth() - back, 1);
-			return back % 2 === 0 ? MONTHS[at.getMonth()] : '';
-		});
-	}
-
-	function peekSpark(detail: NonNullable<typeof peek>): number[] {
-		const months = new Array(12).fill(0) as number[];
-		const now = Date.now();
-		for (const row of detail.ledger) {
-			if (row.blocking) continue;
-			const days = Math.max(0, (now - new Date(row.anchor).getTime()) / 86_400_000);
-			months[11 - Math.min(11, Math.floor(days / 30))] += 1;
-		}
-		return months;
-	}
-
-	function peekNewest(detail: NonNullable<typeof peek>): number | null {
-		const anchors = detail.ledger.filter((row) => !row.blocking).map((row) => new Date(row.anchor).getTime());
-		return anchors.length === 0 ? null : Math.max(0, (Date.now() - Math.max(...anchors)) / 86_400_000);
-	}
-
-	const OPEN_DELAY = 260;
-	const CLOSE_DELAY = 320;
-
-	/**
-	 * The card is not inside the row, so leaving the row to reach it fires the
-	 * row's own mouseleave. Opening and closing therefore each wait: a short one
-	 * before opening, so dragging the mouse down the board does not flash cards,
-	 * and a longer one before closing, which the card cancels when the pointer
-	 * arrives on it.
-	 */
-	function openPeek(row: ScopedRow, event: MouseEvent) {
-		if (peekCloseTimer) clearTimeout(peekCloseTimer);
-		if (peekOpenTimer) clearTimeout(peekOpenTimer);
-		peekSide = event.clientX > window.innerWidth / 2 ? 'left' : 'right';
-		peekAt = event.clientY;
-		peekOpenTimer = setTimeout(() => {
-			peeking = row.id;
-			fetchCompany(row.id, row.serviceLine)
-				.then((result) => {
-					if (peeking === row.id) peek = result;
-				})
-				.catch(() => {});
-		}, OPEN_DELAY);
-	}
-
-	function holdPeek() {
-		if (peekOpenTimer) clearTimeout(peekOpenTimer);
-		if (peekCloseTimer) clearTimeout(peekCloseTimer);
-	}
-
-	function scheduleClosePeek() {
-		if (peekOpenTimer) clearTimeout(peekOpenTimer);
-		if (peekCloseTimer) clearTimeout(peekCloseTimer);
-		peekCloseTimer = setTimeout(() => {
-			peeking = null;
-			peek = null;
-		}, CLOSE_DELAY);
-	}
-
-	function closePeek() {
-		if (peekOpenTimer) clearTimeout(peekOpenTimer);
-		if (peekCloseTimer) clearTimeout(peekCloseTimer);
-		peeking = null;
-		peek = null;
-	}
-
 	function select(id: string | null) {
-		closePeek();
 		selected = id;
 		echoed = id;
 		pushState(id ? `/?co=${id}&line=${encodeURIComponent(lineOf(id))}` : '/', {});
@@ -1365,12 +1283,7 @@
 								class:active={selected === row.id}
 								class:rejected={row.band === 'DISQUALIFIED'}
 								class:pickedrow={picked.has(row.id)}
-												onclick={() => {
-									closePeek();
-									select(row.id);
-								}}
-								onmouseenter={(event) => openPeek(row, event)}
-								onmouseleave={scheduleClosePeek}
+								onclick={() => select(row.id)}
 							>
 								<td class="c-chk" onclick={(event) => event.stopPropagation()}>
 									<span class="chk">
@@ -1516,70 +1429,6 @@
 		</aside>
 	{/if}
 </div>
-
-{#if peek && peeking}
-	<aside
-		class="peek"
-		data-side={peekOn}
-		aria-label={`${peek.name} at a glance`}
-		onmouseenter={holdPeek}
-		onmouseleave={scheduleClosePeek}
-	>
-		<header class="peek-head">
-			<CompanyMark name={peek.name} domain={peek.domain} size="lg" />
-			<div class="peek-ident">
-				<span class="peek-name">{peek.name}</span>
-				<span class="sub dim">
-					{peek.industry ?? 'unclassified'} · {peek.country ?? '—'}{peek.sizeBand ? ` · ${peek.sizeBand}` : ''}
-				</span>
-			</div>
-			<span class="verdict dsp" data-tone={fitTone(peek.probability, thresholds)}>
-				{fitWord(peek.probability, thresholds)}
-			</span>
-		</header>
-
-		<p class="peek-why">{peek.whyNow?.narrative || peek.whyNow?.headline || 'Nothing to say about this company yet.'}</p>
-
-		<section class="peek-chart">
-			<div class="peek-chart-head">
-				<span class="label">Signals over the last year</span>
-				<span class="sub dim num">
-					{peek.signalCount} in total · latest {ageShort(peekNewest(peek))}
-				</span>
-			</div>
-			<SignalChart spark={peekSpark(peek)} labels={monthLabels(12)} />
-		</section>
-
-		<section class="peek-signals">
-			<span class="label">{plural(peek.whyNow?.triggers.length ?? 0, 'reason')} to call</span>
-			<ul>
-				{#each (peek.whyNow?.triggers ?? []).slice(0, 5) as row (row.evidenceId + row.spanStart)}
-					<li data-polarity={row.polarity}>
-						<span class="dot"></span>
-						<span class="peek-q">
-							{row.questionTitle}
-							{#if row.spanText}<span class="peek-quote">“{row.spanText}”</span>{/if}
-						</span>
-						<span class="num amount">{row.contributionNats.toFixed(2)}</span>
-					</li>
-				{:else}
-					<li class="sub dim">No document answered a question about this company.</li>
-				{/each}
-			</ul>
-		</section>
-
-		<footer class="peek-foot">
-			<span class="sub dim">
-				{plural(peek.scannedDocuments, 'document')} read · {plural(peek.themeCount, 'theme')}
-			</span>
-			<span class="spacer"></span>
-			<a class="btn btn-sm" href={`/companies/${peek.id}?line=${encodeURIComponent(peek.serviceLine)}`}>
-				Open the full page
-				<Icon name="chevronRight" size={13} />
-			</a>
-		</footer>
-	</aside>
-{/if}
 
 {#if capture}
 	<CaptureSheet evidenceId={capture.id} focus={capture.focus} onclose={() => (capture = null)} />
@@ -1796,149 +1645,6 @@
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
-	}
-
-	.peek {
-		position: fixed;
-		width: 50vw;
-		min-width: 460px;
-		z-index: var(--z-index-menu);
-		background: var(--color-surface);
-		border: 1px solid var(--color-ink);
-		padding: var(--spacing-4);
-		display: flex;
-		flex-direction: column;
-		gap: var(--spacing-3);
-		animation: rise var(--ease-enter) both;
-	}
-
-	.peek[data-side='right'] {
-		right: var(--spacing-4);
-	}
-
-	.peek[data-side='left'] {
-		left: calc(var(--spacing-rail) + var(--spacing-4));
-	}
-
-	.peek {
-		top: var(--spacing-4);
-		bottom: var(--spacing-4);
-		overflow-y: auto;
-	}
-
-	.peek-head {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-2);
-	}
-
-	.peek-ident {
-		flex: 1;
-		min-width: 0;
-	}
-
-	.peek-name {
-		display: block;
-		font-family: var(--font-display);
-		font-size: var(--text-lg);
-		font-weight: 600;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	.peek .verdict {
-		flex: none;
-		font-size: var(--text-md);
-		color: var(--color-ink-2);
-	}
-
-	.peek .verdict[data-tone='strong'] {
-		color: var(--color-orange-ink);
-	}
-
-	.peek .verdict[data-tone='weak'] {
-		color: var(--color-ink-4);
-	}
-
-	.peek-why {
-		margin: var(--spacing-2) 0 0;
-		font-size: var(--text-base);
-		line-height: 1.5;
-		color: var(--color-ink-2);
-	}
-
-	.peek-chart-head {
-		display: flex;
-		align-items: baseline;
-		justify-content: space-between;
-		gap: var(--spacing-2);
-		margin-bottom: var(--spacing-2);
-	}
-
-	.peek-signals ul {
-		list-style: none;
-		margin: var(--spacing-2) 0 0;
-		padding: 0;
-	}
-
-	.peek-signals li {
-		display: flex;
-		align-items: baseline;
-		gap: var(--spacing-2);
-		padding: var(--spacing-1) 0;
-		border-bottom: 1px solid var(--color-rule);
-	}
-
-	.peek-signals li .dot {
-		width: 6px;
-		height: 6px;
-		flex: none;
-		background: var(--color-accent);
-		transform: translateY(-1px);
-	}
-
-	.peek-signals li[data-polarity='NEGATIVE'] .dot,
-	.peek-signals li[data-polarity='DISQUALIFYING'] .dot {
-		background: var(--color-oxblood);
-	}
-
-	.peek-quote {
-		display: block;
-		margin-top: 2px;
-		font-family: var(--font-display);
-		font-size: var(--text-base);
-		line-height: 1.4;
-		color: var(--color-ink-3);
-		overflow: hidden;
-		display: -webkit-box;
-		-webkit-line-clamp: 2;
-		line-clamp: 2;
-		-webkit-box-orient: vertical;
-	}
-
-	.amount {
-		flex: none;
-		font-size: var(--text-micro);
-		color: var(--color-ink-4);
-	}
-
-	.peek-q {
-		font-size: var(--text-base);
-		color: var(--color-ink-2);
-	}
-
-	.peek-foot {
-		display: flex;
-		align-items: baseline;
-		gap: var(--spacing-2);
-		margin-top: var(--spacing-3);
-		padding-top: var(--spacing-2);
-		border-top: 1px solid var(--color-rule);
-	}
-
-	.peek-foot .spacer {
-		margin-left: auto;
 	}
 
 	.list {
