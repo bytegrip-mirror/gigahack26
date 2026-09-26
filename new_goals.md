@@ -447,19 +447,27 @@ what is missing and why — an absence with a reason, not a silent gap.
 
 ## What the partials are missing
 
-- **B1** — built, measured, and not the one that ships. `tools/grouped_overlay.py`
-  reads each document once per service line: 2,061 calls against 12,409, covering
-  46% more pairs, with three quotes struck out of 727 signals. Comparing the two
-  artefacts on the live corpus showed the cost: the grouped build disqualifies 102
-  companies where the per-question build disqualifies 76, and the extra ones are
-  not vendors — Bank of Cyprus is removed for recruiting security engineers, eMAG
-  for hiring DevSecOps, JPMorgan for building internal automation. Those are the
-  hiring signals the question asks about, read as in-house building. Asked one
-  question at a time the model gets it right; asked six at once it reaches for the
-  disqualifier. The cheap build stays in the repository for a corpus that grows;
-  the careful one is what ships. The obvious next move is a hybrid — grouped for
-  the positive questions, one at a time for the three that can remove a company —
-  and it is not built.
+- **B1** — built twice, measured both times, and neither cheap build ships.
+  `tools/grouped_overlay.py` reads each document once per service line. Grouping
+  every question takes 2,061 calls where question-by-question takes 12,409 and
+  covers 46% more pairs, but it disqualifies 102 companies where the careful build
+  disqualifies 76, and the extra ones are not vendors — Bank of Cyprus is removed
+  for recruiting security engineers, eMAG for hiring DevSecOps, JPMorgan for
+  building internal automation. Those are the hiring signals the question asks
+  about, read as in-house building; asked six questions at once the model reaches
+  for the disqualifier, and asked one at a time it does not.
+
+  So the questions were split by what a verdict on them can do: the ones that can
+  only add asked together, the three that can remove asked alone. That is 2,688
+  calls for 10,883 pairs — a quarter of the cost — and it finds **543 signals
+  where the per-question build finds 752**, gating 60 companies against 76 on a
+  set that agrees on 34 of them. Cheaper, and measurably less of the thing the
+  criterion is about. It is kept for a corpus that grows, and the per-question
+  overlay is what ships.
+
+  What would actually settle it is a labelled set: nobody has measured which of
+  the three is *right*, only what they output. That is the honest next step and it
+  is not done.
 
 
 - **D6, D7** — the board, the market view and the settings panels were checked at
