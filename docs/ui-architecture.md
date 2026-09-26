@@ -53,11 +53,11 @@ Rules that hold across every screen:
   action.
 - **The panes are the only part that scrolls.** Its children carry `min-h-0`
   so a grid child cannot push the view taller than the viewport.
-- **Selection lives in the URL** (`/?co=<id>`), so a company stays linkable.
+- **Selection lives in the URL** (`/companies?co=<id>`), so a company stays linkable.
 - Below 1100px the detail pane becomes an overlay inside the panes rather than a
   second column, so the table keeps its width on a projector.
-- `Panes` is a one-column grid. A screen that wants a plain block stack (the
-  pipeline) passes `class="block"`.
+- `Panes` is a one-column grid. A screen that wants a plain block stack passes
+  `class="block"`.
 
 ## 2. The design system
 
@@ -215,9 +215,9 @@ one `Menu` away, and every row carries the same `⋯` in the last column.
 
 | Screen | Primary | In the `⋯` |
 | --- | --- | --- |
+| Dashboard | *Open the board* | — it is a welcome, and it links on |
 | Board | — every action is in the `⋯` | export the board, copy a link, clear filters, re-score; per row: open the scorecard, open the quoted capture, copy a link, export the row, set the lead stage |
 | Company pane | *Generate outreach*, then *Push to HubSpot* | copy the summary, open the website, count as a lead, count as rejected, close |
-| Pipeline | per-row *advance to the next stage* | open on the board, copy a link, export the row, move to any stage; screen-level: export the pipeline, open the board |
 | ICP Studio | *New profile* | per row: open it, switch it on or off, delete it; on the open profile: save, discard |
 
 | Settings | *Save and re-score* | read the writer brief; per service line: enable/disable, delete |
@@ -306,11 +306,10 @@ Two settings reach across screens, and each sits where its effect is visible.
 This is deliberate: a control that silently does nothing on the screen you are
 looking at is worse than no control.
 
-**Service line** scopes the board and the pipeline. The switcher is therefore the
-**first control in the toolbar of
-the board and the pipeline** — the same component in the same position, reading
-and writing one session value so the two never disagree — and it never appears
-on Settings or in the rail. The workspace settings row is global, so that screen
+**Service line** scopes the board, and the People screen reads the same value. The
+switcher is therefore the **first control in the toolbar of the board** — one
+component in one position, reading and writing one session value so no two screens
+can disagree — and it never appears on Settings or in the rail. The workspace settings row is global, so that screen
 does not pretend to be scoped: saving re-scores **every** service line.
 
 The switcher is searchable, and it carries **All service lines** at the top. All
@@ -411,8 +410,8 @@ shows depends on what the queue decided:
 | `THIN` | `Unproven` |
 | `DISQUALIFIED` | the `Out of the queue` tag and the gate's reason |
 
-The Pipeline reads the same word off the same thresholds, because a rep moves
-between the two screens on the same company and two vocabularies for one fact is
+The lead stage is cut from the same thresholds everywhere it is shown, because a
+rep moves between screens on the same company and two vocabularies for one fact is
 one too many.
 
 A separate band column was redundant: the word is cut from the same three

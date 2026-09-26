@@ -134,7 +134,7 @@
 				<SignalTrace spark={spark} title="Signal strength by month for the last year" />
 			{/if}
 			<button class="btn btn-sm" onclick={copyLink}><Icon name="link" size={14} /> Copy link</button>
-			<a class="btn btn-sm" href="/?co={companyId}"><Icon name="board" size={14} /> On the board</a>
+			<a class="btn btn-sm" href="/companies?co={companyId}"><Icon name="board" size={14} /> On the board</a>
 		</div>
 	</header>
 

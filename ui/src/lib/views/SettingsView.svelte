@@ -32,7 +32,7 @@
 		{ id: 'profile', label: 'Customer profile', hint: 'Who counts as a prospect', icon: 'target' },
 		{ id: 'lines', label: 'Service lines', hint: 'What we sell', icon: 'layers' },
 		{ id: 'scoring', label: 'Scoring', hint: 'Where the bands sit', icon: 'sliders' },
-		{ id: 'pipeline', label: 'Pipeline', hint: 'What has been read, and when', icon: 'pipeline' }
+		{ id: 'reading', label: 'Reading', hint: 'What has been read, and when', icon: 'clock' }
 	];
 
 	const TONES = ['direct', 'consultative', 'warm', 'matter-of-fact'];
@@ -729,7 +729,7 @@
 					</section>
 				{/if}
 
-				{#if section === 'pipeline'}
+				{#if section === 'reading'}
 					<section class="panel">
 						<div class="panel-head">
 							<h2 class="dsp">What a pass costs, at your own rate</h2>

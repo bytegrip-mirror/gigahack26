@@ -397,7 +397,7 @@
 	function select(id: string | null) {
 		selected = id;
 		echoed = id;
-		pushState(id ? `/?co=${id}&line=${encodeURIComponent(lineOf(id))}` : '/', {});
+		pushState(id ? `/companies?co=${id}&line=${encodeURIComponent(lineOf(id))}` : '/companies', {});
 	}
 
 	function sortBy(id: string) {
@@ -718,7 +718,7 @@
 		if (id === 'open') select(row.id);
 		else if (id === 'capture' && row.strongest) capture = { id: row.strongest.evidenceId, focus: { start: row.strongest.spanStart, end: row.strongest.spanEnd } };
 		else if (id === 'link') {
-			const ok = await copy(`${window.location.origin}/?co=${row.id}`);
+			const ok = await copy(`${window.location.origin}/companies?co=${row.id}`);
 			toasts.push(ok ? `Link to ${row.name} copied.` : 'This browser blocked the clipboard.', ok ? 'success' : 'warn');
 		} else if (id === 'export') exportRows([row], `${row.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.csv`);
 		else if (id === 'ledger')
@@ -846,7 +846,7 @@
 			<button
 				class="btn btn-sm"
 				onclick={async () => {
-					const ok = await copy([...picked].map((id) => `${window.location.origin}/?co=${id}`).join('\n'));
+					const ok = await copy([...picked].map((id) => `${window.location.origin}/companies?co=${id}`).join('\n'));
 					toasts.push(ok ? `Copied ${picked.size} links.` : 'This browser blocked the clipboard.', ok ? 'success' : 'warn');
 				}}
 			>
@@ -925,8 +925,8 @@
 				<div class="empty">
 					<Icon name="inbox" size={22} />
 					<p>
-						Nothing here. This board leaves out everyone you have already worked — they are in the Pipeline.
-						Set the lead stage under Filters to bring them back, or widen the region.
+						Nothing here. This board leaves out everyone you have already worked. Set the lead stage under
+						Filters to bring them back, or widen the region.
 					</p>
 				</div>
 			{:else}

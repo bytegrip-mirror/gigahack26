@@ -49,15 +49,15 @@
 				label: hit.name,
 				hint: `Fit ${fit(hit.probability)} · ${hit.country ?? '—'}`,
 				icon: 'building',
-				run: () => goto(`/?co=${hit.id}`)
+				run: () => goto(`/companies?co=${hit.id}`)
 			});
 		}
 
 		const views: { href: string; label: string; icon: IconName; keys: string }[] = [
-			{ href: '/', label: 'Board', icon: 'board', keys: 'board companies queue' },
+			{ href: '/', label: 'Dashboard', icon: 'layers', keys: 'dashboard home welcome overview' },
+			{ href: '/companies', label: 'Companies', icon: 'board', keys: 'board companies queue' },
 			{ href: '/icp', label: 'ICP Studio', icon: 'studio', keys: 'icp profiles segment book of business filters' },
-			{ href: '/pipeline', label: 'Pipeline', icon: 'pipeline', keys: 'pipeline leads stages' },
-			{ href: '/settings', label: 'Settings', icon: 'settings', keys: 'settings profile voice scoring pipeline' }
+			{ href: '/settings', label: 'Settings', icon: 'settings', keys: 'settings profile voice scoring' }
 		];
 		for (const view of views) {
 			if (needle && !`${view.label} ${view.keys}`.toLowerCase().includes(needle)) continue;
@@ -90,7 +90,7 @@
 					icon: 'layers',
 					run: () => {
 						session.setAll();
-						goto('/');
+						goto('/companies');
 					}
 				});
 			}
@@ -107,7 +107,7 @@
 				icon: 'layers',
 				run: () => {
 					session.set(line);
-					goto('/');
+					goto('/companies');
 				}
 			});
 		}
@@ -123,7 +123,7 @@
 				icon: 'target',
 				run: () => {
 					session.setRegion(region.key);
-					goto('/');
+					goto('/companies');
 				}
 			});
 		}
@@ -137,7 +137,7 @@
 				keys: 'saved bookmarks starred shortlist',
 				run: () => {
 					sessionStorage.setItem('gigahack26.openFilter', 'saved');
-					goto('/');
+					goto('/companies');
 				}
 			},
 			{
@@ -148,7 +148,7 @@
 				keys: 'leads worked contacted pipeline stage',
 				run: () => {
 					sessionStorage.setItem('gigahack26.openStage', 'worked');
-					goto('/');
+					goto('/companies');
 				}
 			},
 			{
@@ -159,7 +159,7 @@
 				keys: 'export download csv board',
 				run: () => {
 					sessionStorage.setItem('gigahack26.openExport', '1');
-					goto('/');
+					goto('/companies');
 				}
 			}
 		];
@@ -185,7 +185,7 @@
 				icon: 'target',
 				run: () => {
 					session.setRegion('world');
-					goto('/');
+					goto('/companies');
 				}
 			});
 		}

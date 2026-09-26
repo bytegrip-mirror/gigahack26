@@ -1,11 +1,7 @@
 <script lang="ts">
-	import { page } from '$app/state';
-	import BoardView from '$lib/views/BoardView.svelte';
-
-	const selected = $derived(page.url.searchParams.get('co'));
-	const line = $derived(page.url.searchParams.get('line'));
+	import DashboardView from '$lib/views/DashboardView.svelte';
 </script>
 
-<svelte:head><title>Board · Signal Desk</title></svelte:head>
+<svelte:head><title>Dashboard · Signal Desk</title></svelte:head>
 
-<BoardView initialSelected={selected} initialLine={line} />
+<DashboardView />

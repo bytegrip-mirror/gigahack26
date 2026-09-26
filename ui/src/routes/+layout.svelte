@@ -23,9 +23,9 @@
 	);
 
 	const nav = [
-		{ href: '/', label: 'Companies', icon: 'board' },
+		{ href: '/', label: 'Dashboard', icon: 'layers' },
+		{ href: '/companies', label: 'Companies', icon: 'board' },
 		{ href: '/people', label: 'People', icon: 'building' },
-		{ href: '/pipeline', label: 'Pipeline', icon: 'pipeline' },
 		{ href: '/icp', label: 'ICP Studio', icon: 'studio' },
 		{ href: '/settings', label: 'Settings', icon: 'settings' }
 	] as const;

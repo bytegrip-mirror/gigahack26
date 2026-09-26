@@ -166,7 +166,7 @@ companies removed for "building in-house", ING was removed for having 600 AI sta
 Admiral for creating a GenAI Center of Excellence, KPN for a job ad that
 simultaneously fired a positive hiring signal, and VINCI and LPP because the
 documents were about different companies entirely. The `DISQUALIFYING` polarity
-still exists and the Studio still offers it; the shipped set does not use it.
+still exists and a question can still be given it; the shipped set does not use it.
 
 **The trade is never the same twice.** `local.decay` is per half-life by class,
 `source_authority` is per kind, and `confidence` is the engine's own — so a row's
@@ -234,9 +234,9 @@ from intuition; re-derive them the same way if the corpus changes shape. All fou
 are environment-overridable (`SCORING_*`), so recalibrating is a restart.
 
 **A re-score keeps every model answer it already paid for.** `SignalOverlayStore`
-is read by the seeder *and* by `RescoreService`, so asking one question in the
-Studio classifies that question with the configured engine and leaves the rest of
-the service line's model verdicts alone. It used to re-classify the whole service
+is read by the seeder *and* by `RescoreService`, so re-scoring with one question
+classifies that question with the configured engine and leaves the rest of the
+service line's model verdicts alone. It used to re-classify the whole service
 line on the local engine, which meant typing one question silently replaced every
 model classification on that line — the same failure the boot path was fixed for,
 still live on the demo path. The seeder's `overlayUnapplied()` now compares what
@@ -269,7 +269,7 @@ reaches for the disqualifier.
 
 **A theme is folded on the way in, because it is what the cap groups by.**
 `PolicyService.normaliseTheme` trims, lowercases and hyphenates whatever is typed
-into the Studio's free-text theme field, so `Efficiency`, `efficiency` and
+into the theme field, so `Efficiency`, `efficiency` and
 `EFFICIENCY ` are one theme. They were not: the cap groups rows by the theme
 string, so two spellings of one topic were two themes and a company could climb
 past the Priority line on a single loud subject — the one thing the cap exists to
@@ -282,7 +282,7 @@ plain-language `text`, an `instructions` rubric, a `weight_tier`, a `polarity`
 half-life, and `cues`/`counter_cues` for the local engine. The rubric is what makes
 the system work: it lets the classifier make the business inference a senior rep
 would instead of matching the word "automation". `LocalRubricEngine.deriveCues`
-means a question typed cold in the Studio — with no cues configured — still scores,
+means a question written with no cues configured still scores,
 but only through a phrase that says something: it refuses a phrase that opens on the
 subject of the sentence ("companies hiring", "banks migrating", "firms with")
 because those describe the audience rather than the signal, and it refuses a single
@@ -290,7 +290,7 @@ word that is not a term this domain uses. It used to accept any two adjacent wor
 whose letters added to eight, so "companies hiring RPA developers" derived the cues
 "companies" and "hiring" — and one two-word cue clears the confidence floor on its
 own, so that question matched 1,913 of 4,466 documents and put the whole board in
-Priority. The Studio shows the derived cues before the run and marks the ones that
+Priority. The preview shows the derived cues before the run and marks the ones that
 are too general to be a signal.
 
 **Two classifier engines, chosen per request.** `ClassifierRouter` fronts a
@@ -409,8 +409,7 @@ profile.
 **A lead travels with its company.** `lead` holds the stage — new, contacted,
 replied, qualified, rejected — plus how many times the company has been worked,
 when, through which channel, and the subject of the last draft. The board filters
-by stage; the Pipeline view groups everything worked by stage and advances it
-inline. The contact count moves only on a real transition, never on a re-save.
+by stage, and the row's own menu advances it inline. The contact count moves only on a real transition, never on a re-save.
 The HubSpot push records the intent and marks the lead when `HUBSPOT_TOKEN` is
 absent rather than pretending to have synced.
 
@@ -428,7 +427,7 @@ the detail pane enters with a filled `transform` animation, and a filled animati
 makes its element a containing block, which sized every `position: fixed`
 descendant to the pane instead of the viewport.
 
-**Every screen is a pane, not a page.** Board, Studio, Pipeline and the customer
+**Every screen is a pane, not a page.** Dashboard, Board, People, ICP Studio and the customer
 profile all render a topbar plus independently scrolling panes inside the fixed
 shell. None of them scrolls the document.
 
@@ -467,7 +466,7 @@ answered**, not merely that the images built.
 
 There is **no authentication**, and that is a scoped decision rather than an
 oversight: the corpus is public web pages, there are no user accounts, no tenants
-and no personal data, and the jury is meant to type a question into the Studio
+and no personal data, and the jury is meant to drive the board themselves.
 themselves. What follows from it, and must be respected:
 
 - `ADMIN_ENABLED` stays **false** in the deployed container. `POST /api/admin/signals/build`
