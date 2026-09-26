@@ -99,12 +99,13 @@
 					</div>
 					{#if !backtest.powered}
 						<p class="note warn">
-							<strong>Not enough history to answer.</strong> Of {backtest.withEvidence} companies holding a
-							document dated before {(backtest.asOf ?? '').slice(0, 10)}, only {backtest.called}
+							<strong>Not enough depth to answer.</strong> {backtest.withEvidence} companies hold a document
+							dated before {(backtest.asOf ?? '').slice(0, 10)}, and only {backtest.called}
 							{backtest.called === 1 ? 'reaches' : 'reach'} a band on the evidence from before that date. The
-							corpus was crawled this week, so the board as of three months ago is nearly empty and any rate
-							computed from it would be measuring the corpus's age rather than the board's judgement. Shorten the
-							horizon, or crawl older pages, before reading a number here.
+							corpus is broad rather than deep — a few hundred companies at roughly seven documents each — so a
+							cutoff this far back leaves about two documents per company and almost nobody clears a band on them.
+							Any rate computed from that comparison would be a fact about the crawl's depth wearing the costume of
+							an accuracy figure. Crawling more documents per company is what would power it.
 						</p>
 					{/if}
 					<div class="metrics">

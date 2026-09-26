@@ -480,13 +480,20 @@ what is missing and why — an absence with a reason, not a silent gap.
 
 Run against the live corpus at thirty, sixty, ninety and a hundred and eighty
 days, it reports a lift of 0.0 every time: one company reaches a band where three
-hundred and sixty-six do not, and none of the one is confirmed. That is not a
-finding about the board. The corpus was crawled this week, so a board rebuilt as
-of three months ago has almost nothing at the top, and the rate from a sample of
-one measures the corpus's age. The panel now says so before it shows a number,
-and the honest reading is: crawl older pages before asking it anything. Building
-the instrument was still worth it — an instrument that reported a confident 0.0
-would have been worse than none.
+hundred and sixty-six do not, and none of the one is confirmed.
+
+The first explanation written for that was wrong, and the correction is the
+useful part. The corpus is not young — 1,196 of its 4,182 documents are dated
+more than ninety days ago, and 460 companies hold at least one of them. It is
+**broad rather than deep**: a few hundred companies at roughly seven documents
+each, so a cutoff ninety days back leaves about two documents per company and
+almost nobody clears a band on them. The comparison is one company against three
+hundred and sixty, and the rate from that sample is a fact about the crawl's
+depth wearing the costume of an accuracy figure.
+
+The panel says exactly that before it shows a number. Building the instrument was
+still worth it — one that reported a confident 0.0 would have been worse than
+none — and what would power it is a deeper crawl per company, not an older one.
 
 ## What was not on the list
 

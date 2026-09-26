@@ -46,11 +46,14 @@ public class BacktestService {
      * calledRate() got nothing and drew a dash where the number should be.
      *
      * `powered` is false when too few companies reached a band for the comparison
-     * to mean anything. A corpus crawled this week has almost no dated evidence
-     * before a cutoff three months back, so the "as of" board has nothing at the
-     * top and the comparison is one company against three hundred. A test whose
-     * sample cannot support its conclusion has to say so — that was the sharpest
-     * criticism the research levelled at its own rehearsal protocol.
+     * to mean anything. The corpus is broad rather than deep — a few hundred
+     * companies at roughly seven documents each — so a cutoff three months back
+     * leaves about two documents per company and almost nobody clears a band on
+     * them. The comparison then runs one company against three hundred and sixty,
+     * and the rate from that sample is a fact about the crawl's depth wearing the
+     * costume of an accuracy figure. A test whose sample cannot support its
+     * conclusion has to say so — that was the sharpest criticism the research
+     * levelled at its own rehearsal protocol, and it applies here.
      */
     public record Outcome(int asOfDaysAgo, Instant asOf, long companies, long withEvidence, long called,
                           long control, long calledConfirmed, long controlConfirmed,
