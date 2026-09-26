@@ -31,12 +31,12 @@
 	let sort = $state('company');
 	let busy = $state(false);
 	let provider = $state<{ provider: string; available: boolean } | null>(null);
-	let stage = $state('');
+	let stage = $state('NEW');
 	let busyOn = $state<string | null>(null);
 
 	const STAGES = [
-		{ id: '', label: 'Anyone' },
-		{ id: 'NEW', label: 'Not worked' },
+		{ id: 'NEW', label: 'To contact' },
+		{ id: '' , label: 'Anyone' },
 		{ id: 'CONTACTED', label: 'Contacted' },
 		{ id: 'REPLIED', label: 'Replied' },
 		{ id: 'QUALIFIED', label: 'Qualified' },
