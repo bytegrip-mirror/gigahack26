@@ -350,20 +350,25 @@ not connected to the node under the cursor.
 
 **The ICP Studio keeps the books of business.** A profile is a title, a colour and
 a set of filters — where the companies are, what they do, how big they are, and
-who to keep out — and the board shows the union of the profiles switched on, every
-row carrying a label after Latest saying which book it falls into. The list is on
-the left and the open profile on the right, in the same two panes the Signal
-Studio uses. The last panel counts what the filters would hold before anything is
-saved; that count and the board's rows come from one predicate on the server, so
-the screen cannot promise a number the board will not show.
+who to keep out — and the board shows the union of the profiles switched on. The
+list is on the left and the open profile on the right, in the same two panes the
+Signal Studio used. The last panel counts what the filters would hold before
+anything is saved; that count and the board's rows come from one predicate on the
+server, so the screen cannot promise a number the board will not show.
+
+The board says which books are on in the **Filters** menu, and says nothing about
+them on the rows themselves. A coloured chip on every row was tried and taken out
+again: at six chips to a screen it stopped being information and became texture,
+and a row already carries the company's band, its lead stage and its signals. The
+colour still does work where a person is choosing between profiles — the list, the
+swatch and the picker — which is the only place a colour can be told apart from
+the three roles the palette reserves.
 
 **A profile's colour is the one place the palette admits a hue that means
 nothing.** Everywhere else colour is a role — orange is the action and the fit,
 viridian the corroboration mark, oxblood rejection — and the signal map separates
 themes by position for exactly this reason. A profile is the deliberate exception:
-the operator picks it, it means only "this book and not that one", and it is drawn
-as a filled dot inside the label, so a choice that is pale, dark or loud still
-leaves the name beside it legible.
+the operator picks it, and it means only "this book and not that one".
 The `Table` toggle is the same data as rows, which is the accessible view and the
 one to reach for when the map is too dense to read a name off.
 

@@ -145,11 +145,6 @@
 		(stage === '' ? 0 : 1) + (engineFilter === 'all' ? 0 : 1) + profileFilter.size
 	);
 	const profiles = $derived(workspace.profiles);
-
-	/** A row carries the profile's name; the colour is whatever the profile wears. */
-	function colorOf(name: string): string {
-		return workspace.profiles.find((profile) => profile.name === name)?.color ?? 'var(--color-ink-4)';
-	}
 	const STAGE_LABEL = $derived(STAGES.find((option) => option.id === stage)?.label ?? 'Any lead stage');
 	const ENGINE_LABEL = $derived(
 		engineFilter === 'all' ? 'Any engine' : engineFilter === 'model' ? 'Read by the model' : 'Matched by the rules'
@@ -979,7 +974,6 @@
 							<th class="c-trend" scope="col"><span class="sr-only">Signal trend over the last year</span></th>
 							<Th id="docs" label="Docs" sort={sort} {dir} onsort={sortBy} align="right" width="56px" className="c-doc" />
 							<Th id="newest" label="Latest" sort={sort} {dir} onsort={sortBy} align="right" width="66px" className="c-age" />
-							<th class="c-icp" scope="col"><span class="sr-only">Book of business</span></th>
 							<th class="c-star" scope="col"><span class="sr-only">Saved</span></th>
 							<th class="c-act" scope="col"><span class="sr-only">Actions</span></th>
 						</tr>
@@ -1084,18 +1078,6 @@
 									{/if}
 								</td>
 								<td class="num c-age">{ageShort(row.newestSignalAgeDays)}</td>
-								<td class="c-icp">
-									{#each row.profiles as name (name)}
-										<span
-											class="profile-tag"
-											style={`--profile:${colorOf(name)}`}
-											title="The book of business this company falls into"
-										>
-											<span class="profile-dot" style={`background:${colorOf(name)}`}></span>
-											<span class="profile-name">{name}</span>
-										</span>
-									{/each}
-								</td>
 								<td class="c-star">
 								<Star
 									companyId={row.id}
@@ -1481,47 +1463,6 @@
 	.line-tag {
 		color: var(--color-orange-ink);
 		font-weight: 500;
-	}
-
-	.c-icp {
-		width: 150px;
-		vertical-align: top;
-	}
-
-	/* The colour is the point, so it stays when the name cannot: at the width a
-	 * selected row leaves, the dot is all there is room for. */
-	.view.split .c-icp {
-		width: 48px;
-	}
-
-	.view.split .profile-name {
-		display: none;
-	}
-
-	.view.split .profile-tag {
-		padding: 1px 3px;
-	}
-
-	.profile-tag {
-		display: inline-flex;
-		align-items: center;
-		gap: 4px;
-		margin: 0 3px 3px 0;
-		font-size: var(--text-micro);
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.07em;
-		padding: 1px 5px;
-		border: 1px solid var(--profile, var(--color-accent-line));
-		color: var(--color-ink-2);
-	}
-
-	.profile-dot {
-		width: 7px;
-		height: 7px;
-		flex: none;
-		border-radius: 50%;
-		border: 1px solid var(--color-rule-strong);
 	}
 
 	.stage-tag {
