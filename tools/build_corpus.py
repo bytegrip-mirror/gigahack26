@@ -2093,26 +2093,31 @@ def filing_docs(company, observed):
     return out
 
 
-def build_company(company, observed):
+def build_company(company, observed, sources=None):
     docs = []
-    try:
-        docs.extend(news_docs(company, observed))
-    except Exception as exc:
-        bump("company_news_error")
-    try:
-        docs.extend(job_docs(company, observed))
-    except Exception:
-        bump("company_job_error")
-    try:
-        r = registry_doc(company, observed)
-        if r:
-            docs.append(r)
-    except Exception:
-        bump("company_registry_error")
-    try:
-        docs.extend(filing_docs(company, observed))
-    except Exception:
-        bump("company_filing_error")
+    wanted = sources or ("news", "job_posting", "registry", "filing")
+    if "news" in wanted:
+        try:
+            docs.extend(news_docs(company, observed))
+        except Exception as exc:
+            bump("company_news_error")
+    if "job_posting" in wanted:
+        try:
+            docs.extend(job_docs(company, observed))
+        except Exception:
+            bump("company_job_error")
+    if "registry" in wanted:
+        try:
+            r = registry_doc(company, observed)
+            if r:
+                docs.append(r)
+        except Exception:
+            bump("company_registry_error")
+    if "filing" in wanted:
+        try:
+            docs.extend(filing_docs(company, observed))
+        except Exception:
+            bump("company_filing_error")
     seen = set()
     uniq = []
     for d in docs:
@@ -2215,24 +2220,57 @@ def validate(path):
     return len(errs) == 0
 
 
+def carried_over(existing, evidence, companies_out):
+    """A sweep replaces only the source it went and fetched, for the companies it touched.
+
+    Running this with --only used to rewrite the corpus file with just the
+    companies named, so a targeted rerun silently deleted every other company's
+    evidence. Replacing a whole company is the same mistake one level down: a
+    job-postings-only pass would clear that company's news, registry and filing
+    documents too, which is what happened on the first run of this mode. A
+    document survives unless this pass produced documents of its kind for its
+    company.
+    """
+    replaced = {(d["companyKey"], d["sourceKind"]) for d in evidence}
+    kept = [d for d in existing.get("evidence", [])
+            if (d.get("companyKey"), d.get("sourceKind")) not in replaced]
+    companies = {c["key"]: c for c in existing.get("companies", [])}
+    for company in companies_out:
+        companies[company["key"]] = company
+    return kept, list(companies.values())
+
+
 def main():
     only = None
     limit = None
+    sources = None
+    tier = "all"
     for arg in sys.argv[1:]:
         if arg.startswith("--only="):
             only = set(arg.split("=", 1)[1].split(","))
         elif arg.startswith("--limit="):
             limit = int(arg.split("=", 1)[1])
+        elif arg.startswith("--sources="):
+            sources = tuple(arg.split("=", 1)[1].split(","))
+        elif arg.startswith("--tier="):
+            tier = arg.split("=", 1)[1]
     observed = now_iso()
     load_sec_tickers()
     todo = [c2 for c2 in COMPANIES if only is None or c2["key"] in only]
+    if tier == "empty":
+        try:
+            with open(OUT, encoding="utf-8") as fh:
+                have = {e["companyKey"] for e in json.load(fh).get("evidence", [])}
+        except (OSError, ValueError):
+            have = set()
+        todo = [c for c in todo if c["key"] not in have]
     if limit:
         todo = todo[:limit]
-    print("[run] companies:", len(todo), flush=True)
+    print("[run] companies:", len(todo), "sources:", sources or "all", flush=True)
     results = {}
     done = 0
     with futures.ThreadPoolExecutor(max_workers=48) as pool:
-        futs = {pool.submit(build_company, c2, observed): c2 for c2 in todo}
+        futs = {pool.submit(build_company, c2, observed, sources): c2 for c2 in todo}
         for fut in futures.as_completed(futs):
             comp = futs[fut]
             try:
@@ -2281,10 +2319,18 @@ def main():
         bump("stale_dropped", len(evidence) - len(fresh))
         evidence = fresh
     evidence.sort(key=lambda e: (e["companyKey"], e["sourceKind"], e["key"]))
+    try:
+        with open(OUT, encoding="utf-8") as fh:
+            existing = json.load(fh)
+    except (OSError, ValueError):
+        existing = {}
+    kept, every_company = carried_over(existing, evidence, companies_out)
+    if kept:
+        print("[keep] %d documents carried over" % len(kept), flush=True)
     payload = {
         "generatedAt": observed,
-        "companies": companies_out,
-        "evidence": evidence,
+        "companies": every_company,
+        "evidence": kept + evidence,
     }
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as fh:
