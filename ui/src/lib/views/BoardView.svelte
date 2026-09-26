@@ -144,6 +144,13 @@
 			.slice(0, 6)
 	);
 
+	const subtitle = $derived.by(() => {
+		const total = shortNumber(rows.length);
+		if (filter === 'everyone') return `${total} companies in the corpus`;
+		const view = FILTERS.find((option) => option.id === filter)?.label.toLowerCase() ?? 'companies';
+		return `${shortNumber(sorted.length)} ${view} of ${total}`;
+	});
+
 	const narrowed = $derived(
 		session.region !== 'world' || stage !== '' || query !== '' || applied !== null || filter !== 'to-call'
 	);
@@ -887,7 +894,7 @@
 				{#if error}
 					The board could not be read from the API — a failure, not an empty result
 				{:else}
-					{shortNumber(rows.length)} companies · {regionLabel(meta?.regions ?? [], session.region)}{#if stage}
+					{subtitle} · {regionLabel(meta?.regions ?? [], session.region)}{#if stage}
 						· {STAGES.find((s) => s.id === stage)?.label}{/if}
 				{/if}
 			</p>
