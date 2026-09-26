@@ -1468,6 +1468,19 @@
 		grid-template-columns: minmax(0, 1fr) clamp(440px, 38%, 660px);
 	}
 
+	/**
+	 * The scrim is for the overlay layout only.
+	 *
+	 * Above 1100px the pane is a column beside the board and there is nothing to
+	 * dim — but the element was still in the DOM, and with no rule to take it out
+	 * of the grid it took the second column for itself and pushed the pane onto
+	 * an implicit second row, full width, under the board. Which is what it
+	 * looked like: the pane replacing the page.
+	 */
+	.view .scrim {
+		display: none;
+	}
+
 	.main {
 		display: flex;
 		flex-direction: column;
@@ -1866,6 +1879,7 @@
 			grid-template-columns: minmax(0, 1fr);
 		}
 		.view :global(.scrim) {
+			display: block;
 			position: absolute;
 			inset: 0;
 			z-index: 3;
