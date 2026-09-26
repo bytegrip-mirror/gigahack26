@@ -53,7 +53,13 @@ pipeline {
 
         stage('Check the corpus') {
             steps {
-                sh 'python3 tools/verify_corpus.py'
+                sh '''
+                    docker run --rm \
+                        -v "$(pwd)":/w \
+                        -w /w \
+                        python:3.12-alpine \
+                        python3 tools/verify_corpus.py
+                '''
             }
         }
 
