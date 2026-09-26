@@ -49,7 +49,7 @@ docker run --rm -v "$PWD":/src -v gigahack26-gradle-cache:/root/.gradle -w /src 
 UI (from `ui/`):
 
 ```sh
-pnpm run check                       # svelte-check, must be 0 errors
+pnpm run check                       # svelte-check + design lint, must be 0 errors
 pnpm run build                       # static site into build/
 PUBLIC_API_URL=http://localhost:8080 pnpm run build
 pnpm run dev                         # :5173
@@ -367,15 +367,26 @@ themselves. What follows from it, and must be respected:
 - The interface has an architecture: the shell, the spacing and type scale, the
   shared components and the action hierarchy on every screen are written down in
   `docs/ui-architecture.md`. Read it before adding a screen, a column or an
-  action; views use the tokens in `ui/src/app.css` rather than inventing sizes.
-- Design tokens live in `ui/src/app.css`. The palette has exactly three roles:
-  `--orange` is the primary and is spent on one action per screen and on the
-  score; ink and paper carry every piece of structure; `--accent` (viridian) is
+  action.
+- The UI is Tailwind v4 plus bits-ui. Every control and shell piece is a
+  primitive in `ui/src/lib/ui/`, the only place that imports `bits-ui` or holds a
+  `<style>` block. Views compose primitives and arrange them with layout
+  utilities; they never restyle one. A new look is a new `variant` on the
+  primitive, not a class at the call site.
+- `ui/scripts/design-lint.mjs` runs inside `pnpm run check` and fails on
+  arbitrary values (`p-[3px]`), classes the theme does not define, `style="…"`,
+  raw colours, run-time class strings, non-layout classes on a component, and
+  `bits-ui` imports outside `lib/ui`. Do not work around it; add the token to
+  `@theme` or the variant to the primitive.
+- Design tokens live in the `@theme` block of `ui/src/app.css`, which starts with
+  `--*: initial`, so the default Tailwind scale does not exist. The palette has
+  exactly three roles: `orange` is the primary and is spent on one action per screen and on the
+  score; ink and paper carry every piece of structure; `accent` (viridian) is
   spent only on the corroboration mark. Semantic oxblood is for rejection and
   negative weights, and nothing else. No gradients, no shadows — hierarchy comes
   from rules and weight. Radii stay between 0 and 2px.
-- Type is two roles: `--font-display` (Space Grotesk) for page titles, company
-  names and section headings, `--font-ui` (Archivo) for everything else. There is
+- Type is two roles: `font-display` (Space Grotesk) for page titles, company
+  names and section headings, `font-ui` (Archivo) for everything else. There is
   no monospace face; numbers use tabular figures in the interface face.
 - The shell is fixed-height with independently scrolling panes: a rail, then a
   view that splits into list and detail. Nothing scrolls the document itself, and

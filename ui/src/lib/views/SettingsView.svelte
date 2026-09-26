@@ -258,199 +258,167 @@
 	});
 </script>
 
-<div class="view">
-	<header class="topbar">
-		<div class="ident">
-			<h1 class="dsp">Settings</h1>
-			<p class="sub num">
-				{#if loadError}
-					The settings could not be read from the API — a failure, not a reset
-				{:else}
-					{shortNumber(settings?.indexedCompanies ?? 0)} companies indexed · {lines.length} service lines · applies to
-				{/if}
-				all of them
-			</p>
-		</div>
-		<div class="topbar-tools">
-			{#if dirty}
-				<button class="btn" onclick={discard} disabled={saving}>Discard</button>
-				<button class="btn btn-primary" onclick={save} disabled={saving}>
-					{#if saving}<span class="spinner"></span>{/if}
-					{saving ? 'Saving' : 'Save and re-score'}
-				</button>
+<View>
+	<Topbar title="Settings">
+		{#snippet subtitle()}
+			{#if loadError}
+				The settings could not be read from the API — a failure, not a reset
 			{:else}
-				<span class="saved"><Icon name="check" size={14} /> Saved</span>
+				{shortNumber(settings?.indexedCompanies ?? 0)} companies indexed · {lines.length} service lines · applies to
+			{/if}
+			all of them
+		{/snippet}
+		{#snippet tools()}
+			{#if dirty}
+				<Button onclick={discard} disabled={saving}>Discard</Button>
+				<Button variant="primary" onclick={save} disabled={saving}>
+					{#if saving}<Spinner />{/if}
+					{saving ? 'Saving' : 'Save and re-score'}
+				</Button>
+			{:else}
+				<span class="inline-flex items-center gap-1 text-base text-accent"><Icon name="check" size="sm" /> Saved</span>
 			{/if}
 			<Menu
 				items={[{ id: 'voice', label: 'Read the writer brief', icon: 'mail' }]}
 				onselect={() => (section = 'voice')}
 				label="More settings actions"
 			/>
-		</div>
-	</header>
+		{/snippet}
+	</Topbar>
 
 	{#if loading && !draft}
-		<p class="note"><span class="spinner"></span> Loading settings</p>
+		<Note><Spinner /> Loading settings</Note>
 	{:else if draft}
-		<div class="panes">
+		<div class="relative flex min-h-0 flex-1 max-compact:flex-col">
 			<LoadingVeil show={saving} label="Saving and re-scoring" />
-			<nav class="sections" aria-label="Settings sections">
+			<nav
+				class="flex w-rail flex-none flex-col border-r border-rule bg-paper py-2 max-compact:w-full max-compact:flex-row max-compact:overflow-x-auto max-compact:border-r-0 max-compact:border-b max-compact:py-0"
+				aria-label="Settings sections"
+			>
 				{#each SECTIONS as option (option.id)}
 					<button
-						class="section-link"
+						class={[
+							'flex items-start gap-2 border-l-2 py-2 pr-3 pl-2 text-left transition-colors',
+							section === option.id ? 'border-orange bg-surface' : 'border-transparent hover:bg-surface'
+						]}
 						aria-current={section === option.id ? 'true' : undefined}
 						onclick={() => (section = option.id)}
 					>
-						<Icon name={option.icon} size={15} />
-						<span class="section-text">
-							<span class="section-label">{option.label}</span>
-							<span class="section-hint">{option.hint}</span>
+						<span class="mt-px text-ink-3"><Icon name={option.icon} size="md" /></span>
+						<span class="flex min-w-0 flex-col gap-px">
+							<span class={['text-md', section === option.id ? 'font-medium text-ink' : 'text-ink-2']}>{option.label}</span>
+							<span class="text-micro text-ink-4 max-compact:hidden">{option.hint}</span>
 						</span>
 					</button>
 				{/each}
 				{#if dirty}
-					<p class="unsaved"><Icon name="alert" size={13} /> Unsaved changes</p>
+					<p class="mt-auto flex items-center gap-1 px-3 py-3 text-sm text-orange-ink max-compact:hidden">
+						<Icon name="alert" size="sm" /> Unsaved changes
+					</p>
 				{/if}
 			</nav>
 
-			<div class="body scroll">
+			<div class="scroll min-h-0 min-w-0 flex-1 bg-surface">
 				{#if section === 'voice'}
-					<section class="panel">
-						<div class="panel-head">
-							<h2 class="dsp">Voice and style</h2>
-							<span class="sub dim">applies to every draft</span>
-						</div>
-						<div class="fields">
-							<label class="field">
-								<span class="label">Tone</span>
-								<select class="select" bind:value={draft.voiceTone}>
-									{#each TONES as option (option)}<option value={option}>{option}</option>{/each}
-								</select>
-							</label>
-							<label class="field">
-								<span class="label">Register</span>
-								<select class="select" bind:value={draft.voiceFormality}>
-									{#each FORMALITY as option (option)}<option value={option}>{option}</option>{/each}
-								</select>
-							</label>
-							<label class="field">
-								<span class="label">Length</span>
-								<select class="select" bind:value={draft.voiceLength}>
-									{#each LENGTHS as option (option)}<option value={option}>{option}</option>{/each}
-								</select>
-							</label>
-							<label class="field">
-								<span class="label">Language</span>
-								<select class="select" bind:value={draft.voiceLanguage}>
-									{#each LANGUAGES as option (option)}<option value={option}>{option}</option>{/each}
-								</select>
-							</label>
-						</div>
-						<label class="field">
-							<span class="label">The ask</span>
-							<input class="input" bind:value={draft.voiceAsk} />
-						</label>
-						<div class="fields">
-							<label class="field">
-								<span class="label">Sign-off</span>
-								<input class="input" bind:value={draft.voiceSignOff} />
-							</label>
-							<label class="field">
-								<span class="label">Signature</span>
-								<input class="input" bind:value={draft.voiceSignature} placeholder="Name, role, company" />
-							</label>
-						</div>
-						<label class="field">
-							<span class="label">Never use these words</span>
-							<input class="input" bind:value={draft.voiceAvoid} placeholder="leverage, synergy, circle back" />
-							<span class="sub dim">Comma separated, applied to every draft.</span>
-						</label>
-						<label class="field">
-							<span class="label">Anything else the writer should know</span>
-							<textarea class="textarea" rows="3" bind:value={draft.voiceNotes}></textarea>
-						</label>
-					</section>
+					<Panel title="Voice and style" heading="page">
+						{#snippet tools()}
+							<span class="text-sm leading-normal text-ink-4">applies to every draft</span>
+						{/snippet}
+						<Fields>
+							<Field label="Tone" for="voice-tone">
+								<Select id="voice-tone" label="Tone" bind:value={draft.voiceTone} options={TONES.map((option) => ({ value: option, label: option }))} />
+							</Field>
+							<Field label="Register" for="voice-register">
+								<Select id="voice-register" label="Register" bind:value={draft.voiceFormality} options={FORMALITY.map((option) => ({ value: option, label: option }))} />
+							</Field>
+							<Field label="Length" for="voice-length">
+								<Select id="voice-length" label="Length" bind:value={draft.voiceLength} options={LENGTHS.map((option) => ({ value: option, label: option }))} />
+							</Field>
+							<Field label="Language" for="voice-language">
+								<Select id="voice-language" label="Language" bind:value={draft.voiceLanguage} options={LANGUAGES.map((option) => ({ value: option, label: option }))} />
+							</Field>
+						</Fields>
+						<Field label="The ask" for="voice-ask">
+							<Input id="voice-ask" bind:value={draft.voiceAsk} />
+						</Field>
+						<Fields>
+							<Field label="Sign-off" for="voice-signoff">
+								<Input id="voice-signoff" bind:value={draft.voiceSignOff} />
+							</Field>
+							<Field label="Signature" for="voice-signature">
+								<Input id="voice-signature" bind:value={draft.voiceSignature} placeholder="Name, role, company" />
+							</Field>
+						</Fields>
+						<Field label="Never use these words" hint="Comma separated, applied to every draft." for="voice-avoid">
+							<Input id="voice-avoid" bind:value={draft.voiceAvoid} placeholder="leverage, synergy, circle back" />
+						</Field>
+						<Field label="Anything else the writer should know" for="voice-notes">
+							<Textarea id="voice-notes" rows={3} bind:value={draft.voiceNotes} />
+						</Field>
+					</Panel>
 
-					<section class="panel">
-						<div class="panel-head"><h3 class="label">The brief the writer receives</h3></div>
-						<p class="brief">{voicePreview}</p>
-						<p class="sub dim">
+					<Panel title="The brief the writer receives" heading="label">
+						<p class="border-l-2 border-orange bg-paper px-3 py-2 text-base leading-relaxed text-ink-2">{voicePreview}</p>
+						<p class="text-sm leading-normal text-ink-4">
 							{draft.modelWritesDrafts
 								? 'A language model is configured, so drafts are written from the evidence under this brief.'
 								: 'No model is configured, so drafts are composed from the ledger with this brief applied.'}
 						</p>
-					</section>
+					</Panel>
 				{/if}
 
 				{#if section === 'profile'}
-					<section class="panel">
-						<div class="panel-head">
-							<h2 class="dsp">Where we sell</h2>
-							<span class="sub dim">{draft.geographyGate ? 'gate on' : 'gate off'}</span>
-						</div>
-						<div class="field">
-							<span class="label">Add a whole region</span>
-							<div class="chips">
+					<Panel title="Where we sell" heading="page">
+						{#snippet tools()}
+							<span class="text-sm leading-normal text-ink-4">{draft!.geographyGate ? 'gate on' : 'gate off'}</span>
+						{/snippet}
+						<Field label="Add a whole region">
+							<div class="flex flex-wrap gap-1">
 								{#each regionsOf(regionCountries) as group (group.key)}
-									<button class="tag region-pick" onclick={() => addRegion(group.codes)}>
+									<button
+										class="cursor-pointer rounded-sm border border-orange-line bg-orange-wash px-1 text-micro leading-normal font-medium tracking-wide text-orange-ink transition-colors hover:bg-surface"
+										onclick={() => addRegion(group.codes)}
+									>
 										+ {group.name}
 									</button>
 								{/each}
 							</div>
-						</div>
-						<label class="field">
-							<span class="label">Countries</span>
-							<textarea class="textarea" rows="2" bind:value={countries}></textarea>
-							<span class="sub dim">Empty means every market.</span>
-						</label>
-						<div class="chips">
+						</Field>
+						<Field label="Countries" hint="Empty means every market." for="icp-countries">
+							<Textarea id="icp-countries" rows={2} bind:value={countries} />
+						</Field>
+						<div class="flex flex-wrap gap-1">
 							{#each parse(countries).slice(0, 24) as code (code)}<Tag>{code}</Tag>{/each}
 							{#if parse(countries).length > 24}
-								<Tag variant="bare">+{parse(countries).length - 24}</Tag>
+								<Tag tone="bare">+{parse(countries).length - 24}</Tag>
 							{/if}
 						</div>
-						<label class="check">
-							<input type="checkbox" bind:checked={draft.geographyGate} />
-							<span>Remove companies outside these markets — the reason is shown on the card</span>
-						</label>
-					</section>
+						<Checkbox bind:checked={draft.geographyGate}>Remove companies outside these markets — the reason is shown on the card</Checkbox>
+					</Panel>
 
-					<section class="panel">
-						<div class="panel-head"><h2 class="dsp">Who we sell to</h2></div>
-						<div class="fields">
-							<label class="field">
-								<span class="label">Minimum employees</span>
-								<input class="input" type="number" min="0" bind:value={draft.icpMinEmployees} />
-							</label>
-							<label class="field">
-								<span class="label">Industries (optional)</span>
-								<input class="input" list="industries-present" bind:value={industries} />
+					<Panel title="Who we sell to" heading="page">
+						<Fields>
+							<Field label="Minimum employees" for="icp-min-employees">
+								<Input id="icp-min-employees" type="number" min="0" bind:value={draft.icpMinEmployees} />
+							</Field>
+							<Field label="Industries (optional)" for="icp-industries">
+								<Input id="icp-industries" list="industries-present" bind:value={industries} />
 								<datalist id="industries-present">
 									{#each settings?.industriesPresent ?? [] as name (name)}
 										<option value={name}></option>
 									{/each}
 								</datalist>
-							</label>
+							</Field>
+						</Fields>
+						<div class="flex flex-col gap-1">
+							<Checkbox bind:checked={draft.sizeGate}>Remove companies below the size floor</Checkbox>
+							<Checkbox bind:checked={draft.competitorGate}>Remove competitors — firms that sell what we sell</Checkbox>
+							<Checkbox bind:checked={draft.industryGate}>Remove companies outside those industries — the reason is shown on the card</Checkbox>
 						</div>
-						<div class="checks">
-							<label class="check">
-								<input type="checkbox" bind:checked={draft.sizeGate} />
-								<span>Remove companies below the size floor</span>
-							</label>
-							<label class="check">
-								<input type="checkbox" bind:checked={draft.competitorGate} />
-								<span>Remove competitors — firms that sell what we sell</span>
-							</label>
-							<label class="check">
-								<input type="checkbox" bind:checked={draft.industryGate} />
-								<span>Remove companies outside those industries — the reason is shown on the card</span>
-							</label>
-						</div>
-					</section>
+					</Panel>
 
-					<section class="panel">
-						<div class="panel-head"><h3 class="label">What that leaves</h3></div>
-						<div class="metrics">
+					<Panel title="What that leaves" heading="label">
+						<Metrics>
 							<Metric value={shortNumber(settings?.indexedCompanies ?? 0)} label="Indexed" />
 							<Metric value={shortNumber(settings?.inScope?.inGeography ?? 0)} label="In geography" />
 							<Metric value={shortNumber(settings?.inScope?.aboveSizeFloor ?? 0)} label="Above the floor" />
@@ -468,20 +436,19 @@
 				{/if}
 
 				{#if section === 'lines'}
-					<section class="panel">
-						<div class="panel-head">
-							<h2 class="dsp">What we sell</h2>
-							<span class="sub dim">{lines.length} configured</span>
-						</div>
-						<ul class="lines">
+					<Panel title="What we sell" heading="page">
+						{#snippet tools()}
+							<span class="text-sm leading-normal text-ink-4">{lines.length} configured</span>
+						{/snippet}
+						<ul class="m-0 list-none border-t border-rule p-0">
 							{#each lines as line (line.id)}
-								<li>
-									<div class="line-head">
-										<span class="line-name">{line.name}</span>
-										<div class="line-tools">
-											<Tag variant="bare">{line.questionCount} questions</Tag>
-											<Tag variant={line.active ? 'accent' : 'bare'}>{line.active ? 'active' : 'off'}</Tag>
-											{#if lineBusy === line.id}<span class="spinner"></span>{/if}
+								<li class="border-b border-rule py-2">
+									<div class="flex items-center justify-between gap-3">
+										<span class="font-display text-lg">{line.name}</span>
+										<div class="flex items-center gap-1">
+											<Tag tone="bare">{line.questionCount} questions</Tag>
+											<Tag tone={line.active ? 'accent' : 'bare'}>{line.active ? 'active' : 'off'}</Tag>
+											{#if lineBusy === line.id}<Spinner />{/if}
 											<Menu
 												items={lineMenu(line)}
 												onselect={(id) => runLine(line, id)}
@@ -490,32 +457,27 @@
 											/>
 										</div>
 									</div>
-									<p class="sub">
+									<p class="type-sub">
 										{line.valueProposition ?? 'No value proposition yet — the writer falls back to a generic one.'}
 									</p>
 								</li>
 							{/each}
 						</ul>
-					</section>
+					</Panel>
 
-					<section class="panel">
-						<div class="panel-head"><h3 class="label">Add a service line</h3></div>
-						<div class="fields">
-							<label class="field">
-								<span class="label">Name</span>
-								<input class="input" bind:value={newLine.name} placeholder="Managed Detection and Response" />
-							</label>
-							<label class="field">
-								<span class="label">Value proposition</span>
-								<input class="input" bind:value={newLine.valueProposition} placeholder="we run the SOC so your team keeps the context" />
-							</label>
-						</div>
+					<Panel title="Add a service line" heading="label">
+						<Fields>
+							<Field label="Name" for="line-name">
+								<Input id="line-name" bind:value={newLine.name} placeholder="Managed Detection and Response" />
+							</Field>
+							<Field label="Value proposition" for="line-value">
+								<Input id="line-value" bind:value={newLine.valueProposition} placeholder="we run the SOC so your team keeps the context" />
+							</Field>
+						</Fields>
 						<div>
-							<button class="btn btn-ink" disabled={lineBusy === 'new'} onclick={addLine}>
-								<Icon name="plus" size={15} /> Add service line
-							</button>
+							<Button variant="ink" icon="plus" disabled={lineBusy === 'new'} onclick={addLine}>Add service line</Button>
 						</div>
-					</section>
+					</Panel>
 				{/if}
 
 				{#if section === 'scoring'}
@@ -562,50 +524,44 @@
 						</p>
 					</section>
 
-					<section class="panel">
-						<div class="panel-head"><h3 class="label">The board right now</h3></div>
-						<div class="metrics">
+					<Panel title="The board right now" heading="label">
+						<Metrics>
 							<Metric value={bands.PRIORITY ?? 0} label="Priority" tone="hot" />
 							<Metric value={bands.NURTURE ?? 0} label="Nurture" />
 							<Metric value={bands.WATCH ?? 0} label="Watch" />
 							<Metric value={bands.THIN ?? 0} label="Thin" />
 							<Metric value={bands.DISQUALIFIED ?? 0} label="Rejected" />
-						</div>
-					</section>
+						</Metrics>
+					</Panel>
 
-					<section class="panel">
-						<div class="panel-head">
-							<h3 class="label">Where these numbers would put the board</h3>
-							{#if curve.length === 0}<span class="sub dim">no scores loaded</span>{/if}
-						</div>
+					<Panel title="Where these numbers would put the board" heading="label">
+						{#snippet tools()}
+							{#if curve.length === 0}<span class="text-sm leading-normal text-ink-4">no scores loaded</span>{/if}
+						{/snippet}
 						{#if curve.length > 0}
 							{@const simulated = simulate(curve, draft)}
-							<div class="metrics">
+							<Metrics>
 								<Metric value={simulated.PRIORITY} label="Priority" tone="hot" />
 								<Metric value={simulated.NURTURE} label="Nurture" />
 								<Metric value={simulated.WATCH} label="Watch" />
 								<Metric value={simulated.THIN} label="Thin" />
-							</div>
-							
+							</Metrics>
 							{#if simulated.PRIORITY !== (bands.PRIORITY ?? 0)}
-								<p class="note warn">
+								<Note tone="warn">
 									Priority would go from {bands.PRIORITY ?? 0} to {simulated.PRIORITY}.
-								</p>
+								</Note>
 							{/if}
 						{/if}
-					</section>
+					</Panel>
 				{/if}
 
 				{#if section === 'pipeline'}
-					<section class="panel">
-						<div class="panel-head">
-							<h2 class="dsp">What a pass costs, at your own rate</h2>
-						</div>
+					<Panel title="What a pass costs, at your own rate" heading="page">
 						{#if telemetry}
 							{@const pairs = telemetry.signalsBySource?.classificationPairs ?? 0}
 							{@const read = telemetry.overlay?.pairsSeen ?? 0}
 							{@const cached = telemetry.classificationCache?.entries ?? 0}
-							<div class="metrics">
+							<Metrics>
 								<Metric value={shortNumber(pairs)} label="Pairs if every question read every document" />
 								<Metric
 									value={shortNumber(read)}
@@ -616,25 +572,22 @@
 									label="Pairs never sent"
 									tone="good"
 								/>
-							</div>
-							<label class="field">
-								<span class="label">Your cost per 1,000 model calls</span>
-								<input class="input" type="number" min="0" step="0.1" bind:value={perThousand} />
-								<span class="sub dim">
+							</Metrics>
+							<Field label="Your cost per 1,000 model calls" for="pipeline-cost">
+								<Input id="pipeline-cost" type="number" min="0" step="0.1" bind:value={perThousand} />
+								{#snippet hint()}
 									We do not know your contract, so the rate is yours to set and the counts are the system's. At the
 									rate you enter, reading this corpus costs
 									<strong>{(read / 1000 * perThousand).toFixed(2)}</strong> and would have cost
 									<strong>{(pairs / 1000 * perThousand).toFixed(2)}</strong> asked question by question.
-								</span>
-							</label>
-							
+								{/snippet}
+							</Field>
 						{:else}
-							<p class="sub dim">No telemetry yet.</p>
+							<p class="text-sm leading-normal text-ink-4">No telemetry yet.</p>
 						{/if}
-					</section>
-					<section class="panel">
-						<div class="panel-head">
-							<h2 class="dsp">What the model half cost, and what it found</h2>
+					</Panel>
+					<Panel title="What the model half cost, and what it found" heading="page">
+						{#snippet tools()}
 							{#if telemetry?.overlay?.present}
 								<span class="sub dim" title={telemetry.overlay.engine}>
 									read by the model on {date(telemetry.overlay.generatedAt)}
@@ -642,9 +595,9 @@
 							{:else}
 								<span class="sub dim">no model reading is shipped</span>
 							{/if}
-						</div>
+						{/snippet}
 						{#if telemetry?.overlay?.present}
-							<div class="metrics">
+							<Metrics>
 								<Metric
 									value={shortNumber(telemetry.overlay.pairsSeen ?? 0)}
 									label="Pairs the model answered"
@@ -670,19 +623,18 @@
 								</p>
 							{/if}
 						{:else}
-							<p class="sub dim">Every row was answered by the local rubric engine.</p>
+							<p class="text-sm leading-normal text-ink-4">Every row was answered by the local rubric engine.</p>
 						{/if}
-					</section>
-					<section class="panel">
-						<div class="panel-head">
-							<h2 class="dsp">What the crawl reached</h2>
-							<span class="sub dim num">
+					</Panel>
+					<Panel title="What the crawl reached" heading="page">
+						{#snippet tools()}
+							<span class="num text-sm leading-normal text-ink-4">
 								{telemetry?.freshness?.newestCaptureAgeHours != null
 									? `newest capture ${telemetry.freshness.newestCaptureAgeHours}h old`
 									: 'no captures'}
 							</span>
-						</div>
-						<div class="metrics">
+						{/snippet}
+						<Metrics>
 							<Metric value={shortNumber(telemetry?.coverage?.companies ?? 0)} label="Companies" />
 							<Metric value={shortNumber(telemetry?.coverage?.documents ?? 0)} label="Documents" />
 							<Metric
@@ -694,20 +646,16 @@
 								label="Blind spots"
 								tone={(telemetry?.coverage?.withoutDocuments ?? 0) > 0 ? 'bad' : 'good'}
 							/>
-						</div>
-						
-					</section>
+						</Metrics>
+					</Panel>
 
-					<section class="panel">
-						<div class="panel-head">
-							<h2 class="dsp">What answered each row</h2>
-						</div>
-						<div class="metrics">
+					<Panel title="What answered each row" heading="page">
+						<Metrics>
 							{#each Object.entries(telemetry?.signalsByEngine ?? {}) as [engine, count] (engine)}
 								<Metric value={shortNumber(count)} label={engine} />
 							{/each}
-						</div>
-						<div class="metrics">
+						</Metrics>
+						<Metrics>
 							<Metric
 								value={shortNumber(telemetry?.classificationCache?.entries ?? 0)}
 								label="Cached classifications"
@@ -717,15 +665,12 @@
 								label="Answers reused"
 								tone="good"
 							/>
-						</div>
-					</section>
+						</Metrics>
+					</Panel>
 
-					<section class="panel">
-						<div class="panel-head">
-							<h2 class="dsp">What the team did with what it was shown</h2>
-						</div>
+					<Panel title="What the team did with what it was shown" heading="page">
 						{#if (precision?.decisions ?? 0) > 0}
-							<div class="metrics">
+							<Metrics>
 								<Metric value={String(precision?.decisions ?? 0)} label="Rows reviewed" />
 								<Metric value={String(precision?.accepted ?? 0)} label="Accepted" tone="good" />
 								<Metric value={String(precision?.rejected ?? 0)} label="Rejected" tone="bad" />
@@ -733,182 +678,11 @@
 									value={precision?.queuePrecision != null ? precision.queuePrecision.toFixed(2) : '—'}
 									label="Accepted share"
 								/>
-							</div>
+							</Metrics>
 						{/if}
-					</section>
+					</Panel>
 				{/if}
 			</div>
 		</div>
 	{/if}
-</div>
-
-<style>
-	.panes {
-		grid-template-columns: 232px minmax(0, 1fr);
-	}
-
-	.saved {
-		display: inline-flex;
-		align-items: center;
-		gap: var(--sp-1);
-		font-size: var(--fs-base);
-		color: var(--accent);
-	}
-
-	.sections {
-		border-right: 1px solid var(--rule);
-		background: var(--paper);
-		padding: var(--sp-2) 0;
-		display: flex;
-		flex-direction: column;
-	}
-
-	.section-link {
-		display: flex;
-		align-items: flex-start;
-		gap: var(--sp-2);
-		text-align: left;
-		padding: var(--sp-2) var(--sp-3) var(--sp-2) 10px;
-		border-left: 2px solid transparent;
-		transition: background var(--ease), border-color var(--ease);
-	}
-
-	.section-link :global(.icon) {
-		color: var(--ink-3);
-		margin-top: 1px;
-	}
-
-	.section-link:hover {
-		background: var(--surface);
-	}
-
-	.section-link[aria-current='true'] {
-		background: var(--surface);
-		border-left-color: var(--orange);
-	}
-
-	.section-text {
-		display: flex;
-		flex-direction: column;
-		gap: 1px;
-		min-width: 0;
-	}
-
-	.section-label {
-		font-size: var(--fs-md);
-		color: var(--ink-2);
-	}
-
-	.section-link[aria-current='true'] .section-label {
-		color: var(--ink);
-		font-weight: 500;
-	}
-
-	.section-hint {
-		font-size: var(--fs-micro);
-		color: var(--ink-4);
-	}
-
-	.unsaved {
-		display: flex;
-		align-items: center;
-		gap: var(--sp-1);
-		margin-top: auto;
-		padding: var(--sp-3);
-		font-size: var(--fs-sm);
-		color: var(--orange-ink);
-	}
-
-	.body {
-		min-height: 0;
-		background: var(--surface);
-	}
-
-	.panel {
-		max-width: 900px;
-	}
-
-	.panel-head h2 {
-		font-size: var(--fs-xl);
-	}
-
-	.brief {
-		font-size: var(--fs-base);
-		line-height: 1.6;
-		padding: var(--sp-2) var(--sp-3);
-		background: var(--paper);
-		border-left: 2px solid var(--orange);
-		color: var(--ink-2);
-	}
-
-	.checks {
-		display: flex;
-		flex-direction: column;
-		gap: var(--sp-1);
-	}
-
-	.chips {
-		display: flex;
-		flex-wrap: wrap;
-		gap: var(--sp-1);
-	}
-
-	.region-pick {
-		cursor: pointer;
-		border-color: var(--orange-line);
-		background: var(--orange-wash);
-		color: var(--orange-ink);
-	}
-
-	.region-pick:hover {
-		background: var(--surface);
-	}
-
-	.lines {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		border-top: 1px solid var(--rule);
-	}
-
-	.lines li {
-		padding: var(--sp-2) 0;
-		border-bottom: 1px solid var(--rule);
-	}
-
-	.line-head {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: var(--sp-3);
-	}
-
-	.line-name {
-		font-family: var(--font-display);
-		font-size: var(--fs-lg);
-	}
-
-	.line-tools {
-		display: flex;
-		align-items: center;
-		gap: var(--sp-1);
-	}
-
-	@media (max-width: 900px) {
-		.panes {
-			grid-template-columns: minmax(0, 1fr);
-			grid-template-rows: auto minmax(0, 1fr);
-		}
-		.sections {
-			flex-direction: row;
-			border-right: 0;
-			border-bottom: 1px solid var(--rule);
-			overflow-x: auto;
-			padding: 0;
-		}
-		.section-hint,
-		.unsaved {
-			display: none;
-		}
-	}
-</style>
+</View>

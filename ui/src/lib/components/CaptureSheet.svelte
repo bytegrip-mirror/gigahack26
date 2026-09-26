@@ -9,6 +9,7 @@
 		onclose
 	}: { evidenceId: string; focus: { start: number; end: number } | null; onclose: () => void } = $props();
 
+	let open = $state(true);
 	let detail = $state<EvidenceDetail | null>(null);
 	let error = $state<string | null>(null);
 	let whole = $state(false);
@@ -32,21 +33,13 @@
 		};
 	});
 
-	$effect(() => {
-		const onKey = (event: KeyboardEvent) => {
-			if (event.key === 'Escape') onclose();
-		};
-		window.addEventListener('keydown', onKey);
-		return () => window.removeEventListener('keydown', onKey);
-	});
-
 	let pane = $state<HTMLPreElement | null>(null);
 
 	$effect(() => {
 		const node = pane;
 		const highlight = capture.span;
 		if (!node || !highlight) return;
-		const mark = node.querySelector('mark.span');
+		const mark = node.querySelector('mark');
 		if (mark) {
 			mark.scrollIntoView({ block: 'center' });
 		}
@@ -78,23 +71,8 @@
 	});
 </script>
 
-<div
-	class="scrim"
-	role="presentation"
-	onclick={(event) => {
-		if (event.target === event.currentTarget) onclose();
-	}}
->
-	<div class="sheet" role="dialog" aria-modal="true" aria-label="Stored capture">
-		<header>
-			<div class="head-main">
-				<p class="label">Stored capture</p>
-				<h2 class="dsp">{detail?.title ?? 'Reading'}</h2>
-			</div>
-			<button class="icon-btn" onclick={onclose} aria-label="Close the capture" title="Close">
-				<Icon name="close" size={16} />
-			</button>
-		</header>
+<Dialog bind:open kind="sheet" title={detail?.title ?? 'Reading'} label="Stored capture" closeLabel="Close the capture" {onclose}>
+	{#snippet subtitle()}Stored capture{/snippet}
 
 		<div class="body scroll">
 			{#if error}
@@ -136,36 +114,48 @@
 					</section>
 				{/if}
 
-				<section>
-					<div class="cap-head">
-						<h3 class="label">Capture</h3>
-						<button class="btn btn-sm" onclick={() => (whole = !whole)}>
-							{whole ? 'Passage only' : `All ${detail.charLength} chars`}
-						</button>
-					</div>
-					<pre bind:this={pane}>{#if !capture.whole && !whole && capture.before}<span class="fade">…</span>{/if}{capture.before}{#if capture.span}<mark class="span">{capture.span}</mark>{/if}{capture.after}{#if capture.truncated}<span class="fade">…</span>{/if}</pre>
-					<p class="sub dim">
-						{#if capture.span}
-							Characters {focus?.start}–{focus?.end} of the stored capture. The quote is a slice of what the
-							crawler fetched, not text a model wrote.
-						{:else}
-							No signal cleared the floor for this document under the current policy. It is kept so you can see
-							what was read and rejected.
-						{/if}
-					</p>
+			{#if detail.signals.length > 0}
+				<section class="mt-4 border-t border-rule pt-3">
+					<h3 class="type-label mb-2">Signals in this document</h3>
+					<ul class="flex flex-col gap-3">
+						{#each detail.signals as signal (signal.questionId + String(signal.spanStart))}
+							<li class="border-l-2 border-orange-line pl-3">
+								<div class="flex flex-wrap items-center gap-2">
+									<Tag tone="wash">{tier(signal.tier)}</Tag>
+									<span class="type-key" title={signal.questionKey}>{signal.questionTitle}</span>
+									{#if signal.blocking}<Tag tone="oxblood">disqualifying</Tag>{/if}
+									<span class="num text-micro text-ink-4">c {confidence(signal.confidence)} · chars {signal.spanStart}–{signal.spanEnd}</span>
+								</div>
+								<p class="mt-1 text-base text-ink-2">{signal.questionText}</p>
+								{#if signal.rationale}<p class="mt-1 type-sub">{signal.rationale}</p>{/if}
+							</li>
+						{/each}
+					</ul>
 				</section>
 			{/if}
-		</div>
 
-		<footer>
-			<a class="btn btn-sm" href={`${apiBase}/api/evidence/${evidenceId}/capture`} target="_blank" rel="noreferrer noopener">
-				Raw capture
-			</a>
-			{#if detail}
-				<a class="btn btn-sm" href={detail.sourceUrl} target="_blank" rel="noreferrer noopener">Open source</a>
-			{/if}
-			<button class="btn btn-ink btn-sm" onclick={onclose}>Close</button>
-		</footer>
+			<section class="mt-4 border-t border-rule pt-3">
+				<div class="mb-2 flex items-center justify-between">
+					<h3 class="type-label">Capture</h3>
+					<Button size="sm" onclick={() => (whole = !whole)}>
+						{whole ? 'Passage only' : `All ${detail.charLength} chars`}
+					</Button>
+				</div>
+				<pre
+					bind:this={pane}
+					class="m-0 overflow-auto border border-rule bg-paper p-3 text-base leading-relaxed break-words whitespace-pre-wrap"
+					>{#if !capture.whole && !whole && capture.before}<span class="text-ink-4">…</span>{/if}{capture.before}{#if capture.span}<mark>{capture.span}</mark>{/if}{capture.after}{#if capture.truncated}<span class="text-ink-4">…</span>{/if}</pre>
+				<p class="mt-1 type-sub">
+					{#if capture.span}
+						Characters {focus?.start}–{focus?.end} of the stored capture. The quote is a slice of what the
+						crawler fetched, not text a model wrote.
+					{:else}
+						No signal cleared the floor for this document under the current policy. It is kept so you can see
+						what was read and rejected.
+					{/if}
+				</p>
+			</section>
+		{/if}
 	</div>
 </div>
 

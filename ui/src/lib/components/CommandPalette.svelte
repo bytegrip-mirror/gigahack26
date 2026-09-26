@@ -4,8 +4,11 @@
 	import { command } from '$lib/command.svelte';
 	import { session } from '$lib/session.svelte';
 	import { fit } from '$lib/format';
-	import Icon from './Icon.svelte';
-	import type { IconName } from './icons';
+	import Dialog from '$lib/ui/Dialog.svelte';
+	import Icon from '$lib/ui/Icon.svelte';
+	import IconButton from '$lib/ui/IconButton.svelte';
+	import Input from '$lib/ui/Input.svelte';
+	import type { IconName } from '$lib/ui/icons';
 
 	let {
 		serviceLines = [],
@@ -263,10 +266,7 @@
 	}
 
 	function onKey(event: KeyboardEvent) {
-		if (event.key === 'Escape') {
-			event.preventDefault();
-			command.hide();
-		} else if (event.key === 'ArrowDown') {
+		if (event.key === 'ArrowDown') {
 			event.preventDefault();
 			move(1);
 		} else if (event.key === 'ArrowUp') {
@@ -288,190 +288,61 @@
 	}}
 />
 
-{#if command.open}
-	<div
-		class="scrim"
-		role="presentation"
-		onclick={(event) => {
-			if (event.target === event.currentTarget) command.hide();
-		}}
-	>
-		<div
-			class="palette"
-			role="dialog"
-			aria-modal="true"
-			aria-label="Search and commands"
-			tabindex="-1"
-			onkeydown={onKey}
+<Dialog
+	bind:open={command.open}
+	kind="palette"
+	label="Search and commands"
+	closeLabel="Close search"
+	onclose={() => command.hide()}
+>
+	{#snippet footer()}
+		<span class="text-micro text-ink-3">
+			<kbd class="mr-1 inline-block rounded-sm border border-rule-strong bg-surface px-1 font-ui text-micro">↑</kbd
+			><kbd class="mr-1 inline-block rounded-sm border border-rule-strong bg-surface px-1 font-ui text-micro">↓</kbd
+			>move</span
 		>
-			<div class="field-row">
-				<Icon name="search" size={16} />
-				<input
-					bind:this={input}
-					class="field-input"
-					placeholder="Search companies, or jump to a view, service line, region"
-					bind:value={query}
-					autocomplete="off"
-					spellcheck="false"
-				/>
-				<button class="icon-btn icon-btn-sm" type="button" aria-label="Close search" onclick={() => command.hide()}>
-					<Icon name="close" size={14} />
-				</button>
-			</div>
+		<span class="ml-4 text-micro text-ink-3">
+			<kbd class="mr-1 inline-block rounded-sm border border-rule-strong bg-surface px-1 font-ui text-micro">↵</kbd>open</span
+		>
+		<span class="ml-4 text-micro text-ink-3">
+			<kbd class="mr-1 inline-block rounded-sm border border-rule-strong bg-surface px-1 font-ui text-micro">esc</kbd>close</span
+		>
+	{/snippet}
 
-			<div class="results" bind:this={panel}>
-				{#each grouped as [group, list] (group)}
-					<p class="menu-label">{group}</p>
-					{#each list as item (item.entry.id)}
-						<button
-							class="result"
-							type="button"
-							data-index={item.index}
-							data-active={item.index === cursor ? 'true' : undefined}
-							onclick={() => run(item.entry)}
-							onmousemove={() => (cursor = item.index)}
-						>
-							<Icon name={item.entry.icon} size={15} />
-							<span class="result-label">{item.entry.label}</span>
-							{#if item.entry.hint}<span class="hint num">{item.entry.hint}</span>{/if}
-						</button>
-					{/each}
+	<div class="flex min-h-0 flex-1 flex-col" onkeydown={onKey}>
+		<div class="flex h-bar flex-none items-center gap-2 border-b border-ink px-3">
+			<Input
+				bind:ref={input}
+				bind:value={query}
+				icon="search"
+				class="min-w-0 flex-1"
+				placeholder="Search companies, or jump to a view, service line, region"
+				autocomplete="off"
+				spellcheck="false"
+			/>
+			<IconButton icon="close" label="Close search" size="sm" onclick={() => command.hide()} />
+		</div>
+
+		<div class="scroll min-h-0 flex-1 py-1" bind:this={panel}>
+			{#each grouped as [group, list] (group)}
+				<p class="type-label px-3 pt-2 pb-0.5">{group}</p>
+				{#each list as item (item.entry.id)}
+					<button
+						class={['flex w-full items-center gap-2 px-3 py-2 text-left text-md text-ink', item.index === cursor ? 'bg-sunken' : '']}
+						type="button"
+						data-index={item.index}
+						onclick={() => run(item.entry)}
+						onmousemove={() => (cursor = item.index)}
+					>
+						<span class="text-ink-3"><Icon name={item.entry.icon} size="md" /></span>
+						<span class="min-w-0 flex-1 truncate">{item.entry.label}</span>
+						{#if item.entry.hint}<span class="num flex-none text-micro text-ink-4">{item.entry.hint}</span>{/if}
+					</button>
 				{/each}
-				{#if entries.length === 0}
-					<p class="none">Nothing matches “{query}”.</p>
-				{/if}
-			</div>
-
-			<div class="legend">
-				<span><kbd>↑</kbd><kbd>↓</kbd> move</span>
-				<span><kbd>↵</kbd> open</span>
-				<span><kbd>esc</kbd> close</span>
-			</div>
+			{/each}
+			{#if entries.length === 0}
+				<p class="px-3 py-3 text-base text-ink-3">Nothing matches "{query}".</p>
+			{/if}
 		</div>
 	</div>
-{/if}
-
-<style>
-	.scrim {
-		position: fixed;
-		inset: 0;
-		background: rgb(18 16 13 / 0.34);
-		display: flex;
-		align-items: flex-start;
-		justify-content: center;
-		padding: 12vh var(--sp-4) var(--sp-4);
-		z-index: var(--z-sheet);
-	}
-
-	.palette {
-		animation: rise var(--ease-enter) both;
-		width: min(620px, 100%);
-		background: var(--surface);
-		border: 1px solid var(--ink);
-		display: flex;
-		flex-direction: column;
-		max-height: 70vh;
-		min-height: 0;
-	}
-
-	.field-row {
-		display: flex;
-		align-items: center;
-		gap: var(--sp-2);
-		padding: 0 var(--sp-3);
-		height: 46px;
-		border-bottom: 1px solid var(--ink);
-		color: var(--ink-3);
-		flex: none;
-	}
-
-	.field-input {
-		flex: 1;
-		min-width: 0;
-		border: 0;
-		outline: none;
-		background: transparent;
-		font-size: var(--fs-lg);
-	}
-
-	.field-input::placeholder {
-		color: var(--ink-4);
-	}
-
-	.results {
-		flex: 1;
-		min-height: 0;
-		overflow-y: auto;
-		padding: var(--sp-1) 0;
-	}
-
-	.menu-label {
-		padding: var(--sp-2) var(--sp-3) 3px;
-		font-size: var(--fs-micro);
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.09em;
-		color: var(--ink-4);
-	}
-
-	.result {
-		display: flex;
-		align-items: center;
-		gap: var(--sp-2);
-		width: 100%;
-		padding: 6px var(--sp-3);
-		text-align: left;
-		font-size: var(--fs-md);
-		color: var(--ink);
-	}
-
-	.result :global(.icon) {
-		color: var(--ink-3);
-	}
-
-	.result[data-active='true'] {
-		background: var(--sunken);
-	}
-
-	.result-label {
-		flex: 1;
-		min-width: 0;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	.hint {
-		font-size: var(--fs-micro);
-		color: var(--ink-4);
-		flex: none;
-	}
-
-	.none {
-		padding: var(--sp-3);
-		font-size: var(--fs-base);
-		color: var(--ink-3);
-	}
-
-	.legend {
-		display: flex;
-		gap: var(--sp-4);
-		padding: var(--sp-2) var(--sp-3);
-		border-top: 1px solid var(--rule);
-		background: var(--paper);
-		font-size: var(--fs-micro);
-		color: var(--ink-3);
-		flex: none;
-	}
-
-	kbd {
-		display: inline-block;
-		border: 1px solid var(--rule-strong);
-		border-radius: 2px;
-		padding: 0 4px;
-		margin-right: 3px;
-		font-family: var(--font-ui);
-		font-size: var(--fs-micro);
-		background: var(--surface);
-	}
-</style>
+</Dialog>
