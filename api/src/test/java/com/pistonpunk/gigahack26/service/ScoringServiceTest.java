@@ -28,7 +28,7 @@ class ScoringServiceTest {
     private static final Instant NOW = Instant.parse("2026-09-25T12:00:00Z");
 
     private final ScoringProperties properties = new ScoringProperties(
-            0.25, 0.75, 0.50, 0.30, 0.5, 200, "MD,RO,DE,FR", true, true, true, false, 1.0, "");
+            0.25, 0.75, 0.50, 0.30, 0.5, 200, "MD,RO,DE,FR", true, true, true, false, 1.0, "", "");
 
     private final CaptureStore captures = new CaptureStore(null);
     private final ScoringService scoring = new ScoringService(() -> properties, captures);
@@ -267,7 +267,7 @@ class ScoringServiceTest {
         PolicyQuestion question = question("a", Polarity.POSITIVE, WeightTier.HIGH, "automation");
         ScoringService service = new ScoringService(
                 () -> new ScoringProperties(0.25, 0.75, 0.50, 0.30, 0.5, 200, "MD,RO,DE,FR",
-                        true, true, true, false, 0.2, ""), captures);
+                        true, true, true, false, 0.2, "", ""), captures);
 
         ScoreComputation result = service.compute(silent, List.of(), List.of(), List.of(question), NOW);
 
@@ -282,7 +282,7 @@ class ScoringServiceTest {
         List<Signal> signals = List.of(signal(source, question, Verdict.BUY, 0.9));
         ScoringService service = new ScoringService(
                 () -> new ScoringProperties(0.25, 0.75, 0.50, 0.30, 0.5, 200, "MD,RO,DE,FR",
-                        true, true, true, false, shrink, ""), captures);
+                        true, true, true, false, shrink, "", ""), captures);
         return service.compute(manufacturer, List.of(source), signals, List.of(question), NOW);
     }
 
@@ -391,6 +391,44 @@ class ScoringServiceTest {
         assertNull(result.gateReason(), "the model read the passage and disagreed with the disqualifier");
     }
 
+    @Test
+    void aCompanyOnTheOperatorsBlacklistLeavesTheQueueWithoutACodeChange() {
+        ScoringService service = new ScoringService(
+                () -> new ScoringProperties(0.25, 0.75, 0.50, 0.30, 0.5, 200, "MD,RO,DE,FR",
+                        true, true, true, false, 1.0, "", "Test Co"), captures);
+
+        ScoreComputation result = service.compute(company(false, "DE", 4000, 0.9), List.of(), List.of(),
+                List.of(question("a", Polarity.POSITIVE, WeightTier.HIGH, "automation")), NOW);
+
+        assertEquals(Band.DISQUALIFIED, result.band());
+        assertTrue(result.gateReason().startsWith("On the blacklist"));
+    }
+
+    @Test
+    void aBlacklistEntryMatchesOnTheDomainAndOnTheFoldedName() {
+        ScoringService byDomain = new ScoringService(
+                () -> new ScoringProperties(0.25, 0.75, 0.50, 0.30, 0.5, 200, "MD,RO,DE,FR",
+                        true, true, true, false, 1.0, "", "TEST.EXAMPLE"), captures);
+        ScoreComputation gated = byDomain.compute(company(false, "DE", 4000, 0.9), List.of(), List.of(), List.of(), NOW);
+        assertEquals(Band.DISQUALIFIED, gated.band(), "the domain is enough to identify the company");
+
+        ScoringService byName = new ScoringService(
+                () -> new ScoringProperties(0.25, 0.75, 0.50, 0.30, 0.5, 200, "MD,RO,DE,FR",
+                        true, true, true, false, 1.0, "", "test"), captures);
+        ScoreComputation folded = byName.compute(company(false, "DE", 4000, 0.9), List.of(), List.of(), List.of(), NOW);
+        assertEquals(Band.DISQUALIFIED, folded.band(),
+                "case and the legal suffix are not what decides whether a name is on the list");
+
+        ScoringService nearMiss = new ScoringService(
+                () -> new ScoringProperties(0.25, 0.75, 0.50, 0.30, 0.5, 200, "MD,RO,DE,FR",
+                        true, true, true, false, 1.0, "", "Test"), captures);
+        Company other = new Company(UUID.randomUUID(), "co2", "Tested Systems", "tested.example", "DE", "Berlin",
+                "Manufacturing", "1001-5000", 4000, 0.9, null, false, null, NOW);
+        ScoreComputation kept = nearMiss.compute(other, List.of(), List.of(), List.of(), NOW);
+        assertNotEquals(Band.DISQUALIFIED, kept.band(),
+                "a name that merely starts with an entry is a different company");
+    }
+
     private ScoreComputation scoreWith(boolean gateOff, String industries) {
         Company manufacturer = company(false, "DE", 4000, 0.9);
         PolicyQuestion question = question("a", Polarity.POSITIVE, WeightTier.HIGH, "automation");
@@ -398,7 +436,7 @@ class ScoringServiceTest {
         List<Signal> signals = List.of(signal(source, question, Verdict.BUY, 0.9));
         ScoringService service = new ScoringService(
                 () -> new ScoringProperties(0.25, 0.75, 0.50, 0.30, 0.5, 200, "MD,RO,DE,FR",
-                        true, true, true, !gateOff, 1.0, industries), captures);
+                        true, true, true, !gateOff, 1.0, industries, ""), captures);
         return service.compute(manufacturer, List.of(source), signals, List.of(question), NOW);
     }
 

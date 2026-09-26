@@ -25,5 +25,6 @@ public record SettingsRequest(
         @Size(max = 120) String voiceSignOff,
         @Size(max = 160) String voiceSignature,
         @Size(max = 600) String voiceAvoid,
-        @Size(max = 2000) String voiceNotes) {
+        @Size(max = 2000) String voiceNotes,
+        @Size(max = 4000) String blacklist) {
 }

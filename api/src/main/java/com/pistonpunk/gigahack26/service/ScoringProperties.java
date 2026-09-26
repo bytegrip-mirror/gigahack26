@@ -16,7 +16,12 @@ public record ScoringProperties(
         boolean competitorGate,
         boolean industryGate,
         double confidenceShrink,
-        String icpIndustries) {
+        String icpIndustries,
+        String blacklist) {
+
+    public ScoringProperties {
+        blacklist = blacklist == null ? "" : blacklist;
+    }
 
     public double baseLogit() {
         return Math.log(baseRate / (1.0 - baseRate));

@@ -62,6 +62,7 @@ public class SettingsService implements ScoringConfig {
                 watch,
                 clamp(request.rankDiscount(), 0.0, 1.0),
                 clock.instant());
+        row.reviseBlacklist(request.blacklist(), clock.instant());
         row.reviseVoice(request.voiceTone(), request.voiceFormality(), request.voiceLength(),
                 request.voiceLanguage(), request.voiceReader(), request.voiceAsk(), request.voiceSignOff(),
                 request.voiceSignature(), request.voiceAvoid(), request.voiceNotes(), clock.instant());
@@ -84,7 +85,8 @@ public class SettingsService implements ScoringConfig {
                 row.isCompetitorGate(),
                 row.isIndustryGate(),
                 row.getConfidenceShrink(),
-                row.getIcpIndustries());
+                row.getIcpIndustries(),
+                row.getBlacklist());
     }
 
     private static String normalise(String value) {

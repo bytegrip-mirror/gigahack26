@@ -86,6 +86,9 @@ public class WorkspaceSettings {
     @Column(name = "voice_notes", length = 2000)
     private String voiceNotes;
 
+    @Column(name = "blacklist", length = 4000)
+    private String blacklist;
+
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
@@ -222,6 +225,15 @@ public class WorkspaceSettings {
 
     public Instant getUpdatedAt() {
         return updatedAt;
+    }
+
+    public String getBlacklist() {
+        return blacklist == null ? "" : blacklist;
+    }
+
+    public void reviseBlacklist(String entries, Instant now) {
+        this.blacklist = entries == null ? "" : entries.trim();
+        this.updatedAt = now;
     }
 
     public void revise(String icpCountries, String icpIndustries, int icpMinEmployees, boolean geographyGate,

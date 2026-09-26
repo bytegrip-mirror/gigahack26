@@ -226,6 +226,10 @@ public class ScoringService {
 
     private Optional<String> gate(Company company, boolean blockedByBuild, String buildReason,
                                   ScoringProperties properties) {
+        Optional<String> blacklisted = Blacklist.match(properties.blacklist(), company.getName(), company.getDomain());
+        if (blacklisted.isPresent()) {
+            return Optional.of("On the blacklist — you excluded \"" + blacklisted.get() + "\"");
+        }
         if (properties.competitorGate()
                 && (company.isCompetitor()
                 || VendorRegistry.isVendor(company.getName(), company.getIndustry()))) {

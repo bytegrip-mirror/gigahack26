@@ -70,6 +70,7 @@ public class SettingsController {
                 .toList();
 
         return new SettingsView(
+                splitAsWritten(row.getBlacklist()),
                 split(row.getIcpCountries()),
                 split(row.getIcpIndustries()),
                 row.getIcpMinEmployees(),
@@ -110,6 +111,16 @@ public class SettingsController {
     private static boolean inGeography(Company company, List<String> countries) {
         return countries.isEmpty() || company.getCountry() == null
                 || countries.contains(company.getCountry().toUpperCase(Locale.ROOT));
+    }
+
+    private static List<String> splitAsWritten(String value) {
+        if (value == null || value.isBlank()) {
+            return List.of();
+        }
+        return Arrays.stream(value.split(","))
+                .map(String::trim)
+                .filter(entry -> !entry.isEmpty())
+                .toList();
     }
 
     private static List<String> split(String value) {
