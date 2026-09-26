@@ -109,13 +109,15 @@ One finding did point at something real, and it is fixed: `/api/ask/read` is
 called on every keystroke and was loading all 578 companies from Postgres each
 time. It now reads a 30-second snapshot.
 
-Later reviews flagged `GET /api/telemetry` and `GET /api/market` as unscoped —
+Later reviews flagged `GET /api/telemetry`, `GET /api/market` and `GET /api/backtest` as unscoped —
 signal counts per engine, corpus coverage, cache reuse, and aggregates by country
 and industry. Both carry strictly less than `/api/companies` already serves to
 anyone, and neither carries personal data. The `serviceLine` parameter is a
 filter over a public corpus, not a tenant boundary: there are no tenants, no
 users and no roles anywhere in this system, so there is nothing to scope against
-and `@PreAuthorize` would have no subject. Both are held to the same posture
+and `@PreAuthorize` would have no subject. The one parameter that could be
+abused, the backtest horizon, is clamped server-side to between a week and a year
+so it cannot be turned into a denial-of-service lever either. Both are held to the same posture
 rather than given a half-measure of auth that would break the only interaction
 the demo depends on. Recorded here so the decision is visible rather than
 silent, and so the next reviewer does not have to re-derive it.
