@@ -111,8 +111,10 @@ public class CorpusSeeder implements ApplicationRunner {
         readiness.seeding(true);
         try {
             seed(args);
-        } finally {
             readiness.seeded();
+        } catch (RuntimeException e) {
+            log.error("the corpus seed failed; the API will report itself not ready", e);
+            throw e;
         }
     }
 

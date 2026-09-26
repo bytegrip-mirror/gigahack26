@@ -321,6 +321,9 @@ pipeline {
                     esac
 
                     rows=$(echo "$board" | tr ',' '\\n' | grep -c '"id"' || true)
+                    echo "--- api log, last 40 lines ---"
+                    docker logs ${API_CONTAINER} --tail 40 2>&1 || true
+                    echo "--- end of api log ---"
                     echo
                     echo "The API answers on https://${API_DOMAIN} through Traefik, over TLS: $rows company rows, meta and settings read"
                 '''
