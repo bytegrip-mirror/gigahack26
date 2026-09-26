@@ -622,6 +622,19 @@ export function fetchOutreach(companyId: string, serviceLine: string, channel: s
 	);
 }
 
+export function rewriteOutreach(input: {
+	companyId: string;
+	serviceLine: string;
+	channel: string;
+	instruction: string;
+}): Promise<Outreach> {
+	const { companyId, ...body } = input;
+	return request<Outreach>(`/api/outreach/${companyId}`, {
+		method: 'POST',
+		body: JSON.stringify(body)
+	});
+}
+
 export function fetchLeads(serviceLine: string): Promise<LeadView[]> {
 	return request<LeadView[]>(`/api/leads${query({ serviceLine })}`);
 }

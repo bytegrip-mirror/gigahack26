@@ -154,11 +154,10 @@ All of them are in `ui/src/lib/components/`. Read the file for the exact props.
 | `Th` | A sortable header cell. Renders `aria-sort` and a direction arrow that shows without hover. `class` takes the column's hide rule. |
 | `Metric` | A number above its tracked label, with an optional `tone` and `hint`. Use it for every top-level summary, never a sentence. |
 | `Pager` | Range, page size, prev and next, over the fetched array. |
-| `ScoreMeter` | The fit bar with the pool average and the Priority line marked. |
 | `Star` | The bookmark toggle. |
-| `Ledger` | The evidence ledger: one row per reading, with its weight, its source and the arithmetic behind a disclosure. |
+| `CompanyMark` | The company's icon, 20/26/34px, or a monogram when `tools/fetch_logos.py` found none. Always the same square, so a row without one does not go ragged. |
 | `CaptureSheet` | The stored document with the marked span, opened from any quote. |
-| `OutreachModal` | The drafted message. Consumes Escape so a draft and the board position survive it. |
+| `OutreachModal` | The drafted message, full window. Consumes Escape so a draft and the board position survive it. Mounts through `use:portal` — see section 8. |
 | `LoadingVeil` | Sits over its pane, so a load never moves the layout. |
 | `Hubspot` | The HubSpot mark. |
 | `Logo` | The wordmark. |
@@ -198,33 +197,56 @@ one `Menu` away, and every row carries the same `⋯` in the last column.
 Both buttons on the company pane are full width and stacked: the outreach draft is
 the work, and the HubSpot push is the hand-off, so it carries the HubSpot mark.
 
-The outreach editor gives the draft two independently scrolling columns — the
-message on the left, its sources on the right — so reading a citation never
-scrolls the text you are editing. The subject and body are editable, and **Send**
-hands them to the rep's mail client through a `mailto:` built with
-`encodeURIComponent` (not `URLSearchParams`, which writes `+` for a space and
-mails it literally). The channel is a small selector beside the draft rather than
-two equal buttons in the header, because the channel changes the text: InMail
-drops the sign-off and signature for something under 90 words, and its action is
-*Copy for LinkedIn* because there is no `mailto:` for it.
+The outreach editor takes the whole window. It gives the draft two independently
+scrolling columns — the message on the left, its sources on the right — so reading
+a citation never scrolls the text you are editing. Above them sits the steer bar:
+six preprompts that rewrite the draft on one click, and a box for an instruction in
+the rep's own words, both of which reach `ModelDraftWriter` through
+`Brief.instruction`. The subject and body stay editable, and **Send** hands them to
+the rep's mail client through a `mailto:` built with `encodeURIComponent` (not
+`URLSearchParams`, which writes `+` for a space and mails it literally). The
+channel is a small selector beside the draft rather than two equal buttons in the
+header, because the channel changes the text: InMail drops the sign-off and
+signature for something under 90 words, and its action is *Copy for LinkedIn*
+because there is no `mailto:` for it. When no writing model is configured the
+preprompts are disabled and the sheet says so, rather than returning the same
+draft as though the instruction had landed.
 
-The company pane has its own hierarchy: the header carries identity, a tab strip
-sits directly under it — **Overview** (the default), **Ledger** *(n)* and
-**Documents** *(n)* — and each tab replaces the whole body below, so the ledger
-and the document list get the full height of the pane rather than a slot at the
-bottom of a scroll.
+The company pane has its own hierarchy: the header carries identity — mark, name,
+then domain and firmographics — and a tab strip sits directly under it,
+**Overview** (the default) and **Documents** *(n)*. Each tab replaces the whole
+body below, so the document list gets the full height of the pane rather than a
+slot at the bottom of a scroll. There is no Ledger tab: it printed one row per
+reading with its weight and its arithmetic, which is a spreadsheet, and the export
+produces exactly that. The derivation is not on the screen at all — the evidence
+ledger leaves through `⋯ → Export`, and what a rep reads is a word.
 
-Overview reads in the order a rep works: the score, why now, the evidence behind
-it, then the stage and the two things you do about it. The band is stated once,
-in the score block. The fit and the band appear again in the tab strip **only
-when a tab other than Overview is showing it**, because otherwise the ledger
-scrolls the score out of sight — and on Overview a second copy would just be the
-same badge twice.
+Overview reads in the order a rep works: the reading, why now, the evidence behind
+it, then the stage and the two things you do about it.
 
-The arithmetic that used to sit in Why now — strongest signal, themes agreeing,
-evidence counts, how long the band holds, documents read — is behind a small
-**Facts** toggle in that panel's head. It is reference material, not the pitch,
-and it was crowding out the sentence that actually explains the company.
+- **The reading** is the fit word in `title` size — `Strong`, `Good`, `Fair`,
+  `Weak`, cut from the configured thresholds — with the band tag beside it and one
+  sentence saying what the word means against the market default. There is no
+  meter and no probability: the pool average and the Priority line marked on a bar
+  explain the scoring model, not the company. The word is the only place orange is
+  spent on this screen besides the primary action.
+- **Themes** sit in the same panel as tags, with `corroborated` or `one theme
+  only` beside them — they are not a board column, because the question "why is
+  this only Nurture" is asked with the company open.
+- **Why now** is the narrative and the urgency, and nothing else. The **Facts**
+  toggle and the counts behind it — strongest signal, themes agreeing, evidence
+  counts, how long the band holds, documents read — were removed: they were
+  arithmetic in a slot that wanted a sentence, and every one of them is in the
+  export.
+- **Why we would call** lists the question titles that fired, each opening the
+  capture it was read from; then **Reasons not to call**, then **Read, not
+  evidence**. No contribution is printed on any of them.
+- **Documents** lists what answered a question first, then, under *Read, nothing to
+  report* on a sunken background, the documents that answered none.
+
+The fit and the band appear again in the tab strip **only when a tab other than
+Overview is showing it**, because otherwise the document list scrolls the reading
+out of sight — and on Overview a second copy would just be the same badge twice.
 
 The board additionally has a **bulk bar**: selecting any row replaces the filter
 toolbar with a dark bar holding the selection count, *Set stage*, *Export*,
@@ -275,11 +297,18 @@ Dense data is a table, never a grid of cards.
   which is why its tooltip says *fit rank*.
 - Paginate at 50 by default, with 100/250/All available. The board is 578 rows;
   rendering them all at once was the single largest cost on the screen.
-- Truncate anything that can run long — quotes clamp at two lines, the question
-  at one, company meta at one when the detail pane is open.
-- Columns drop in a fixed order as width falls, so the table never squeezes:
-  Themes below 1380px, Docs and Newest below 1180px, then the split gives way to
-  an overlay at 1100px.
+- Truncate anything that can run long — company names and meta clamp at one line
+  (the mark keeps its square), the question at one.
+- Columns drop in a fixed order as width falls, so the table never squeezes: Docs
+  and Newest below 1180px, then the split gives way to an overlay at 1100px.
+
+The board's columns are `#`, Company, Fit, Band, Why we would call, Docs, Newest,
+save and actions. **Fit is a word and Band is a tag, and both stay**: they answer
+different questions. Fit is what the evidence is worth; the band is what the queue
+does about it, which also accounts for the theme cap and the gates — the companies
+pinned at exactly the Priority line are the ones carrying a single theme, and only
+the pair of columns says so. The numeric probability lives in the Fit cell's
+tooltip and in the CSV.
 
 ## 7. Adding to a screen
 
@@ -299,3 +328,19 @@ Dense data is a table, never a grid of cards.
 - **A panel** — `Panel` with a `title`, then `Metric` for numbers and `Facts`
   for key/value pairs. Prose belongs behind a disclosure, not in the
   default view.
+- **A number the rep acts on** — a sales screen states the reading, not the
+  derivation. If a figure would only be legible to someone who has read
+  `ScoringService`, it belongs in an export or a tooltip, and the screen gets the
+  word for it instead.
+
+## 8. Full-window surfaces
+
+A surface that takes the screen — the outreach editor, a toast — is `position:
+fixed`, and a fixed element resolves against the nearest ancestor that establishes
+a containing block, not against the viewport. **An ancestor with a filled
+animation on `transform` is one**, even after the animation has finished: the
+detail pane enters with `enter-right` and `fill-mode: both`, so the outreach sheet
+rendered at the width of the pane until it was mounted on `document.body` through
+the `portal` action in `ui/src/lib/portal.ts`. Check the ancestors before
+concluding the CSS is wrong, and reach for the portal rather than removing the
+entry animation.

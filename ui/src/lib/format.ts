@@ -2,6 +2,31 @@ export function fit(value: number): string {
 	return value.toFixed(2);
 }
 
+export type Thresholds = { watch: number; nurture: number; priority: number };
+
+/**
+ * The scored quantity in the words a rep would use for it.
+ *
+ * The number is a log-odds reading put through a sigmoid, so on its own it says
+ * nothing a person can act on: 0.70 against a 0.25 base rate is the same fact as
+ * 0.52 against 0.45, and neither is legible. The band is not a substitute for
+ * this — it folds in the theme cap and the gates, so a company can carry strong
+ * evidence and still sit in Nurture because one topic is all it has.
+ */
+export function fitWord(probability: number, thresholds: Thresholds): string {
+	if (probability >= thresholds.priority) return 'Strong';
+	if (probability >= thresholds.nurture) return 'Good';
+	if (probability >= thresholds.watch) return 'Fair';
+	return 'Weak';
+}
+
+export function fitTone(probability: number, thresholds: Thresholds): string {
+	if (probability >= thresholds.priority) return 'strong';
+	if (probability >= thresholds.nurture) return 'good';
+	if (probability >= thresholds.watch) return 'fair';
+	return 'weak';
+}
+
 export function precise(value: number): string {
 	return value.toFixed(4);
 }

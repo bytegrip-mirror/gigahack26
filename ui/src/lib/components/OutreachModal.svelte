@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { fetchOutreach, type Outreach } from '$lib/api';
+	import { fetchOutreach, rewriteOutreach, type Outreach } from '$lib/api';
 	import { toasts } from '$lib/toast.svelte';
 	import { host } from '$lib/format';
+	import { portal } from '$lib/portal';
 	import Icon from './Icon.svelte';
 	import Menu from './Menu.svelte';
 
@@ -19,14 +20,25 @@
 		ondrafted?: (subject: string) => void;
 	} = $props();
 
+	const PROMPTS = [
+		'Make it shorter',
+		'Lead with the cost angle',
+		'Warmer, less formal',
+		'Ask for fifteen minutes',
+		'Softer — drop the ask',
+		'Say we have done this in their industry'
+	];
+
 	let channel = $state<'email' | 'inmail'>('email');
 	let draft = $state<Outreach | null>(null);
 	let loading = $state(false);
+	let rewriting = $state(false);
 	let error = $state<string | null>(null);
 	let copied = $state(false);
 	let marked = $state(false);
 	let subject = $state('');
 	let body = $state('');
+	let instruction = $state('');
 
 	$effect(() => {
 		const chosen = channel;
@@ -50,19 +62,40 @@
 
 	const words = $derived(body.trim() ? body.trim().split(/\s+/).length : 0);
 	const edited = $derived(draft !== null && (subject !== draft.subject || body !== draft.body));
+	const writeable = $derived(draft !== null && draft.engine.includes('@draft'));
 
 	const provenance = $derived.by(() => {
 		if (!draft) return '';
-		if (draft.engine.includes('@draft')) return 'Written by the model';
-		const reason = draft.engine
-			.split(',')
-			.slice(1)
-			.join(',')
-			.trim();
-		if (reason.includes('no model')) return 'Drafted from a template — no writing model is configured';
-		if (reason.includes('failed')) return 'Drafted from a template — the writing model was not reachable';
-		return 'Drafted from a template';
+		if (draft.engine.includes('@draft')) return 'Written by the model from the evidence';
+		const reason = draft.engine.split(',').slice(1).join(',').trim();
+		if (reason.includes('no model')) return 'Built from a template — this deployment has no writing model configured';
+		if (reason.includes('failed')) return 'Built from a template — the writing model was not reachable';
+		return 'Built from a template';
 	});
+
+	async function steer(prompt: string) {
+		const asked = prompt.trim();
+		if (!asked || rewriting) return;
+		instruction = asked;
+		await rewrite(asked);
+	}
+
+	async function rewrite(asked: string) {
+		rewriting = true;
+		try {
+			const result = await rewriteOutreach({ companyId, serviceLine, channel, instruction: asked });
+			draft = result;
+			subject = result.subject;
+			body = result.body;
+			if (!result.engine.includes('@draft')) {
+				toasts.push('No writing model is configured, so the wording could not be changed. Edit it by hand below.', 'warn');
+			}
+		} catch (cause) {
+			toasts.push((cause as Error).message, 'error');
+		} finally {
+			rewriting = false;
+		}
+	}
 
 	function mailto(): string {
 		return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
@@ -122,6 +155,7 @@
 
 <div
 	class="scrim"
+	use:portal
 	role="presentation"
 	onclick={(event) => {
 		if (event.target === event.currentTarget) onclose();
@@ -132,8 +166,7 @@
 			<div>
 				<p class="label">Outreach draft · {companyName}</p>
 				{#if draft}
-					<p class="sub dim">Aimed at {draft.persona}</p>
-					<p class="sub dim">{provenance}</p>
+					<p class="sub dim">Aimed at {draft.persona} · {provenance}</p>
 				{/if}
 			</div>
 			<div class="head-tools">
@@ -154,6 +187,45 @@
 			</div>
 		</header>
 
+		<div class="steer">
+			<span class="label">Ask for a change</span>
+			<div class="prompts">
+				{#each PROMPTS as prompt (prompt)}
+					<button
+						class="btn btn-sm btn-quiet"
+						disabled={rewriting || loading || !writeable}
+						onclick={() => steer(prompt)}
+					>
+						{prompt}
+					</button>
+				{/each}
+			</div>
+			<form
+				class="ask"
+				onsubmit={(event) => {
+					event.preventDefault();
+					void rewrite(instruction);
+				}}
+			>
+				<input
+					class="input"
+					bind:value={instruction}
+					placeholder="Or write your own: “cut the second paragraph, name the number”"
+					aria-label="What to change in the draft"
+				/>
+				<button class="btn btn-ink" type="submit" disabled={rewriting || loading || !instruction.trim()}>
+					{#if rewriting}<span class="spinner"></span>{/if}
+					{rewriting ? 'Rewriting' : 'Rewrite'}
+				</button>
+			</form>
+			{#if !writeable && draft}
+				<span class="sub dim">
+					Changing the wording needs a writing model. This deployment has none, so the draft below is a
+					template — edit it by hand and send it.
+				</span>
+			{/if}
+		</div>
+
 		<div class="body">
 			{#if error}
 				<p class="note warn">{error}</p>
@@ -165,7 +237,7 @@
 					</div>
 				{/if}
 			{:else}
-				<div class="cols" class:waiting={loading}>
+				<div class="cols" class:waiting={loading || rewriting}>
 					<div class="col">
 						<div class="col-head">
 							<p class="label">{channel === 'email' ? 'Subject' : 'Message'}</p>
@@ -227,16 +299,22 @@
 					</aside>
 				</div>
 
-				{#if loading}
+				{#if loading || rewriting}
 					<div class="veil">
 						<span class="spinner"></span>
-						<span>Rewriting for {channel === 'email' ? 'email' : 'LinkedIn'}</span>
+						<span>{rewriting ? 'Rewriting the draft' : `Rewriting for ${channel === 'email' ? 'email' : 'LinkedIn'}`}</span>
 					</div>
 				{/if}
 			{/if}
 		</div>
 
 		<footer>
+			<span class="sub dim foot-note">
+				{channel === 'email'
+					? 'Send hands the subject and body to your mail client. Nothing goes out from here.'
+					: 'LinkedIn has no mailto, so this copies the text.'}
+			</span>
+			<span class="spacer"></span>
 			<button class="btn" onclick={onclose}>Close</button>
 			{#if channel === 'email'}
 				<button class="btn btn-ink" onclick={send} disabled={!draft}>
@@ -260,18 +338,14 @@
 		inset: 0;
 		background: rgb(18 16 13 / 0.34);
 		display: flex;
-		align-items: center;
-		justify-content: center;
-		padding: 4vh 20px;
 		z-index: 150;
 	}
 
 	.sheet {
 		animation: rise var(--ease-enter) both;
-		width: min(1080px, 100%);
-		height: min(760px, 92vh);
+		width: 100%;
+		height: 100%;
 		background: var(--color-surface);
-		border: 1px solid var(--color-ink);
 		display: flex;
 		flex-direction: column;
 		min-height: 0;
@@ -282,14 +356,42 @@
 		align-items: flex-start;
 		justify-content: space-between;
 		gap: var(--spacing-4);
-		padding: var(--spacing-3);
+		padding: var(--spacing-3) var(--spacing-4);
 		border-bottom: 1px solid var(--color-ink);
+		flex: none;
 	}
 
 	.head-tools {
 		display: flex;
 		align-items: center;
 		gap: var(--spacing-2);
+	}
+
+	.steer {
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-2);
+		padding: var(--spacing-3) var(--spacing-4);
+		background: var(--color-paper);
+		border-bottom: 1px solid var(--color-rule);
+		flex: none;
+	}
+
+	.prompts {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--spacing-1);
+	}
+
+	.ask {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-2);
+	}
+
+	.ask .input {
+		flex: 1;
+		min-width: 0;
 	}
 
 	.body {
@@ -384,11 +486,20 @@
 
 	footer {
 		display: flex;
-		justify-content: flex-end;
+		align-items: center;
 		gap: var(--spacing-2);
-		padding: var(--spacing-2) var(--spacing-3);
-		border-top: 1px solid var(--color-rule);
+		padding: var(--spacing-2) var(--spacing-4);
+		border-top: 1px solid var(--color-ink);
 		background: var(--color-paper);
+		flex: none;
+	}
+
+	footer .spacer {
+		margin-left: auto;
+	}
+
+	.foot-note {
+		max-width: 60ch;
 	}
 
 	.note {
@@ -407,6 +518,8 @@
 		display: grid;
 		grid-template-columns: minmax(0, 1.55fr) minmax(240px, 1fr);
 		gap: var(--spacing-5);
+		flex: 1;
+		min-height: 0;
 	}
 
 	.cite {
@@ -462,4 +575,5 @@
 		.cite-list {
 			overflow-y: visible;
 		}
-	}</style>
+	}
+</style>

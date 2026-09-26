@@ -1,6 +1,7 @@
 <script lang="ts">
 	import {
 		fetchCompany,
+		fetchBookmarks,
 		pushToHubspot,
 		recordLead,
 		sendFeedback,
@@ -9,18 +10,15 @@
 		type LeadView
 	} from '$lib/api';
 	import { toasts } from '$lib/toast.svelte';
-	import { age, date, fit, host, plural, signed, sourceKind, theme } from '$lib/format';
+	import { age, date, fit, fitTone, fitWord, host, plural, sourceKind, theme } from '$lib/format';
 	import { copy } from '$lib/export';
 	import Tag from '$lib/components/Tag.svelte';
-	import ScoreMeter from '$lib/components/ScoreMeter.svelte';
-	import Ledger from '$lib/components/Ledger.svelte';
+	import CompanyMark from '$lib/components/CompanyMark.svelte';
 	import OutreachModal from '$lib/components/OutreachModal.svelte';
 	import Hubspot from '$lib/components/Hubspot.svelte';
 	import Star from '$lib/components/Star.svelte';
-	import { fetchBookmarks } from '$lib/api';
 	import Icon from '$lib/components/Icon.svelte';
 	import Menu from '$lib/components/Menu.svelte';
-	import Metric from '$lib/components/Metric.svelte';
 	import type { MenuItem } from '$lib/components/menu';
 
 	let {
@@ -45,17 +43,21 @@
 
 	const TABS = [
 		{ id: 'overview', label: 'Overview' },
-		{ id: 'ledger', label: 'Ledger' },
 		{ id: 'documents', label: 'Documents' }
 	];
+
+	const READINGS: Record<string, string> = {
+		Strong: 'The evidence here is well clear of what a company in your market shows by default.',
+		Good: 'The evidence here sits above what a company in your market shows by default.',
+		Fair: 'The evidence here is close to what a company in your market shows by default.',
+		Weak: 'Nothing the corpus holds lifts this company above the market default.'
+	};
 
 	let detail = $state<CompanyDetail | null>(null);
 	let error = $state<string | null>(null);
 	let loading = $state(true);
 	let tab = $state('overview');
-	let showFacts = $state(false);
 	let outreachOpen = $state(false);
-	let silentOnly = $state(false);
 	let lead = $state<LeadView | null>(null);
 	let busy = $state<string | null>(null);
 	let saved = $state(false);
@@ -89,13 +91,31 @@
 		};
 	});
 
-	const scored = $derived(detail ? detail.ledger.filter((row) => !row.blocking) : []);
-	const silent = $derived(detail ? detail.evidence.filter((item) => item.signalCount === 0) : []);
-	const documents = $derived(detail ? (silentOnly ? silent : detail.evidence) : []);
-	const stage = $derived(lead?.status ?? 'NEW');
-	const counters = $derived(detail?.whyNow?.counters ?? []);
+	const thresholds = $derived({
+		watch: detail?.watchThreshold ?? 0.28,
+		nurture: detail?.nurtureThreshold ?? 0.45,
+		priority: detail?.priorityThreshold ?? 0.55
+	});
+	const word = $derived(detail ? fitWord(detail.probability, thresholds) : '');
+	const tone = $derived(detail ? fitTone(detail.probability, thresholds) : 'fair');
 	const triggers = $derived(detail?.whyNow?.triggers ?? []);
-	const notEvidence = $derived(scored.filter((row) => row.tierNats === 0));
+	const counters = $derived(detail?.whyNow?.counters ?? []);
+	const notEvidence = $derived(detail ? detail.ledger.filter((row) => !row.blocking && row.tierNats === 0) : []);
+
+	const documents = $derived.by(() => {
+		if (!detail) return { read: [], silent: [] };
+		const read = detail.evidence
+			.filter((item) => item.signalCount > 0)
+			.sort(
+				(a, b) =>
+					b.signalCount - a.signalCount ||
+					new Date(b.publishedAt ?? b.observedAt).getTime() - new Date(a.publishedAt ?? a.observedAt).getTime()
+			);
+		const silent = detail.evidence.filter((item) => item.signalCount === 0);
+		return { read, silent };
+	});
+
+	const stage = $derived(lead?.status ?? 'NEW');
 
 	function verdictWords(row: LedgerRow): string {
 		if (row.verdict === 'BUILD') return 'the model read this as the company selling the capability itself';
@@ -154,13 +174,13 @@
 	async function copySummary() {
 		if (!detail) return;
 		const lines = [
-			`${detail.name} — fit ${fit(detail.probability)} (${detail.bandLabel})`,
+			`${detail.name} — ${word.toLowerCase()} fit (${fit(detail.probability)}), ${detail.bandLabel}`,
 			`${detail.domain ?? 'no domain'} · ${detail.country ?? 'unknown'} · ${detail.industry ?? 'unclassified'}`,
 			'',
 			detail.whyNow.headline,
 			'',
-			...triggers.map((row) => `${signed(row.contributionNats, 2)}  ${row.questionTitle} — “${row.spanText ?? ''}”`),
-			...counters.map((row) => `${signed(row.contributionNats, 2)}  against: ${row.questionTitle}`)
+			...triggers.map((row) => `${row.questionTitle}${row.spanText ? ` — “${row.spanText}”` : ''}`),
+			...counters.map((row) => `against: ${row.questionTitle}`)
 		];
 		const ok = await copy(lines.join('\n'));
 		toasts.push(ok ? 'Summary copied.' : 'This browser blocked the clipboard.', ok ? 'success' : 'warn');
@@ -186,7 +206,14 @@
 <div class="card">
 	<header class="head">
 		<div class="head-main">
-			<h2 class="dsp">{detail?.name ?? 'Reading'}</h2>
+			{#if detail}
+				<div class="head-line">
+					<CompanyMark name={detail.name} domain={detail.domain} size="lg" />
+					<h2 class="dsp">{detail.name}</h2>
+				</div>
+			{:else}
+				<h2 class="dsp">Reading</h2>
+			{/if}
 			{#if detail}
 				<p class="sub">
 					{#if detail.domain}<a href="https://{detail.domain}" target="_blank" rel="noreferrer noopener">{detail.domain}</a>{/if}{detail.hqCity
@@ -218,13 +245,12 @@
 			{#each TABS as option (option.id)}
 				<button role="tab" aria-selected={tab === option.id} onclick={() => (tab = option.id)}>
 					{option.label}
-					{#if option.id === 'ledger'}<span class="num">{scored.length}</span>{/if}
 					{#if option.id === 'documents'}<span class="num">{detail.evidence.length}</span>{/if}
 				</button>
 			{/each}
 			{#if tab !== 'overview'}
 				<span class="chip">
-					<span class="num chip-fit">{fit(detail.probability)}</span>
+					<span class="chip-fit dsp" data-tone={tone}>{word}</span>
 					<Tag band={detail.band}>{detail.bandLabel}</Tag>
 				</span>
 			{/if}
@@ -238,237 +264,138 @@
 	{:else if detail}
 		<div class="body scroll">
 			{#if tab === 'overview'}
-			<section class="panel score">
-				<div class="score-row">
-					<div class="metrics">
-						<Metric value={fit(detail.probability)} label="Fit" tone={detail.band === 'DISQUALIFIED' ? 'bad' : 'hot'} title="How strongly the evidence points at this company, against the base rate you set" />
-						<Metric value={detail.signalCount} label="Signals" title="Documents that answered one of your questions" />
-						<Metric value={detail.themeCount} label="Themes" title="Different kinds of evidence pointing the same way" />
+				<section class="panel score">
+					<div class="score-row">
+						<span class="verdict dsp" data-tone={tone}>{word}</span>
+						<Tag band={detail.band}>{detail.bandLabel}</Tag>
 					</div>
-					<Tag band={detail.band}>{detail.bandLabel}</Tag>
-				</div>
-				<ScoreMeter
-					probability={detail.probability}
-					band={detail.band}
-					baseRate={detail.baseRate}
-					thresholds={{
-						watch: detail.watchThreshold,
-						nurture: detail.nurtureThreshold,
-						priority: detail.priorityThreshold
-					}}
-					showScale
-				/>
-				{#if detail.gateReason}
-					<p class="gate"><Icon name="alert" size={14} /> <span><span class="label">Removed from the queue</span> {detail.gateReason}</span></p>
-				{/if}
-			</section>
-
-			<section class="panel why" data-urgency={detail.whyNow.urgency}>
-				<div class="panel-head">
-					<h3 class="label">Why now</h3>
-					<div class="head-right">
-						<span class="urgency" data-urgency={detail.whyNow.urgency}>{detail.whyNow.urgencyLabel}</span>
-						<button
-							class="reveal"
-							aria-expanded={showFacts}
-							title="The counts behind this reading"
-							onclick={() => (showFacts = !showFacts)}
-						>
-							Facts
-							<Icon name={showFacts ? 'chevronDown' : 'chevronRight'} size={12} />
-						</button>
-					</div>
-				</div>
-				<p class="why-text">{detail.whyNow.narrative || detail.whyNow.headline}</p>
-				{#if showFacts}
-					<dl class="facts why-facts">
-						{#if triggers[0]}
-							<dt>Strongest signal</dt>
-							<dd class="num">{signed(triggers[0].contributionNats, 2)}</dd>
-						{/if}
-						<dt>Themes agreeing</dt>
-						<dd class="num">{detail.themeCount}</dd>
-						<dt>Evidence</dt>
-						<dd class="num">{triggers.length} for · {counters.length} against</dd>
-						{#if detail.band === 'PRIORITY' && detail.priorityHorizonDays !== null}
-							<dt>Holds Priority</dt>
-							<dd class="num">{Math.round(detail.priorityHorizonDays)} more days</dd>
-						{:else if detail.whyNow.daysInBand !== null}
-							<dt>In this band</dt>
-							<dd class="num">{Math.round(detail.whyNow.daysInBand)} days</dd>
-						{/if}
-						<dt>Documents read</dt>
-						<dd class="num">{detail.scannedDocuments} · {detail.silentDocuments} silent</dd>
-					</dl>
-					{#if detail.weakestLink}
-						<p class="sub dim">Weakest link in the evidence: {detail.weakestLink}</p>
+					<p class="reading">{READINGS[word]}</p>
+					{#if detail.themes.length > 0}
+						<div class="themes">
+							<span class="label">What it is</span>
+							<span class="theme-tags">
+								{#each detail.themes as item (item.name)}
+									<Tag>{theme(item.name)}</Tag>
+								{/each}
+							</span>
+							{#if detail.themeCount >= 2}
+								<span class="corrob" title="More than one kind of evidence points the same way, which is what the Priority band needs.">
+									<Icon name="check" size={12} /> corroborated
+								</span>
+							{:else}
+								<span class="sub dim" title="One loud topic is capped, so a company carried by a single theme cannot reach Priority on its own.">
+									one theme only
+								</span>
+							{/if}
+						</div>
 					{/if}
 					{#if detail.gateReason}
-						<p class="sub dim gate-line">{detail.gateLine}</p>
+						<p class="gate"><Icon name="alert" size={14} /> <span><span class="label">Removed from the queue</span> {detail.gateReason}</span></p>
 					{/if}
-					{#if detail.coverageNotes}
-						<p class="sub dim">Coverage: {detail.coverageNotes}.</p>
-					{/if}
-				{/if}
-			</section>
+				</section>
 
-			<section class="panel">
-				<div class="panel-head">
-					<h3 class="label">Evidence</h3>
-					<span class="sub dim num">{triggers.length} for · {counters.length} against</span>
-				</div>
-				<div class="lines">
-					{#each triggers as row (row.evidenceId + row.spanStart)}
-						<button class="line" onclick={() => openRow(row)}>
-							<span class="dot pos"></span>
-							<span class="line-text">
-								{row.questionTitle}
-								{#if row.rationale}<span class="why-line">{row.rationale}</span>{/if}
-							</span>
-							<span class="num">{signed(row.contributionNats, 2)}</span>
-						</button>
-					{:else}
-						<p class="sub dim">No signal cleared the confidence floor for this policy.</p>
-					{/each}
-					{#if notEvidence.length > 0}
-						<p class="label against-label">Read, not evidence</p>
-						{#each notEvidence as row (row.evidenceId + row.questionId + row.spanStart)}
-							<button class="line" onclick={() => openRow(row)}>
-								<span class="dot neither"></span>
-								<span class="line-text">
-									{row.questionTitle}
-									<span class="why-line">{verdictWords(row)}</span>
-								</span>
-								<span class="num dim">not counted</span>
-							</button>
-						{/each}
-					{/if}
-					{#if counters.length > 0}
-						<p class="label against-label">Against</p>
-						{#each counters as row (row.evidenceId + row.spanStart)}
-							<button class="line" onclick={() => openRow(row)}>
-								<span class="dot neg"></span>
+				<section class="panel why" data-urgency={detail.whyNow.urgency}>
+					<div class="panel-head">
+						<h3 class="label">Why now</h3>
+						<span class="urgency" data-urgency={detail.whyNow.urgency}>{detail.whyNow.urgencyLabel}</span>
+					</div>
+					<p class="why-text">{detail.whyNow.narrative || detail.whyNow.headline}</p>
+				</section>
+
+				<section class="panel">
+					<div class="panel-head">
+						<h3 class="label">Why we would call</h3>
+						<span class="sub dim num">{triggers.length} of {plural(detail.scannedDocuments, 'document')}</span>
+					</div>
+					<div class="lines">
+						{#each triggers as row (row.evidenceId + row.spanStart)}
+							<button class="line" onclick={() => openRow(row)} title="Open the sentence this was read from">
+								<span class="dot pos"></span>
 								<span class="line-text">
 									{row.questionTitle}
 									{#if row.rationale}<span class="why-line">{row.rationale}</span>{/if}
 								</span>
-								<span class="num">{signed(row.contributionNats, 2)}</span>
 							</button>
+						{:else}
+							<p class="sub dim">Nothing in their documents answers your questions.</p>
 						{/each}
-					{/if}
-				</div>
-			</section>
-
-			<section class="panel">
-				<div class="panel-head">
-					<h3 class="label">Stage</h3>
-					{#if lead && lead.contactCount > 0}
-						<span class="sub dim num">
-							{plural(lead.contactCount, 'contact')}{#if lead.lastContactedAt} · last {age(daysSince(lead.lastContactedAt))}{/if}{#if lead.channel} · {lead.channel}{/if}
-						</span>
-					{:else}
-						<span class="sub dim">not contacted yet</span>
-					{/if}
-				</div>
-				<div class="seg stage-seg" role="tablist" aria-label="Lead stage">
-					{#each STAGES as option (option.id)}
-						<button
-							role="tab"
-							aria-selected={stage === option.id}
-							disabled={busy === 'stage'}
-							onclick={() => setStage(option.id)}
-						>
-							{option.label}
-						</button>
-					{/each}
-				</div>
-				<button class="btn btn-ink btn-block" onclick={() => (outreachOpen = true)}>
-					<Icon name="mail" size={15} />
-					Generate outreach
-				</button>
-				<button
-					class="btn btn-block"
-					disabled={busy === 'crm'}
-					title={detail.crmConfigured
-						? 'Push this company to HubSpot'
-						: 'No HubSpot token is configured, so the push is recorded as an intent'}
-					onclick={pushCrm}
-				>
-					{#if busy === 'crm'}<span class="spinner"></span>{:else}<Hubspot size={17} />{/if}
-					{lead?.crmSyncedAt ? 'Re-push to HubSpot' : 'Push to HubSpot'}
-				</button>
-			</section>
-			{/if}
-
-			<div class="tab-body">
-				{#if tab === 'ledger'}
-					<Ledger rows={scored} onopen={openRow} />
-					<div class="sum num">
-						<div>
-							<span class="dim">Every company in the pool starts here — the share you said is worth calling</span>
-							<span>{(detail.baseRate * 100).toFixed(0)}%</span>
-						</div>
-						{#each scored as row (row.evidenceId + row.questionId + row.spanStart)}
-							<div class="dim">
-								<span>{row.questionTitle}{row.themeCapped ? ' · capped' : ''}</span>
-								<span>{row.tierNats === 0 ? 'not counted' : signed(row.contributionNats)}</span>
-							</div>
-						{/each}
-						<div class="total">
-							<span>Fit</span><span>{fit(detail.probability)}</span>
-						</div>
 					</div>
-					<div class="themes">
-						{#each detail.themes as item (item.name)}
-							<div class="theme">
-								<div class="theme-row">
-									<span>{theme(item.name)}</span>
-									<span class="num">{signed(item.total)}{item.capped ? ' · capped' : ''}</span>
-								</div>
-								<div class="bar">
-									<span
-										data-capped={item.capped}
-										style="width:{Math.min(100, (Math.abs(item.total) / detail.themeCap) * 100)}%"
-									></span>
-								</div>
-							</div>
-						{/each}
-						<p class="sub dim">
-							Rows sharing a theme are capped together, so one loud topic can never carry a company into
-							Priority on its own. The ceiling is set from the Priority line, not chosen.
-						</p>
-					</div>
-				{/if}
 
-				{#if tab === 'documents'}
-					{#if (detail?.belowFloor ?? []).length > 0}
-						<section class="panel below-panel">
-							<div class="panel-head">
-								<h3 class="label">Read and not counted</h3>
-								<span class="sub dim num">{detail?.belowFloor?.length ?? 0}</span>
-							</div>
-							{#each (detail?.belowFloor ?? []).slice(0, 8) as row (row.evidenceId + row.spanStart)}
-								<button
-									class="below-row"
-									title={row.rationale ?? 'matched the rubric below the floor'}
-									onclick={() => oncapture(row.evidenceId, { start: row.spanStart, end: row.spanEnd })}
-								>
-									<span class="num below-score">{row.confidence.toFixed(2)}</span>
-									<span class="below-text">
-										{row.spanText.slice(0, 130)}
-										<span class="why-line">{row.questionTitle} · {row.polarity.toLowerCase()}</span>
+					{#if counters.length > 0}
+						<p class="label against-label">Reasons not to call</p>
+						<div class="lines">
+							{#each counters as row (row.evidenceId + row.spanStart)}
+								<button class="line" onclick={() => openRow(row)}>
+									<span class="dot neg"></span>
+									<span class="line-text">
+										{row.questionTitle}
+										{#if row.rationale}<span class="why-line">{row.rationale}</span>{/if}
 									</span>
 								</button>
 							{/each}
-							<p class="sub dim">Matched, scored under the floor, not counted.</p>
-						</section>
+						</div>
 					{/if}
 
-					<label class="check doc-filter">
-						<input type="checkbox" bind:checked={silentOnly} />
-						<span>Only the {silent.length} that produced nothing</span>
-					</label>
-					{#each documents as item (item.id)}
+					{#if notEvidence.length > 0}
+						<p class="label against-label">Read, not evidence</p>
+						<div class="lines">
+							{#each notEvidence as row (row.evidenceId + row.questionId + row.spanStart)}
+								<button class="line" onclick={() => openRow(row)}>
+									<span class="dot neither"></span>
+									<span class="line-text">
+										{row.questionTitle}
+										<span class="why-line">{verdictWords(row)}</span>
+									</span>
+								</button>
+							{/each}
+						</div>
+					{/if}
+				</section>
+
+				<section class="panel">
+					<div class="panel-head">
+						<h3 class="label">Stage</h3>
+						{#if lead && lead.contactCount > 0}
+							<span class="sub dim num">
+								{plural(lead.contactCount, 'contact')}{#if lead.lastContactedAt} · last {age(daysSince(lead.lastContactedAt))}{/if}{#if lead.channel} · {lead.channel}{/if}
+							</span>
+						{:else}
+							<span class="sub dim">not contacted yet</span>
+						{/if}
+					</div>
+					<div class="seg stage-seg" role="tablist" aria-label="Lead stage">
+						{#each STAGES as option (option.id)}
+							<button
+								role="tab"
+								aria-selected={stage === option.id}
+								disabled={busy === 'stage'}
+								onclick={() => setStage(option.id)}
+							>
+								{option.label}
+							</button>
+						{/each}
+					</div>
+					<button class="btn btn-ink btn-block" onclick={() => (outreachOpen = true)}>
+						<Icon name="mail" size={15} />
+						Generate outreach
+					</button>
+					<button
+						class="btn btn-block"
+						disabled={busy === 'crm'}
+						title={detail.crmConfigured
+							? 'Push this company to HubSpot'
+							: 'No HubSpot token is configured, so the push is recorded as an intent'}
+						onclick={pushCrm}
+					>
+						{#if busy === 'crm'}<span class="spinner"></span>{:else}<Hubspot size={17} />{/if}
+						{lead?.crmSyncedAt ? 'Re-push to HubSpot' : 'Push to HubSpot'}
+					</button>
+				</section>
+			{/if}
+
+			{#if tab === 'documents'}
+				<div class="tab-body">
+					{#each documents.read as item (item.id)}
 						<button class="doc" onclick={() => oncapture(item.id, null)}>
 							<span class="doc-top">
 								<span class="label">{sourceKind(item.sourceKind)}</span>
@@ -476,13 +403,26 @@
 							</span>
 							<span class="doc-title">{item.title ?? host(item.sourceUrl)}</span>
 							<span class="sub dim">
-								{item.publisher} · {plural(item.charLength, 'char')}
-								{#if item.signalCount > 0}· {plural(item.signalCount, 'signal')}{:else}· no signal{/if}
+								{item.publisher} · {plural(item.signalCount, 'question')} answered
 							</span>
 						</button>
 					{/each}
-				{/if}
-			</div>
+
+					{#if documents.silent.length > 0}
+						<p class="label quiet-head">Read, nothing to report</p>
+						{#each documents.silent as item (item.id)}
+							<button class="doc doc-quiet" onclick={() => oncapture(item.id, null)}>
+								<span class="doc-top">
+									<span class="label">{sourceKind(item.sourceKind)}</span>
+									<span class="num dim">{date(item.publishedAt ?? item.observedAt)}</span>
+								</span>
+								<span class="doc-title">{item.title ?? host(item.sourceUrl)}</span>
+								<span class="sub dim">{item.publisher} · answered none of your questions</span>
+							</button>
+						{/each}
+					{/if}
+				</div>
+			{/if}
 		</div>
 	{/if}
 </div>
@@ -504,36 +444,6 @@
 {/if}
 
 <style>
-	.below-panel {
-		margin-bottom: var(--spacing-3);
-	}
-
-	.below-row {
-		display: grid;
-		grid-template-columns: 34px 1fr;
-		gap: var(--spacing-2);
-		width: 100%;
-		padding: var(--spacing-2);
-		border: 0;
-		border-bottom: 1px solid var(--color-rule);
-		background: transparent;
-		text-align: left;
-		cursor: pointer;
-	}
-
-	.below-row:hover {
-		background: var(--color-sunken);
-	}
-
-	.below-score {
-		color: var(--color-ink-3);
-	}
-
-	.below-text {
-		font-size: var(--text-sm);
-		color: var(--color-ink-2);
-	}
-
 	.why-line {
 		display: block;
 		margin-top: 1px;
@@ -563,6 +473,13 @@
 		min-height: var(--spacing-head);
 	}
 
+	.head-line {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-2);
+		min-width: 0;
+	}
+
 	.head-tools {
 		display: flex;
 		align-items: center;
@@ -573,6 +490,9 @@
 	h2 {
 		font-size: var(--text-xl);
 		line-height: 1.15;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	.sub {
@@ -604,7 +524,54 @@
 		align-items: center;
 		justify-content: space-between;
 		gap: var(--spacing-3);
-		margin-bottom: var(--spacing-2);
+	}
+
+	.verdict {
+		font-size: var(--text-title);
+		line-height: 1.1;
+		color: var(--color-ink-2);
+	}
+
+	.verdict[data-tone='strong'] {
+		color: var(--color-orange-ink);
+	}
+
+	.verdict[data-tone='weak'] {
+		color: var(--color-ink-4);
+	}
+
+	.reading {
+		margin-top: var(--spacing-1);
+		font-size: var(--text-base);
+		line-height: 1.5;
+		color: var(--color-ink-2);
+	}
+
+	.themes {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: var(--spacing-2);
+		margin-top: var(--spacing-3);
+		padding-top: var(--spacing-2);
+		border-top: 1px solid var(--color-rule);
+	}
+
+	.theme-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 4px;
+	}
+
+	.corrob {
+		display: inline-flex;
+		align-items: center;
+		gap: 3px;
+		font-size: var(--text-micro);
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: var(--color-accent);
 	}
 
 	.gate {
@@ -654,38 +621,6 @@
 		color: var(--color-orange);
 	}
 
-	.head-right {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-3);
-	}
-
-	.reveal {
-		display: inline-flex;
-		align-items: center;
-		gap: 2px;
-		font-size: var(--text-micro);
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.09em;
-		color: var(--color-ink-3);
-	}
-
-	.reveal:hover {
-		color: var(--color-ink);
-	}
-
-	.why-facts {
-		margin-top: var(--spacing-2);
-		padding-top: var(--spacing-2);
-		border-top: 1px solid var(--color-rule);
-		font-size: var(--text-base);
-	}
-
-	.why-facts dt {
-		color: var(--color-ink-3);
-	}
-
 	.why-text {
 		margin-top: var(--spacing-1);
 		font-size: var(--text-base);
@@ -711,13 +646,13 @@
 	}
 
 	.against-label {
-		margin-top: var(--spacing-2);
+		margin-top: var(--spacing-3);
 	}
 
 	.line {
 		display: flex;
 		align-items: baseline;
-		gap: var(--spacing-1);
+		gap: var(--spacing-2);
 		width: 100%;
 		text-align: left;
 		padding: 2px 0;
@@ -748,7 +683,7 @@
 	}
 
 	.dot.neither {
-		background: var(--rule-strong, var(--color-ink-3));
+		background: var(--color-ink-4);
 	}
 
 	.line-text {
@@ -757,12 +692,6 @@
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
-	}
-
-	.line .num {
-		flex: none;
-		font-size: var(--text-micro);
-		color: var(--color-ink-4);
 	}
 
 	.tabs {
@@ -813,9 +742,13 @@
 	}
 
 	.chip-fit {
-		font-size: var(--text-lg);
-		font-weight: 500;
+		font-size: var(--text-base);
 		line-height: 1;
+		color: var(--color-ink-2);
+	}
+
+	.chip-fit[data-tone='strong'] {
+		color: var(--color-orange-ink);
 	}
 
 	.chip :global(.tag) {
@@ -827,64 +760,10 @@
 		padding: var(--spacing-3);
 	}
 
-	.doc-filter {
-		margin-bottom: var(--spacing-2);
-		font-size: var(--text-sm);
-		color: var(--color-ink-3);
-	}
-
-	.sum {
-		margin-top: var(--spacing-3);
-		border-top: 1px solid var(--color-rule);
-		padding-top: var(--spacing-2);
-		font-size: var(--text-sm);
-	}
-
-	.sum > div {
-		display: flex;
-		justify-content: space-between;
-		gap: var(--spacing-3);
-		padding: 1px 0;
-	}
-
-	.sum .total {
-		border-top: 1px solid var(--color-rule);
-		margin-top: 5px;
-		padding-top: 5px;
-		font-weight: 500;
-		color: var(--color-ink);
-	}
-
-	.themes {
-		margin-top: var(--spacing-4);
-		border-top: 1px solid var(--color-rule);
+	.quiet-head {
+		margin: var(--spacing-4) 0 var(--spacing-2);
 		padding-top: var(--spacing-3);
-	}
-
-	.theme {
-		margin-bottom: var(--spacing-2);
-	}
-
-	.theme-row {
-		display: flex;
-		justify-content: space-between;
-		font-size: var(--text-base);
-	}
-
-	.bar {
-		height: 4px;
-		background: var(--color-sunken);
-		margin-top: 3px;
-	}
-
-	.bar span {
-		display: block;
-		height: 100%;
-		background: var(--color-orange);
-	}
-
-	.bar span[data-capped='true'] {
-		background: var(--color-ink);
+		border-top: 1px solid var(--color-rule);
 	}
 
 	.doc {
@@ -902,6 +781,21 @@
 		background: var(--color-paper);
 	}
 
+	.doc-quiet {
+		padding: var(--spacing-2);
+		margin-bottom: -1px;
+		background: var(--color-sunken);
+		border-bottom: 1px solid var(--color-surface);
+	}
+
+	.doc-quiet:hover {
+		background: var(--color-rule);
+	}
+
+	.doc-quiet .doc-title {
+		color: var(--color-ink-3);
+	}
+
 	.doc-top {
 		display: flex;
 		justify-content: space-between;
@@ -916,4 +810,5 @@
 		line-clamp: 2;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
-	}</style>
+	}
+</style>

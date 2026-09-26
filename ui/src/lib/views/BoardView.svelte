@@ -25,11 +25,11 @@
 	import { session } from '$lib/session.svelte';
 	import { workspace } from '$lib/workspace.svelte';
 	import { toasts } from '$lib/toast.svelte';
-	import { ageShort, duration, fit, precise, shortNumber, signed, theme } from '$lib/format';
+	import { ageShort, duration, fit, fitTone, fitWord, precise, shortNumber } from '$lib/format';
 	import { regionLabel } from '$lib/regions';
 	import { copy, csv, save } from '$lib/export';
 	import Tag from '$lib/components/Tag.svelte';
-	import ScoreMeter from '$lib/components/ScoreMeter.svelte';
+	import CompanyMark from '$lib/components/CompanyMark.svelte';
 	import CaptureSheet from '$lib/components/CaptureSheet.svelte';
 	import Scorecard from '$lib/views/Scorecard.svelte';
 	import Star from '$lib/components/Star.svelte';
@@ -172,6 +172,12 @@
 	});
 
 	const localEngine = $derived(workspace.meta?.localEngine ?? 'local-rubric-v1');
+
+	const thresholds = $derived({
+		watch: meta?.scoring.watchThreshold ?? 0.28,
+		nurture: meta?.scoring.nurtureThreshold ?? 0.45,
+		priority: meta?.scoring.priorityThreshold ?? 0.55
+	});
 
 	const visible = $derived.by(() => {
 		const bandWanted = BAND_FILTERS[filter] ?? BAND_FILTERS.all;
@@ -1166,11 +1172,10 @@
 								</span>
 							</th>
 							<Th id="rank" label="#" sort={sort} {dir} onsort={sortBy} align="right" width="58px" title="Position on the board: highest fit first, companies out of the queue at the end" />
-							<Th id="name" label="Company" sort={sort} {dir} onsort={sortBy} width="21%" />
-							<Th id="fit" label="Fit" sort={sort} {dir} onsort={sortBy} align="right" width="128px" title="How strongly the evidence points at this company, against the base rate you set" />
+							<Th id="name" label="Company" sort={sort} {dir} onsort={sortBy} width="23%" />
+							<Th id="fit" label="Fit" sort={sort} {dir} onsort={sortBy} width="104px" title="How strong the evidence is. The band beside it is what the queue does about that, which is not the same question." />
 							<Th id="band" label="Band" sort={sort} {dir} onsort={sortBy} align="center" width="96px" />
-							<th class="c-sig" scope="col">Top evidence</th>
-							<Th id="themes" label="Themes" sort={sort} {dir} onsort={sortBy} width="142px" className="c-th" />
+							<th class="c-sig" scope="col">Why we would call</th>
 							<Th id="docs" label="Docs" sort={sort} {dir} onsort={sortBy} align="right" width="56px" className="c-doc" />
 							<Th id="newest" label="Newest" sort={sort} {dir} onsort={sortBy} align="right" width="66px" className="c-age" />
 							<th class="c-star" scope="col"><span class="sr-only">Saved</span></th>
@@ -1206,10 +1211,10 @@
 									{/if}
 								</td>
 								<td class="c-co">
-									<span class="co">{row.name}</span>
-									{#if row.whyNow && row.band !== 'THIN'}
-										<span class="why-head">{row.whyNow}</span>
-									{/if}
+									<span class="co-line">
+										<CompanyMark name={row.name} domain={row.domain} />
+										<span class="co">{row.name}</span>
+									</span>
 									<span class="sub">
 										{#if allLines}<span class="line-tag">{row.serviceLine}</span> · {/if}{#if row.domain}<span class="domain">{row.domain}</span> · {/if}{row.country ?? '—'}
 										{#if row.industry}· {row.industry}{/if}
@@ -1222,19 +1227,11 @@
 									{/if}
 								</td>
 								<td class="c-fit">
-									<span class="num fitval">{fit(row.probability)}</span>
-									{#if meta}
-										<ScoreMeter
-											probability={row.probability}
-											band={row.band}
-											baseRate={meta.scoring.baseRate}
-											thresholds={{
-												watch: meta.scoring.watchThreshold,
-												nurture: meta.scoring.nurtureThreshold,
-												priority: meta.scoring.priorityThreshold
-											}}
-										/>
-									{/if}
+									<span
+										class="fitval dsp"
+										data-tone={fitTone(row.probability, thresholds)}
+										title={`Fit ${fit(row.probability)} — the evidence ${fitWord(row.probability, thresholds).toLowerCase()} compared with what a company in your market shows by default (${fit(meta?.scoring.baseRate ?? 0)}).`}
+									>{fitWord(row.probability, thresholds)}</span>
 								</td>
 								<td class="m">
 									<Tag band={row.band} title={row.gateReason ?? row.bandLabel}>{row.bandShort}</Tag>
@@ -1250,33 +1247,16 @@
 												<li title={`${chip.publisher}${chip.title ? ` · ${chip.title}` : ''}`}>
 													<span class="dot" data-polarity={chip.polarity}></span>
 													<span class="ev-title">{chip.questionTitle}</span>
-													<span
-														class="num ev-amt"
-														title={chip.contribution < 0 ? 'Counts against the company' : 'Counts for the company'}
-														>{signed(chip.contribution, 2)}</span>
 												</li>
 											{/each}
 										</ul>
-										{#if row.strongest?.quote}
-											<p class="ev-quote" title={row.signalCount > top.length
-												? `${row.signalCount - top.length} further signals in the ledger`
-												: ''}>“{row.strongest.quote}”</p>
+										{#if row.signalCount > top.length}
+											<p class="sub dim">
+												and {row.signalCount - top.length} more on the scorecard
+											</p>
 										{/if}
 									{:else}
-										<span class="sub dim">no signal cleared the floor</span>
-									{/if}
-								</td>
-								<td class="c-th">
-									<div class="tags">
-										{#each row.themes as name (name)}
-											<Tag>{theme(name)}</Tag>
-										{/each}
-										{#if row.themeCount === 0}
-											<span class="sub dim">—</span>
-										{/if}
-									</div>
-									{#if row.themeCount >= 2}
-										<span class="corrob" title="More than one kind of evidence points the same way. A single loud topic is capped, so this is what the Priority band needs.">corroborated</span>
+										<span class="sub dim">nothing in the corpus answers your questions about them</span>
 									{/if}
 								</td>
 								<td class="num c-doc">
@@ -1284,9 +1264,6 @@
 										<span class="blind" title="No document was ever captured for this company. Nothing can be said either way — this is a gap in the crawl, not a finding.">no evidence</span>
 									{:else}
 										{row.evidenceCount}
-										{#if row.silentDocuments > 0}
-											<span class="sub dim" title="Documents we read that answered none of your questions">{row.silentDocuments} said nothing</span>
-										{/if}
 									{/if}
 								</td>
 								<td class="num c-age">{ageShort(row.newestSignalAgeDays)}</td>
@@ -1529,10 +1506,8 @@
 		min-height: 0;
 	}
 
-	.view.split .c-th,
 	.view.split .c-doc,
 	.view.split .c-age,
-	.view.split :global(th.c-th),
 	.view.split :global(th.c-doc),
 	.view.split :global(th.c-age) {
 		display: none;
@@ -1615,21 +1590,23 @@
 		text-align: center;
 	}
 
+	.co-line {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-2);
+		min-width: 0;
+	}
+
 	.co {
-		display: block;
+		min-width: 0;
 		font-family: var(--font-display);
 		font-size: var(--text-lg);
 		font-weight: 500;
 		line-height: 1.2;
 		letter-spacing: -0.01em;
-	}
-
-	.why-head {
-		display: block;
-		font-size: var(--text-sm);
-		line-height: 1.4;
-		color: var(--color-ink-2);
-		margin-top: 1px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	.sub {
@@ -1655,10 +1632,17 @@
 
 	.fitval {
 		display: block;
-		font-size: var(--text-xl);
-		font-weight: 500;
-		line-height: 1.1;
-		margin-bottom: 3px;
+		font-size: var(--text-lg);
+		line-height: 1.2;
+		color: var(--color-ink-2);
+	}
+
+	.fitval[data-tone='strong'] {
+		color: var(--color-orange-ink);
+	}
+
+	.fitval[data-tone='weak'] {
+		color: var(--color-ink-4);
 	}
 
 	.moved {
@@ -1779,40 +1763,6 @@
 		color: var(--color-ink);
 	}
 
-	.ev-amt {
-		flex: none;
-		font-size: var(--text-micro);
-		color: var(--color-ink-4);
-	}
-
-	.ev-quote {
-		display: -webkit-box;
-		-webkit-line-clamp: 2;
-		line-clamp: 2;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
-		margin-top: var(--spacing-1);
-		padding-left: 9px;
-		border-left: 2px solid var(--color-orange-line);
-		font-family: var(--font-display);
-		font-size: var(--text-base);
-		font-style: italic;
-		line-height: 1.4;
-		color: var(--color-ink);
-	}
-
-	.tags {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 4px;
-	}
-
-	.tags :global(.tag) {
-		max-width: 100%;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-
 	.line-tag {
 		color: var(--color-orange-ink);
 		font-weight: 500;
@@ -1844,24 +1794,6 @@
 	.stage-tag[data-stage='REPLIED'] {
 		border-color: var(--color-orange-line);
 		color: var(--color-orange-ink);
-	}
-
-	.corrob {
-		display: block;
-		margin-top: 3px;
-		font-size: var(--text-micro);
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.06em;
-		color: var(--color-accent);
-		white-space: nowrap;
-	}
-
-	@media (max-width: 1380px) {
-		.c-th,
-		:global(th.c-th) {
-			display: none;
-		}
 	}
 
 	@media (max-width: 1180px) {

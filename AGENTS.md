@@ -6,14 +6,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A B2B buying-signal platform for Orange Systems, built for Gigahack 26. A sales
 team writes a question in plain language; the platform re-classifies a stored
-corpus of public documents against it, re-ranks companies, and shows the
-arithmetic behind every score. A Spring Boot API owns the pipeline, PostgreSQL
-holds the relational record, MongoDB holds the raw captures, and a static
-SvelteKit SPA is the board. Jenkins builds both images and deploys four
-containers behind Traefik.
+corpus of public documents against it and re-ranks companies against it. A Spring
+Boot API owns the pipeline, PostgreSQL holds the relational record, MongoDB holds
+the raw captures, and a static SvelteKit SPA is the board. Jenkins builds both
+images and deploys four containers behind Traefik.
 
 The product's identity is **refusing to recommend bad companies, with evidence**.
 Every claim on screen resolves to a byte range in a document the crawler stored.
+The board is read by a rep, so it carries the reading and not the arithmetic: the
+derivation is still computed and still exportable, and **the export is where a
+juror checks it** — the screen no longer prints a weight, a log-odds total or a
+probability. See "What the board shows" below for what replaced them and why.
 
 ## Commands
 
@@ -141,8 +144,41 @@ weight is a product of what was read, where it was published, how old it is and 
 sure the reader was. `counterEvidence()` now returns both the negative rows and the
 rows that assert nothing, because both are reasons not to call.
 
-The card prints the whole derivation behind a disclosure, so a juror can check it
-with a calculator without a rep having to read it.
+**The board carries the reading and the export carries the arithmetic.** A calling
+list is read by someone who will never open `ScoringService`, so no weight, no
+log-odds total and no probability is printed on it. `⋯ → Export the evidence
+ledger` still writes one row per reading with its byte range, its weight and its
+model reason, which is what a juror checks with a calculator; the on-screen Ledger
+tab that printed the same rows was removed, because its numbers read as noise
+beside the quote they explained. What replaced them, and why each is not merely a
+cosmetic swap:
+
+- **Fit is a word**, `Strong` / `Good` / `Fair` / `Weak`, cut from the configured
+  thresholds by `fitWord` in `ui/src/lib/format.ts`; the probability survives in
+  the cell's tooltip and in the CSV. The band stays beside it because the two are
+  different facts — the band folds in the theme cap and the gates, so a company
+  with strong evidence can sit in Nurture, pinned at exactly the Priority line
+  because one theme is all it has, and the pair is what says so.
+- **Top evidence is the question titles that fired**, strongest first and one per
+  question (`reasons()`), and nothing else. The contribution and the strongest
+  quote were both dropped: the quote is one click away on the scorecard, and the
+  amount was only ever legible to someone already reading the ledger.
+- **Themes are not a column.** They live on the scorecard with `corroborated` or
+  `one theme only` beside them, which is where a reader asks the question; and the
+  meter is gone, because the pool average and the Priority line marked on a bar
+  explain the scoring model rather than the company.
+
+**A document is listed by what it did.** Documents that answered a question come
+first; the ones that answered none sit under *Read, nothing to report* on a sunken
+background. A crawl gap and a finding must not look the same.
+
+**The company mark is scraped, not fetched at render time.** `tools/fetch_logos.py`
+walks the company list, takes the best icon the site declares, falls back to
+`/favicon.ico` and then to a favicon service, and normalises every one to 32×32
+PNG in `ui/static/logos/` with a `domain → file` map in `ui/src/lib/logos.json`.
+The board reads that map at build time and draws a monogram where there is no
+entry, so nothing is requested from a third party while the demo is on stage. 559
+of the 578 companies have a mark; re-run it after adding companies to the list.
 
 **The bands are calibrated to the corpus, and the cap enforces the top one.** The
 theme cap is *derived* from the Priority line (`priorityLogit − baseLogit`), not
@@ -309,6 +345,20 @@ by stage; the Pipeline view groups everything worked by stage and advances it
 inline. The contact count moves only on a real transition, never on a re-save.
 The HubSpot push records the intent and marks the lead when `HUBSPOT_TOKEN` is
 absent rather than pretending to have synced.
+
+**The outreach draft can be steered, and the sheet that steers it is the whole
+window.** `DraftWriter.Brief` carries an optional `instruction` that
+`OutreachController` takes from the request body (POST) or the query string
+(GET), so the six preprompts on the sheet and anything typed into the box go to
+the same place: `ModelDraftWriter` appends them to the user message under a line
+that ranks them above its own judgement on tone, length and emphasis, without
+licensing a fact the findings do not support. The template writer cannot honour
+one, so the router's provenance string still ends in `no model configured` and the
+sheet says the wording could not be changed rather than returning the same draft
+as though it had been. The sheet is full-window and mounts through `use:portal`:
+the detail pane enters with a filled `transform` animation, and a filled animation
+makes its element a containing block, which sized every `position: fixed`
+descendant to the pane instead of the viewport.
 
 **Every screen is a pane, not a page.** Board, Studio, Pipeline and the customer
 profile all render a topbar plus independently scrolling panes inside the fixed
