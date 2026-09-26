@@ -57,7 +57,8 @@
 			{ href: '/', label: 'Board', icon: 'board', keys: 'board companies queue' },
 			{ href: '/studio', label: 'Signal Studio', icon: 'studio', keys: 'studio questions policies' },
 			{ href: '/pipeline', label: 'Pipeline', icon: 'pipeline', keys: 'pipeline leads stages' },
-			{ href: '/settings', label: 'Settings', icon: 'settings', keys: 'settings profile voice scoring' }
+			{ href: '/market', label: 'Market', icon: 'board', keys: 'market demand countries industries map' },
+			{ href: '/settings', label: 'Settings', icon: 'settings', keys: 'settings profile voice scoring pipeline' }
 		];
 		for (const view of views) {
 			if (needle && !`${view.label} ${view.keys}`.toLowerCase().includes(needle)) continue;
@@ -125,6 +126,65 @@
 					session.setRegion(region.key);
 					goto('/');
 				}
+			});
+		}
+
+		const actions: { id: string; label: string; hint: string; icon: IconName; keys: string; run: () => void }[] = [
+			{
+				id: 'act-ask',
+				label: 'Ask a question',
+				hint: 'score the corpus against a new one',
+				icon: 'studio',
+				keys: 'ask question signal studio new',
+				run: () => {
+					sessionStorage.setItem('gigahack26.openAsk', '1');
+					goto('/');
+				}
+			},
+			{
+				id: 'act-saved',
+				label: 'Show only what you saved',
+				hint: 'the board filtered to bookmarks',
+				icon: 'star',
+				keys: 'saved bookmarks starred shortlist',
+				run: () => {
+					sessionStorage.setItem('gigahack26.openFilter', 'saved');
+					goto('/');
+				}
+			},
+			{
+				id: 'act-leads',
+				label: 'Show only the ones being worked',
+				hint: 'any stage past new',
+				icon: 'pipeline',
+				keys: 'leads worked contacted pipeline stage',
+				run: () => {
+					sessionStorage.setItem('gigahack26.openStage', 'worked');
+					goto('/');
+				}
+			},
+			{
+				id: 'act-export',
+				label: 'Export the board',
+				hint: 'every visible row, with its top quote',
+				icon: 'download',
+				keys: 'export download csv board',
+				run: () => {
+					sessionStorage.setItem('gigahack26.openExport', '1');
+					goto('/');
+				}
+			}
+		];
+
+		for (const action of actions) {
+			if (needle && !`${action.label} ${action.keys}`.toLowerCase().includes(needle)) continue;
+			out.push({
+				id: action.id,
+				group: 'Do',
+				label: action.label,
+				hint: action.hint,
+				icon: action.icon,
+				run: action.run
 			});
 		}
 

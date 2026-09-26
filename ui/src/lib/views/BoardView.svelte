@@ -253,6 +253,22 @@
 	}
 
 	$effect(() => {
+		const consume = (key: string) => {
+			const value = sessionStorage.getItem(key);
+			if (value !== null) sessionStorage.removeItem(key);
+			return value;
+		};
+		if (consume('gigahack26.openAsk')) askOpen = true;
+		const wantedFilter = consume('gigahack26.openFilter');
+		if (wantedFilter) filter = wantedFilter;
+		const wantedStage = consume('gigahack26.openStage');
+		if (wantedStage) stage = wantedStage;
+		if (consume('gigahack26.openExport')) {
+			void exportLedger(sorted, `ledger-${serviceLine.toLowerCase().replace(/\s+/g, '-')}.csv`);
+		}
+	});
+
+	$effect(() => {
 		const wanted = initialLine;
 		if (!wanted || wanted === serviceLine || !workspace.lines.includes(wanted)) return;
 		workspace.select(wanted);
@@ -590,6 +606,43 @@
 					: `Exported ${lines.length} evidence rows with their byte ranges.`,
 				lines.length === 0 ? 'warn' : 'success'
 			);
+		} finally {
+			busy = false;
+		}
+	}
+
+	async function saveMany(ids: string[]) {
+		if (ids.length === 0) return;
+		busy = true;
+		try {
+			const results = await Promise.allSettled(ids.map((id) => addBookmark(id, lineOf(id))));
+			const done = results.filter((result) => result.status === 'fulfilled').length;
+			toasts.push(
+				done === ids.length
+					? `Saved ${done} ${done === 1 ? 'company' : 'companies'}.`
+					: `Saved ${done} of ${ids.length}. The rest failed.`,
+				done === ids.length ? 'success' : 'warn'
+			);
+			loadSaved();
+		} finally {
+			busy = false;
+		}
+	}
+
+	async function unsaveMany(ids: string[]) {
+		if (ids.length === 0) return;
+		busy = true;
+		try {
+			const results = await Promise.allSettled(ids.map((id) => removeBookmark(id, lineOf(id))));
+			const done = results.filter((result) => result.status === 'fulfilled').length;
+			toasts.push(
+				done === ids.length
+					? `Removed ${done} from Saved.`
+					: `Removed ${done} of ${ids.length}. The rest failed.`,
+				done === ids.length ? 'success' : 'warn'
+			);
+			loadSaved();
+			if (filter === 'saved') rows = await loadBoard();
 		} finally {
 			busy = false;
 		}
