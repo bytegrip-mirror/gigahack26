@@ -73,11 +73,16 @@ public class PersonController {
     }
 
     @PostMapping("/extract")
-    public Map<String, Object> extract() {
-        int added = people.extract(companies.findAll());
+    public Map<String, Object> extract(@RequestParam(name = "reset", defaultValue = "false") boolean reset) {
+        List<Company> all = companies.findAll();
+        if (reset) {
+            people.forget();
+        }
+        int added = people.extract(all);
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("added", added);
-        body.put("total", people.forCompanies(companies.findAll().stream().map(Company::getId).toList()).size());
+        body.put("reset", reset);
+        body.put("total", people.forCompanies(all.stream().map(Company::getId).toList()).size());
         return body;
     }
 }

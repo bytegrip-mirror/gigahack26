@@ -124,4 +124,9 @@ public class PersonService {
     public void forget() {
         people.deleteAll();
     }
+
+    @Transactional(readOnly = true)
+    public long count() {
+        return people.count();
+    }
 }

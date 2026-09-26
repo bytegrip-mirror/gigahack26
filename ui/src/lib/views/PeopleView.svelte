@@ -73,10 +73,10 @@
 
 	const companies = $derived(new Set(rows.map((row) => row.companyId)).size);
 
-	async function runExtract() {
+	async function runExtract(reset = false) {
 		busy = true;
 		try {
-			const result = await extractPeople();
+			const result = await extractPeople(reset);
 			await load();
 			toasts.push(
 				result.added === 0
@@ -118,12 +118,19 @@
 			label: 'Read the documents again for names',
 			icon: 'refresh' as const,
 			separatorBefore: true
+		},
+		{
+			id: 'rebuild',
+			label: 'Throw the list away and read again',
+			icon: 'trash' as const,
+			hint: 'after a change to how names are read'
 		}
 	]);
 
 	async function runOverflow(id: string) {
 		if (id === 'export') exportPeople();
 		else if (id === 'extract') await runExtract();
+		else if (id === 'rebuild') await runExtract(true);
 	}
 </script>
 
@@ -143,7 +150,7 @@
 					<Metric value={companies} label="Companies" />
 				</div>
 			{/if}
-			<button class="btn btn-primary" onclick={runExtract} disabled={busy}>
+			<button class="btn btn-primary" onclick={() => runExtract()} disabled={busy}>
 				{#if busy}<span class="spinner"></span>{/if}
 				<Icon name="search" size={15} />
 				Read for names
