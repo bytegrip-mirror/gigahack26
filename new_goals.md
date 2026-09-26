@@ -34,13 +34,14 @@ Two things the audit already proved, which this plan spends:
 
 ## Where this stands
 
-Fifty-one of these fifty-two landed and are on `main` and deployed. One is
-partial, with the reason measured rather than asserted. Three things this pass found were not
-on the list and mattered more than most of it: the deployed database answered
-with the union of every corpus ever seeded, a model reading was allowed to delete
-a company the team had configured in, and a new nullable column took the board
-down in production while the pipeline stayed green. All three are fixed, with
-tests or a pipeline gate where one was possible.
+All fifty-two landed and are on `main` and deployed. Six things this pass found
+were not on the list and mattered more than most of it — a database answering
+with the union of every corpus ever seeded, a model reading able to delete a
+company the team had configured in, a new column that took the board down while
+the pipeline stayed green, a corpus that keyed every company's first story
+`nws-1`, an overlay loaded and then discarded on the next boot, and a crash loop
+of my own making. Each is fixed with a test or a pipeline gate where one was
+possible; they are written up below.
 
 `[x]` done · `[~]` partial, with what is missing said in place · `[ ]` not started
 

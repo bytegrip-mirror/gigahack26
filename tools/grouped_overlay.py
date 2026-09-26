@@ -1,18 +1,22 @@
-"""Read each document once, not once per question.
+"""Read each document once per service line — except the questions that remove.
 
-MEASURED, AND NOT THE ONE THAT SHIPS. The saving is real — 2,061 calls against
-12,409, covering 46% more pairs — but comparing the two overlays on the live
-corpus showed what it costs: the grouped build disqualifies 102 companies where
-the per-question build disqualifies 76, and the difference is not vendors. Bank
-of Cyprus is removed for recruiting security engineers, eMAG for hiring
-DevSecOps, JPMorgan for building internal automation. Those are hiring signals,
-which is what the question asks for, read as in-house building. Asked one
-question at a time the model gets this right; asked six at once it reaches for
-the disqualifier.
+Grouping every question was measured against the per-question build and lost on
+the one thing that matters: it disqualified 102 companies where the careful build
+disqualifies 76, and the extra ones were not vendors. Bank of Cyprus went for
+recruiting security engineers, eMAG for hiring DevSecOps, JPMorgan for building
+internal automation. Asked one question at a time the model reads those correctly
+as the hiring signals they are; asked six at once it reaches for the
+disqualifier.
 
-So this stays as the cheap option for a corpus that grows, and the per-question
-builder is what ships. If it is ever switched on, the three disqualifying
-questions should be asked on their own.
+So the questions are split by what they can do. The ones that can only add are
+asked together — several questions about one document is what the model is good
+at, and a BUILD verdict on a positive question cannot remove a company anyway,
+because the gate only fires on a question configured to disqualify. The three
+that can remove a company are asked one at a time, the way they were when they
+were getting it right.
+
+That is most of the saving with none of the cost: a couple of thousand calls
+where question-by-question takes twelve thousand.
 
 
 The per-question builder asks the model the same document's worth of text
@@ -98,6 +102,13 @@ def group_questions(questions):
     for question in questions:
         lines.setdefault(question["serviceLine"], []).append(question)
     return lines
+
+
+def adds_or_removes(questions):
+    """Split a line's questions by whether a verdict on them can remove a company."""
+    adding = [q for q in questions if q.get("polarity") != "DISQUALIFYING"]
+    removing = [q for q in questions if q.get("polarity") == "DISQUALIFYING"]
+    return adding, removing
 
 
 def call_group(company, group, context):
@@ -214,17 +225,29 @@ def main():
             continue
         company = names.get(item.get("companyKey"), "")
         for service_line, group in lines.items():
-            contexts = [base.relevant_windows(document, q["patterns"]) for q in group]
-            hit = [c for c in contexts if c is not None]
-            if hit:
-                context = max(hit, key=len)[:base.MAX_DOCUMENT_CHARS]
-                bump("groups_live")
-            elif rng.random() < args.sample:
-                context = document[:base.MAX_DOCUMENT_CHARS]
-                bump("groups_sampled")
-            else:
-                continue
-            jobs.append((company, group, document, context, item["key"]))
+            adding, removing = adds_or_removes(group)
+            if adding:
+                contexts = [base.relevant_windows(document, q["patterns"]) for q in adding]
+                hit = [c for c in contexts if c is not None]
+                if hit:
+                    context = max(hit, key=len)[:base.MAX_DOCUMENT_CHARS]
+                    bump("groups_live")
+                elif rng.random() < args.sample:
+                    context = document[:base.MAX_DOCUMENT_CHARS]
+                    bump("groups_sampled")
+                else:
+                    context = None
+                if context is not None:
+                    jobs.append((company, adding, document, context, item["key"]))
+            for question in removing:
+                if base.relevant_windows(document, question["patterns"]) is not None:
+                    bump("single_live")
+                elif rng.random() < args.sample:
+                    bump("single_sampled")
+                else:
+                    continue
+                jobs.append((company, [question], document,
+                             document[:base.MAX_DOCUMENT_CHARS], item["key"]))
 
     pairs = sum(len(job[1]) for job in jobs)
     print("documents        %d" % len(corpus["evidence"]))
@@ -232,6 +255,8 @@ def main():
     print("model calls      %d" % len(jobs))
     print("pairs covered    %d" % pairs)
     print("per-question would be %d calls" % pairs)
+    print("the disqualifying questions are asked one at a time: %d single calls"
+          % STATS.get("single_live", 0) + "")
     if args.dry_run:
         return 0
 
