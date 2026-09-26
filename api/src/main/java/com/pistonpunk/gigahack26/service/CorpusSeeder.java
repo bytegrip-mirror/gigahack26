@@ -303,7 +303,7 @@ public class CorpusSeeder implements ApplicationRunner {
 
         evidence.saveAll(rows);
         captures.saveAll(captureRows);
-        dropVanished(List.copyOf(rows));
+        evictAbsent(List.copyOf(rows));
     }
 
     /**
@@ -317,7 +317,7 @@ public class CorpusSeeder implements ApplicationRunner {
      * captures are rebuilt from the corpus on each seed, so anything keyed to a
      * document the corpus dropped goes with it.
      */
-    private void dropVanished(List<Evidence> kept) {
+    private void evictAbsent(List<Evidence> kept) {
         Set<String> present = kept.stream().map(Evidence::getKey).collect(Collectors.toSet());
         List<Evidence> stale = evidence.findAll().stream()
                 .filter(item -> !present.contains(item.getKey()))
