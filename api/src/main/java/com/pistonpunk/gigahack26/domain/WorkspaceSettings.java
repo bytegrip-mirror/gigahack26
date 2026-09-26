@@ -35,8 +35,8 @@ public class WorkspaceSettings {
     @Column(name = "competitor_gate", nullable = false)
     private boolean competitorGate;
 
-    @Column(name = "industry_gate", nullable = false)
-    private boolean industryGate;
+    @Column(name = "industry_gate")
+    private Boolean industryGate;
 
     @Column(name = "base_rate", nullable = false)
     private double baseRate;
@@ -149,7 +149,7 @@ public class WorkspaceSettings {
     }
 
     public boolean isIndustryGate() {
-        return industryGate;
+        return industryGate != null && industryGate;
     }
 
     public double getBaseRate() {

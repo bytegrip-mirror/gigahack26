@@ -248,6 +248,11 @@
 	});
 
 	$effect(() => {
+		const wanted = initialSelected ?? null;
+		if (wanted !== selected) selected = wanted;
+	});
+
+	$effect(() => {
 		const line = serviceLine;
 		void allLines;
 		const search = query;

@@ -8,6 +8,4 @@
 
 <svelte:head><title>Board · Signal Desk</title></svelte:head>
 
-{#key selected}
-	<BoardView initialSelected={selected} initialLine={line} />
-{/key}
+<BoardView initialSelected={selected} initialLine={line} />

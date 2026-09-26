@@ -284,9 +284,42 @@ pipeline {
                     exit 1
                 '''
                 sh '''
-                    docker exec ${API_CONTAINER} wget -q -O - "https://${API_DOMAIN}/api/status" || exit 1
+                    set -eu
+                    fail() {
+                        echo "$1"
+                        docker logs ${API_CONTAINER} --tail 200 || true
+                        exit 1
+                    }
+                    status=$(docker exec ${API_CONTAINER} wget -q -O - "https://${API_DOMAIN}/api/status") || fail "status did not answer"
+                    echo "$status"
+
+                    board=$(docker exec ${API_CONTAINER} wget -q -O - "https://${API_DOMAIN}/api/companies") \
+                        || fail "the board payload did not answer — status alone can be green while reads fail"
+                    case "$board" in
+                        \\[*\\]) ;;
+                        *) fail "the board payload is not a JSON array: $(echo "$board" | head -c 200)" ;;
+                    esac
+                    case "$board" in
+                        \\[\\]) fail "the board payload is empty" ;;
+                    esac
+
+                    meta=$(docker exec ${API_CONTAINER} wget -q -O - "https://${API_DOMAIN}/api/meta?serviceLine=Intelligent%20Automation") \
+                        || fail "meta did not answer"
+                    case "$meta" in
+                        *bands*) ;;
+                        *) fail "meta carries no bands: $(echo "$meta" | head -c 200)" ;;
+                    esac
+
+                    settings=$(docker exec ${API_CONTAINER} wget -q -O - "https://${API_DOMAIN}/api/settings") \
+                        || fail "settings did not answer"
+                    case "$settings" in
+                        *baseRate*) ;;
+                        *) fail "settings did not carry the scoring profile: $(echo "$settings" | head -c 200)" ;;
+                    esac
+
+                    rows=$(echo "$board" | tr ',' '\\n' | grep -c '"id"' || true)
                     echo
-                    echo "The API answers on https://${API_DOMAIN} through Traefik, over TLS"
+                    echo "The API answers on https://${API_DOMAIN} through Traefik, over TLS: $rows company rows, meta and settings read"
                 '''
             }
         }
