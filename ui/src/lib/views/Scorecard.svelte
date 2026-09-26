@@ -329,7 +329,7 @@
 
 				<section class="panel">
 					<div class="panel-head">
-						<h3 class="label">When the signals arrived</h3>
+						<h3 class="label">Signals Frequency</h3>
 					</div>
 					<SignalTimeline rows={detail.ledger} note="height is what each was worth to the score" />
 				</section>
