@@ -1284,6 +1284,17 @@
 		color: var(--color-ink-4);
 	}
 
+	/* The trailing columns — the document count, the age, the star and the menu —
+	   are one short value each, and they take the same centring the verdict
+	   columns did. Pinned to the top of a tall row they read as belonging to the
+	   first line of the signals list rather than to the row. */
+	.c-doc,
+	.c-age,
+	.c-star,
+	.c-act {
+		vertical-align: middle;
+	}
+
 	.c-act {
 		width: 36px;
 		padding-left: 0;
