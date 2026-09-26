@@ -149,7 +149,7 @@ All of them are in `ui/src/lib/components/`. Read the file for the exact props.
 | Component | Contract |
 | --- | --- |
 | `Icon` + `icons.ts` | One stroke set. `size`: `sm` 13, `md` 15, `lg` 17, `xl` 22. Add a path to `PATHS`, never an inline `<svg>` in a view. |
-| `Menu` + `menu.ts` | The overflow pattern. Takes `items: MenuItem[]` and `onselect(id)`. `text` renders a labelled button, otherwise an icon button; `stretch` makes it fill its container. |
+| `Menu` + `menu.ts` | The overflow pattern. Takes `items: MenuItem[]` and `onselect(id)`. `text` renders a labelled button, otherwise an icon button; `stretch` makes it fill its container. An item with `heading: true` is a section label inside the panel, not something to choose. |
 | `Tag` | The only badge. `variant` selects the colour, `band` renders the semantic band colours. |
 | `Th` | A sortable header cell. Renders `aria-sort` and a direction arrow that shows without hover. `class` takes the column's hide rule. |
 | `Metric` | A number above its tracked label, with an optional `tone` and `hint`. Use it for every top-level summary, never a sentence. |
@@ -192,6 +192,7 @@ one `Menu` away, and every row carries the same `⋯` in the last column.
 | Company pane | *Generate outreach*, then *Push to HubSpot* | copy the summary, open the website, count as a lead, count as rejected, close |
 | Pipeline | per-row *advance to the next stage* | open on the board, copy a link, export the row, move to any stage; screen-level: export the pipeline, open the board |
 | Signal Studio | *New question* | export every question, duplicate, delete; per row: edit, duplicate, turn on/off, copy the key, delete |
+
 | Settings | *Save and re-score* | read the writer brief; per service line: enable/disable, delete |
 
 Both buttons on the company pane are full width and stacked: the outreach draft is
@@ -253,6 +254,15 @@ toolbar with a dark bar holding the selection count, *Set stage*, *Export*,
 *Copy links* and a clear button. Bulk stage changes fire one `recordLead` per
 company and report how many landed.
 
+**The board's filter bar is one row and four controls.** Left to right: the
+service line, then the one segmented control that decides *which companies*, then
+a spacer, then the search and one `Filters` menu, then `Clear` when anything is
+narrowing the view. The engine filter and the lead stage used to sit at opposite
+ends of the bar as a menu and a bare `select`, which read as two unrelated
+controls and pushed the bar onto a second line at 1440. They are the same kind of
+thing — a way of narrowing the rows you already have — so they are one menu with
+two headed sections, and its label carries the count of what is on.
+
 ## 5. Scope, region, and where each control lives
 
 Two settings reach across screens, and each sits where its effect is visible.
@@ -282,9 +292,43 @@ subtitle, so the effect is legible from the screen it changes.
 The studio is a library, not a scoped view: it lists every question grouped by
 service line, with the session's line first, and offers no scope control at all.
 
+**The studio's editor is two columns, and the form is a grid.** The question list
+stays on the left; the editor puts the fields on the left of its own body and the
+live preview in a column on the right, each scrolling on its own — the preview is
+the feedback loop for what you are typing, so it cannot be a panel you have to
+scroll past four others to reach. The fields themselves are a two-column grid:
+**What to ask** beside **How it scores**, then **What it matches** across both,
+because that is the order the decisions are made in. Below 1280px the preview
+drops under the fields and the whole body scrolls as one.
+
+The editor's own title carries the question's state — tier, polarity, theme,
+whether it is on, and how many signals it has produced — so nothing on this
+screen requires scrolling to find out what you are editing.
+
+**Half-life is a sentence, not a chart.** It used to be five bars labelled
+`today`, `30d`, `90d`, `180d` and `365d` with a decayed weight against each. The
+weights are the scoring model's arithmetic, the reader is a rep deciding how long
+a piece of evidence should stay worth something, and the sentence says the same
+thing in the terms they think in.
+
+**Apply to the board is only offered when the question is saved.** It re-reads the
+corpus against the stored question; offering it while the form was dirty meant it
+silently scored a question the board did not hold. It is disabled with the reason
+in its tooltip, and the footer says the board still has the saved version.
+
 The board's band counts are tallied from the rows in hand, not read from the
 server's per-line totals, so the Priority metric always counts the Priority
 companies the region filter has left on screen.
+
+**The Market screen groups the corpus; it does not grade it.** It answers "where is
+the demand" by country, industry or headcount, and the columns are counts a rep
+can act on. The accuracy panel that used to sit above the table — a backtest with
+a `30d` / `90d` / `180d` window selector — is gone, along with the `Med. fit`
+column. Both printed a number that the screen itself then had to explain away: the
+panel's own text said any rate it could compute would be "a fact about the crawl's
+depth wearing the costume of an accuracy figure", and a median fit of 0.25 in
+every row is the base rate restated twelve times. A screen that has to argue
+against its own figure should not print it.
 
 ## 6. Density and alignment
 
@@ -302,12 +346,29 @@ Dense data is a table, never a grid of cards.
 - Columns drop in a fixed order as width falls, so the table never squeezes: Docs
   and Newest below 1180px, then the split gives way to an overlay at 1100px.
 
-The board's columns are `#`, Company, Fit, Band, Why we would call, Docs, Newest,
-save and actions. **Fit is a word and Band is a tag, and both stay**: they answer
-different questions. Fit is what the evidence is worth; the band is what the queue
-does about it, which also accounts for the theme cap and the gates — the companies
-pinned at exactly the Priority line are the ones carrying a single theme, and only
-the pair of columns says so. The numeric probability lives in the Fit cell's
+The board's columns are `#`, the company mark, Company, Fit, Why we would call,
+Docs, Newest, save and actions.
+
+**The mark is its own column**, not a glyph inside the company cell: the names
+then start on one x whether or not a company has an icon, and the column can be
+scanned on its own. `CompanyMark` draws the 32px scraped icon or, where
+`tools/fetch_logos.py` found none, a monogram of exactly the same size.
+
+**Fit replaced both the score and the band.** There is one column, and what it
+shows depends on what the queue decided:
+
+| Band | The cell reads |
+| --- | --- |
+| Priority, Nurture, Watch | the word — `Strong`, `Good`, `Fair` |
+| `Nurture` pinned at the Priority line | the word plus `capped · one theme` |
+| `THIN` | `Unproven` |
+| `DISQUALIFIED` | the `Out of the queue` tag and the gate's reason |
+
+A separate band column was redundant: the word is cut from the same three
+thresholds that place the band, so the two agreed on every row that was not gated.
+The one case where they disagree is the capped one — evidence at the line and a
+single theme — and that case now says so in the cell rather than leaving the
+reader to infer it from two columns. The numeric probability lives in the cell's
 tooltip and in the CSV.
 
 ## 7. Adding to a screen

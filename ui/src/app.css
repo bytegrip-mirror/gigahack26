@@ -715,6 +715,11 @@
 		color: var(--color-ink-4);
 	}
 
+	.menu-sep + .menu-label,
+	.menu-label-first {
+		padding-top: var(--spacing-3);
+	}
+
 	.menu-item {
 		display: flex;
 		align-items: center;

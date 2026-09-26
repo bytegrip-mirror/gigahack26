@@ -125,6 +125,18 @@ questions, and all of them scored positive**; the top company on the live board 
 top because a `COUNTER` reading was paid +0.63. Rows that do not assert are still
 stored, still shown on the card under "Read, not evidence", and contribute nothing.
 
+**The operator can exclude a company without a deploy.** `workspace_settings.blacklist`
+holds names and domains; `Blacklist.match` compares them folded, on the whole name
+with the legal suffix dropped, or on the domain, and `ScoringService.gate` runs it
+before every other gate with the reason `On the blacklist — "…"`. It is a scoring
+input, so it travels the documented path: `ScoringProperties`, `WorkspaceSettings`,
+`SettingsService.effective()`, the Customer profile screen and the
+`ScoringServiceTest` literal. It is deliberately *not* an environment variable —
+the settings row is the source of truth, the way it is for the voice settings, and
+saving re-scores every stored document. The shipped `VendorRegistry` still gates
+what it always gated; the blacklist is the operator's layer on top, not a
+replacement for it.
+
 **No shipped question removes a company on a model reading.** All three `*.insourcing`
 questions are `NEGATIVE`: a company that sells automation, security operations or a
 data platform of its own counts against calling them, which lowers the score and
@@ -153,12 +165,12 @@ tab that printed the same rows was removed, because its numbers read as noise
 beside the quote they explained. What replaced them, and why each is not merely a
 cosmetic swap:
 
-- **Fit is a word**, `Strong` / `Good` / `Fair` / `Weak`, cut from the configured
-  thresholds by `fitWord` in `ui/src/lib/format.ts`; the probability survives in
-  the cell's tooltip and in the CSV. The band stays beside it because the two are
-  different facts — the band folds in the theme cap and the gates, so a company
-  with strong evidence can sit in Nurture, pinned at exactly the Priority line
-  because one theme is all it has, and the pair is what says so.
+- **Fit is a word and it is the only column.** `Strong` / `Good` / `Fair`,
+  `Unproven`, or the `Out of the queue` tag with its reason, cut from the same
+  thresholds that place the band; the probability survives in the cell's tooltip
+  and in the CSV. A separate band column was redundant — the two agreed on every
+  row that was not gated — and the one case where they disagreed, a company pinned
+  at the Priority line by the theme cap, now says `capped · one theme` in the cell.
 - **Top evidence is the question titles that fired**, strongest first and one per
   question (`reasons()`), and nothing else. The contribution and the strongest
   quote were both dropped: the quote is one click away on the scorecard, and the
@@ -387,6 +399,7 @@ touching one and not the other is the default failure mode.
 | New port or domain | Traefik labels in the `Jenkinsfile`, `docker-compose.yml` |
 | New API dependency | `api/build.gradle.kts`, and check the Dockerfile's build stage still resolves it |
 | New corpus field | `CorpusFiles`, `CorpusSeeder`, `tools/build_corpus.py`, and re-seed |
+| New column on a settings or domain table | a plain `VARCHAR`/number column is added by `ddl-auto: update` on the live database too; an enum-backed one is not — see the row below |
 | New value on an enum a column stores | a migration on every database that already exists. Hibernate `ddl-auto: update` creates the check constraint on a fresh database and never widens it on an old one, so adding `NEWSROOM` to `SourceKind` crash-looped the deployed API with `violates check constraint "evidence_source_kind_check"` until the constraint was rewritten by hand. Fresh databases — local compose, CI — are fine; the live one is not |
 | New scoring input | `ScoringProperties`, `WorkspaceSettings`, `SettingsService.effective()`, the Customer profile screen, and the `ScoringServiceTest` literal |
 

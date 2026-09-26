@@ -37,7 +37,7 @@
 	let trigger = $state<HTMLButtonElement | null>(null);
 	let panel = $state<HTMLDivElement | null>(null);
 
-	const options = $derived(items.filter((item) => !item.disabled));
+	const options = $derived(items.filter((item) => !item.disabled && !item.heading));
 
 	const shown = $derived.by(() => {
 		const term = needle.trim().toLowerCase();
@@ -183,20 +183,24 @@
 		{/if}
 
 		{#each shown as item (item.id)}
-			{#if item.separatorBefore}<div class="menu-sep"></div>{/if}
-			<button
-				class="menu-item"
-				type="button"
-				role="menuitem"
-				data-danger={item.danger ? 'true' : undefined}
-				disabled={item.disabled}
-				onclick={() => choose(item.id)}
-			>
-				{#if item.icon}<Icon name={item.icon} size={15} />{/if}
-				<span>{item.label}</span>
-				{#if item.hint}<span class="hint num">{item.hint}</span>{/if}
-				{#if item.checked}<span class="hint"><Icon name="check" size={13} /></span>{/if}
-			</button>
+			{#if item.heading}
+				<p class="menu-label" class:menu-label-first={item.separatorBefore}>{item.label}</p>
+			{:else}
+				{#if item.separatorBefore}<div class="menu-sep"></div>{/if}
+				<button
+					class="menu-item"
+					type="button"
+					role="menuitem"
+					data-danger={item.danger ? 'true' : undefined}
+					disabled={item.disabled}
+					onclick={() => choose(item.id)}
+				>
+					{#if item.icon}<Icon name={item.icon} size={15} />{/if}
+					<span>{item.label}</span>
+					{#if item.hint}<span class="hint num">{item.hint}</span>{/if}
+					{#if item.checked}<span class="hint"><Icon name="check" size={13} /></span>{/if}
+				</button>
+			{/if}
 		{/each}
 		{#if options.length === 0}
 			<p class="menu-label">Nothing available</p>

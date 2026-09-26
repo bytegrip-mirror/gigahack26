@@ -9,4 +9,5 @@ export type MenuItem = {
 	disabled?: boolean;
 	checked?: boolean;
 	separatorBefore?: boolean;
+	heading?: boolean;
 };

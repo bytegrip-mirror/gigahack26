@@ -22,7 +22,7 @@
 	import { session } from '$lib/session.svelte';
 	import { workspace } from '$lib/workspace.svelte';
 	import { toasts } from '$lib/toast.svelte';
-	import { duration, shortNumber, theme, tier } from '$lib/format';
+	import { duration, plural, shortNumber, theme, tier } from '$lib/format';
 	import { copy, csv, save } from '$lib/export';
 	import Tag from '$lib/components/Tag.svelte';
 	import LoadingVeil from '$lib/components/LoadingVeil.svelte';
@@ -234,10 +234,6 @@
 
 	function decayOf(name: string): number | null {
 		return decayClasses.find((entry) => entry.name === name)?.halfLifeDays ?? null;
-	}
-
-	function weight(ageDays: number, halfLifeDays: number): number {
-		return Math.max(0.02, Math.pow(2, -ageDays / halfLifeDays));
 	}
 
 	function normaliseCue(value: string) {
@@ -579,13 +575,31 @@
 		</section>
 
 		<section class="editor" aria-label="Question editor">
-			<div class="editor-body scroll">
-				{#if editable}
+			{#if editable}
+				<div class="editor-title">
+					<h2 class="dsp">{creating ? 'New question' : (current?.title ?? 'Question')}</h2>
+					{#if dirty}<Tag variant="wash">unsaved</Tag>{/if}
+					{#if current}
+						<span class="state">
+							<Tag>{tier(draft.weightTier)}</Tag>
+							{#if draft.polarity !== 'POSITIVE'}
+								<Tag variant={draft.polarity === 'DISQUALIFYING' ? 'oxblood' : 'default'}>
+									{draft.polarity === 'DISQUALIFYING' ? 'disqualifying' : 'counter'}
+								</Tag>
+							{/if}
+							<Tag variant="bare">{theme(draft.theme)}</Tag>
+							{#if !draft.active}<Tag variant="bare">off</Tag>{/if}
+							<span class="num dim">{plural(current.signalCount, 'signal')}</span>
+						</span>
+					{/if}
+				</div>
+			{/if}
+
+			<div class="editor-body">
+			{#if editable}
+				<div class="editor-fields scroll">
 					<div class="panel">
-						<div class="panel-head">
-							<h2 class="dsp">{creating ? 'New question' : (current?.title ?? 'Question')}</h2>
-							{#if dirty}<Tag variant="wash">unsaved</Tag>{/if}
-						</div>
+						<div class="panel-head"><h3 class="label">What to ask</h3></div>
 
 						<label class="field">
 							<span class="label">Title</span>
@@ -618,7 +632,7 @@
 					</div>
 
 					<div class="panel">
-						<div class="panel-head"><h3 class="label">Scoring</h3></div>
+						<div class="panel-head"><h3 class="label">How it scores</h3></div>
 						<div class="fields">
 							<label class="field">
 								<span class="label">Service line</span>
@@ -664,20 +678,11 @@
 										<option value={decay.name}>{tier(decay.name)} · {decay.halfLifeDays}d</option>
 									{/each}
 								</select>
-								<span class="sub dim">How long this evidence keeps its weight. A dated event is worth less next quarter; a structural shift is worth less next year.</span>
-								{#if draftHalfLife}
-									<div class="decay">
-										{#each [0, 30, 90, 180, 365] as age (age)}
-											<span class="decay-step">
-												<span class="label">{age === 0 ? 'today' : `${age}d`}</span>
-												<span class="num decay-bar">
-													<span style={`width:${Math.round(weight(age, draftHalfLife) * 100)}%`}></span>
-												</span>
-												<span class="num dim">{weight(age, draftHalfLife).toFixed(2)}</span>
-											</span>
-										{/each}
-									</div>
-								{/if}
+								<span class="sub dim">
+									{draftHalfLife
+										? `Reading today it counts in full. At ${Math.round(draftHalfLife)} days old it counts half, and half again every ${Math.round(draftHalfLife)} after that.`
+										: 'How long this evidence keeps its weight.'}
+								</span>
 							</label>
 						</div>
 						<label class="check">
@@ -686,52 +691,48 @@
 						</label>
 					</div>
 
-					<div class="panel">
+					<div class="panel span-all">
 						<div class="panel-head">
-							<h3 class="label">What this question will look for</h3>
-							{#if (draft.cues ?? []).length === 0}<Tag variant="bare">derived</Tag>{/if}
+							<h3 class="label">What it matches</h3>
+							{#if (draft.cues ?? []).length === 0}<Tag variant="bare">derived from the wording</Tag>{/if}
 						</div>
+
+						<p class="sub dim match-note">A passage has to contain one of these to be read at all.</p>
 						{#if (draft.cues ?? []).length > 0}
 							<div class="chips">
 								{#each draft.cues ?? [] as cue (cue)}
-									<button class="chip" type="button" title="Remove this cue" onclick={() => dropCue(cue)}>
+									<button class="chip" type="button" title="Remove this phrase" onclick={() => dropCue(cue)}>
 										{cue}<Icon name="close" size={11} />
 									</button>
 								{/each}
-							</div>
-							<div class="cue-add">
-								<input
-									class="input input-sm"
-									placeholder="Add a phrase this question should match"
-									bind:value={cueDraft}
-									onkeydown={(event) => {
-										if (event.key === 'Enter') {
-											event.preventDefault();
-											addCue();
-										}
-									}}
-								/>
-								<button class="btn btn-sm" type="button" onclick={addCue}>Add</button>
 							</div>
 							<p class="sub dim">Set on the question. Empty the list to let the rubric derive its own.</p>
 						{:else if derivedCues.length > 0}
 							<div class="chips">
 								{#each derivedCues as cue (cue)}<Tag variant="wash">{cue}</Tag>{/each}
 							</div>
-							<p class="sub dim">
-								Derived from the wording — nothing is configured, so these are the phrases the engine will match.
-								Keep them to edit the list, or leave it empty and they are re-derived from the rubric.
-							</p>
-							<button class="btn btn-sm" type="button" onclick={keepDerived}>Use these as the cue list</button>
+							<button class="btn btn-sm" type="button" onclick={keepDerived}>Use these as the phrase list</button>
 						{:else}
-							<p class="sub dim">No cue vocabulary yet. Write at least ten characters of question and rubric.</p>
+							<p class="sub dim">No phrases yet. Write at least ten characters of question and rubric.</p>
 						{/if}
-					</div>
 
-					<div class="panel">
-						<div class="panel-head">
-							<h3 class="label">What argues against it</h3>
+						<div class="cue-add">
+							<input
+								class="input input-sm"
+								placeholder="Add a phrase this question should match"
+								bind:value={cueDraft}
+								onkeydown={(event) => {
+									if (event.key === 'Enter') {
+										event.preventDefault();
+										addCue();
+									}
+								}}
+							/>
+							<button class="btn btn-sm" type="button" onclick={addCue}>Add</button>
 						</div>
+
+						<p class="label against-label">And what argues against it</p>
+						<p class="sub dim match-note">A passage containing one of these subtracts from the score instead of adding to it.</p>
 						<div class="chips">
 							{#each draft.counterCues ?? [] as cue (cue)}
 								<button class="chip chip-bad" type="button" title="Remove" onclick={() => dropCounterCue(cue)}>
@@ -739,9 +740,7 @@
 								</button>
 							{/each}
 							{#if (draft.counterCues ?? []).length === 0}
-								<span class="sub dim">
-									None. A passage containing one of these subtracts from the score instead of adding to it.
-								</span>
+								<span class="sub dim">None configured.</span>
 							{/if}
 						</div>
 						<div class="cue-add">
@@ -759,18 +758,23 @@
 							<button class="btn btn-sm" type="button" onclick={addCounterCue}>Add</button>
 						</div>
 					</div>
+				</div>
 
+				<aside class="aside scroll" aria-label="Live preview">
 					<div class="panel">
 						<div class="panel-head">
-							<h3 class="label">Live preview</h3>
-							{#if previewing}<span class="sub dim"><span class="spinner"></span> Loading</span>{/if}
+							<h3 class="label">What this would find</h3>
+							{#if previewing}<span class="sub dim"><span class="spinner"></span> Reading</span>{/if}
 						</div>
 
 						<div class="preview-body">
-							<LoadingVeil show={veil} label="Loading the preview" />
+							<LoadingVeil show={veil} label="Reading the corpus" />
 
 						{#if !preview}
-							<p class="sub dim">The corpus is scanned as you type on the local rubric engine, so it is instant and deterministic. Applying runs the configured engine.</p>
+							<p class="sub dim">
+								The corpus is read as you type, on the local engine, so this costs nothing and answers the same
+								way twice. Applying runs the engine you have configured.
+							</p>
 						{:else}
 							<div class="metrics">
 								<Metric value={preview.matchedCompanies} label="Companies" />
@@ -784,31 +788,36 @@
 										<tr>
 											<th scope="col" class="c-name">Company</th>
 											<th scope="col" class="c c-docs">Docs</th>
-											<th scope="col" class="c c-conf">Top conf</th>
-											<th scope="col">Passage</th>
+											<th scope="col" class="c c-conf">Conf</th>
 										</tr>
 									</thead>
 									<tbody>
-										{#each preview.matches.slice(0, 10) as match (match.companyId)}
+										{#each preview.matches.slice(0, 12) as match (match.companyId)}
 											<tr>
 												<td class="c-name"><a href="/?co={match.companyId}">{match.company}</a></td>
 												<td class="num c c-docs">{match.evidence}</td>
 												<td class="num c c-conf">{match.topConfidence.toFixed(2)}</td>
-												<td class="small-quote">“{match.quote}”</td>
+											</tr>
+											<tr class="quote-row">
+												<td colspan="3" class="small-quote">“{match.quote}”</td>
 											</tr>
 										{/each}
 									</tbody>
 								</table>
-								{#if preview.matches.length > 10}
-									<p class="sub dim">10 strongest of {preview.matchedCompanies}.</p>
+								{#if preview.matches.length > 12}
+									<p class="sub dim">12 strongest of {preview.matchedCompanies}.</p>
 								{/if}
 							{:else}
-								<p class="sub dim">Nothing in the corpus answers this. That is a result: the question would not move the board.</p>
+								<p class="sub dim">
+									Nothing in the corpus answers this. That is a result: the question would not move the board.
+								</p>
 							{/if}
 						{/if}
 						</div>
 					</div>
-				{:else}
+				</aside>
+			{:else}
+				<div class="editor-fields scroll">
 					<div class="panel">
 						<div class="panel-head">
 							<h2 class="dsp">No question open</h2>
@@ -826,7 +835,8 @@
 							</button>
 						{/if}
 					</div>
-				{/if}
+				</div>
+			{/if}
 			</div>
 
 			{#if pending}
@@ -850,10 +860,18 @@
 						{#if saving}<span class="spinner"></span>{/if}
 						{creating ? 'Create question' : 'Save'}
 					</button>
-					<button class="btn" onclick={apply} disabled={applying || !draft.serviceLine}>
+					<button
+						class="btn"
+						title={dirty || creating ? 'Save first — the board scores the question as it is stored, not as it is typed.' : 'Read every document again and re-rank on this question'}
+						onclick={apply}
+						disabled={applying || !draft.serviceLine || dirty || creating}
+					>
 						{#if applying}<span class="spinner"></span>{/if}
 						{applying ? 'Scoring' : 'Apply to the board'}
 					</button>
+					{#if dirty && !creating}
+						<span class="sub dim">The board still holds the saved version of this question.</span>
+					{/if}
 				{:else}
 					<button class="btn btn-ink" onclick={() => newQuestion()}>
 						<Icon name="plus" size={15} />
@@ -868,34 +886,6 @@
 </div>
 
 <style>
-	.decay {
-		display: flex;
-		flex-direction: column;
-		gap: 2px;
-		margin-top: var(--spacing-2);
-	}
-
-	.decay-step {
-		display: grid;
-		grid-template-columns: 44px 1fr 34px;
-		align-items: center;
-		gap: var(--spacing-2);
-	}
-
-	.decay-bar {
-		display: block;
-		height: 5px;
-		background: var(--color-sunken);
-		border-radius: 1px;
-		overflow: hidden;
-	}
-
-	.decay-bar span {
-		display: block;
-		height: 100%;
-		background: var(--color-orange);
-	}
-
 	.chip {
 		display: inline-flex;
 		align-items: center;
@@ -1094,10 +1084,89 @@
 		background: var(--color-surface);
 	}
 
+	.editor-title {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-2);
+		flex-wrap: wrap;
+		padding: var(--spacing-3) var(--spacing-4) 0;
+		flex: none;
+	}
+
+	.editor-title h2 {
+		font-size: var(--text-xl);
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.state {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+		margin-left: var(--spacing-2);
+	}
+
+	.state .num {
+		font-size: var(--text-micro);
+	}
+
 	.editor-body {
 		position: relative;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(320px, 26rem);
 		flex: 1;
 		min-height: 0;
+	}
+
+	.editor-fields {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		align-content: start;
+		min-height: 0;
+		min-width: 0;
+	}
+
+	.editor-fields .panel {
+		border-right: 1px solid var(--color-rule);
+		border-bottom: 1px solid var(--color-rule);
+	}
+
+	.editor-fields .panel:nth-child(2n) {
+		border-right: 0;
+	}
+
+	.span-all {
+		grid-column: 1 / -1;
+		border-right: 0;
+	}
+
+	.aside {
+		min-height: 0;
+		border-left: 1px solid var(--color-rule);
+		background: var(--color-paper);
+	}
+
+	.aside .panel {
+		padding: var(--spacing-3);
+	}
+
+	.aside .metrics {
+		margin-bottom: var(--spacing-2);
+	}
+
+	.match-note {
+		margin-bottom: var(--spacing-2);
+	}
+
+	.quote-row .small-quote {
+		padding-bottom: var(--spacing-2);
+		border-bottom: 1px solid var(--color-rule);
+	}
+
+	.against-label {
+		margin-top: var(--spacing-4);
 	}
 
 	.editor-foot {
@@ -1147,6 +1216,28 @@
 		font-style: italic;
 		line-height: 1.4;
 		color: var(--color-ink-2);
+	}
+
+	@media (max-width: 1280px) {
+		.editor-body {
+			grid-template-columns: minmax(0, 1fr);
+			grid-template-rows: minmax(0, 1fr) auto;
+			overflow-y: auto;
+		}
+		.editor-fields,
+		.aside {
+			overflow: visible;
+		}
+		.editor-fields {
+			grid-template-columns: minmax(0, 1fr);
+		}
+		.editor-fields .panel {
+			border-right: 0;
+		}
+		.aside {
+			border-left: 0;
+			border-top: 1px solid var(--color-rule);
+		}
 	}
 
 	@media (max-width: 1000px) {

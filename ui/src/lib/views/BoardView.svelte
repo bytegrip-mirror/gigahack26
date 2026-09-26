@@ -51,7 +51,7 @@
 		{ id: 'hot', label: 'Hot' },
 		{ id: 'priority', label: 'Priority' },
 		{ id: 'rejected', label: 'Out of the queue' },
-		{ id: 'thin', label: 'Too little evidence' },
+		{ id: 'thin', label: 'Unproven' },
 		{ id: 'saved', label: 'Saved' }
 	];
 
@@ -77,14 +77,6 @@
 		'Is the company hiring process-mining or process-excellence roles?',
 		'Has the company appointed a new security leader in the last two quarters?'
 	];
-
-	const BAND_ORDER: Record<string, number> = {
-		PRIORITY: 0,
-		NURTURE: 1,
-		WATCH: 2,
-		THIN: 3,
-		DISQUALIFIED: 4
-	};
 
 	const ALL_LINES = '__all__';
 
@@ -148,7 +140,37 @@
 			.slice(0, 6)
 	);
 
-	const filtered = $derived(session.region !== 'world' || stage !== '' || query !== '' || applied !== null);
+	const narrowed = $derived(
+		session.region !== 'world' || stage !== '' || query !== '' || applied !== null || filter !== 'all'
+	);
+	const activeFilters = $derived((stage === '' ? 0 : 1) + (engineFilter === 'all' ? 0 : 1));
+	const STAGE_LABEL = $derived(STAGES.find((option) => option.id === stage)?.label ?? 'Any lead stage');
+	const ENGINE_LABEL = $derived(
+		engineFilter === 'all' ? 'Any engine' : engineFilter === 'model' ? 'Read by the model' : 'Matched by the rules'
+	);
+
+	const filterItems: MenuItem[] = $derived([
+		{ id: 'head-stage', label: 'Lead stage', heading: true },
+		...STAGES.map((option) => ({
+			id: `stage:${option.id}`,
+			label: option.label,
+			checked: stage === option.id
+		})),
+		{ id: 'head-engine', label: 'Read by', heading: true, separatorBefore: true },
+		...(
+			[
+				{ id: 'all', label: 'Any engine' },
+				{ id: 'model', label: 'The model' },
+				{ id: 'local', label: 'The rules' }
+			] as const
+		).map((option) => ({ id: `engine:${option.id}`, label: option.label, checked: engineFilter === option.id }))
+	]);
+
+	function runFilter(id: string) {
+		const [kind, value] = id.split(':');
+		if (kind === 'stage') stage = value;
+		else engineFilter = value as 'all' | 'model' | 'local';
+	}
 	const allLines = $derived(session.allLines);
 	const scopeItems = $derived([
 		{
@@ -216,8 +238,6 @@
 					return sign * a.name.localeCompare(b.name);
 				case 'fit':
 					return sign * (a.probability - b.probability);
-				case 'band':
-					return sign * ((BAND_ORDER[a.band] ?? 9) - (BAND_ORDER[b.band] ?? 9));
 				case 'themes':
 					return sign * (a.themeCount - b.themeCount || a.probability - b.probability);
 				case 'docs':
@@ -497,6 +517,8 @@
 	function clearFilters() {
 		query = '';
 		stage = '';
+		filter = 'all';
+		engineFilter = 'all';
 		session.setRegion('world');
 		applied = null;
 	}
@@ -722,7 +744,7 @@
 			id: 'clear',
 			label: 'Clear filters',
 			icon: 'filter',
-			disabled: !filtered,
+			disabled: !narrowed,
 			separatorBefore: true
 		},
 		{ id: 'rescore', label: 'Re-score on the local engine', icon: 'refresh' }
@@ -1099,7 +1121,7 @@
 			{#if workspace.switching}<span class="spinner"></span>{/if}
 			<span class="sep"></span>
 
-			<div class="seg" role="tablist" aria-label="Filter">
+			<div class="seg" role="tablist" aria-label="Which companies to show">
 				{#each FILTERS as option (option.id)}
 					<button role="tab" aria-selected={filter === option.id} onclick={() => (filter = option.id)}>
 						{option.label}
@@ -1107,6 +1129,8 @@
 					</button>
 				{/each}
 			</div>
+
+			<span class="spacer"></span>
 
 			<label class="search">
 				<span class="sr-only">Filter by name, country or industry</span>
@@ -1120,28 +1144,17 @@
 			</label>
 
 			<Menu
-				text={engineFilter === 'all' ? 'Any engine' : engineFilter === 'model' ? 'Model only' : 'Rubric only'}
-				icon="studio"
+				text={activeFilters > 0 ? `Filters · ${activeFilters}` : 'Filters'}
+				icon="filter"
 				size="sm"
 				align="end"
-				label="Filter by the engine that answered"
-				items={[
-					{ id: 'all', label: 'Any engine', checked: engineFilter === 'all' },
-					{ id: 'model', label: 'Model only', checked: engineFilter === 'model' },
-					{ id: 'local', label: 'Rubric only', checked: engineFilter === 'local' }
-				]}
-				onselect={(id) => (engineFilter = id as 'all' | 'model' | 'local')}
+				label="Narrow the board"
+				title={`${STAGE_LABEL} · ${ENGINE_LABEL}`}
+				items={filterItems}
+				onselect={runFilter}
 			/>
-			<span class="spacer"></span>
 
-			<label class="sr-only" for="stage">Lead stage</label>
-			<select id="stage" class="select select-sm" bind:value={stage}>
-				{#each STAGES as option (option.id)}
-					<option value={option.id}>{option.label}</option>
-				{/each}
-			</select>
-
-			{#if filtered}
+			{#if narrowed}
 				<button class="btn btn-sm btn-quiet" onclick={clearFilters}>Clear</button>
 			{/if}
 		</div>
@@ -1172,9 +1185,9 @@
 								</span>
 							</th>
 							<Th id="rank" label="#" sort={sort} {dir} onsort={sortBy} align="right" width="58px" title="Position on the board: highest fit first, companies out of the queue at the end" />
+							<th class="c-mark" scope="col"><span class="sr-only">Company mark</span></th>
 							<Th id="name" label="Company" sort={sort} {dir} onsort={sortBy} width="23%" />
-							<Th id="fit" label="Fit" sort={sort} {dir} onsort={sortBy} width="104px" title="How strong the evidence is. The band beside it is what the queue does about that, which is not the same question." />
-							<Th id="band" label="Band" sort={sort} {dir} onsort={sortBy} align="center" width="96px" />
+							<Th id="fit" label="Fit" sort={sort} {dir} onsort={sortBy} width="118px" title="How strong the evidence is, and whether the queue will act on it" />
 							<th class="c-sig" scope="col">Why we would call</th>
 							<Th id="docs" label="Docs" sort={sort} {dir} onsort={sortBy} align="right" width="56px" className="c-doc" />
 							<Th id="newest" label="Newest" sort={sort} {dir} onsort={sortBy} align="right" width="66px" className="c-age" />
@@ -1210,11 +1223,11 @@
 										</span>
 									{/if}
 								</td>
+								<td class="c-mark">
+									<CompanyMark name={row.name} domain={row.domain} />
+								</td>
 								<td class="c-co">
-									<span class="co-line">
-										<CompanyMark name={row.name} domain={row.domain} />
-										<span class="co">{row.name}</span>
-									</span>
+									<span class="co">{row.name}</span>
 									<span class="sub">
 										{#if allLines}<span class="line-tag">{row.serviceLine}</span> · {/if}{#if row.domain}<span class="domain">{row.domain}</span> · {/if}{row.country ?? '—'}
 										{#if row.industry}· {row.industry}{/if}
@@ -1227,18 +1240,28 @@
 									{/if}
 								</td>
 								<td class="c-fit">
-									<span
-										class="fitval dsp"
-										data-tone={fitTone(row.probability, thresholds)}
-										title={meta
-											? `Fit ${fit(row.probability)} — ${fitWord(row.probability, thresholds).toLowerCase()} evidence. A company in your market scores ${fit(meta.scoring.baseRate)} with no evidence at all.`
-											: `Fit ${fit(row.probability)}`}
-									>{fitWord(row.probability, thresholds)}</span>
-								</td>
-								<td class="m">
-									<Tag band={row.band} title={row.gateReason ?? row.bandLabel}>{row.bandShort}</Tag>
-									{#if row.gateReason}
-										<span class="gate" title={row.gateReason}>{gateCause(row.gateReason)}</span>
+									{#if row.band === 'DISQUALIFIED'}
+										<Tag band={row.band} title={row.gateReason ?? row.bandLabel}>{row.bandShort}</Tag>
+										{#if row.gateReason}
+											<span class="gate" title={row.gateReason}>{gateCause(row.gateReason)}</span>
+										{/if}
+									{:else if row.band === 'THIN'}
+										<span class="fitval dsp" data-tone="weak" title="No document in the corpus answers your questions about this company, so nothing can be said either way.">
+											Unproven
+										</span>
+									{:else}
+										<span
+											class="fitval dsp"
+											data-tone={fitTone(row.probability, thresholds)}
+											title={meta
+												? `Fit ${fit(row.probability)} — ${fitWord(row.probability, thresholds).toLowerCase()} evidence. A company in your market scores ${fit(meta.scoring.baseRate)} with no evidence at all.`
+												: `Fit ${fit(row.probability)}`}
+										>{fitWord(row.probability, thresholds)}</span>
+										{#if row.themeCount === 1 && row.probability >= thresholds.priority}
+											<span class="one-theme" title="The evidence is at the Priority line and stops there: one theme is all they have, and a single topic is capped so it cannot carry a company on its own.">
+												capped · one theme
+											</span>
+										{/if}
 									{/if}
 								</td>
 								<td class="c-sig">
@@ -1439,16 +1462,20 @@
 		white-space: nowrap;
 	}
 
-	.toolbar .select {
-		width: auto;
-		min-width: 112px;
+	.toolbar {
+		flex-wrap: nowrap;
+	}
+
+	:global(.toolbar .menu-trigger .trigger-text) {
+		max-width: 170px;
 	}
 
 	.search {
 		display: flex;
 		align-items: center;
 		gap: var(--spacing-1);
-		width: 268px;
+		flex: 0 1 268px;
+		min-width: 150px;
 		padding-left: var(--spacing-2);
 		border: 1px solid var(--color-rule-strong);
 		border-radius: 2px;
@@ -1577,8 +1604,22 @@
 		color: var(--color-ink-3);
 	}
 
+	.c-mark {
+		width: 34px;
+		padding-right: 0;
+	}
+
 	.c-fit {
 		vertical-align: top;
+	}
+
+	.one-theme {
+		display: block;
+		margin-top: 2px;
+		font-size: var(--text-micro);
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--color-ink-4);
 	}
 
 	.c-act {
@@ -1592,15 +1633,8 @@
 		text-align: center;
 	}
 
-	.co-line {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-2);
-		min-width: 0;
-	}
-
 	.co {
-		min-width: 0;
+		display: block;
 		font-family: var(--font-display);
 		font-size: var(--text-lg);
 		font-weight: 500;
@@ -1841,10 +1875,6 @@
 		.search {
 			flex: 1 1 100%;
 			order: -1;
-		}
-		.toolbar .select {
-			flex: 1 1 0;
-			min-width: 0;
 		}
 		.list {
 			overflow-x: auto;

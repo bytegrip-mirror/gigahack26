@@ -53,6 +53,8 @@
 	let saving = $state(false);
 	let countries = $state('');
 	let industries = $state('');
+	let blacklist = $state<string[]>([]);
+	let blacklistDraft = $state('');
 	let newLine = $state({ name: '', valueProposition: '' });
 	let lineBusy = $state<string | null>(null);
 
@@ -60,7 +62,8 @@
 	const dirty = $derived(
 		settings !== null &&
 			draft !== null &&
-			(countries !== settings.icpCountries.join(', ') ||
+			(blacklist.join('|') !== (settings.blacklist ?? []).join('|') ||
+				countries !== settings.icpCountries.join(', ') ||
 				industries !== settings.icpIndustries.join(', ') ||
 				JSON.stringify({ ...draft, icpCountries: [], icpIndustries: [] }) !==
 					JSON.stringify({ ...settings, icpCountries: [], icpIndustries: [] }))
@@ -110,6 +113,19 @@
 		return [...grouped.entries()].map(([key, group]) => ({ key, name: label(key), codes: group.codes }));
 	}
 
+	function addBlacklist() {
+		const entry = blacklistDraft.trim();
+		if (entry.length < 2) return;
+		if (!blacklist.some((held) => held.toLowerCase() === entry.toLowerCase())) {
+			blacklist = [...blacklist, entry];
+		}
+		blacklistDraft = '';
+	}
+
+	function dropBlacklist(entry: string) {
+		blacklist = blacklist.filter((held) => held !== entry);
+	}
+
 	function label(key: string): string {
 		return key.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 	}
@@ -143,11 +159,13 @@
 		try {
 			const saved = await saveSettings({
 				...draft,
+				blacklist: blacklist.join(','),
 				icpCountries: parse(countries),
 				icpIndustries: parse(industries)
 			});
 			settings = saved;
 			draft = { ...saved };
+			blacklist = [...(saved.blacklist ?? [])];
 			countries = saved.icpCountries.join(', ');
 			industries = saved.icpIndustries.join(', ');
 			workspace.reload();
@@ -162,6 +180,7 @@
 	function discard() {
 		if (!settings) return;
 		draft = { ...settings };
+		blacklist = [...(settings.blacklist ?? [])];
 		countries = settings.icpCountries.join(', ');
 		industries = settings.icpIndustries.join(', ');
 	}
@@ -445,6 +464,46 @@
 								<input type="checkbox" bind:checked={draft.industryGate} />
 								<span>Remove companies outside those industries — the reason is shown on the card</span>
 							</label>
+						</div>
+					</section>
+
+					<section class="panel">
+						<div class="panel-head">
+							<h3 class="label">Never call these</h3>
+							{#if blacklist.length > 0}<span class="sub dim num">{blacklist.length}</span>{/if}
+						</div>
+						<p class="sub dim">
+							A name or a domain. A company on this list leaves the queue with the reason shown on its card,
+							wherever it sits on the board — the same way the gates work, and without a deploy.
+						</p>
+						<div class="chips">
+							{#each blacklist as entry (entry)}
+								<button
+									class="chip"
+									type="button"
+									title="Remove from the blacklist"
+									onclick={() => dropBlacklist(entry)}
+								>
+									{entry}<Icon name="close" size={11} />
+								</button>
+							{/each}
+							{#if blacklist.length === 0}
+								<span class="sub dim">Nothing excluded by hand.</span>
+							{/if}
+						</div>
+						<div class="blacklist-add">
+							<input
+								class="input input-sm"
+								placeholder="A company name or a domain"
+								bind:value={blacklistDraft}
+								onkeydown={(event) => {
+									if (event.key === 'Enter') {
+										event.preventDefault();
+										addBlacklist();
+									}
+								}}
+							/>
+							<button class="btn btn-sm" type="button" onclick={addBlacklist}>Add</button>
 						</div>
 					</section>
 
@@ -851,6 +910,37 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--spacing-1);
+		margin-top: var(--spacing-2);
+	}
+
+	.chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		padding: 2px var(--spacing-2);
+		border: 1px solid var(--color-rule);
+		border-radius: 2px;
+		background: var(--color-surface);
+		font: inherit;
+		font-size: var(--text-sm);
+		cursor: pointer;
+	}
+
+	.chip:hover {
+		border-color: var(--color-oxblood-line);
+		background: var(--color-oxblood-wash);
+		color: var(--color-oxblood);
+	}
+
+	.blacklist-add {
+		display: flex;
+		gap: var(--spacing-2);
+		margin-top: var(--spacing-2);
+	}
+
+	.blacklist-add .input {
+		flex: 1;
+		max-width: 340px;
 	}
 
 	.region-pick {
