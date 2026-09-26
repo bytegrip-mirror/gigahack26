@@ -11,6 +11,7 @@ public record SettingsView(
         boolean geographyGate,
         boolean sizeGate,
         boolean competitorGate,
+        boolean industryGate,
         double baseRate,
         double priorityThreshold,
         double nurtureThreshold,
@@ -30,5 +31,6 @@ public record SettingsView(
         boolean modelWritesDrafts,
         Instant updatedAt,
         Map<String, Long> inScope,
+        List<String> industriesPresent,
         long indexedCompanies) {
 }

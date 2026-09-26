@@ -245,7 +245,7 @@ public class ScoringService {
             return Optional.of("Outside the ICP geography — HQ " + company.getCountry());
         }
         Set<String> industries = icpIndustries(properties);
-        if (!industries.isEmpty() && company.getIndustry() != null
+        if (properties.industryGate() && !industries.isEmpty() && company.getIndustry() != null
                 && !industries.contains(company.getIndustry().toLowerCase(Locale.ROOT))) {
             return Optional.of("Outside the ICP industries — " + company.getIndustry());
         }

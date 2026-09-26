@@ -9,6 +9,7 @@ public record SettingsRequest(
         boolean geographyGate,
         boolean sizeGate,
         boolean competitorGate,
+        Boolean industryGate,
         double baseRate,
         double priorityThreshold,
         double nurtureThreshold,

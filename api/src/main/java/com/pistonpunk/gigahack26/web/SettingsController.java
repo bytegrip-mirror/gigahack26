@@ -61,6 +61,13 @@ public class SettingsController {
                 .filter(company -> company.getEmployees() == null
                         || company.getEmployees() >= row.getIcpMinEmployees()).count());
         inScope.put("competitors", all.stream().filter(Company::isCompetitor).count());
+        inScope.put("inIndustry", all.stream().filter(company -> inIndustry(company, row)).count());
+        List<String> industriesPresent = all.stream()
+                .map(Company::getIndustry)
+                .filter(industry -> industry != null && !industry.isBlank())
+                .distinct()
+                .sorted()
+                .toList();
 
         return new SettingsView(
                 split(row.getIcpCountries()),
@@ -69,6 +76,7 @@ public class SettingsController {
                 row.isGeographyGate(),
                 row.isSizeGate(),
                 row.isCompetitorGate(),
+                row.isIndustryGate(),
                 row.getBaseRate(),
                 row.getPriorityThreshold(),
                 row.getNurtureThreshold(),
@@ -88,7 +96,14 @@ public class SettingsController {
                 writers.modelAvailable(),
                 row.getUpdatedAt(),
                 inScope,
+                industriesPresent,
                 all.size());
+    }
+
+    private static boolean inIndustry(Company company, WorkspaceSettings row) {
+        List<String> industries = split(row.getIcpIndustries());
+        return industries.isEmpty() || company.getIndustry() == null
+                || industries.contains(company.getIndustry().toUpperCase(Locale.ROOT));
     }
 
     private static boolean inGeography(Company company, List<String> countries) {

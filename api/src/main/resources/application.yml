@@ -63,6 +63,7 @@ app:
     geography-gate: ${ICP_GEOGRAPHY_GATE:true}
     size-gate: ${ICP_SIZE_GATE:true}
     competitor-gate: ${ICP_COMPETITOR_GATE:true}
+    industry-gate: ${ICP_INDUSTRY_GATE:false}
     icp-industries: ${ICP_INDUSTRIES:}
     icp-countries: ${ICP_COUNTRIES:MD,RO,DE,FR,IT,ES,PT,NL,BE,LU,AT,CH,PL,CZ,SK,HU,BG,RS,UA,TR,GB,IE,SE,NO,DK,FI,GR,HR,SI,EE,LV,LT,US,CA}
   refresh:

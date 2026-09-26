@@ -26,11 +26,12 @@ public class SettingsService implements ScoringConfig {
         return settings.findById(WorkspaceSettings.SINGLETON).orElseGet(() -> settings.save(new WorkspaceSettings(
                 WorkspaceSettings.SINGLETON,
                 defaults.icpCountries(),
-                "",
+                defaults.icpIndustries(),
                 defaults.icpMinEmployees(),
                 true,
                 true,
                 true,
+                defaults.industryGate(),
                 defaults.baseRate(),
                 defaults.priorityThreshold(),
                 defaults.nurtureThreshold(),
@@ -52,6 +53,7 @@ public class SettingsService implements ScoringConfig {
                 request.geographyGate(),
                 request.sizeGate(),
                 request.competitorGate(),
+                Boolean.TRUE.equals(request.industryGate()),
                 clamp(request.baseRate(), 0.01, 0.9),
                 priority,
                 nurture,
@@ -78,6 +80,7 @@ public class SettingsService implements ScoringConfig {
                 row.isGeographyGate(),
                 row.isSizeGate(),
                 row.isCompetitorGate(),
+                row.isIndustryGate(),
                 row.getIcpIndustries());
     }
 

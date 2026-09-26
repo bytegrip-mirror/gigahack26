@@ -14,6 +14,7 @@ public record ScoringProperties(
         boolean geographyGate,
         boolean sizeGate,
         boolean competitorGate,
+        boolean industryGate,
         String icpIndustries) {
 
     public double baseLogit() {

@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,7 +28,7 @@ class ScoringServiceTest {
     private static final Instant NOW = Instant.parse("2026-09-25T12:00:00Z");
 
     private final ScoringProperties properties = new ScoringProperties(
-            0.25, 0.75, 0.50, 0.30, 0.5, 200, "MD,RO,DE,FR", true, true, true, "");
+            0.25, 0.75, 0.50, 0.30, 0.5, 200, "MD,RO,DE,FR", true, true, true, false, "");
 
     private final CaptureStore captures = new CaptureStore(null);
     private final ScoringService scoring = new ScoringService(() -> properties, captures);
@@ -241,6 +242,39 @@ class ScoringServiceTest {
     private Company company(boolean competitor, String country, int employees, double sizeConfidence) {
         return new Company(UUID.randomUUID(), "co", "Test Co", "test.example", country, "Berlin",
                 "Manufacturing", "1001-5000", employees, sizeConfidence, null, competitor, null, NOW);
+    }
+
+    @Test
+    void anIndustryListWithoutItsGateDoesNotFilter() {
+        ScoreComputation result = scoreWith(true, "banking,retail");
+        assertNotEquals(Band.DISQUALIFIED, result.band(),
+                "the industry control is dead config unless its flag is the thing that decides");
+        assertNull(result.gateReason());
+    }
+
+    @Test
+    void anIndustryOutsideTheListIsRemovedWhenTheGateIsOn() {
+        ScoreComputation result = scoreWith(false, "banking,retail");
+        assertEquals(Band.DISQUALIFIED, result.band());
+        assertTrue(result.gateReason().contains("Outside the ICP industries"));
+    }
+
+    @Test
+    void anIndustryOnTheListSurvivesTheGate() {
+        ScoreComputation result = scoreWith(false, "manufacturing,retail");
+        assertNotEquals(Band.DISQUALIFIED, result.band());
+        assertNull(result.gateReason());
+    }
+
+    private ScoreComputation scoreWith(boolean gateOff, String industries) {
+        Company manufacturer = company(false, "DE", 4000, 0.9);
+        PolicyQuestion question = question("a", Polarity.POSITIVE, WeightTier.HIGH, "automation");
+        Evidence source = evidence("e1", "cue here");
+        List<Signal> signals = List.of(signal(source, question, Verdict.BUY, 0.9));
+        ScoringService service = new ScoringService(
+                () -> new ScoringProperties(0.25, 0.75, 0.50, 0.30, 0.5, 200, "MD,RO,DE,FR",
+                        true, true, true, !gateOff, industries), captures);
+        return service.compute(manufacturer, List.of(source), signals, List.of(question), NOW);
     }
 
     private PolicyQuestion question(String key, Polarity polarity, WeightTier tier, String theme) {

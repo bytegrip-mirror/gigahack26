@@ -200,36 +200,32 @@ def locate(document, quote):
     return flat[index:index + len(needle)]
 
 
+def rejected(evidence_key, question_key, rationale):
+    return {"evidenceKey": evidence_key, "questionKey": question_key, "verdict": "NONE",
+            "confidence": 0.0, "quote": None, "rationale": rationale}
+
+
 def classify(job):
-    company, question, document, forced = job
-    cues = question["patterns"]
-    if forced:
-        context = document[:MAX_DOCUMENT_CHARS]
-    else:
-        context = relevant_windows(document, cues)
-        if context is None:
-            return None
+    company, question, document, context, evidence_key = job
+    question_key = question["key"]
     try:
         raw = call_model(company, question, context)
     except Exception as exc:
         bump("failed")
-        return {"evidenceKey": job[4], "questionKey": question["key"], "verdict": "NONE",
-                "confidence": 0.0, "quote": None, "rationale": "call failed: %s" % str(exc)[:120],
-                "_failed": True}
+        row = rejected(evidence_key, question_key, "call failed: %s" % str(exc)[:120])
+        row["_failed"] = True
+        return row
     bump("calls")
 
     answer = read_json_object(raw)
     if answer is None:
         bump("unparseable")
-        return {"evidenceKey": job[4], "questionKey": question["key"], "verdict": "NONE",
-                "confidence": 0.0, "quote": None,
-                "rationale": "the model's answer could not be parsed"}
+        return rejected(evidence_key, question_key, "the model's answer could not be parsed")
 
     if not answer.get("match"):
         bump("rejected")
-        return {"evidenceKey": job[4], "questionKey": question["key"], "verdict": "NONE",
-                "confidence": 0.0, "quote": None,
-                "rationale": "The model read this document and found no signal"}
+        return rejected(evidence_key, question_key,
+                        "The model read this document and found no signal")
 
     try:
         confidence = float(answer.get("confidence") or 0.0)
@@ -237,22 +233,20 @@ def classify(job):
         confidence = 0.0
     if confidence <= 0.5 or confidence > 1.0:
         bump("below_floor")
-        return {"evidenceKey": job[4], "questionKey": question["key"], "verdict": "NONE",
-                "confidence": 0.0, "quote": None,
-                "rationale": "The model read this document and found no signal"}
+        return rejected(evidence_key, question_key,
+                        "The model read this document and found no signal")
 
     span = locate(document, answer.get("quote") or "")
     if span is None:
         bump("struck")
-        return {"evidenceKey": job[4], "questionKey": question["key"], "verdict": "NONE",
-                "confidence": 0.0, "quote": None,
-                "rationale": "The model's quote was not found in its capture and the row was struck"}
+        return rejected(evidence_key, question_key,
+                        "The model's quote was not found in its capture and the row was struck")
 
     verdict = str(answer.get("verdict") or "").upper()
     if verdict not in ("BUY", "COUNTER", "BUILD"):
         verdict = question["verdict"]
     bump("signals")
-    return {"evidenceKey": job[4], "questionKey": question["key"], "verdict": verdict,
+    return {"evidenceKey": evidence_key, "questionKey": question_key, "verdict": verdict,
             "confidence": round(confidence, 4), "quote": span,
             "rationale": str(answer.get("reason") or "")[:200]}
 
@@ -316,15 +310,15 @@ def main():
         if not document.strip():
             continue
         for question in questions:
-            forced = False
-            if relevant_windows(document, question["patterns"]) is not None:
+            context = relevant_windows(document, question["patterns"])
+            if context is not None:
                 live += 1
             elif rng.random() < args.sample:
-                forced = True
+                context = document[:MAX_DOCUMENT_CHARS]
                 sampled += 1
             else:
                 continue
-            jobs.append((company, question, document, forced, item["key"]))
+            jobs.append((company, question, document, context, item["key"]))
 
     print("documents        %d" % len(evidence))
     print("questions        %d" % len(questions))

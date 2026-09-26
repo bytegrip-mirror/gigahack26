@@ -676,6 +676,7 @@ export type Settings = {
 	geographyGate: boolean;
 	sizeGate: boolean;
 	competitorGate: boolean;
+	industryGate: boolean;
 	baseRate: number;
 	priorityThreshold: number;
 	nurtureThreshold: number;
@@ -695,6 +696,7 @@ export type Settings = {
 	modelWritesDrafts: boolean;
 	updatedAt: string;
 	inScope: Record<string, number>;
+	industriesPresent: string[];
 	indexedCompanies: number;
 };
 

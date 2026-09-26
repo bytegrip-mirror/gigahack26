@@ -387,7 +387,12 @@
 							</label>
 							<label class="field">
 								<span class="label">Industries (optional)</span>
-								<input class="input" bind:value={industries} />
+								<input class="input" list="industries-present" bind:value={industries} />
+								<datalist id="industries-present">
+									{#each settings?.industriesPresent ?? [] as name (name)}
+										<option value={name}></option>
+									{/each}
+								</datalist>
 							</label>
 						</div>
 						<div class="checks">
@@ -398,6 +403,10 @@
 							<label class="check">
 								<input type="checkbox" bind:checked={draft.competitorGate} />
 								<span>Remove competitors — firms that sell what we sell</span>
+							</label>
+							<label class="check">
+								<input type="checkbox" bind:checked={draft.industryGate} />
+								<span>Remove companies outside those industries — the reason is shown on the card</span>
 							</label>
 						</div>
 					</section>
@@ -413,6 +422,7 @@
 								label="Competitors"
 								tone={(settings?.inScope?.competitors ?? 0) > 0 ? 'bad' : null}
 							/>
+							<Metric value={shortNumber(settings?.inScope?.inIndustry ?? 0)} label="In industry" />
 						</div>
 					</section>
 				{/if}

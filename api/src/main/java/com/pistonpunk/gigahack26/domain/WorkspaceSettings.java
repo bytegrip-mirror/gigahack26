@@ -35,6 +35,9 @@ public class WorkspaceSettings {
     @Column(name = "competitor_gate", nullable = false)
     private boolean competitorGate;
 
+    @Column(name = "industry_gate", nullable = false)
+    private boolean industryGate;
+
     @Column(name = "base_rate", nullable = false)
     private double baseRate;
 
@@ -87,7 +90,8 @@ public class WorkspaceSettings {
     }
 
     public WorkspaceSettings(UUID id, String icpCountries, String icpIndustries, int icpMinEmployees,
-                             boolean geographyGate, boolean sizeGate, boolean competitorGate, double baseRate,
+                             boolean geographyGate, boolean sizeGate, boolean competitorGate, boolean industryGate,
+                             double baseRate,
                              double priorityThreshold, double nurtureThreshold, double watchThreshold,
                              double rankDiscount, Instant updatedAt) {
         this.id = id;
@@ -97,6 +101,7 @@ public class WorkspaceSettings {
         this.geographyGate = geographyGate;
         this.sizeGate = sizeGate;
         this.competitorGate = competitorGate;
+        this.industryGate = industryGate;
         this.baseRate = baseRate;
         this.priorityThreshold = priorityThreshold;
         this.nurtureThreshold = nurtureThreshold;
@@ -141,6 +146,10 @@ public class WorkspaceSettings {
 
     public boolean isCompetitorGate() {
         return competitorGate;
+    }
+
+    public boolean isIndustryGate() {
+        return industryGate;
     }
 
     public double getBaseRate() {
@@ -208,7 +217,8 @@ public class WorkspaceSettings {
     }
 
     public void revise(String icpCountries, String icpIndustries, int icpMinEmployees, boolean geographyGate,
-                       boolean sizeGate, boolean competitorGate, double baseRate, double priorityThreshold,
+                       boolean sizeGate, boolean competitorGate, boolean industryGate,
+                       double baseRate, double priorityThreshold,
                        double nurtureThreshold, double watchThreshold, double rankDiscount, Instant now) {
         this.icpCountries = icpCountries;
         this.icpIndustries = icpIndustries;
@@ -216,6 +226,7 @@ public class WorkspaceSettings {
         this.geographyGate = geographyGate;
         this.sizeGate = sizeGate;
         this.competitorGate = competitorGate;
+        this.industryGate = industryGate;
         this.baseRate = baseRate;
         this.priorityThreshold = priorityThreshold;
         this.nurtureThreshold = nurtureThreshold;
