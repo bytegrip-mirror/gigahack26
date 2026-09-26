@@ -1,4 +1,26 @@
 @layer base {
+	/* Dark mode swaps the same tokens the rail and the pane headers swap, so every
+	   shared class follows without a second rule. The page is a step above black
+	   and the surfaces a step above that, so a card still reads as a card and the
+	   black rail and headers still frame the page. */
+	:root[data-theme='dark'] {
+		color-scheme: dark;
+		--color-ink: #ffffff;
+		--color-ink-2: #eeeeee;
+		--color-ink-3: #bbbbbb;
+		--color-ink-4: #888888;
+		--color-paper: #111111;
+		--color-surface: #1c1c1c;
+		--color-sunken: #2a2a2a;
+		--color-rule: #333333;
+		--color-rule-strong: #555555;
+		--color-orange-deep: #ff7900;
+		--color-orange-ink: #ff7900;
+		--color-orange-wash: #3d1d00;
+		--color-accent-wash: #0f3310;
+		--color-oxblood-wash: #3a1106;
+	}
+
 	*,
 	*::before,
 	*::after {

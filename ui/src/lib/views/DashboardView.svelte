@@ -1,89 +1,132 @@
 <script lang="ts">
 	import NotificationBell from '$lib/components/NotificationBell.svelte';
-	import {
-		fetchIcpProfiles,
-		fetchPeople,
-		fetchTelemetry,
-		type IcpProfile,
-		type Telemetry
-	} from '$lib/api';
+	import { fetchBoard, fetchPeople, fetchTelemetry, type BoardRow, type Telemetry } from '$lib/api';
 	import { workspace } from '$lib/workspace.svelte';
 	import { session } from '$lib/session.svelte';
-	import { shortNumber } from '$lib/format';
+	import { fitWord } from '$lib/format';
 	import Icon from '$lib/components/Icon.svelte';
+	import type { IconName } from '$lib/components/icons';
+	import Bars from '$lib/components/Bars.svelte';
+	import CompanyMark from '$lib/components/CompanyMark.svelte';
+	import Tag from '$lib/components/Tag.svelte';
 
 	/** The desk is set up for one person; this is where it says so. */
 	const USER = 'Cristian';
+	const SHOWN = 6;
 
-	let profiles = $state<IcpProfile[]>([]);
+	let rows = $state<BoardRow[]>([]);
 	let people = $state(0);
 	let telemetry = $state<Telemetry | null>(null);
 
 	const status = $derived(workspace.status);
-	const bands = $derived(workspace.meta?.bands ?? {});
-	const all = $derived(bands.ALL ?? 1);
+	const meta = $derived(workspace.meta);
+	const bands = $derived(meta?.bands ?? {});
+	const thresholds = $derived({
+		watch: meta?.scoring.watchThreshold ?? 0.28,
+		nurture: meta?.scoring.nurtureThreshold ?? 0.45,
+		priority: meta?.scoring.priorityThreshold ?? 0.55
+	});
 
-	/** The queue in order, best first. Every band is measured against the whole
-	 * corpus on its own baseline, so the one company that clears the Priority line
-	 * looks like what it is: a sliver next to four hundred unproven ones. */
-	const queue = $derived(
-		[
-			{ id: 'PRIORITY', name: 'Priority', count: bands.PRIORITY ?? 0, tone: 'hot' },
-			{ id: 'NURTURE', name: 'Nurture', count: bands.NURTURE ?? 0, tone: '' },
-			{ id: 'WATCH', name: 'Watch', count: bands.WATCH ?? 0, tone: '' },
-			{ id: 'THIN', name: 'Unproven', count: bands.THIN ?? 0, tone: 'dim' },
-			{ id: 'DISQUALIFIED', name: 'Out of the queue', count: bands.DISQUALIFIED ?? 0, tone: 'out' }
-		].map((row) => ({ ...row, share: row.count / Math.max(1, all) }))
-	);
+	const queue = $derived(rows.filter((row) => row.band !== 'DISQUALIFIED' && row.band !== 'THIN'));
+	const pick = $derived(queue[0] ?? null);
+	const next = $derived(queue.slice(0, SHOWN));
 
-	/** The books, biggest first — one series, so the lengths carry it and the names
-	 * are read straight off the rows rather than out of a legend. */
-	const books = $derived([...profiles].sort((a, b) => b.companies - a.companies));
-	const widest = $derived(Math.max(1, ...books.map((book) => book.companies)));
-	
+	const monthly = $derived.by(() => {
+		const sums = new Array<number>(12).fill(0);
+		for (const row of rows) row.spark.forEach((value, index) => (sums[index] += value));
+		return sums;
+	});
+	const thisMonth = $derived(monthly[11] ?? 0);
+	const lastMonth = $derived(monthly[10] ?? 0);
+	const change = $derived(lastMonth === 0 ? null : Math.round(((thisMonth - lastMonth) / lastMonth) * 100));
+
+	const months = $derived.by(() => {
+		const now = Date.now();
+		return monthly.map((_, index) =>
+			new Date(now - (11 - index) * 30 * 86_400_000).toLocaleDateString(undefined, { month: 'short' })
+		);
+	});
+
+	const fitBars = $derived([
+		{ label: 'Strong', value: bands.PRIORITY ?? 0 },
+		{ label: 'Good', value: bands.NURTURE ?? 0 },
+		{ label: 'Fair', value: bands.WATCH ?? 0 },
+		{ label: 'Unproven', value: bands.THIN ?? 0 },
+		{ label: 'Out', value: bands.DISQUALIFIED ?? 0 }
+	]);
 
 	const coverage = $derived(telemetry?.coverage ?? null);
-	const read = $derived(
-		coverage ? Math.round((coverage.withDocuments / Math.max(1, coverage.companies)) * 100) : null
-	);
+	const read = $derived(coverage ? Math.round((coverage.withDocuments / Math.max(1, coverage.companies)) * 100) : null);
 
-	function age(hours: number | null | undefined): string {
-		if (hours === null || hours === undefined) return '—';
-		if (hours < 24) return `${Math.max(1, Math.round(hours))}h`;
-		return `${Math.round(hours / 24)}d`;
-	}
-
-	const freshness = $derived(telemetry?.freshness?.newestCaptureAgeHours ?? null);
+	type Kpi = { icon: IconName; title: string; value: string; unit: string; foot: string; href: string };
+	const kpis = $derived<Kpi[]>([
+		{
+			icon: 'target',
+			title: 'Ready to call',
+			value: exact(bands.PRIORITY ?? 0),
+			unit: 'companies',
+			foot: 'Strong fit',
+			href: '/companies'
+		},
+		{
+			icon: 'star',
+			title: 'Warm',
+			value: exact(bands.NURTURE ?? 0),
+			unit: 'companies',
+			foot: 'Good fit, keep close',
+			href: '/companies'
+		},
+		{
+			icon: 'building',
+			title: 'Contacts',
+			value: exact(people),
+			unit: 'people',
+			foot: 'Named and ready',
+			href: '/people'
+		},
+		{
+			icon: 'bell',
+			title: 'New signals',
+			value: exact(thisMonth),
+			unit: 'this month',
+			foot: change === null ? 'No signals last month' : `${change >= 0 ? '+' : ''}${change}% vs last month`,
+			href: '/companies'
+		}
+	]);
 
 	/** A headline figure is read, not skimmed: 4,184 says more than 4.2k does. */
 	function exact(value: number): string {
 		return value.toLocaleString('en-US');
 	}
 
-	/** A small count is still a bar, so it gets a floor of two pixels. A count of
-	 * zero gets nothing at all — a sliver drawn for nothing is a lie the eye reads
-	 * as a small number. */
-	function width(value: number, most: number): string {
-		if (value <= 0) return '0';
-		return `max(2px, ${Math.min(100, (value / Math.max(1, most)) * 100)}%)`;
+	function reason(row: BoardRow): string {
+		return row.strongest?.questionTitle ?? row.chips[0]?.questionTitle ?? 'No reason yet';
 	}
 
-	const checked = $derived(
-		status?.checkedAt
-			? new Date(status.checkedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-			: '—'
-	);
+	function hours(value: number | null | undefined): string {
+		if (value === null || value === undefined) return '—';
+		if (value < 24) return `${Math.max(1, Math.round(value))}h ago`;
+		return `${Math.round(value / 24)}d ago`;
+	}
 
 	$effect(() => {
-		const line = session.serviceLine;
-		fetchIcpProfiles()
-			.then((list) => (profiles = list))
-			.catch(() => (profiles = []));
 		fetchTelemetry()
 			.then((result) => (telemetry = result))
 			.catch(() => (telemetry = null));
+	});
+
+	$effect(() => {
+		const line = session.serviceLine;
+		const region = session.region;
 		if (!line) return;
 		let cancelled = false;
+		fetchBoard({ serviceLine: line, region })
+			.then((list) => {
+				if (!cancelled) rows = list;
+			})
+			.catch(() => {
+				if (!cancelled) rows = [];
+			});
 		fetchPeople(line)
 			.then((list) => {
 				if (!cancelled) people = list.length;
@@ -100,8 +143,8 @@
 <div class="view">
 	<header class="topbar">
 		<div class="ident">
-			<p class="label kicker">Signal Desk · {session.serviceLine}</p>
-			<h1 class="dsp masthead">Welcome, {USER}</h1>
+			<h1 class="dsp">Welcome, {USER}</h1>
+			<p class="sub">{session.serviceLine} · {session.region === 'world' ? 'Worldwide' : session.region}</p>
 		</div>
 		<div class="topbar-tools">
 			<a class="btn btn-primary" href="/companies">
@@ -113,390 +156,381 @@
 	</header>
 
 	<div class="body scroll">
-		<section class="corpus" aria-label="What the desk holds">
-			<div class="figure">
-				<span class="figure-val num">{exact(status?.companies ?? 0)}</span>
-				<span class="figure-lab">Companies watched</span>
-			</div>
-			<div class="figure">
-				<span class="figure-val num">{exact(status?.captures ?? 0)}</span>
-				<span class="figure-lab">Documents read</span>
-			</div>
-			<div class="figure">
-				<span class="figure-val num">{exact(status?.signals ?? 0)}</span>
-				<span class="figure-lab">Signals found</span>
-			</div>
-			<div class="figure">
-				<span class="figure-val num accent">{exact(profiles.length)}</span>
-				<span class="figure-lab">ICP Profiles</span>
-			</div>
-		</section>
-
-		<div class="columns">
-			<section class="panel" aria-label="Where the queue stands">
-				<div class="panel-head">
-					<h2 class="dsp">Where the queue stands</h2>
-					<span class="sub dim">
-						{shortNumber(bands.HOT ?? 0)} hot of {shortNumber(all)} · {session.serviceLine}
+		<div class="dash">
+			{#each kpis as kpi (kpi.title)}
+				<a class="card kpi" href={kpi.href}>
+					<span class="card-head">
+						<span class="chip"><Icon name={kpi.icon} size={15} /></span>
+						<span class="card-title">{kpi.title}</span>
 					</span>
+					<span class="figure">
+						<span class="big num">{kpi.value}</span>
+						<span class="unit">{kpi.unit}</span>
+					</span>
+					<span class="foot">{kpi.foot}</span>
+				</a>
+			{/each}
+
+			<section class="card list">
+				<div class="card-head">
+					<h2 class="card-title">Call these first</h2>
+					<a class="go" href="/companies" aria-label="Open the board"><Icon name="external" size={15} /></a>
 				</div>
-				<ul class="bars">
-					{#each queue as row (row.id)}
-						<li class="bar-row" data-tone={row.tone || undefined} title={`${row.count} companies · ${(row.share * 100).toFixed(1)}% of the corpus`}>
-							<span class="bar-name">{row.name}</span>
-							<span class="bar-track">
-								<span class="bar-fill" style={`width:${width(row.count, all)}`}></span>
-							</span>
-							<span class="bar-val num">{shortNumber(row.count)}</span>
-						</li>
-					{/each}
-				</ul>
-				<p class="sub dim footnote">
-					Every company is measured against the same baseline. The queue is short because the evidence is thin,
-					not because the filter is.
-				</p>
+				{#if next.length === 0}
+					<p class="sub">Nobody is ready yet.</p>
+				{:else}
+					<table class="calls">
+						<thead>
+							<tr>
+								<th>Company</th>
+								<th>Fit</th>
+								<th class="why">Why</th>
+								<th>Stage</th>
+							</tr>
+						</thead>
+						<tbody>
+							{#each next as row (row.id)}
+								<tr>
+									<td>
+										<a class="who" href={`/companies?co=${row.id}`}>
+											<CompanyMark name={row.name} domain={row.domain} />
+											<span class="name">{row.name}</span>
+										</a>
+									</td>
+									<td><Tag band={row.band}>{fitWord(row.probability, thresholds)}</Tag></td>
+									<td class="why">{reason(row)}</td>
+									<td class="stage">{row.leadStatusLabel ?? 'New'}</td>
+								</tr>
+							{/each}
+						</tbody>
+					</table>
+				{/if}
 			</section>
 
-			<section class="panel" aria-label="What is read">
-				<div class="panel-head"><h2 class="dsp">How much of it is read</h2></div>
+			<section class="card pick">
+				<span class="card-head">
+					<span class="chip chip-ink"><Icon name="star" size={15} /></span>
+					<span class="card-title">Top pick today</span>
+				</span>
+				{#if pick}
+					<span class="pick-name dsp">{pick.name}</span>
+					<span class="pick-why">{pick.whyNow ?? reason(pick)}</span>
+					<a class="btn btn-ink pick-go" href={`/companies?co=${pick.id}`}>
+						Open company
+						<Icon name="chevronRight" size={14} />
+					</a>
+				{:else}
+					<span class="pick-why">Nobody is ready yet.</span>
+				{/if}
+			</section>
+
+			<section class="card facts-card">
+				<div class="card-head">
+					<h2 class="card-title">What we read</h2>
+				</div>
 				<dl class="facts">
-					<div class="fact">
-						<dt>With a document</dt>
-						<dd class="num">{read === null ? '—' : `${read}%`}</dd>
-					</div>
-					<div class="fact">
-						<dt>Documents each</dt>
-						<dd class="num">{coverage ? coverage.documentsPerCompany.toFixed(1) : '—'}</dd>
-					</div>
-					<div class="fact">
-						<dt>Nothing stored for</dt>
-						<dd class="num">{shortNumber(coverage?.withoutDocuments ?? 0)}</dd>
-					</div>
-					<div class="fact">
-						<dt>Newest capture</dt>
-						<dd class="num">{age(freshness)}</dd>
-					</div>
-					<div class="fact">
-						<dt>Named contacts</dt>
-						<dd class="num">{shortNumber(people)}</dd>
-					</div>
+					<dt>Documents</dt>
+					<dd class="num">{exact(status?.captures ?? 0)}</dd>
+					<dt>Companies covered</dt>
+					<dd class="num">{read === null ? '—' : `${read}%`}</dd>
+					<dt>Newest read</dt>
+					<dd class="num">{hours(telemetry?.freshness?.newestCaptureAgeHours)}</dd>
+					<dt>Reader</dt>
+					<dd>{status?.languageModelAvailable ? 'AI model' : 'Local rules'}</dd>
 				</dl>
-				<p class="sub dim footnote">
-					Reading with {status?.engine ?? '—'}{status?.languageModelAvailable
-						? ', the model reachable'
-						: ', the model not configured — reads stay local and offline'}. Checked at {checked}.
-				</p>
 			</section>
+
+			<section class="card chart">
+				<div class="card-head">
+					<h2 class="card-title">Signals per month</h2>
+				</div>
+				<span class="figure">
+					<span class="big num">{exact(monthly.reduce((a, b) => a + b, 0))}</span>
+					<span class="unit">in 12 months</span>
+				</span>
+				<div class="plot"><Bars values={monthly} labels={months} /></div>
+			</section>
+
+			<section class="card chart">
+				<div class="card-head">
+					<h2 class="card-title">Companies by fit</h2>
+				</div>
+				<span class="figure">
+					<span class="big num">{exact(status?.companies ?? 0)}</span>
+					<span class="unit">watched</span>
+				</span>
+				<div class="plot">
+					<Bars values={fitBars.map((bar) => bar.value)} labels={fitBars.map((bar) => bar.label)} highlight={0} />
+				</div>
+			</section>
+
 		</div>
-
-		<section class="panel" aria-label="ICP Profiles">
-			<div class="panel-head">
-				<h2 class="dsp">ICP Profiles</h2>
-				<span class="sub dim">{profiles.length} profiles · the board shows the ones switched on</span>
-			</div>
-			<ul class="bars books">
-				{#each books as book (book.id)}
-					<li class="bar-row" title={book.name}>
-						<span class="bar-name">
-							<span class="book-dot" style={`background:${book.color ?? 'var(--color-ink-4)'}`}></span>
-							{book.name}
-						</span>
-						<span class="bar-track"><span class="bar-fill" style={`width:${width(book.companies, widest)}`}></span></span>
-						<span class="bar-val num">{shortNumber(book.companies)}</span>
-					</li>
-				{/each}
-			</ul>
-			<p class="sub dim footnote">
-				<a class="link" href="/icp">The ICP Studio</a> is where these are drawn, coloured and switched on.
-			</p>
-		</section>
-
-		<section class="panel onward" aria-label="Where to go">
-			<a class="door" href="/companies">
-				<span class="door-name">Companies</span>
-				<span class="sub dim">The queue, with the arithmetic behind every score</span>
-				<Icon name="chevronRight" size={14} />
-			</a>
-			<a class="door" href="/people">
-				<span class="door-name">People</span>
-				<span class="sub dim">Who to ring, and what they have said lately</span>
-				<Icon name="chevronRight" size={14} />
-			</a>
-			<a class="door" href="/icp">
-				<span class="door-name">ICP Studio</span>
-				<span class="sub dim">The books, and what each one holds</span>
-				<Icon name="chevronRight" size={14} />
-			</a>
-		</section>
 
 		{#if status && (status.postgres !== 'up' || status.mongo !== 'up')}
 			<p class="note warn">
 				<Icon name="alert" size={14} />
-				<span>A store is down — postgres {status.postgres}, mongo {status.mongo}. Figures may be stale.</span>
+				<span>A database is down. Numbers can be old.</span>
 			</p>
 		{/if}
 	</div>
 </div>
 
 <style>
-	.kicker {
-		color: var(--color-ink-3);
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
-	}
-
-	/* Boosted's h1 step. The token set stops at 22px, and a welcome that has to
-	   land from the back of a room needs the display step the brand already has. */
-	.masthead {
-		font-size: 40px;
-		line-height: 1.05;
-	}
-
 	.body {
 		flex: 1;
 		min-height: 0;
-		padding: var(--spacing-5) var(--spacing-5) var(--spacing-6);
+		padding: var(--spacing-4);
 		display: flex;
 		flex-direction: column;
-		gap: var(--spacing-6);
+		gap: var(--spacing-4);
 	}
 
-	/* ── the four figures, on one rule, nothing boxing them ───────────────── */
-	.corpus {
+	.dash {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-		border-top: 2px solid var(--color-ink);
-		border-bottom: 2px solid var(--color-rule);
+		grid-template-columns: repeat(12, minmax(0, 1fr));
+		gap: var(--spacing-3);
+	}
+
+	.card {
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-3);
+		padding: var(--spacing-4);
+		min-width: 0;
+		background: var(--color-surface);
+		border: 1px solid var(--color-rule);
+	}
+
+	.kpi {
+		grid-column: span 3;
+		color: var(--color-ink);
+	}
+
+	.kpi:hover {
+		text-decoration: none;
+		border-color: var(--color-ink);
+	}
+
+	.list {
+		grid-column: span 8;
+		grid-row: span 2;
+	}
+
+	.pick {
+		grid-column: span 4;
+		background: var(--color-orange);
+		border-color: var(--color-orange);
+		color: var(--color-on-fill);
+	}
+
+	.facts-card {
+		grid-column: span 4;
+	}
+
+	.chart {
+		grid-column: span 6;
+		min-height: 200px;
+	}
+
+	@media (max-width: 900px) {
+		.kpi {
+			grid-column: span 6;
+		}
+	}
+
+	@media (max-width: 1100px) {
+		.list,
+		.pick,
+		.facts-card,
+		.chart {
+			grid-column: span 12;
+			grid-row: auto;
+		}
+
+		.calls .why {
+			display: none;
+		}
+	}
+
+	.card-head {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-2);
+	}
+
+	.card-title {
+		flex: 1;
+		font-size: var(--text-md);
+		font-weight: 700;
+		color: var(--color-ink);
+	}
+
+	.pick .card-title {
+		color: var(--color-on-fill);
+	}
+
+	.chip {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: var(--spacing-ctl);
+		height: var(--spacing-ctl);
+		background: var(--color-orange-wash);
+		color: var(--color-orange-ink);
+	}
+
+	.chip-ink {
+		background: var(--color-on-fill);
+		color: var(--color-orange);
+	}
+
+	.go {
+		color: var(--color-ink-3);
+	}
+
+	.go:hover {
+		color: var(--color-orange);
 	}
 
 	.figure {
 		display: flex;
-		flex-direction: column;
-		gap: var(--spacing-1);
-		padding: var(--spacing-4) var(--spacing-5) var(--spacing-4) 0;
-		border-left: 2px solid var(--color-rule);
+		align-items: baseline;
+		gap: var(--spacing-2);
 	}
 
-	.figure:first-child {
-		border-left: 0;
-	}
-
-	.figure-val {
-		font-size: 40px;
+	.big {
+		font-family: var(--font-display);
+		font-size: 30px;
 		font-weight: 700;
 		line-height: 1;
-		letter-spacing: -0.02em;
+		color: var(--color-ink);
 	}
 
-	.figure-val.accent {
-		color: var(--color-orange-deep);
+	.kpi:first-child .big {
+		color: var(--color-orange-ink);
 	}
 
-	.figure-lab {
+	.unit {
+		font-size: var(--text-base);
+		color: var(--color-ink-3);
+	}
+
+	.foot {
+		font-size: var(--text-sm);
+		color: var(--color-ink-3);
+		border-top: 1px solid var(--color-rule);
+		padding-top: var(--spacing-2);
+	}
+
+	.calls {
+		width: 100%;
+		border-collapse: collapse;
+		table-layout: fixed;
+	}
+
+	.calls th {
+		text-align: left;
 		font-size: var(--text-micro);
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
-		color: var(--color-ink-3);
-	}
-
-	.columns {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-		gap: var(--spacing-6);
-		align-items: start;
-	}
-
-	.panel {
-		display: flex;
-		flex-direction: column;
-		gap: var(--spacing-3);
-	}
-
-	.panel-head {
-		display: flex;
-		align-items: baseline;
-		gap: var(--spacing-3);
-		border-bottom: 2px solid var(--color-ink);
-		padding-bottom: var(--spacing-2);
-	}
-
-	.panel-head h2 {
-		font-size: var(--text-xl);
-	}
-
-	/* ── bars: one hue, length is the only encoding, every value printed ───── */
-	.bars {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		display: flex;
-		flex-direction: column;
-		gap: 2px;
-	}
-
-	.bar-row {
-		display: grid;
-		grid-template-columns: minmax(120px, 32%) minmax(0, 1fr) 64px;
-		align-items: center;
-		gap: var(--spacing-3);
-		padding: var(--spacing-1) 0;
-	}
-
-	.bar-name {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-2);
-		font-size: var(--text-base);
-		color: var(--color-ink-2);
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	.bar-track {
-		height: 14px;
-		background: var(--color-sunken);
-		display: flex;
-	}
-
-	.bar-fill {
-		background: var(--color-orange);
-		transition: width var(--ease);
-	}
-
-	.bar-val {
-		text-align: right;
-		font-size: var(--text-base);
 		font-weight: 700;
-	}
-
-	.bar-row[data-tone='dim'] .bar-fill {
-		background: var(--color-ink-4);
-	}
-
-	.bar-row[data-tone='dim'] .bar-val {
 		color: var(--color-ink-3);
-		font-weight: 400;
-	}
-
-	.bar-row[data-tone='out'] .bar-fill {
-		background: var(--color-oxblood);
-	}
-
-	.bar-row[data-tone='out'] .bar-val {
-		color: var(--color-oxblood);
-	}
-
-	/* Facts, not a chart: none of these four is a share of anything, and a bar
-	   with nothing in it reads as a zero rather than as "not applicable". */
-	.facts {
-		margin: 0;
-		display: flex;
-		flex-direction: column;
-	}
-
-	.fact {
-		display: flex;
-		align-items: baseline;
-		justify-content: space-between;
-		gap: var(--spacing-3);
-		padding: var(--spacing-2) 0;
+		padding: 0 var(--spacing-2) var(--spacing-2);
 		border-bottom: 1px solid var(--color-rule);
 	}
 
-	.fact:last-child {
+	.calls th:first-child {
+		width: 38%;
+	}
+
+	.calls th:nth-child(2),
+	.calls th:last-child {
+		width: 14%;
+	}
+
+	.calls td {
+		height: var(--spacing-bar);
+		padding: 0 var(--spacing-2);
+		border-bottom: 1px solid var(--color-rule);
+		font-size: var(--text-base);
+		color: var(--color-ink-2);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.calls tr:last-child td {
 		border-bottom: 0;
 	}
 
-	.fact dt {
-		font-size: var(--text-base);
-		color: var(--color-ink-2);
-	}
-
-	.fact dd {
-		margin: 0;
-		font-size: var(--text-lg);
+	.who {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-2);
+		color: var(--color-ink);
 		font-weight: 700;
+		min-width: 0;
 	}
 
-	/* Twenty books in one column put the name and its bar most of a screen apart.
-	   Two columns of ten keep the label next to the length it belongs to, and the
-	   bars thinner, because twenty full-width saturated blocks is a wall and not a
-	   reading. */
-	.books {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
-		gap: var(--spacing-2) var(--spacing-6);
+	.who:hover {
+		color: var(--color-orange);
+		text-decoration: none;
 	}
 
-	.books .bar-row {
-		grid-template-columns: minmax(150px, 46%) minmax(0, 1fr) 40px;
+	.name {
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
-	.books .bar-track {
-		height: 10px;
+	.why {
+		color: var(--color-ink-3);
 	}
 
-	.book-dot {
-		width: 10px;
-		height: 10px;
-		flex: none;
+	.pick-name {
+		font-size: var(--text-title);
+		line-height: 1.1;
 	}
 
-	.footnote {
-		max-width: 62ch;
+	.pick-why {
+		font-size: var(--text-md);
+		line-height: 1.45;
+		display: -webkit-box;
+		-webkit-line-clamp: 3;
+		line-clamp: 3;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
 	}
 
-	/* ── the way onward ───────────────────────────────────────────────────── */
-	.onward {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-		gap: var(--spacing-3);
+	.pick-go {
+		align-self: flex-start;
+		margin-top: auto;
 	}
 
-	.door {
+	.plot {
+		flex: 1;
+		min-height: 80px;
+	}
+
+	.facts {
 		display: grid;
 		grid-template-columns: 1fr auto;
-		align-items: center;
-		gap: var(--spacing-1) var(--spacing-3);
-		padding: var(--spacing-3) var(--spacing-4);
-		border: 2px solid var(--color-rule-strong);
+		gap: var(--spacing-2) var(--spacing-3);
+		margin: 0;
+		font-size: var(--text-base);
 	}
 
-	.door:hover {
-		border-color: var(--color-orange);
-		background: var(--color-orange-wash);
+	.facts dt {
+		color: var(--color-ink-3);
 	}
 
-	.door-name {
-		grid-column: 1;
-		font-family: var(--font-display);
+	.facts dd {
+		margin: 0;
+		text-align: right;
 		font-weight: 700;
-		font-size: var(--text-lg);
-	}
-
-	.door .sub {
-		grid-column: 1;
-	}
-
-	.door :global(svg) {
-		grid-row: 1 / span 2;
-		grid-column: 2;
+		color: var(--color-ink);
 	}
 
 	.note {
 		display: flex;
 		align-items: baseline;
 		gap: var(--spacing-2);
-	}
-
-	@media (max-width: 720px) {
-		.masthead {
-			font-size: 30px;
-		}
-
-		.figure-val {
-			font-size: 30px;
-		}
 	}
 </style>
