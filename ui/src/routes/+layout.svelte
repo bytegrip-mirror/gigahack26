@@ -12,9 +12,11 @@
 	import { shortNumber } from '$lib/format';
 	import { regionChoices, regionLabel } from '$lib/regions';
 	import Logo from '$lib/components/Logo.svelte';
-	import Icon from '$lib/components/Icon.svelte';
-	import Metric from '$lib/components/Metric.svelte';
-	import Menu from '$lib/components/Menu.svelte';
+	import Icon from '$lib/ui/Icon.svelte';
+	import Metric from '$lib/ui/Metric.svelte';
+	import Menu from '$lib/ui/Menu.svelte';
+	import Button from '$lib/ui/Button.svelte';
+	import Spinner from '$lib/ui/Spinner.svelte';
 	import CommandPalette from '$lib/components/CommandPalette.svelte';
 
 	let { children } = $props();
@@ -71,42 +73,61 @@
 	});
 </script>
 
-<div class="app">
-	<aside class="rail">
-		<div class="rail-top">
-			<a class="brand" href="/">
+<div class="flex h-full max-compact:flex-col">
+	<aside
+		class="flex w-rail flex-none flex-col overflow-y-auto border-r border-rule bg-paper max-compact:w-full max-compact:flex-row max-compact:items-center max-compact:gap-2 max-compact:overflow-x-auto max-compact:border-r-0 max-compact:border-b"
+	>
+		<div class="border-b border-rule pb-2 max-compact:flex max-compact:flex-none max-compact:items-center max-compact:border-b-0 max-compact:pb-0">
+			<a href="/" class="flex items-center gap-2 px-3 pt-3 pb-2 text-ink hover:no-underline max-compact:py-2">
 				<Logo size={19} />
-				<span class="wordmark">
-					<strong class="dsp">Signal Desk</strong>
-					<span class="label">Orange Systems</span>
+				<span class="flex min-w-0 flex-col gap-px">
+					<strong class="type-display text-xl leading-tight">Signal Desk</strong>
+					<span class="type-label max-compact:hidden">Orange Systems</span>
 				</span>
 			</a>
 
-			<button class="searchbox" type="button" onclick={() => command.show()}>
-				<Icon name="search" size={15} />
-				<span class="searchbox-text">Search</span>
-				<kbd>⌘K</kbd>
-			</button>
+			<div class="px-3 max-compact:flex-none max-compact:px-0 max-compact:pr-2">
+				<button
+					type="button"
+					class="flex h-ctl w-full items-center gap-2 rounded-sm border border-rule-strong bg-surface px-2 text-base text-ink-3 transition-colors hover:border-ink-3 hover:text-ink max-compact:w-ctl max-compact:justify-center"
+					onclick={() => command.show()}
+				>
+					<Icon name="search" size="md" />
+					<span class="flex-1 text-left max-compact:hidden">Search</span>
+					<kbd class="rounded-sm border border-rule px-1 font-ui text-micro text-ink-4 max-compact:hidden">⌘K</kbd>
+				</button>
+			</div>
 		</div>
 
-		<nav aria-label="Views">
+		<nav
+			aria-label="Views"
+			class="flex flex-col border-b border-rule py-1 max-compact:flex-none max-compact:flex-row max-compact:border-b-0 max-compact:py-0"
+		>
 			{#each nav as item (item.href)}
-				<a href={item.href} aria-current={active(item.href) ? 'page' : undefined}>
-					<Icon name={item.icon} size={16} />
-					<span class="nav-label">{item.label}</span>
+				<a
+					href={item.href}
+					aria-current={active(item.href) ? 'page' : undefined}
+					class={[
+						'flex items-center gap-2 border-l-2 py-2 pr-3 pl-3 text-md transition-colors hover:bg-sunken hover:text-ink hover:no-underline max-compact:flex-none max-compact:border-l-0 max-compact:border-b-2 max-compact:p-2',
+						active(item.href) ? 'border-l-orange text-ink font-medium max-compact:border-b-orange' : 'border-transparent text-ink-2'
+					]}
+				>
+					<span class={active(item.href) ? 'text-orange-deep' : 'text-ink-3'}><Icon name={item.icon} size="lg" /></span>
+					<span class="max-compact:hidden">{item.label}</span>
 				</a>
 			{/each}
 		</nav>
 
-		<div class="rail-foot">
+		<div class="mt-auto flex flex-col gap-2 px-3 pb-3 max-compact:hidden">
 			{#if workspace.status}
-				<section class="block">
-					<p class="label">Corpus</p>
-					<div class="corpus">
-						<Metric value={shortNumber(workspace.status.companies)} label="Companies" />
-						<Metric value={shortNumber(workspace.status.evidence)} label="Documents" />
-						<Metric value={shortNumber(workspace.status.signals)} label="Signals" />
+				<section class="border-b border-rule py-3">
+					<p class="type-label mb-2">Corpus</p>
+					<div class="grid grid-cols-2 gap-x-3 gap-y-2">
+						<Metric compact value={shortNumber(workspace.status.companies)} label="Companies" />
+						<Metric compact value={shortNumber(workspace.status.evidence)} label="Documents" />
+						<Metric compact value={shortNumber(workspace.status.signals)} label="Signals" />
 						<Metric
+							compact
 							value={String(savedCount)}
 							label="Saved"
 							tone={savedCount > 0 ? 'good' : null}
@@ -115,8 +136,8 @@
 				</section>
 			{/if}
 
-			<div class="region">
-				<p class="label">Board region</p>
+			<div class="flex flex-col gap-1">
+				<p class="type-label">Board region</p>
 				<Menu
 					text={regionLabel(workspace.regions, session.region)}
 					icon="target"
@@ -134,331 +155,29 @@
 			</div>
 
 			{#if workspace.meta?.nextRefreshAt}
-				<p class="refresh" title="The board re-scores itself on this interval">
-					<span class="dot" class:ok={healthy} class:bad={!healthy}></span>
-					<span class="label">Refresh</span>
+				<p class="flex items-center gap-1 text-sm text-ink-3" title="The board re-scores itself on this interval">
+					<span class={['size-2 flex-none rounded-full', healthy ? 'bg-accent' : 'bg-oxblood']}></span>
+					<span class="type-label">Refresh</span>
 					<span class="num">{countdown}</span>
 				</p>
 			{:else if workspace.loading}
-				<p class="refresh"><span class="spinner"></span> <span class="label">Connecting</span></p>
+				<p class="flex items-center gap-1 text-sm text-ink-3"><Spinner /> <span class="type-label">Connecting</span></p>
 			{/if}
 		</div>
 	</aside>
 
-	<main>
+	<main class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
 		{@render children()}
 	</main>
 </div>
 
-<div class="toasts" aria-live="polite">
+<div class="fixed right-4 bottom-4 z-toast flex max-w-menu flex-col gap-1" aria-live="polite">
 	{#each toasts.items as toast (toast.id)}
-		<div class="toast" data-tone={toast.tone}>
+		<div class={['flex animate-arrive items-start gap-2 rounded-sm p-2 text-base leading-normal text-paper', toast.tone === 'warn' || toast.tone === 'error' ? 'bg-oxblood' : 'bg-ink']}>
 			<span>{toast.message}</span>
-			<button class="btn btn-quiet btn-sm" onclick={() => toasts.dismiss(toast.id)}>Dismiss</button>
+			<Button variant="inverse" size="sm" onclick={() => toasts.dismiss(toast.id)}>Dismiss</Button>
 		</div>
 	{/each}
 </div>
 
 <CommandPalette serviceLines={workspace.lines} regions={workspace.regions} />
-
-<style>
-	.app {
-		display: grid;
-		grid-template-columns: var(--rail) minmax(0, 1fr);
-		height: 100vh;
-	}
-
-	.rail {
-		border-right: 1px solid var(--rule);
-		background: var(--paper);
-		display: flex;
-		flex-direction: column;
-		overflow-y: auto;
-		scrollbar-width: none;
-	}
-
-	.rail::-webkit-scrollbar {
-		display: none;
-	}
-
-	.rail-top {
-		border-bottom: 1px solid var(--rule);
-		padding-bottom: var(--sp-2);
-	}
-
-	.brand {
-		display: flex;
-		align-items: center;
-		gap: var(--sp-2);
-		padding: var(--sp-3) var(--sp-3) var(--sp-2);
-		color: var(--ink);
-	}
-
-	.brand:hover {
-		text-decoration: none;
-	}
-
-	.wordmark {
-		display: flex;
-		flex-direction: column;
-		gap: 1px;
-		min-width: 0;
-	}
-
-	.wordmark strong {
-		font-size: var(--fs-xl);
-		line-height: 1.1;
-	}
-
-	.wordmark .label {
-		font-size: var(--fs-micro);
-	}
-
-	.searchbox {
-		display: flex;
-		align-items: center;
-		gap: var(--sp-2);
-		margin: 0 var(--sp-3);
-		padding: 0 var(--sp-2);
-		height: var(--ctl);
-		width: calc(100% - var(--sp-5));
-		border: 1px solid var(--rule-strong);
-		border-radius: 2px;
-		background: var(--surface);
-		color: var(--ink-3);
-		font-size: var(--fs-base);
-		transition: border-color var(--ease), color var(--ease);
-	}
-
-	.searchbox:hover {
-		border-color: var(--ink-3);
-		color: var(--ink);
-	}
-
-	.searchbox-text {
-		flex: 1;
-		text-align: left;
-	}
-
-	kbd {
-		border: 1px solid var(--rule);
-		border-radius: 2px;
-		padding: 0 3px;
-		font-family: var(--font-ui);
-		font-size: var(--fs-micro);
-		color: var(--ink-4);
-	}
-
-	nav {
-		display: flex;
-		flex-direction: column;
-		padding: var(--sp-1) 0;
-		border-bottom: 1px solid var(--rule);
-	}
-
-	nav a {
-		display: flex;
-		align-items: center;
-		gap: var(--sp-2);
-		padding: 6px var(--sp-3) 6px 11px;
-		font-size: var(--fs-md);
-		color: var(--ink-2);
-		border-left: 2px solid transparent;
-		transition: background var(--ease), color var(--ease);
-	}
-
-	nav a:hover {
-		background: var(--sunken);
-		text-decoration: none;
-		color: var(--ink);
-	}
-
-	nav a[aria-current='page'] {
-		border-left-color: var(--orange);
-		color: var(--ink);
-		font-weight: 500;
-	}
-
-	nav a :global(.icon) {
-		color: var(--ink-3);
-	}
-
-	nav a[aria-current='page'] :global(.icon) {
-		color: var(--orange-deep);
-	}
-
-	.block {
-		padding: var(--sp-3);
-		border-bottom: 1px solid var(--rule);
-	}
-
-	.block .label {
-		display: block;
-		margin-bottom: var(--sp-2);
-	}
-
-
-	.corpus {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: var(--sp-2) var(--sp-3);
-	}
-
-	.corpus :global(.metric) {
-		padding: 0;
-		border-left: 0;
-		min-width: 0;
-	}
-
-	.corpus :global(.metric-val) {
-		font-size: var(--fs-lg);
-	}
-
-	.rail-foot {
-		margin-top: auto;
-		display: flex;
-		flex-direction: column;
-		padding: 0 var(--sp-3) var(--sp-3);
-		gap: var(--sp-2);
-	}
-
-	.rail-foot .block {
-		padding: var(--sp-3) 0;
-		border-bottom: 1px solid var(--rule);
-	}
-
-	.region {
-		display: flex;
-		flex-direction: column;
-		gap: var(--sp-1);
-	}
-
-	.region .label {
-		display: block;
-	}
-
-	.refresh {
-		display: flex;
-		align-items: center;
-		gap: var(--sp-1);
-		font-size: var(--fs-sm);
-		color: var(--ink-3);
-	}
-
-	.dot {
-		width: 6px;
-		height: 6px;
-		border-radius: 50%;
-		flex: none;
-	}
-
-	.dot.ok {
-		background: var(--accent);
-	}
-
-	.dot.bad {
-		background: var(--oxblood);
-	}
-
-	main {
-		min-width: 0;
-		overflow: hidden;
-		display: flex;
-		flex-direction: column;
-	}
-
-	.toasts {
-		animation: rise var(--ease-enter) both;
-		position: fixed;
-		right: var(--sp-4);
-		bottom: var(--sp-4);
-		display: flex;
-		flex-direction: column;
-		gap: var(--sp-1);
-		z-index: var(--z-toast);
-		max-width: 400px;
-	}
-
-	.toast {
-		display: flex;
-		align-items: flex-start;
-		gap: var(--sp-2);
-		background: var(--ink);
-		color: var(--paper);
-		border-radius: 2px;
-		padding: var(--sp-2) 10px;
-		font-size: var(--fs-base);
-		line-height: 1.4;
-	}
-
-	.toast[data-tone='warn'] {
-		background: #4a3208;
-	}
-
-	.toast[data-tone='error'] {
-		background: var(--oxblood);
-	}
-
-	.toast :global(.btn) {
-		color: var(--paper);
-		opacity: 0.75;
-	}
-
-	@media (max-width: 860px) {
-		.app {
-			grid-template-columns: 1fr;
-			grid-template-rows: auto minmax(0, 1fr);
-		}
-		.rail {
-			flex-direction: row;
-			align-items: center;
-			gap: var(--sp-2);
-			overflow-x: auto;
-			border-right: 0;
-			border-bottom: 1px solid var(--rule);
-		}
-		.rail-top {
-			display: flex;
-			align-items: center;
-			border-bottom: 0;
-			padding: 0;
-			flex: none;
-		}
-		.brand {
-			padding: var(--sp-2) var(--sp-3);
-		}
-		.wordmark .label {
-			display: none;
-		}
-		.searchbox {
-			width: var(--ctl);
-			margin: 0 var(--sp-2) 0 0;
-			justify-content: center;
-		}
-		.searchbox-text,
-		kbd {
-			display: none;
-		}
-		nav {
-			flex-direction: row;
-			border-bottom: 0;
-			padding: 0;
-		}
-		nav a {
-			border-left: 0;
-			border-bottom: 2px solid transparent;
-			padding: var(--sp-2);
-		}
-		nav a[aria-current='page'] {
-			border-left-color: transparent;
-			border-bottom-color: var(--orange);
-		}
-		.nav-label {
-			display: none;
-		}
-		.block,
-		.rail-foot {
-			display: none;
-		}
-	}
-</style>

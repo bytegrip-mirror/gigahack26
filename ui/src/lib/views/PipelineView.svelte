@@ -5,12 +5,21 @@
 	import { toasts } from '$lib/toast.svelte';
 	import { age, fit, host, plural } from '$lib/format';
 	import { copy, csv, save } from '$lib/export';
-	import Tag from '$lib/components/Tag.svelte';
-	import LoadingVeil from '$lib/components/LoadingVeil.svelte';
-	import Icon from '$lib/components/Icon.svelte';
-	import Menu from '$lib/components/Menu.svelte';
-	import Metric from '$lib/components/Metric.svelte';
-	import type { MenuItem } from '$lib/components/menu';
+	import Tag from '$lib/ui/Tag.svelte';
+	import LoadingVeil from '$lib/ui/LoadingVeil.svelte';
+	import Icon from '$lib/ui/Icon.svelte';
+	import Menu from '$lib/ui/Menu.svelte';
+	import Metric from '$lib/ui/Metric.svelte';
+	import View from '$lib/ui/View.svelte';
+	import Topbar from '$lib/ui/Topbar.svelte';
+	import Toolbar from '$lib/ui/Toolbar.svelte';
+	import ToolbarSeparator from '$lib/ui/ToolbarSeparator.svelte';
+	import Spinner from '$lib/ui/Spinner.svelte';
+	import Empty from '$lib/ui/Empty.svelte';
+	import Note from '$lib/ui/Note.svelte';
+	import Button from '$lib/ui/Button.svelte';
+	import Input from '$lib/ui/Input.svelte';
+	import type { MenuItem } from '$lib/ui/menu';
 
 	const STAGES = [
 		{ id: 'CONTACTED', label: 'Contacted' },
@@ -96,6 +105,8 @@
 			rows: matched.filter((lead) => lead.status === stage.id)
 		}))
 	);
+
+	const visibleStages = $derived(grouped.filter((stage) => stage.rows.length > 0));
 
 	function daysSince(iso: string | null): number | null {
 		return iso ? Math.max(0, (Date.now() - new Date(iso).getTime()) / 86_400_000) : null;
@@ -184,29 +195,24 @@
 	}
 </script>
 
-<div class="view">
-	<header class="topbar">
-		<div class="ident">
-			<h1 class="dsp">Pipeline</h1>
-			<p class="sub num">
-				{plural(leads.length, 'company', 'companies')} worked{#if allLines}
-					across every service line{:else}
-					on {serviceLine}{/if}
-			</p>
-		</div>
-
-		{#if tally}
-			<div class="metrics">
+<View>
+	<Topbar title="Pipeline">
+		{#snippet subtitle()}
+			{plural(leads.length, 'company', 'companies')} worked{#if allLines}
+				across every service line{:else}
+				on {serviceLine}{/if}
+		{/snippet}
+		{#snippet metrics()}
+			{#if tally}
 				<Metric value={tally.CONTACTED} label="Contacted" />
 				<Metric value={tally.REPLIED} label="Replied" tone={tally.REPLIED > 0 ? 'hot' : null} />
 				<Metric value={tally.QUALIFIED} label="Qualified" tone={tally.QUALIFIED > 0 ? 'good' : null} />
 				<Metric value={tally.REJECTED} label="Rejected" />
-			</div>
-		{/if}
+			{/if}
+		{/snippet}
+	</Topbar>
 
-	</header>
-
-	<div class="toolbar">
+	<Toolbar>
 		<Menu
 			text={session.scopeLabel()}
 			icon="layers"
@@ -217,16 +223,18 @@
 			items={scopeItems}
 			onselect={(line) => (line === ALL_LINES ? session.setAll() : workspace.select(line))}
 		/>
-		{#if workspace.switching}<span class="spinner"></span>{/if}
-		<span class="sep"></span>
+		{#if workspace.switching}<Spinner />{/if}
+		<ToolbarSeparator />
 
-		<label class="search">
-			<span class="sr-only">Filter leads</span>
-			<Icon name="search" size={14} />
-			<input class="input input-sm" placeholder="Company or subject" bind:value={query} />
-		</label>
-		<span class="spacer"></span>
-		<span class="sub dim num">{matched.length} of {leads.length} shown</span>
+		<Input
+			size="sm"
+			icon="search"
+			placeholder="Company or subject"
+			aria-label="Filter leads"
+			bind:value={query}
+			class="w-rail min-w-0 flex-1 max-sm:w-full"
+		/>
+		<span class="type-sub text-ink-4 num ml-auto">{matched.length} of {leads.length} shown</span>
 		<Menu
 			items={[
 				{ id: 'export', label: 'Export the pipeline as CSV', icon: 'download' },
@@ -235,267 +243,108 @@
 			onselect={(id) => (id === 'export' ? exportAll() : window.location.assign('/'))}
 			label="More pipeline actions"
 		/>
-	</div>
+	</Toolbar>
 
 	{#if loading && leads.length === 0}
-		<p class="note"><span class="spinner"></span> Reading the pipeline</p>
+		<Note><Spinner /> Reading the pipeline</Note>
 	{:else if leads.length === 0}
-		<div class="empty">
-			<Icon name="pipeline" size={22} />
-			<h2 class="dsp">Nothing has been worked yet</h2>
-			<p class="sub">
+		<Empty>
+			<Icon name="pipeline" size="xl" />
+			<h2 class="type-display text-xl leading-tight">Nothing has been worked yet</h2>
+			<p class="type-sub">
 				Open a company on the board and set a stage, or generate an outreach draft — which marks the company
 				contacted for you. Everything you touch lands here with its evidence still attached.
 			</p>
-			<a class="btn btn-ink" href="/">Go to the board</a>
-		</div>
+			<Button variant="ink" href="/">Go to the board</Button>
+		</Empty>
 	{:else}
-		<div class="panes scroll">
+		<div class="relative block min-h-0 flex-1 scroll max-sm:overflow-x-auto">
 			<LoadingVeil show={loading} label="Reading the pipeline" />
-			{#each grouped as stage (stage.id)}
-				{#if stage.rows.length > 0}
-					<section class="stage" data-stage={stage.id}>
-						<header class="stage-head">
-							<h2 class="label">{stage.label}</h2>
-							<span class="num">{stage.rows.length}</span>
-						</header>
-						<table class="grid">
-							<thead>
+			{#each visibleStages as stage, index (stage.id)}
+				<section class={['border-ink', index > 0 && 'border-t']}>
+					<header
+						class={[
+							'sticky top-0 z-sticky flex items-center justify-between gap-3 border-b border-b-rule bg-paper py-2 pr-4 pl-3 border-l-4',
+							stage.id === 'QUALIFIED' && 'border-l-accent',
+							stage.id === 'REJECTED' && 'border-l-oxblood',
+							(stage.id === 'CONTACTED' || stage.id === 'REPLIED') && 'border-l-orange'
+						]}
+					>
+						<h2 class="type-label">{stage.label}</h2>
+						<span class="num">{stage.rows.length}</span>
+					</header>
+					<table class="table-grid">
+						<thead>
+							<tr>
+								<th scope="col" class="w-3/10">Company</th>
+								<th scope="col" class="w-1/16">Fit</th>
+								<th scope="col" class="w-1/12 max-compact:hidden">Band</th>
+								<th scope="col" class="w-3/20 max-compact:hidden">Last contact</th>
+								<th scope="col" class="max-lg:hidden">Draft subject</th>
+								<th scope="col" class="w-1/8"><span class="sr-only">Actions</span></th>
+							</tr>
+						</thead>
+						<tbody>
+							{#each stage.rows as lead (lead.id)}
 								<tr>
-									<th scope="col" class="c-co">Company</th>
-									<th scope="col" class="c-fit">Fit</th>
-									<th scope="col" class="c-band">Band</th>
-									<th scope="col" class="c-contact">Last contact</th>
-									<th scope="col" class="c-subject">Draft subject</th>
-									<th scope="col" class="c-act"><span class="sr-only">Actions</span></th>
-								</tr>
-							</thead>
-							<tbody>
-								{#each stage.rows as lead (lead.id)}
-									<tr>
-										<td class="c-co">
-											<a class="co" href="/?co={lead.companyId}&line={encodeURIComponent(lead.serviceLine)}">{lead.company}</a>
-											<span class="sub">{lead.domain ? host(lead.domain) : '—'} · {lead.serviceLine}</span>
-										</td>
-										<td class="c-fit num">
-											{lead.probability === null ? '—' : fit(lead.probability)}
-										</td>
-										<td class="c-band m">
-											{#if lead.band}<Tag band={lead.band}>{lead.band}</Tag>{:else}—{/if}
-										</td>
-										<td class="c-contact">
-											{#if lead.lastContactedAt}
-												<span class="num">{age(daysSince(lead.lastContactedAt))}</span>
-												<span class="sub">{plural(lead.contactCount, 'contact')}{lead.channel ? ` · ${lead.channel}` : ''}</span>
-											{:else}
-												<span class="sub dim">not contacted yet</span>
-											{/if}
-										</td>
-										<td class="c-subject">
-											{#if lead.outreachSubject}
-												<span class="subject">“{lead.outreachSubject}”</span>
-											{:else}
-												<span class="sub dim">no draft yet</span>
-											{/if}
-										</td>
-										<td class="c-act">
-											<div class="row-tools">
-												{#if NEXT[lead.status]}
-													<button
-														class="btn btn-sm"
-														disabled={busy === lead.id}
-														title={`Mark ${stageLabel(NEXT[lead.status])}`}
-														onclick={() => move(lead, NEXT[lead.status])}
-													>
-														{#if busy === lead.id}<span class="spinner"></span>{:else}<Icon name="chevronRight" size={13} />{/if}
-														{stageLabel(NEXT[lead.status])}
-													</button>
-												{/if}
-												<Menu
-													items={menuFor(lead)}
-													onselect={(id) => runRow(lead, id)}
+									<td>
+										<a
+											class="block font-display text-lg font-medium leading-tight text-ink"
+											href="/?co={lead.companyId}&line={encodeURIComponent(lead.serviceLine)}">{lead.company}</a
+										>
+										<span class="type-sub">{lead.domain ? host(lead.domain) : '—'} · {lead.serviceLine}</span>
+									</td>
+									<td class="num text-lg">
+										{lead.probability === null ? '—' : fit(lead.probability)}
+									</td>
+									<td class="text-center max-compact:hidden">
+										{#if lead.band}<Tag band={lead.band}>{lead.band}</Tag>{:else}—{/if}
+									</td>
+									<td class="max-compact:hidden">
+										{#if lead.lastContactedAt}
+											<span class="num">{age(daysSince(lead.lastContactedAt))}</span>
+											<span class="type-sub">{plural(lead.contactCount, 'contact')}{lead.channel ? ` · ${lead.channel}` : ''}</span>
+										{:else}
+											<span class="type-sub text-ink-4">not contacted yet</span>
+										{/if}
+									</td>
+									<td class="max-lg:hidden">
+										{#if lead.outreachSubject}
+											<span class="line-clamp-2 font-display text-base italic text-ink-2">“{lead.outreachSubject}”</span>
+										{:else}
+											<span class="type-sub text-ink-4">no draft yet</span>
+										{/if}
+									</td>
+									<td>
+										<div class="flex items-center justify-end gap-1">
+											{#if NEXT[lead.status]}
+												<Button
 													size="sm"
-													label={`Actions for ${lead.company}`}
-												/>
-											</div>
-										</td>
-									</tr>
-								{/each}
-							</tbody>
-						</table>
-					</section>
-				{/if}
+													disabled={busy === lead.id}
+													title={`Mark ${stageLabel(NEXT[lead.status])}`}
+													onclick={() => move(lead, NEXT[lead.status])}
+												>
+													{#if busy === lead.id}<Spinner />{:else}<Icon name="chevronRight" size="sm" />{/if}
+													{stageLabel(NEXT[lead.status])}
+												</Button>
+											{/if}
+											<Menu
+												items={menuFor(lead)}
+												onselect={(id) => runRow(lead, id)}
+												size="sm"
+												label={`Actions for ${lead.company}`}
+											/>
+										</div>
+									</td>
+								</tr>
+							{/each}
+						</tbody>
+					</table>
+				</section>
 			{/each}
 			{#if matched.length === 0}
-				<p class="note">Nothing in the pipeline matches “{query}”.</p>
+				<Note>Nothing in the pipeline matches “{query}”.</Note>
 			{/if}
 		</div>
 	{/if}
-</div>
-
-<style>
-	.panes {
-		position: relative;
-		display: block;
-		flex: 1;
-		min-height: 0;
-		overflow-y: auto;
-	}
-
-	.stage + .stage {
-		border-top: 1px solid var(--ink);
-	}
-
-	.stage-head {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: var(--sp-3);
-		padding: var(--sp-2) var(--sp-4);
-		border-bottom: 1px solid var(--rule);
-		background: var(--paper);
-		position: sticky;
-		top: 0;
-		z-index: var(--z-sticky);
-	}
-
-	.stage[data-stage='QUALIFIED'] .stage-head {
-		box-shadow: inset 3px 0 0 var(--accent);
-	}
-
-	.stage[data-stage='REJECTED'] .stage-head {
-		box-shadow: inset 3px 0 0 var(--oxblood);
-	}
-
-	.stage[data-stage='CONTACTED'] .stage-head,
-	.stage[data-stage='REPLIED'] .stage-head {
-		box-shadow: inset 3px 0 0 var(--orange);
-	}
-
-	.c-co {
-		width: 30%;
-	}
-
-	.co {
-		display: block;
-		font-family: var(--font-display);
-		font-size: var(--fs-lg);
-		font-weight: 500;
-		color: var(--ink);
-		line-height: 1.2;
-	}
-
-	.co:hover {
-		text-decoration: underline;
-	}
-
-	.sub {
-		display: block;
-		font-size: var(--fs-sm);
-		color: var(--ink-3);
-		margin-top: 1px;
-	}
-
-	.c-fit {
-		width: 68px;
-		font-size: var(--fs-lg);
-	}
-
-	.c-band {
-		width: 96px;
-	}
-
-	.c-contact {
-		width: 150px;
-	}
-
-	.c-subject {
-		width: auto;
-	}
-
-	.subject {
-		display: -webkit-box;
-		-webkit-line-clamp: 2;
-		line-clamp: 2;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
-		font-family: var(--font-display);
-		font-size: var(--fs-base);
-		font-style: italic;
-		color: var(--ink-2);
-	}
-
-	.c-act {
-		width: 156px;
-	}
-
-	.row-tools {
-		display: flex;
-		align-items: center;
-		justify-content: flex-end;
-		gap: var(--sp-1);
-	}
-
-	.search {
-		display: flex;
-		align-items: center;
-		gap: var(--sp-1);
-		width: 280px;
-		padding-left: var(--sp-2);
-		border: 1px solid var(--rule-strong);
-		border-radius: 2px;
-		background: var(--surface);
-		color: var(--ink-3);
-	}
-
-	.search:focus-within {
-		border-color: var(--orange);
-		box-shadow: 0 0 0 2px var(--orange-wash);
-	}
-
-	.search .input {
-		border: 0;
-		background: transparent;
-		padding-left: 0;
-	}
-
-	.search .input:focus {
-		box-shadow: none;
-	}
-
-	@media (max-width: 760px) {
-		.metrics {
-			flex: 1 1 100%;
-			padding-top: var(--sp-2);
-			border-top: 1px solid var(--rule);
-		}
-		.toolbar {
-			flex-wrap: wrap;
-		}
-		.search {
-			width: 100%;
-		}
-		.panes table.grid {
-			min-width: 520px;
-		}
-		.panes {
-			overflow-x: auto;
-		}
-	}
-
-	@media (max-width: 1180px) {
-		.c-subject {
-			display: none;
-		}
-	}
-
-	@media (max-width: 1000px) {
-		.c-band,
-		.c-contact {
-			display: none;
-		}
-		.c-act {
-			width: 130px;
-		}
-	}
-</style>
+</View>

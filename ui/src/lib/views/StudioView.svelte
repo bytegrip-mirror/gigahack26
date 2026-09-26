@@ -24,12 +24,25 @@
 	import { toasts } from '$lib/toast.svelte';
 	import { duration, shortNumber, theme, tier } from '$lib/format';
 	import { copy, csv, save } from '$lib/export';
-	import Tag from '$lib/components/Tag.svelte';
-	import LoadingVeil from '$lib/components/LoadingVeil.svelte';
-	import Icon from '$lib/components/Icon.svelte';
-	import Menu from '$lib/components/Menu.svelte';
-	import Metric from '$lib/components/Metric.svelte';
-	import type { MenuItem } from '$lib/components/menu';
+	import Tag from '$lib/ui/Tag.svelte';
+	import LoadingVeil from '$lib/ui/LoadingVeil.svelte';
+	import Icon from '$lib/ui/Icon.svelte';
+	import Menu from '$lib/ui/Menu.svelte';
+	import Metric from '$lib/ui/Metric.svelte';
+	import Metrics from '$lib/ui/Metrics.svelte';
+	import type { MenuItem } from '$lib/ui/menu';
+	import View from '$lib/ui/View.svelte';
+	import Topbar from '$lib/ui/Topbar.svelte';
+	import Toolbar from '$lib/ui/Toolbar.svelte';
+	import Panel from '$lib/ui/Panel.svelte';
+	import Field from '$lib/ui/Field.svelte';
+	import Fields from '$lib/ui/Fields.svelte';
+	import Input from '$lib/ui/Input.svelte';
+	import Textarea from '$lib/ui/Textarea.svelte';
+	import Select from '$lib/ui/Select.svelte';
+	import Checkbox from '$lib/ui/Checkbox.svelte';
+	import Button from '$lib/ui/Button.svelte';
+	import Spinner from '$lib/ui/Spinner.svelte';
 
 	const BLANK: PolicyInput = {
 		title: '',
@@ -431,66 +444,66 @@
 	onchange={importSet}
 />
 
-<div class="view">
-	<header class="topbar">
-		<div class="ident">
-			<h1 class="dsp">Signal Studio</h1>
-			<p class="sub num">
-				{#if loadError}
-					The policy set could not be read — a failure, not an empty set
-				{:else}
-					{policies.length} questions · {scored} producing signals on {serviceLine}
-				{/if}
-			</p>
-		</div>
-
-		<div class="topbar-tools">
-			<button class="btn btn-primary" onclick={() => startNew()}>
-				<Icon name="plus" size={15} />
-				New question
-			</button>
+<View>
+	<Topbar title="Signal Studio">
+		{#snippet subtitle()}
+			{#if loadError}
+				The policy set could not be read — a failure, not an empty set
+			{:else}
+				{policies.length} questions · {scored} producing signals on {serviceLine}
+			{/if}
+		{/snippet}
+		{#snippet tools()}
+			<Button variant="primary" icon="plus" onclick={() => startNew()}>New question</Button>
 			<Menu items={overflow} onselect={runOverflow} label="More studio actions" />
-		</div>
-	</header>
+		{/snippet}
+	</Topbar>
 
-	<div class="panes">
-		<section class="questions" aria-label="Signal questions">
-			<div class="q-toolbar">
-				<label class="search">
-					<span class="sr-only">Filter questions</span>
-					<Icon name="search" size={14} />
-					<input class="input input-sm" placeholder="Filter questions" bind:value={query} />
-				</label>
-			</div>
+	<div class="flex min-h-0 flex-1 max-compact:flex-col">
+		<section
+			class="flex w-list min-w-0 flex-none flex-col border-r border-rule bg-paper max-compact:h-rail max-compact:w-full max-compact:max-w-none max-compact:border-r-0 max-compact:border-b"
+			aria-label="Signal questions"
+		>
+			<Toolbar label="Filter questions">
+				<Input
+					size="sm"
+					icon="search"
+					bind:value={query}
+					placeholder="Filter questions"
+					aria-label="Filter questions"
+					class="min-w-0 flex-1"
+				/>
+			</Toolbar>
 
-			<div class="q-list scroll">
+			<div class="scroll relative min-h-0 flex-1">
 				<LoadingVeil show={loading} label="Loading questions" />
 				{#if loading && policies.length === 0}
-					<p class="note"><span class="spinner"></span> Loading</p>
+					<p class="flex items-center gap-2 px-4 py-3 text-md text-ink-3"><Spinner /> Loading</p>
 				{:else}
-					{#each grouped as [line, items] (line)}
-						<div class="group">
-							<p class="label group-head">{line} · {items.length}</p>
-							<ul>
+					{#each grouped as [line, items], index (line)}
+						<div class={index > 0 ? 'border-t border-rule' : ''}>
+							<p class="type-label px-3 pt-2 pb-1">{line} · {items.length}</p>
+							<ul class="m-0 list-none p-0">
 								{#each items as policy (policy.id)}
-									<li>
+									<li class={['flex items-start justify-between border-b border-rule pr-1 hover:bg-surface', policy.id === selectedId ? 'bg-surface' : 'bg-paper']}>
 										<button
-											class="q"
+											type="button"
+											class={['flex min-w-0 flex-1 flex-col gap-1 border-l-2 py-2 pr-2 pl-3 text-left transition-colors', policy.id === selectedId ? 'border-orange' : 'border-transparent']}
 											aria-current={policy.id === selectedId ? 'true' : undefined}
 											onclick={() => select(policy)}
 										>
-											<span class="q-title">{policy.title}</span>
-											<span class="q-text">{policy.text}</span>
-											<span class="q-meta">
+											<span class="text-md leading-snug font-medium text-ink">{policy.title}</span>
+											<span class="line-clamp-2 text-sm leading-normal text-ink-3">{policy.text}</span>
+											<span class="mt-0.5 flex flex-wrap items-center gap-1">
 												<Tag>{tier(policy.weightTier)}</Tag>
 												{#if policy.polarity !== 'POSITIVE'}
-													<Tag variant={policy.polarity === 'DISQUALIFYING' ? 'oxblood' : 'default'}>
+													<Tag tone={policy.polarity === 'DISQUALIFYING' ? 'oxblood' : 'default'}>
 														{policy.polarity === 'DISQUALIFYING' ? 'disqualifying' : 'counter'}
 													</Tag>
 												{/if}
-												<Tag variant="bare">{theme(policy.theme)}</Tag>
-												{#if !policy.active}<Tag variant="bare">off</Tag>{/if}
-												<span class="num dim">{policy.signalCount} signals</span>
+												<Tag tone="bare">{theme(policy.theme)}</Tag>
+												{#if !policy.active}<Tag tone="bare">off</Tag>{/if}
+												<span class="num text-micro text-ink-4">{policy.signalCount} signals</span>
 											</span>
 										</button>
 										<Menu
@@ -505,135 +518,128 @@
 						</div>
 					{/each}
 					{#if matched.length === 0 && !loading}
-						<p class="sub dim pad">No question matches “{query}”.</p>
+						<p class="p-3 text-sm leading-normal text-ink-4">No question matches "{query}".</p>
 					{/if}
 				{/if}
 			</div>
 		</section>
 
-		<section class="editor" aria-label="Question editor">
-			<div class="editor-body scroll">
-				<div class="panel">
-					<div class="panel-head">
-						<h2 class="dsp">{creating ? 'New question' : (current?.title ?? 'Question')}</h2>
-						{#if dirty}<Tag variant="wash">unsaved</Tag>{/if}
-					</div>
+		<section class="flex min-w-0 flex-1 flex-col bg-surface" aria-label="Question editor">
+			<div class="scroll relative min-h-0 flex-1">
+				<Panel title={creating ? 'New question' : (current?.title ?? 'Question')}>
+					{#snippet tools()}
+						{#if dirty}<Tag tone="wash">unsaved</Tag>{/if}
+					{/snippet}
 
-					<label class="field">
-						<span class="label">Title</span>
-						<input class="input" bind:value={draft.title} oninput={() => (dirty = true)} placeholder="Hiring for process excellence" />
-						<span class="sub dim">The name this question carries on the board. Left empty, it is taken from the question.</span>
-					</label>
+					<Field label="Title" hint="The name this question carries on the board. Left empty, it is taken from the question." for="sq-title">
+						<Input id="sq-title" bind:value={draft.title} oninput={() => (dirty = true)} placeholder="Hiring for process excellence" />
+					</Field>
 
-					<label class="field">
-						<span class="label">Question</span>
-						<textarea
-							class="textarea"
-							rows="3"
-							bind:value={draft.text}
-							oninput={() => (dirty = true)}
-							placeholder="Is the company consolidating shared service centres into a captive operation?"
-						></textarea>
-					</label>
+					<Field label="Question" for="sq-text">
+						<Textarea id="sq-text" rows={3} bind:value={draft.text} oninput={() => (dirty = true)} placeholder="Is the company consolidating shared service centres into a captive operation?" />
+					</Field>
 
-					<label class="field">
-						<span class="label">Rubric — what counts, and what does not</span>
-						<textarea
-							class="textarea"
-							rows="5"
-							bind:value={draft.instructions}
-							oninput={() => (dirty = true)}
-							placeholder="Counts: …  Does not count: …"
-						></textarea>
-						<span class="sub dim">The rubric is what lets the classifier make the inference a senior rep would, instead of matching a word.</span>
-					</label>
-				</div>
+					<Field label="Rubric — what counts, and what does not" hint="The rubric is what lets the classifier make the inference a senior rep would, instead of matching a word." for="sq-instructions">
+						<Textarea id="sq-instructions" rows={5} bind:value={draft.instructions} oninput={() => (dirty = true)} placeholder="Counts: …  Does not count: …" />
+					</Field>
+				</Panel>
 
-				<div class="panel">
-					<div class="panel-head"><h3 class="label">Scoring</h3></div>
-					<div class="fields">
-						<label class="field">
-							<span class="label">Service line</span>
-							<select class="select" bind:value={draft.serviceLine} onchange={() => (dirty = true)}>
-								{#each serviceLines as line (line.id)}
-									<option value={line.key}>{line.name}</option>
-								{/each}
-								{#if !serviceLines.some((line) => line.key === draft.serviceLine)}
-									<option value={draft.serviceLine}>{draft.serviceLine} (not configured)</option>
-								{/if}
-							</select>
-						</label>
-						<label class="field">
-							<span class="label">Weight</span>
-							<select class="select" bind:value={draft.weightTier} onchange={() => (dirty = true)}>
-								<option value="HIGH">High · 1.5 nats</option>
-								<option value="MEDIUM">Medium · 0.7</option>
-								<option value="LOW">Low · 0.3</option>
-							</select>
-						</label>
-						<label class="field">
-							<span class="label">Polarity</span>
-							<select class="select" bind:value={draft.polarity} onchange={() => (dirty = true)}>
-								<option value="POSITIVE">Positive</option>
-								<option value="NEGATIVE">Counter</option>
-								<option value="DISQUALIFYING">Disqualifying</option>
-							</select>
-						</label>
-						<label class="field">
-							<span class="label">Theme</span>
-							<input class="input" list="themes-present" bind:value={draft.theme} oninput={() => (dirty = true)} />
+				<Panel title="Scoring">
+					<Fields>
+						<Field label="Service line" for="sq-line">
+							<Select
+								id="sq-line"
+								label="Service line"
+								bind:value={draft.serviceLine}
+								onchange={() => (dirty = true)}
+								options={[
+									...serviceLines.map((line) => ({ value: line.key, label: line.name })),
+									...(!serviceLines.some((line) => line.key === draft.serviceLine)
+										? [{ value: draft.serviceLine, label: `${draft.serviceLine} (not configured)` }]
+										: [])
+								]}
+							/>
+						</Field>
+						<Field label="Weight" for="sq-weight">
+							<Select
+								id="sq-weight"
+								label="Weight"
+								bind:value={draft.weightTier}
+								onchange={() => (dirty = true)}
+								options={[
+									{ value: 'HIGH', label: 'High · 1.5 nats' },
+									{ value: 'MEDIUM', label: 'Medium · 0.7' },
+									{ value: 'LOW', label: 'Low · 0.3' }
+								]}
+							/>
+						</Field>
+						<Field label="Polarity" for="sq-polarity">
+							<Select
+								id="sq-polarity"
+								label="Polarity"
+								bind:value={draft.polarity}
+								onchange={() => (dirty = true)}
+								options={[
+									{ value: 'POSITIVE', label: 'Positive' },
+									{ value: 'NEGATIVE', label: 'Counter' },
+									{ value: 'DISQUALIFYING', label: 'Disqualifying' }
+								]}
+							/>
+						</Field>
+						<Field label="Theme" for="sq-theme">
+							<Input id="sq-theme" list="themes-present" bind:value={draft.theme} oninput={() => (dirty = true)} />
 							<datalist id="themes-present">
 								{#each themes as name (name)}
 									<option value={name}></option>
 								{/each}
 							</datalist>
-							<span class="sub dim">Rows sharing a theme are capped together, so a single loud topic cannot carry a company.</span>
-						</label>
-						<label class="field">
-							<span class="label">Half-life</span>
-							<select class="select" bind:value={draft.decayClass} onchange={() => (dirty = true)}>
-								{#each decayClasses as decay (decay.name)}
-									<option value={decay.name}>{tier(decay.name)} · {decay.halfLifeDays}d</option>
-								{/each}
-							</select>
-							<span class="sub dim">How long this evidence keeps its weight. A dated event is worth less next quarter; a structural shift is worth less next year.</span>
+							<p class="type-sub">Rows sharing a theme are capped together, so a single loud topic cannot carry a company.</p>
+						</Field>
+						<Field label="Half-life" for="sq-decay">
+							<Select
+								id="sq-decay"
+								label="Half-life"
+								bind:value={draft.decayClass}
+								onchange={() => (dirty = true)}
+								options={decayClasses.map((decay) => ({ value: decay.name, label: `${tier(decay.name)} · ${decay.halfLifeDays}d` }))}
+							/>
+							<p class="type-sub">How long this evidence keeps its weight. A dated event is worth less next quarter; a structural shift is worth less next year.</p>
 							{#if draftHalfLife}
-								<div class="decay">
+								<div class="mt-2 flex flex-col gap-0.5">
 									{#each [0, 30, 90, 180, 365] as age (age)}
-										<span class="decay-step">
-											<span class="label">{age === 0 ? 'today' : `${age}d`}</span>
-											<span class="num decay-bar">
-												<span style={`width:${Math.round(weight(age, draftHalfLife) * 100)}%`}></span>
+										<span class="flex items-center gap-2">
+											<span class="type-label w-bar">{age === 0 ? 'today' : `${age}d`}</span>
+											<span class="block h-1 flex-1 overflow-hidden rounded-sm bg-sunken">
+												<span class="block h-full bg-orange" style:width={`${Math.round(weight(age, draftHalfLife) * 100)}%`}></span>
 											</span>
-											<span class="num dim">{weight(age, draftHalfLife).toFixed(2)}</span>
+											<span class="num w-row text-right text-ink-4">{weight(age, draftHalfLife).toFixed(2)}</span>
 										</span>
 									{/each}
 								</div>
 							{/if}
-						</label>
-					</div>
-					<label class="check">
-						<input type="checkbox" bind:checked={draft.active} onchange={() => (dirty = true)} />
-						<span>Active — the board scores this question</span>
-					</label>
-				</div>
+						</Field>
+					</Fields>
+					<Checkbox bind:checked={draft.active} onchange={() => (dirty = true)}>
+						Active — the board scores this question
+					</Checkbox>
+				</Panel>
 
-				<div class="panel">
-					<div class="panel-head">
-						<h3 class="label">What this question will look for</h3>
-						{#if (draft.cues ?? []).length === 0}<Tag variant="bare">derived</Tag>{/if}
-					</div>
+				<Panel title="What this question will look for">
+					{#snippet tools()}
+						{#if (draft.cues ?? []).length === 0}<Tag tone="bare">derived</Tag>{/if}
+					{/snippet}
 					{#if (draft.cues ?? []).length > 0}
-						<div class="chips">
+						<div class="flex flex-wrap gap-1">
 							{#each draft.cues ?? [] as cue (cue)}
-								<button class="chip" type="button" title="Remove this cue" onclick={() => dropCue(cue)}>
-									{cue}<Icon name="close" size={11} />
+								<button type="button" class="inline-flex cursor-pointer items-center gap-1 rounded-sm border border-rule bg-surface px-2 py-0.5 text-sm hover:border-ink-3" title="Remove this cue" onclick={() => dropCue(cue)}>
+									{cue}<Icon name="close" size="sm" />
 								</button>
 							{/each}
 						</div>
-						<div class="cue-add">
-							<input
-								class="input input-sm"
+						<div class="flex gap-2">
+							<Input
+								size="sm"
+								class="min-w-0 flex-1"
 								placeholder="Add a phrase this question should match"
 								bind:value={cueDraft}
 								onkeydown={(event) => {
@@ -643,42 +649,40 @@
 									}
 								}}
 							/>
-							<button class="btn btn-sm" type="button" onclick={addCue}>Add</button>
+							<Button size="sm" onclick={addCue}>Add</Button>
 						</div>
-						<p class="sub dim">Set on the question. Empty the list to let the rubric derive its own.</p>
+						<p class="type-sub">Set on the question. Empty the list to let the rubric derive its own.</p>
 					{:else if derivedCues.length > 0}
-						<div class="chips">
-							{#each derivedCues as cue (cue)}<Tag variant="wash">{cue}</Tag>{/each}
+						<div class="flex flex-wrap gap-1">
+							{#each derivedCues as cue (cue)}<Tag tone="wash">{cue}</Tag>{/each}
 						</div>
-						<p class="sub dim">
+						<p class="type-sub">
 							Derived from the wording — nothing is configured, so these are the phrases the engine will match.
 							Keep them to edit the list, or leave it empty and they are re-derived from the rubric.
 						</p>
-						<button class="btn btn-sm" type="button" onclick={keepDerived}>Use these as the cue list</button>
+						<Button size="sm" onclick={keepDerived}>Use these as the cue list</Button>
 					{:else}
-						<p class="sub dim">No cue vocabulary yet. Write at least ten characters of question and rubric.</p>
+						<p class="type-sub">No cue vocabulary yet. Write at least ten characters of question and rubric.</p>
 					{/if}
-				</div>
+				</Panel>
 
-				<div class="panel">
-					<div class="panel-head">
-						<h3 class="label">What argues against it</h3>
-					</div>
-					<div class="chips">
+				<Panel title="What argues against it">
+					<div class="flex flex-wrap items-center gap-1">
 						{#each draft.counterCues ?? [] as cue (cue)}
-							<button class="chip chip-bad" type="button" title="Remove" onclick={() => dropCounterCue(cue)}>
-								{cue}<Icon name="close" size={11} />
+							<button type="button" class="inline-flex cursor-pointer items-center gap-1 rounded-sm border border-oxblood-line bg-oxblood-wash px-2 py-0.5 text-sm text-oxblood hover:border-ink-3" title="Remove" onclick={() => dropCounterCue(cue)}>
+								{cue}<Icon name="close" size="sm" />
 							</button>
 						{/each}
 						{#if (draft.counterCues ?? []).length === 0}
-							<span class="sub dim">
+							<span class="type-sub">
 								None. A passage containing one of these subtracts from the score instead of adding to it.
 							</span>
 						{/if}
 					</div>
-					<div class="cue-add">
-						<input
-							class="input input-sm"
+					<div class="flex gap-2">
+						<Input
+							size="sm"
+							class="min-w-0 flex-1"
 							placeholder="A phrase that means this is not a buying signal"
 							bind:value={counterDraft}
 							onkeydown={(event) => {
@@ -688,342 +692,71 @@
 								}
 							}}
 						/>
-						<button class="btn btn-sm" type="button" onclick={addCounterCue}>Add</button>
+						<Button size="sm" onclick={addCounterCue}>Add</Button>
 					</div>
-				</div>
+				</Panel>
 
-				<div class="panel">
-					<div class="panel-head">
-						<h3 class="label">Live preview</h3>
-						{#if previewing}<span class="sub dim"><span class="spinner"></span> Loading</span>{/if}
-					</div>
+				<Panel title="Live preview">
+					{#snippet tools()}
+						{#if previewing}<span class="inline-flex items-center gap-1 text-sm leading-normal text-ink-4"><Spinner /> Loading</span>{/if}
+					{/snippet}
 
-					<div class="preview-body">
+					<div class="relative flex flex-col gap-2">
 						<LoadingVeil show={veil} label="Loading the preview" />
 
-					{#if !preview}
-						<p class="sub dim">The corpus is scanned as you type on the local rubric engine, so it is instant and deterministic. Applying runs the configured engine.</p>
-					{:else}
-						<div class="metrics">
-							<Metric value={preview.matchedCompanies} label="Companies" />
-							<Metric value={shortNumber(preview.matchedEvidence)} label="Documents" />
-							<Metric value={duration(preview.tookMs)} label="Scan" />
-						</div>
-
-						{#if preview.matches.length > 0}
-							<table class="grid">
-								<thead>
-									<tr>
-										<th scope="col" class="c-name">Company</th>
-										<th scope="col" class="c c-docs">Docs</th>
-										<th scope="col" class="c c-conf">Top conf</th>
-										<th scope="col">Passage</th>
-									</tr>
-								</thead>
-								<tbody>
-									{#each preview.matches.slice(0, 10) as match (match.companyId)}
-										<tr>
-											<td class="c-name"><a href="/?co={match.companyId}">{match.company}</a></td>
-											<td class="num c c-docs">{match.evidence}</td>
-											<td class="num c c-conf">{match.topConfidence.toFixed(2)}</td>
-											<td class="small-quote">“{match.quote}”</td>
-										</tr>
-									{/each}
-								</tbody>
-							</table>
-							{#if preview.matches.length > 10}
-								<p class="sub dim">10 strongest of {preview.matchedCompanies}.</p>
-							{/if}
+						{#if !preview}
+							<p class="type-sub">The corpus is scanned as you type on the local rubric engine, so it is instant and deterministic. Applying runs the configured engine.</p>
 						{:else}
-							<p class="sub dim">Nothing in the corpus answers this. That is a result: the question would not move the board.</p>
+							<Metrics>
+								<Metric value={preview.matchedCompanies} label="Companies" />
+								<Metric value={shortNumber(preview.matchedEvidence)} label="Documents" />
+								<Metric value={duration(preview.tookMs)} label="Scan" />
+							</Metrics>
+
+							{#if preview.matches.length > 0}
+								<table class="table-grid">
+									<thead>
+										<tr>
+											<th scope="col">Company</th>
+											<th scope="col" class="w-topbar text-right">Docs</th>
+											<th scope="col" class="w-topbar text-right">Top conf</th>
+											<th scope="col">Passage</th>
+										</tr>
+									</thead>
+									<tbody>
+										{#each preview.matches.slice(0, 10) as match (match.companyId)}
+											<tr>
+												<td><a href="/?co={match.companyId}">{match.company}</a></td>
+												<td class="num text-right">{match.evidence}</td>
+												<td class="num text-right">{match.topConfidence.toFixed(2)}</td>
+												<td class="font-display text-base leading-normal text-ink-2 italic">“{match.quote}”</td>
+											</tr>
+										{/each}
+									</tbody>
+								</table>
+								{#if preview.matches.length > 10}
+									<p class="type-sub">10 strongest of {preview.matchedCompanies}.</p>
+								{/if}
+							{:else}
+								<p class="type-sub">Nothing in the corpus answers this. That is a result: the question would not move the board.</p>
+							{/if}
 						{/if}
-					{/if}
 					</div>
-				</div>
+				</Panel>
 			</div>
 
-			<footer class="editor-foot">
-				<button class="btn btn-ink" onclick={save_} disabled={saving}>
-					{#if saving}<span class="spinner"></span>{/if}
+			<footer class="flex flex-none items-center gap-2 border-t border-ink bg-paper px-4 py-2">
+				<Button variant="ink" onclick={save_} disabled={saving}>
+					{#if saving}<Spinner />{/if}
 					{creating ? 'Create question' : 'Save'}
-				</button>
-				<button class="btn" onclick={apply} disabled={applying || !draft.serviceLine}>
-					{#if applying}<span class="spinner"></span>{/if}
+				</Button>
+				<Button onclick={apply} disabled={applying || !draft.serviceLine}>
+					{#if applying}<Spinner />{/if}
 					{applying ? 'Scoring' : 'Apply to the board'}
-				</button>
-				<span class="spacer"></span>
-				{#if current}<span class="sub dim num" title="Question key">{current.key}</span>{/if}
+				</Button>
+				<span class="ml-auto"></span>
+				{#if current}<span class="text-sm leading-normal text-ink-4 num" title="Question key">{current.key}</span>{/if}
 			</footer>
 		</section>
 	</div>
-</div>
-
-<style>
-	.decay {
-		display: flex;
-		flex-direction: column;
-		gap: 2px;
-		margin-top: var(--sp-2);
-	}
-
-	.decay-step {
-		display: grid;
-		grid-template-columns: 44px 1fr 34px;
-		align-items: center;
-		gap: var(--sp-2);
-	}
-
-	.decay-bar {
-		display: block;
-		height: 5px;
-		background: var(--sunken);
-		border-radius: 1px;
-		overflow: hidden;
-	}
-
-	.decay-bar span {
-		display: block;
-		height: 100%;
-		background: var(--orange);
-	}
-
-	.chip {
-		display: inline-flex;
-		align-items: center;
-		gap: 4px;
-		padding: 2px var(--sp-2);
-		border: 1px solid var(--rule);
-		border-radius: 2px;
-		background: var(--surface);
-		font: inherit;
-		font-size: var(--fs-sm);
-		cursor: pointer;
-	}
-
-	.chip:hover {
-		border-color: var(--ink-3);
-	}
-
-	.chip-bad {
-		border-color: var(--oxblood-line);
-		background: var(--oxblood-wash);
-		color: var(--oxblood);
-	}
-
-	.cue-add {
-		display: flex;
-		gap: var(--sp-2);
-		margin-top: var(--sp-2);
-	}
-
-	.cue-add .input {
-		flex: 1;
-	}
-
-	.panes {
-		flex: 1;
-		min-height: 0;
-		grid-template-columns: 320px minmax(0, 1fr);
-	}
-
-	.questions {
-		display: flex;
-		flex-direction: column;
-		min-height: 0;
-		border-right: 1px solid var(--rule);
-		background: var(--paper);
-	}
-
-	.q-toolbar {
-		display: flex;
-		flex-direction: column;
-		gap: var(--sp-2);
-		padding: var(--sp-2);
-		border-bottom: 1px solid var(--rule);
-		flex: none;
-	}
-
-	.search {
-		display: flex;
-		align-items: center;
-		gap: var(--sp-1);
-		flex: 1;
-		min-width: 0;
-		padding-left: var(--sp-2);
-		border: 1px solid var(--rule-strong);
-		border-radius: 2px;
-		background: var(--surface);
-		color: var(--ink-3);
-	}
-
-	.search:focus-within {
-		border-color: var(--orange);
-	}
-
-	.search .input {
-		border: 0;
-		background: transparent;
-		padding-left: 0;
-		box-shadow: none;
-	}
-
-	.q-list {
-		position: relative;
-		flex: 1;
-		min-height: 0;
-	}
-
-	.group + .group {
-		border-top: 1px solid var(--rule);
-	}
-
-	.group-head {
-		display: block;
-		padding: var(--sp-2) var(--sp-3) 4px;
-	}
-
-	.group ul {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-	}
-
-	.group li {
-		display: grid;
-		grid-template-columns: minmax(0, 1fr) auto;
-		align-items: start;
-		border-bottom: 1px solid var(--rule);
-		background: var(--paper);
-		padding-right: var(--sp-1);
-	}
-
-	.group li:hover {
-		background: var(--surface);
-	}
-
-	.q {
-		display: flex;
-		flex-direction: column;
-		gap: 3px;
-		width: 100%;
-		text-align: left;
-		padding: var(--sp-2) var(--sp-2) var(--sp-2) 11px;
-		border-left: 2px solid transparent;
-		transition: border-color var(--ease);
-	}
-
-	.group li:has(.q[aria-current='true']) {
-		background: var(--surface);
-	}
-
-	.q[aria-current='true'] {
-		border-left-color: var(--orange);
-	}
-
-	.q-title {
-		font-size: var(--fs-md);
-		font-weight: 500;
-		color: var(--ink);
-		line-height: 1.3;
-	}
-
-	.q-text {
-		font-size: var(--fs-sm);
-		line-height: 1.4;
-		color: var(--ink-3);
-		display: -webkit-box;
-		-webkit-line-clamp: 2;
-		line-clamp: 2;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
-	}
-
-	.q-meta {
-		display: flex;
-		align-items: center;
-		flex-wrap: wrap;
-		gap: 4px;
-		margin-top: 2px;
-	}
-
-	.q-meta .num {
-		font-size: var(--fs-micro);
-	}
-
-	.pad {
-		padding: var(--sp-3);
-	}
-
-	.editor {
-		display: flex;
-		flex-direction: column;
-		min-height: 0;
-		background: var(--surface);
-	}
-
-	.editor-body {
-		position: relative;
-		flex: 1;
-		min-height: 0;
-	}
-
-	.editor-foot {
-		display: flex;
-		align-items: center;
-		gap: var(--sp-2);
-		padding: var(--sp-2) var(--sp-4);
-		border-top: 1px solid var(--ink);
-		background: var(--paper);
-		flex: none;
-	}
-
-	.editor-foot .spacer {
-		margin-left: auto;
-	}
-
-	.panel {
-		padding: var(--sp-4);
-	}
-
-	.preview-body {
-		position: relative;
-		display: flex;
-		flex-direction: column;
-		gap: var(--sp-2);
-	}
-
-	.panel-head {
-		margin-bottom: var(--sp-1);
-	}
-
-	.panel-head h2 {
-		font-size: var(--fs-xl);
-	}
-
-	.c-docs {
-		width: 64px;
-	}
-
-	.c-conf {
-		width: 82px;
-	}
-
-	.small-quote {
-		font-family: var(--font-display);
-		font-size: var(--fs-base);
-		font-style: italic;
-		line-height: 1.4;
-		color: var(--ink-2);
-	}
-
-	@media (max-width: 1000px) {
-		.panes {
-			grid-template-columns: minmax(0, 1fr);
-			grid-template-rows: minmax(0, 220px) minmax(0, 1fr);
-		}
-		.questions {
-			border-right: 0;
-			border-bottom: 1px solid var(--rule);
-		}
-	}
-</style>
+</View>
