@@ -5,6 +5,7 @@
 		fetchRegionCountries,
 		fetchServiceLines,
 		fetchPrecision,
+		fetchBoard,
 		fetchSettings,
 		fetchTelemetry,
 		saveSettings,
@@ -41,6 +42,7 @@
 	let section = $state('voice');
 	let telemetry = $state<Telemetry | null>(null);
 	let precision = $state<Awaited<ReturnType<typeof fetchPrecision>> | null>(null);
+	let curve = $state<number[]>([]);
 	let settings = $state<Settings | null>(null);
 	let draft = $state<Settings | null>(null);
 	let lines = $state<ServiceLine[]>([]);
@@ -75,6 +77,9 @@
 				fetchPrecision()
 					.then((result) => (precision = result))
 					.catch(() => (precision = null));
+				fetchBoard({ serviceLine: workspace.meta?.serviceLine ?? 'Intelligent Automation' })
+					.then((rows) => (curve = rows.filter((row) => row.band !== 'DISQUALIFIED').map((row) => row.probability)))
+					.catch(() => (curve = []));
 				draft = { ...config };
 				countries = config.icpCountries.join(', ');
 				industries = config.icpIndustries.join(', ');
@@ -114,6 +119,17 @@
 			.split(',')
 			.map((entry) => entry.trim().toUpperCase())
 			.filter(Boolean);
+	}
+
+	function simulate(curve: number[], thresholds: Settings) {
+		const out = { PRIORITY: 0, NURTURE: 0, WATCH: 0, THIN: 0 };
+		for (const value of curve) {
+			if (value >= thresholds.priorityThreshold) out.PRIORITY += 1;
+			else if (value >= thresholds.nurtureThreshold) out.NURTURE += 1;
+			else if (value >= thresholds.watchThreshold) out.WATCH += 1;
+			else out.THIN += 1;
+		}
+		return out;
 	}
 
 	async function save() {
@@ -529,6 +545,31 @@
 							<Metric value={bands.THIN ?? 0} label="Thin" />
 							<Metric value={bands.DISQUALIFIED ?? 0} label="Rejected" />
 						</div>
+					</section>
+
+					<section class="panel">
+						<div class="panel-head">
+							<h3 class="label">Where these numbers would put the board</h3>
+							{#if curve.length === 0}<span class="sub dim">no scores loaded</span>{/if}
+						</div>
+						{#if curve.length > 0}
+							{@const simulated = simulate(curve, draft)}
+							<div class="metrics">
+								<Metric value={simulated.PRIORITY} label="Priority" tone="hot" />
+								<Metric value={simulated.NURTURE} label="Nurture" />
+								<Metric value={simulated.WATCH} label="Watch" />
+								<Metric value={simulated.THIN} label="Thin" />
+							</div>
+							<p class="sub dim">
+								Every company's fit is already computed, so moving a line re-tallies {curve.length} scores here without
+								touching the database. Save and every service line re-scores for real.
+							</p>
+							{#if simulated.PRIORITY !== (bands.PRIORITY ?? 0)}
+								<p class="note warn">
+									Priority would go from {bands.PRIORITY ?? 0} to {simulated.PRIORITY}.
+								</p>
+							{/if}
+						{/if}
 					</section>
 				{/if}
 
