@@ -1,4 +1,5 @@
 <script lang="ts">
+	import NotificationBell from '$lib/components/NotificationBell.svelte';
 	import {
 		createIcpProfile,
 		deleteIcpProfile,
@@ -340,6 +341,7 @@
 				<Icon name="plus" size={15} />
 				New profile
 			</button>
+			<NotificationBell />
 		</div>
 	</header>
 

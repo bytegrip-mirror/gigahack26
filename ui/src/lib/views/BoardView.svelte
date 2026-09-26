@@ -1,4 +1,5 @@
 <script lang="ts">
+	import NotificationBell from '$lib/components/NotificationBell.svelte';
 	import { untrack } from 'svelte';
 	import { pushState } from '$app/navigation';
 	import {
@@ -826,6 +827,7 @@
 
 		<div class="topbar-tools">
 			<Menu items={secondary} onselect={runSecondary} label="More board actions" />
+			<NotificationBell />
 		</div>
 	</header>
 
@@ -883,7 +885,6 @@
 				onselect={(line) => (line === ALL_LINES ? session.setAll() : workspace.select(line))}
 			/>
 			{#if workspace.switching}<span class="spinner"></span>{/if}
-			<span class="sep"></span>
 
 			<div class="tabs" role="tablist" aria-label="Which companies to show">
 				{#each FILTERS as option (option.id)}

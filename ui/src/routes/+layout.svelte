@@ -5,7 +5,6 @@
 	import { session } from '$lib/session.svelte';
 	import { toasts } from '$lib/toast.svelte';
 	import { workspace } from '$lib/workspace.svelte';
-	import { command } from '$lib/command.svelte';
 	import { regionChoices, regionLabel } from '$lib/regions';
 	import Logo from '$lib/components/Logo.svelte';
 	import Icon from '$lib/components/Icon.svelte';
@@ -60,29 +59,13 @@
 <div class="app">
 	<aside class="rail on-ink">
 		<div class="rail-top">
-			<div class="brand-row">
-				<a class="brand" href="/">
-					<Logo size={19} />
-					<span class="wordmark">
-						<strong class="dsp">Signal Desk</strong>
-						<span class="label">Orange Systems</span>
-					</span>
-				</a>
-				<Menu
-					icon="bell"
-					align="start"
-					label="Notifications"
-					title="Notifications"
-					items={[{ id: 'none', label: 'Nothing new', disabled: true }]}
-					onselect={() => {}}
-				/>
-			</div>
-
-			<button class="searchbox" type="button" onclick={() => command.show()}>
-				<Icon name="search" size={15} />
-				<span class="searchbox-text">Search</span>
-				<kbd>⌘K</kbd>
-			</button>
+			<a class="brand" href="/">
+				<Logo size={19} />
+				<span class="wordmark">
+					<strong class="dsp">Signal Desk</strong>
+					<span class="label">Orange Systems</span>
+				</span>
+			</a>
 		</div>
 
 		<nav aria-label="Views">
@@ -163,12 +146,6 @@
 		padding-bottom: var(--spacing-2);
 	}
 
-	.brand-row {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding-right: var(--spacing-2);
-	}
 
 	.brand {
 		display: flex;
@@ -198,40 +175,9 @@
 		font-size: var(--text-micro);
 	}
 
-	.searchbox {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-2);
-		margin: 0 var(--spacing-3);
-		padding: 0 var(--spacing-2);
-		height: var(--spacing-ctl);
-		width: calc(100% - var(--spacing-5));
-		border: var(--border-width-ctl) solid var(--color-rule-strong);
-		border-radius: var(--radius);
-		background: var(--color-surface);
-		color: var(--color-ink-3);
-		font-size: var(--text-base);
-		transition: border-color var(--ease), color var(--ease);
-	}
 
-	.searchbox:hover {
-		border-color: var(--color-ink-3);
-		color: var(--color-ink);
-	}
 
-	.searchbox-text {
-		flex: 1;
-		text-align: left;
-	}
 
-	kbd {
-		border: 1px solid var(--color-rule);
-		border-radius: var(--radius);
-		padding: 0 3px;
-		font-family: var(--font-ui);
-		font-size: var(--text-micro);
-		color: var(--color-ink-4);
-	}
 
 	nav {
 		display: flex;
@@ -384,15 +330,6 @@
 			padding: var(--spacing-2) var(--spacing-3);
 		}
 		.wordmark .label {
-			display: none;
-		}
-		.searchbox {
-			width: var(--spacing-ctl);
-			margin: 0 var(--spacing-2) 0 0;
-			justify-content: center;
-		}
-		.searchbox-text,
-		kbd {
 			display: none;
 		}
 		nav {

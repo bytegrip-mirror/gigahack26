@@ -1,4 +1,5 @@
 <script lang="ts">
+	import NotificationBell from '$lib/components/NotificationBell.svelte';
 	import { fetchIcpProfiles, fetchPeople, fetchTelemetry, type Telemetry } from '$lib/api';
 	import { workspace } from '$lib/workspace.svelte';
 	import { session } from '$lib/session.svelte';
@@ -64,6 +65,7 @@
 				<Icon name="board" size={15} />
 				Open the board
 			</a>
+			<NotificationBell />
 		</div>
 	</header>
 
