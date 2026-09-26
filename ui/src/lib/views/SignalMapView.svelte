@@ -246,7 +246,7 @@
 		padding: 0 var(--spacing-4) var(--spacing-1);
 		font-family: var(--font-display);
 		font-size: var(--text-md);
-		font-weight: 600;
+		font-weight: 700;
 		color: var(--color-ink);
 	}
 
@@ -312,7 +312,7 @@
 
 	.mark {
 		display: block;
-		border-radius: 2px;
+		border-radius: var(--radius);
 		transition: opacity var(--ease), box-shadow var(--ease);
 	}
 

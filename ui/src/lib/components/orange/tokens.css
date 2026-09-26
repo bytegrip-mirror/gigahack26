@@ -1,0 +1,79 @@
+/* Orange design system tokens, taken from Boosted 4.4 (`scss/_variables.scss`).
+   The role names stay the ones the views already read, so a view restyles by
+   token and not by edit. Where Boosted has no value for a role, the note says
+   what it is derived from. */
+@theme {
+	--*: initial;
+
+	/* Orange 1 (#ff7900) is the brand fill and is for large areas and marks on any
+	   background. Orange 2 (#f16e00) is Boosted's `$primary`: the orange for text,
+	   borders and buttons on white. */
+	--color-orange: #ff7900;
+	--color-orange-deep: #f16e00;
+	--color-orange-ink: #f16e00;
+	/* A 12% tint of Orange 1 on white. Boosted has no tint, and evidence highlights
+	   need one. */
+	--color-orange-wash: #ffefe0;
+	--color-orange-line: #ff7900;
+
+	/* Boosted functional colours. Success marks corroboration, danger marks
+	   rejection and negative weight. */
+	--color-accent: #32c832;
+	--color-accent-wash: #e6f7e6;
+	--color-accent-line: #32c832;
+	--color-oxblood: #cd3c14;
+	--color-oxblood-wash: #faebe8;
+	--color-oxblood-line: #cd3c14;
+	--color-warning: #ffcc00;
+
+	/* Boosted greys: black text, `$gray-900` to `$gray-600` for the steps down,
+	   `$gray-500`/`$gray-400` for control and table borders, white surfaces. */
+	--color-ink: #000000;
+	--color-ink-2: #333333;
+	--color-ink-3: #666666;
+	--color-ink-4: #999999;
+	--color-paper: #f6f6f6;
+	--color-surface: #ffffff;
+	--color-sunken: #eeeeee;
+	--color-rule: #dddddd;
+	--color-rule-strong: #cccccc;
+
+	/* Helvetica Neue is the only Orange face. `HelvNeueOrange` resolves where the
+	   licensed Orange font is installed; everywhere else the stack falls back to
+	   the system Helvetica or Arial, as Boosted does. */
+	--font-display: HelvNeueOrange, 'Helvetica Neue', Helvetica, Arial, 'Liberation Sans', sans-serif;
+	--font-ui: HelvNeueOrange, 'Helvetica Neue', Helvetica, Arial, 'Liberation Sans', sans-serif;
+
+	/* Boosted spaces on a 20px `$spacer`. The desk keeps its own denser scale so a
+	   board row still fits a 1024×768 projector. */
+	--spacing-1: 4px;
+	--spacing-2: 8px;
+	--spacing-3: 12px;
+	--spacing-4: 16px;
+	--spacing-5: 24px;
+	--spacing-6: 32px;
+	--spacing-ctl: 28px;
+	--spacing-ctl-sm: 22px;
+	--spacing-row: 34px;
+	--spacing-bar: 44px;
+	--spacing-head: 67px;
+	--spacing-rail: 232px;
+
+	/* Boosted borders are 2px (`$border-width: .125rem`) and nothing is rounded
+	   (`$enable-rounded: false`). */
+	--border-width-ctl: 2px;
+	--radius: 0;
+
+	--text-micro: 11px;
+	--text-sm: 11.5px;
+	--text-base: 12.5px;
+	--text-md: 13.5px;
+	--text-lg: 15.5px;
+	--text-xl: 18px;
+	--text-title: 22px;
+
+	--z-index-sticky: 2;
+	--z-index-menu: 200;
+	--z-index-sheet: 260;
+	--z-index-toast: 300;
+}

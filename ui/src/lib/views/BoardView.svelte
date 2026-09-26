@@ -1159,7 +1159,7 @@
 		max-width: 300px;
 		padding-left: var(--spacing-2);
 		border: 1px solid var(--color-rule-strong);
-		border-radius: 2px;
+		border-radius: var(--radius);
 		background: var(--color-surface);
 		color: var(--color-ink-3);
 	}
@@ -1300,8 +1300,6 @@
 		display: block;
 		margin-top: 2px;
 		font-size: var(--text-micro);
-		letter-spacing: 0.06em;
-		text-transform: uppercase;
 		color: var(--color-ink-4);
 	}
 
@@ -1399,11 +1397,9 @@
 		margin-left: var(--spacing-2);
 		padding: 0 var(--spacing-1);
 		font-size: var(--text-micro);
-		letter-spacing: 0.06em;
-		text-transform: uppercase;
 		color: var(--color-ink-3);
 		border: 1px dotted var(--color-rule-strong);
-		border-radius: 2px;
+		border-radius: var(--radius);
 		cursor: help;
 	}
 
@@ -1411,8 +1407,6 @@
 		display: block;
 		margin-top: 3px;
 		font-size: var(--text-micro);
-		letter-spacing: 0.06em;
-		text-transform: uppercase;
 		color: var(--color-oxblood);
 	}
 
@@ -1469,9 +1463,7 @@
 		display: inline-block;
 		margin-top: 3px;
 		font-size: var(--text-micro);
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.07em;
+		font-weight: 700;
 		padding: 1px 5px;
 		border: 1px solid var(--color-rule-strong);
 		color: var(--color-ink-3);
@@ -1555,7 +1547,7 @@
 			position: absolute;
 			inset: 0;
 			z-index: 3;
-			background: rgb(18 16 13 / 0.32);
+			background: rgb(0 0 0 / 0.32);
 		}
 		.view.split .detail {
 			position: absolute;

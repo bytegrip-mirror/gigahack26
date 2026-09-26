@@ -360,7 +360,7 @@
 		animation: fade-in var(--ease-enter) both;
 		position: fixed;
 		inset: 0;
-		background: rgb(18 16 13 / 0.34);
+		background: rgb(0 0 0 / 0.34);
 		display: flex;
 		z-index: 150;
 	}

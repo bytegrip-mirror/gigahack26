@@ -554,7 +554,7 @@
 		width: 280px;
 		padding-left: var(--spacing-2);
 		border: 1px solid var(--color-rule-strong);
-		border-radius: 2px;
+		border-radius: var(--radius);
 		background: var(--color-surface);
 		color: var(--color-ink-3);
 	}
