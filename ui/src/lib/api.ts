@@ -127,6 +127,17 @@ export type CompanyDetail = {
 	caemCode: string | null;
 	competitor: boolean;
 	aliases: string[];
+	belowFloor: {
+		evidenceId: string;
+		questionKey: string;
+		questionTitle: string;
+		polarity: string;
+		confidence: number;
+		spanStart: number;
+		spanEnd: number;
+		spanText: string;
+		rationale: string | null;
+	}[];
 	coverageNotes: string | null;
 	serviceLine: string;
 	probability: number;

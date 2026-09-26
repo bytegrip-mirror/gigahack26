@@ -404,6 +404,28 @@
 				{/if}
 
 				{#if tab === 'documents'}
+					{#if (detail?.belowFloor ?? []).length > 0}
+						<section class="panel below-panel">
+							<div class="panel-head">
+								<h3 class="label">Read and not counted</h3>
+								<span class="sub dim num">{detail?.belowFloor?.length ?? 0}</span>
+							</div>
+							{#each (detail?.belowFloor ?? []).slice(0, 8) as row (row.evidenceId + row.spanStart)}
+								<button class="below-row" onclick={() => oncapture(row.evidenceId, { start: row.spanStart, end: row.spanEnd })}>
+									<span class="num below-score">{row.confidence.toFixed(2)}</span>
+									<span class="below-text">
+										{row.spanText.slice(0, 130)}
+										<span class="why-line">{row.questionTitle} · {row.polarity.toLowerCase()}</span>
+									</span>
+								</button>
+							{/each}
+							<p class="sub dim">
+								Passages that matched, scored under the confidence floor, and were not counted. Shown so the
+								floor can be argued with rather than trusted.
+							</p>
+						</section>
+					{/if}
+
 					<label class="check doc-filter">
 						<input type="checkbox" bind:checked={silentOnly} />
 						<span>Only the {silent.length} that produced nothing</span>
@@ -444,6 +466,36 @@
 {/if}
 
 <style>
+	.below-panel {
+		margin-bottom: var(--sp-3);
+	}
+
+	.below-row {
+		display: grid;
+		grid-template-columns: 34px 1fr;
+		gap: var(--sp-2);
+		width: 100%;
+		padding: var(--sp-2);
+		border: 0;
+		border-bottom: 1px solid var(--rule);
+		background: transparent;
+		text-align: left;
+		cursor: pointer;
+	}
+
+	.below-row:hover {
+		background: var(--sunken);
+	}
+
+	.below-score {
+		color: var(--ink-3);
+	}
+
+	.below-text {
+		font-size: var(--fs-sm);
+		color: var(--ink-2);
+	}
+
 	.why-line {
 		display: block;
 		margin-top: 1px;

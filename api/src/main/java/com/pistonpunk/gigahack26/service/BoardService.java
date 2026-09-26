@@ -44,7 +44,12 @@ public class BoardService {
     private final ScoringService scoringService;
     private final WhyNowService whyNow;
     private final LeadService leads;
+    private static final double REVIEW_FLOOR = 0.2;
+    private static final int MAX_REVIEW_ROWS = 12;
+
     private final ClassifierRouter router;
+    private final LocalRubricEngine localEngine;
+    private final CaptureStore captureStore;
     private final ScoringConfig settings;
     private final RegionService regions;
     private final Clock clock;
@@ -52,7 +57,8 @@ public class BoardService {
     public BoardService(CompanyRepository companies, CompanyAliasRepository aliases, EvidenceRepository evidence,
                         SignalRepository signals, PolicyScoreRepository scores, ScoreboardService scoreboard,
                         ScoringService scoringService, WhyNowService whyNow, LeadService leads,
-                        ClassifierRouter router, ScoringConfig settings, RegionService regions, Clock clock) {
+                        ClassifierRouter router, LocalRubricEngine localEngine, CaptureStore captureStore,
+                        ScoringConfig settings, RegionService regions, Clock clock) {
         this.companies = companies;
         this.aliases = aliases;
         this.evidence = evidence;
@@ -63,6 +69,8 @@ public class BoardService {
         this.whyNow = whyNow;
         this.leads = leads;
         this.router = router;
+        this.localEngine = localEngine;
+        this.captureStore = captureStore;
         this.settings = settings;
         this.regions = regions;
         this.clock = clock;
@@ -224,6 +232,7 @@ public class BoardService {
                 company.getSizeConfidence(),
                 company.getCaemCode(),
                 company.isCompetitor(),
+                belowFloor(company, active, companyEvidence),
                 aliasList,
                 company.getCoverageNotes(),
                 serviceLine,
@@ -339,6 +348,46 @@ public class BoardService {
                 lead == null ? 0 : lead.getContactCount(),
                 why.urgency(),
                 why.headline());
+    }
+
+    /**
+     * The passages the floor kept out, so the floor can be argued with.
+     *
+     * Run on the local engine whatever answered the board: this is not a
+     * competing verdict, it is the near-miss list — the sentences that were
+     * close enough to be worth a person's glance and not close enough to count.
+     * Capped, because a queue nobody can read is the same as no queue.
+     */
+    private List<CompanyDetail.BelowFloor> belowFloor(Company company,
+                                                      List<com.pistonpunk.gigahack26.domain.PolicyQuestion> questions,
+                                                      List<Evidence> companyEvidence) {
+        List<CompanyDetail.BelowFloor> out = new ArrayList<>();
+        for (Evidence item : companyEvidence) {
+            String document = captureStore.text(item.getKey());
+            if (document == null || document.isBlank()) {
+                continue;
+            }
+            for (com.pistonpunk.gigahack26.domain.PolicyQuestion question : questions) {
+                LocalRubricEngine.Outcome outcome = localEngine.classifyDetailed(
+                        new ClassifierEngine.ClassificationRequest(company.getName(), question, document));
+                for (ClassifierEngine.Finding finding : outcome.rejected()) {
+                    if (finding.confidence() < REVIEW_FLOOR) {
+                        continue;
+                    }
+                    int start = Math.max(0, Math.min(finding.spanStart(), document.length()));
+                    int end = Math.max(start, Math.min(finding.spanEnd(), document.length()));
+                    if (end - start < 2) {
+                        continue;
+                    }
+                    out.add(new CompanyDetail.BelowFloor(
+                            item.getId().toString(), question.getKey(), question.getTitle(),
+                            question.getPolarity().name(), round(finding.confidence()),
+                            start, end, document.substring(start, end), finding.rationale()));
+                }
+            }
+        }
+        out.sort(Comparator.comparingDouble(CompanyDetail.BelowFloor::confidence).reversed());
+        return out.size() > MAX_REVIEW_ROWS ? List.copyOf(out.subList(0, MAX_REVIEW_ROWS)) : List.copyOf(out);
     }
 
     private static BoardRow.Chip toChip(LedgerRow row) {

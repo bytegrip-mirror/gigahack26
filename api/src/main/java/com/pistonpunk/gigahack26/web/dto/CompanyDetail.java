@@ -19,6 +19,7 @@ public record CompanyDetail(
         Double sizeConfidence,
         String caemCode,
         boolean competitor,
+        List<BelowFloor> belowFloor,
         List<String> aliases,
         String coverageNotes,
         String serviceLine,
@@ -72,5 +73,18 @@ public record CompanyDetail(
             String verdict,
             Double contribution,
             String questionText) {
+    }
+
+    /** A passage the engine read, scored below the floor, and did not count. */
+    public record BelowFloor(
+            String evidenceId,
+            String questionKey,
+            String questionTitle,
+            String polarity,
+            double confidence,
+            int spanStart,
+            int spanEnd,
+            String spanText,
+            String rationale) {
     }
 }

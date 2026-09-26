@@ -198,12 +198,30 @@ public class LocalRubricEngine implements ClassifierEngine {
         return tokens;
     }
 
+    /** Everything the engine read: what it admitted, and what the floor kept out. */
+    public record Outcome(List<Finding> admitted, List<Finding> rejected) {
+    }
+
     @Override
     public List<Finding> classify(ClassificationRequest request) {
+        return classifyDetailed(request).admitted();
+    }
+
+    /**
+     * What the engine read and did not admit.
+     *
+     * A floor that silently discards its near-misses is a floor nobody can
+     * check: the difference between "the corpus says nothing about this" and
+     * "the corpus says something we chose not to count" is invisible on a board
+     * that only shows the survivors. Both lists come back from one pass so the
+     * caller never has to hold state between two calls, which matters when the
+     * caller is a virtual thread.
+     */
+    public Outcome classifyDetailed(ClassificationRequest request) {
         String document = request.document();
         PolicyQuestion question = request.question();
         if (document == null || document.isBlank()) {
-            return List.of();
+            return new Outcome(List.of(), List.of());
         }
 
         List<CuePattern> cues = compile(question.getCues().isEmpty()
@@ -217,10 +235,11 @@ public class LocalRubricEngine implements ClassifierEngine {
         boolean anyCue = cues.stream().anyMatch(cue -> ready.normalized().contains(cue.label()))
                 || counters.stream().anyMatch(cue -> ready.normalized().contains(cue.label()));
         if (!anyCue) {
-            return List.of();
+            return new Outcome(List.of(), List.of());
         }
 
         List<Finding> findings = new ArrayList<>();
+        Map<Integer, Finding> belowFloor = new java.util.HashMap<>();
         for (PreparedWindow window : ready.windows()) {
             String normalized = window.normalized();
             double score = 0.0;
@@ -248,14 +267,14 @@ public class LocalRubricEngine implements ClassifierEngine {
 
             double confidence = 1.0 / (1.0 + Math.exp(-SLOPE * (score - MIDPOINT)));
             if (confidence <= properties.confidenceFloor()) {
+                belowFloor.put(window.start(), new Finding(
+                        verdictFor(question), confidence, window.start(), window.end(),
+                        hits.isEmpty() ? "Rubric wording matched this passage, below the floor"
+                                : "Below the floor: " + String.join(", ", hits.stream().distinct().limit(3).toList())));
                 continue;
             }
 
-            Verdict verdict = switch (question.getPolarity()) {
-                case POSITIVE -> Verdict.BUY;
-                case NEGATIVE -> Verdict.COUNTER;
-                case DISQUALIFYING -> Verdict.BUILD;
-            };
+            Verdict verdict = verdictFor(question);
             String rationale = hits.isEmpty()
                     ? "Rubric wording from the question matched this passage"
                     : "Cue match: " + String.join(", ", hits.stream().distinct().limit(4).toList());
@@ -263,7 +282,9 @@ public class LocalRubricEngine implements ClassifierEngine {
         }
 
         findings.sort(Comparator.comparingDouble(Finding::confidence).reversed());
-        return distinctBySpan(findings);
+        List<Finding> rejected = new ArrayList<>(belowFloor.values());
+        rejected.sort(Comparator.comparingDouble(Finding::confidence).reversed());
+        return new Outcome(distinctBySpan(findings), List.copyOf(rejected));
     }
 
     /**
@@ -284,6 +305,14 @@ public class LocalRubricEngine implements ClassifierEngine {
             }
         }
         return List.copyOf(best.values());
+    }
+
+    private static Verdict verdictFor(PolicyQuestion question) {
+        return switch (question.getPolarity()) {
+            case POSITIVE -> Verdict.BUY;
+            case NEGATIVE -> Verdict.COUNTER;
+            case DISQUALIFYING -> Verdict.BUILD;
+        };
     }
 
     private static boolean mentions(String haystack, String needle) {
