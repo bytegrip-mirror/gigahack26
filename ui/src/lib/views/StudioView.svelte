@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import {
 		createPolicy,
 		deletePolicy,
@@ -79,7 +80,10 @@
 				decayClasses = decays;
 				policies = result;
 				loading = false;
-				if (!selectedId) {
+				const wanted = page.url.searchParams.get('q');
+				const asked = wanted ? result.find((policy) => policy.key === wanted) : undefined;
+				if (asked) select(asked);
+				else if (!selectedId) {
 					const first = result.find((policy) => policy.serviceLine === line) ?? result[0];
 					if (first) select(first);
 				}

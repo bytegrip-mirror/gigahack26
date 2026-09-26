@@ -143,6 +143,7 @@ public class RescoreService {
             before.put(row.id(), new Ranked(row.rank(), row.probability(), row.band()));
         }
 
+        String askedKey = null;
         List<PolicyQuestion> target = new ArrayList<>(serviceLineQuestions(serviceLine, questionId));
         if (questionId == null && label != null && label.trim().length() >= 10 && !target.isEmpty()) {
             PolicyQuestion asked = policies.findOrCreate(serviceLine, label.trim(), tier, polarity, theme,
@@ -151,6 +152,7 @@ public class RescoreService {
                 target.add(asked);
             }
             label = asked.getText();
+            askedKey = asked.getKey();
         }
         Outcome outcome = reclassify(target, true, engineOverride);
         scoreboard.rescore(serviceLine);
@@ -200,6 +202,7 @@ public class RescoreService {
                 outcome.signalsProduced(),
                 outcome.engine(),
                 label,
+                askedKey,
                 movedRows,
                 changedTop,
                 moves,

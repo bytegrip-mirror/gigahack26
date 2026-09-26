@@ -11,6 +11,7 @@ public record RescoreResponse(
         int signalsProduced,
         String engine,
         String question,
+        String questionKey,
         int movedRows,
         int changedTop,
         List<Move> moves,

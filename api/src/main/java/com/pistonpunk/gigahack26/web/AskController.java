@@ -74,6 +74,7 @@ public class AskController {
             response.put("board", scored.board());
             response.put("moves", scored.moves());
             response.put("question", interpretation.kind().equals("SIGNAL") ? question : interpretation.question());
+            response.put("questionKey", scored.questionKey());
         }
         return response;
     }

@@ -975,6 +975,13 @@
 					{/if}
 					<div class="result-text">
 						<p class="result-q dsp">“{applied.question}”</p>
+						{#if applied.movedRows !== undefined}
+							<p class="sub dim">
+								The question is policy now. Open it in the Studio to write the rubric that decides what counts —
+								a question without one is scored on its wording alone.
+								<a class="link" href={`/studio?q=${encodeURIComponent(applied.questionKey ?? '')}`}>Refine in the Studio →</a>
+							</p>
+						{/if}
 						{#if applied.facets.length > 0}
 							<p class="sub chips">
 								{#each applied.facets as facet (facet.kind + facet.value)}

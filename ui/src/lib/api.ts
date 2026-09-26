@@ -539,6 +539,7 @@ export type AskOutcome = AskReading & {
 	tookMs?: number;
 	documentsScanned?: number;
 	signalsProduced?: number;
+	questionKey?: string;
 	keptPrevious?: boolean;
 	board?: BoardRow[];
 	moves?: Move[];
