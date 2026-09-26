@@ -48,6 +48,7 @@
 	let saving = $state(false);
 	let preview = $state<Preview | null>(null);
 	let previewing = $state(false);
+	let veil = $state(false);
 	let applying = $state(false);
 	let query = $state('');
 
@@ -76,6 +77,15 @@
 		return () => {
 			cancelled = true;
 		};
+	});
+
+	$effect(() => {
+		if (!previewing) {
+			veil = false;
+			return;
+		}
+		const timer = setTimeout(() => (veil = true), 220);
+		return () => clearTimeout(timer);
 	});
 
 	$effect(() => {
@@ -469,8 +479,11 @@
 				<div class="panel">
 					<div class="panel-head">
 						<h3 class="label">Live preview</h3>
-						{#if previewing}<span class="sub dim"><span class="spinner"></span> scanning</span>{/if}
+						{#if previewing}<span class="sub dim"><span class="spinner"></span> Loading</span>{/if}
 					</div>
+
+					<div class="preview-body">
+						<LoadingVeil show={veil} label="Loading the preview" />
 
 					{#if !preview}
 						<p class="sub dim">The corpus is scanned as you type on the local rubric engine, so it is instant and deterministic. Applying runs the configured engine.</p>
@@ -509,6 +522,7 @@
 							<p class="sub dim">Nothing in the corpus answers this. That is a result: the question would not move the board.</p>
 						{/if}
 					{/if}
+					</div>
 				</div>
 			</div>
 
@@ -692,6 +706,13 @@
 
 	.panel {
 		padding: var(--sp-4);
+	}
+
+	.preview-body {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		gap: var(--sp-2);
 	}
 
 	.panel-head {

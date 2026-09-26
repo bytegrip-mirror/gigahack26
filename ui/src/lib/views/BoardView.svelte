@@ -2,9 +2,14 @@
 	import { untrack } from 'svelte';
 	import { pushState } from '$app/navigation';
 	import {
+		ask,
 		fetchBoard,
+		fetchBookmarks,
+		readAsk,
 		recordLead,
 		rescore,
+		type AskOutcome,
+		type AskReading,
 		type BoardRow,
 		type Chip,
 		type Engine,
@@ -23,6 +28,7 @@
 	import ScoreMeter from '$lib/components/ScoreMeter.svelte';
 	import CaptureSheet from '$lib/components/CaptureSheet.svelte';
 	import Scorecard from '$lib/views/Scorecard.svelte';
+	import Star from '$lib/components/Star.svelte';
 	import LoadingVeil from '$lib/components/LoadingVeil.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import Menu from '$lib/components/Menu.svelte';
@@ -31,14 +37,18 @@
 	import Pager from '$lib/components/Pager.svelte';
 	import Th from '$lib/components/Th.svelte';
 
-	let { initialSelected = null }: { initialSelected?: string | null } = $props();
+	let {
+	initialSelected = null,
+	initialLine = null
+}: { initialSelected?: string | null; initialLine?: string | null } = $props();
 
 	const FILTERS = [
 		{ id: 'all', label: 'All' },
 		{ id: 'hot', label: 'Hot' },
 		{ id: 'priority', label: 'Priority' },
 		{ id: 'rejected', label: 'Rejected' },
-		{ id: 'thin', label: 'Thin' }
+		{ id: 'thin', label: 'Thin' },
+		{ id: 'saved', label: 'Saved' }
 	];
 
 	const STAGES = [
@@ -72,6 +82,7 @@
 
 	const BAND_FILTERS: Record<string, (band: string) => boolean> = {
 		all: () => true,
+		saved: () => true,
 		hot: (band) => band === 'PRIORITY' || band === 'NURTURE',
 		priority: (band) => band === 'PRIORITY',
 		rejected: (band) => band === 'DISQUALIFIED',
@@ -99,6 +110,7 @@
 	let size = $state(50);
 	let page = $state(1);
 	let picked = $state<Set<string>>(new Set());
+	let saved = $state<Set<string>>(new Set());
 	let busy = $state(false);
 
 	let askOpen = $state(false);
@@ -108,13 +120,14 @@
 	let engine = $state<Engine>('local');
 	let rescoring = $state(false);
 	let elapsed = $state(0);
-	let outcome = $state<Rescore | null>(null);
+	let applied = $state<AskOutcome | null>(null);
+	let reading = $state<AskReading | null>(null);
 
 	let capture = $state<{ id: string; focus: { start: number; end: number } | null } | null>(null);
 
 	const meta = $derived(workspace.meta);
 	const serviceLine = $derived(session.serviceLine);
-	const filtered = $derived(session.region !== 'world' || stage !== '' || query !== '');
+	const filtered = $derived(session.region !== 'world' || stage !== '' || query !== '' || applied !== null);
 	const allLines = $derived(session.allLines);
 	const scopeItems = $derived([
 		{
@@ -133,11 +146,19 @@
 
 	const movements = $derived.by(() => {
 		const map = new Map<string, Move>();
-		outcome?.moves.forEach((move) => map.set(move.companyId, move));
+		applied?.moves?.forEach((move) => map.set(move.companyId, move));
 		return map;
 	});
 
-	const visible = $derived(rows.filter((row) => (BAND_FILTERS[filter] ?? BAND_FILTERS.all)(row.band)));
+	const visible = $derived.by(() => {
+		const bandWanted = BAND_FILTERS[filter] ?? BAND_FILTERS.all;
+		return rows.filter((row) => {
+			const passesBand = filter === 'saved' ? saved.has(row.id) : bandWanted(row.band);
+			return passesBand && (!askIds || askIds.has(row.id));
+		});
+	});
+
+	const savedCount = $derived(rows.filter((row) => saved.has(row.id)).length);
 
 	const counts = $derived.by(() => {
 		const tally: Record<string, number> = {
@@ -219,6 +240,12 @@
 	}
 
 	$effect(() => {
+		const wanted = initialLine;
+		if (!wanted || wanted === serviceLine || !workspace.lines.includes(wanted)) return;
+		workspace.select(wanted);
+	});
+
+	$effect(() => {
 		const line = serviceLine;
 		void allLines;
 		const search = query;
@@ -263,6 +290,39 @@
 		page = 1;
 	});
 
+	function loadSaved() {
+		fetchBookmarks()
+			.then((list) => (saved = new Set(list.map((bookmark) => bookmark.companyId))))
+			.catch(() => {});
+	}
+
+	$effect(() => {
+		void serviceLine;
+		loadSaved();
+	});
+
+	$effect(() => {
+		const text = questionText.trim();
+		if (text.length < 4) {
+			reading = null;
+			return;
+		}
+		let cancelled = false;
+		const timer = setTimeout(() => {
+			readAsk(text)
+				.then((result) => {
+					if (!cancelled) reading = result;
+				})
+				.catch(() => {
+					if (!cancelled) reading = null;
+				});
+		}, 260);
+		return () => {
+			cancelled = true;
+			clearTimeout(timer);
+		};
+	});
+
 	$effect(() => {
 		if (!rescoring) return;
 		const started = performance.now();
@@ -272,7 +332,7 @@
 
 	function select(id: string | null) {
 		selected = id;
-		pushState(id ? `/?co=${id}` : '/', {});
+		pushState(id ? `/?co=${id}&line=${encodeURIComponent(lineOf(id))}` : '/', {});
 	}
 
 	function sortBy(id: string) {
@@ -310,6 +370,35 @@
 			.slice(0, 3);
 	}
 
+	const KIND_LABEL: Record<string, string> = {
+		FILTER: 'Read as a filter',
+		SIGNAL: 'Read as a signal question',
+		FILTER_AND_SIGNAL: 'Filter and classify'
+	};
+
+	const KIND_ACTION: Record<string, string> = {
+		FILTER: 'Filter the board',
+		SIGNAL: 'Score the corpus',
+		FILTER_AND_SIGNAL: 'Filter and score'
+	};
+
+	const askIds = $derived(applied?.companyIds ? new Set(applied.companyIds) : null);
+
+	function summarise(result: AskOutcome): string {
+		if (result.movedRows !== undefined && result.facets.length > 0) {
+			return `${result.matchedCompanies} companies match, and ${result.movedRows} rows moved.`;
+		}
+		if (result.movedRows !== undefined) {
+			return `${result.movedRows} rows moved in ${duration(result.tookMs ?? 0)}. The question is now policy.`;
+		}
+		return `${result.matchedCompanies} of ${rows.length} companies match. The board is filtered.`;
+	}
+
+	function clearAsk() {
+		applied = null;
+		questionText = '';
+	}
+
 	function partial(node: HTMLInputElement, value: boolean) {
 		node.indeterminate = value;
 		return {
@@ -330,6 +419,7 @@
 		query = '';
 		stage = '';
 		session.setRegion('world');
+		applied = null;
 	}
 
 	async function mark(ids: string[], status: string, label: string) {
@@ -395,29 +485,23 @@
 
 	async function runAsk() {
 		const text = questionText.trim();
-		if (text.length < 12 || rescoring) return;
+		if (text.length < 4 || rescoring) return;
 		rescoring = true;
 		elapsed = 0;
-		outcome = null;
+		applied = null;
 		try {
-			const result = await rescore({
-				serviceLine,
-				question: text,
-				questionId: null,
-				engine,
-				tier: weightTier,
-				polarity
-			});
-			outcome = result;
-			rows = allLines
-				? await loadBoard()
-				: result.board.map((row) => ({ ...row, serviceLine, fitRank: row.rank }));
-			elapsed = result.tookMs;
+			const result = await ask({ serviceLine, question: text, engine, tier: weightTier, polarity });
+			applied = result;
+			if (result.board) {
+				rows = allLines
+					? await loadBoard()
+					: result.board.map((row) => ({ ...row, serviceLine, fitRank: row.rank }));
+			} else {
+				rows = await loadBoard();
+			}
+			elapsed = result.tookMs ?? 0;
 			if (filter !== 'all') filter = 'all';
-			toasts.push(
-				`${result.movedRows} rows moved in ${duration(result.tookMs)}. The question is now policy.`,
-				'success'
-			);
+			toasts.push(summarise(result), 'success');
 			workspace.reload();
 		} catch (cause) {
 			toasts.push((cause as Error).message, 'error');
@@ -530,9 +614,10 @@
 		</div>
 	</header>
 
-	{#if askOpen || outcome}
+	{#if askOpen || applied}
 		<div class="ask">
-			{#if !outcome}
+			{#if !applied}
+				<div class="ask-row">
 				<div class="ask-input">
 					<label class="label" for="ask">Question the corpus has not been scored against</label>
 					<textarea
@@ -581,32 +666,54 @@
 					<button
 						class="btn btn-primary"
 						onclick={runAsk}
-						disabled={rescoring || questionText.trim().length < 12}
+						disabled={rescoring || questionText.trim().length < 4}
 					>
 						{#if rescoring}<span class="spinner"></span>{/if}
-						{rescoring ? duration(elapsed) : 'Score the board'}
+						{rescoring ? duration(elapsed) : reading ? KIND_ACTION[reading.kind] : 'Ask'}
 					</button>
 				</div>
 
-				{#if rescoring}
-					<p class="label pulsing ask-note">
-						Classifying {shortNumber(meta?.captures ?? 0)} documents
-					</p>
-				{:else}
-					<p class="sub dim ask-note">Scored on the corpus as it stands. No model call is needed.</p>
-				{/if}
+				</div>
+
+				<div class="ask-read">
+					{#if rescoring}
+						<span class="label pulsing">Classifying {shortNumber(meta?.captures ?? 0)} documents</span>
+					{:else if reading}
+						<span class="read-kind" data-kind={reading.kind}>{KIND_LABEL[reading.kind]}</span>
+						<span class="sub ask-note">{reading.reading}</span>
+					{:else}
+						<span class="sub dim ask-note">
+							Ask about the company itself (“in Romania”, “large German banks”) and the board filters. Anything else is
+							read as a signal question and every stored document is classified against it.
+						</span>
+					{/if}
+				</div>
 			{:else}
 				<div class="result">
-					<div class="metrics">
-						<Metric value={outcome.movedRows} label="Rows moved" tone="hot" />
-						<Metric value={duration(outcome.tookMs)} label="Elapsed" />
-						<Metric value={shortNumber(outcome.documentsScanned)} label="Documents" />
-						<Metric value={shortNumber(outcome.signalsProduced)} label="Signals" />
+					{#if applied.movedRows !== undefined}
+						<div class="metrics">
+							<Metric value={applied.movedRows} label="Rows moved" tone="hot" />
+							<Metric value={duration(applied.tookMs ?? 0)} label="Elapsed" />
+							<Metric value={shortNumber(applied.documentsScanned ?? 0)} label="Documents" />
+							<Metric value={shortNumber(applied.signalsProduced ?? 0)} label="Signals" />
+						</div>
+					{:else}
+						<div class="metrics">
+							<Metric value={applied.matchedCompanies ?? 0} label="Companies match" tone="hot" />
+							<Metric value={applied.facets.length} label="Attributes read" />
+						</div>
+					{/if}
+					<div class="result-text">
+						<p class="result-q dsp">“{applied.question}”</p>
+						{#if applied.facets.length > 0}
+							<p class="sub chips">
+								{#each applied.facets as facet (facet.kind + facet.value)}
+									<span class="tag tag-wash">{facet.label} <span class="num">{facet.matches}</span></span>
+								{/each}
+							</p>
+						{/if}
 					</div>
-					<p class="result-q dsp">“{outcome.question}”</p>
-					<button class="btn btn-sm" onclick={() => { outcome = null; questionText = ''; }}>
-						Reset the board
-					</button>
+					<button class="btn btn-sm" onclick={clearAsk}>Clear</button>
 				</div>
 			{/if}
 		</div>
@@ -654,6 +761,7 @@
 				{#each FILTERS as option (option.id)}
 					<button role="tab" aria-selected={filter === option.id} onclick={() => (filter = option.id)}>
 						{option.label}
+						{#if option.id === 'saved'}<span class="num">{savedCount}</span>{/if}
 					</button>
 				{/each}
 			</div>
@@ -711,6 +819,7 @@
 							<Th id="themes" label="Themes" sort={sort} {dir} onsort={sortBy} width="142px" className="c-th" />
 							<Th id="docs" label="Docs" sort={sort} {dir} onsort={sortBy} align="right" width="56px" className="c-doc" />
 							<Th id="newest" label="Newest" sort={sort} {dir} onsort={sortBy} align="right" width="66px" className="c-age" />
+							<th class="c-star" scope="col"><span class="sr-only">Saved</span></th>
 							<th class="c-act" scope="col"><span class="sr-only">Actions</span></th>
 						</tr>
 					</thead>
@@ -787,8 +896,10 @@
 												</li>
 											{/each}
 										</ul>
-										{#if row.signalCount > top.length}
-											<span class="sub dim num">{row.signalCount - top.length} more signals</span>
+										{#if row.strongest?.quote}
+											<p class="ev-quote" title={row.signalCount > top.length
+												? `${row.signalCount - top.length} further signals in the ledger`
+												: ''}>“{row.strongest.quote}”</p>
 										{/if}
 									{:else}
 										<span class="sub dim">no signal cleared the floor</span>
@@ -814,7 +925,20 @@
 									{/if}
 								</td>
 								<td class="num c-age">{ageShort(row.newestSignalAgeDays)}</td>
-								<td class="c-act" onclick={(event) => event.stopPropagation()}>
+								<td class="c-star">
+								<Star
+									companyId={row.id}
+									companyName={row.name}
+									serviceLine={row.serviceLine}
+									saved={saved.has(row.id)}
+									onsaved={(on) => {
+										const next = new Set(saved);
+										on ? next.add(row.id) : next.delete(row.id);
+										saved = next;
+									}}
+								/>
+							</td>
+							<td class="c-act" onclick={(event) => event.stopPropagation()}>
 									<Menu
 										items={rowMenu(row)}
 										onselect={(id) => runRow(row, id)}
@@ -835,6 +959,7 @@
 	</div>
 
 	{#if selected}
+		<div class="scrim" role="presentation" onclick={() => select(null)}></div>
 		<aside class="detail" aria-label="Company detail">
 			<Scorecard
 				companyId={selected}
@@ -864,14 +989,20 @@
 	}
 
 	.ask {
-		position: relative;
 		display: flex;
-		align-items: flex-end;
-		gap: var(--sp-3);
+		flex-direction: column;
+		gap: var(--sp-2);
 		padding: var(--sp-3) var(--sp-4);
 		background: var(--orange-wash);
 		border-bottom: 1px solid var(--orange-line);
 		flex: none;
+	}
+
+	.ask-row {
+		display: flex;
+		align-items: flex-end;
+		gap: var(--sp-3);
+		flex-wrap: wrap;
 	}
 
 	.ask-input {
@@ -897,10 +1028,50 @@
 		min-width: 108px;
 	}
 
+	.ask-read {
+		display: flex;
+		align-items: baseline;
+		gap: var(--sp-2);
+		flex-wrap: wrap;
+	}
+
 	.ask-note {
-		position: absolute;
-		right: var(--sp-4);
-		bottom: 3px;
+		margin: 0;
+	}
+
+	.read-kind {
+		font-size: var(--fs-micro);
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.09em;
+		padding: 1px 6px;
+		border: 1px solid var(--orange-line);
+		background: var(--surface);
+		color: var(--orange-ink);
+		white-space: nowrap;
+	}
+
+	.read-kind[data-kind='SIGNAL'] {
+		border-color: var(--rule-strong);
+		color: var(--ink-3);
+	}
+
+	.result-text {
+		display: flex;
+		flex-direction: column;
+		gap: var(--sp-1);
+		flex: 1;
+		min-width: 0;
+	}
+
+	.chips {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--sp-1);
+	}
+
+	.chips .tag {
+		background: var(--surface);
 	}
 
 	.result {
@@ -1058,6 +1229,12 @@
 		padding-left: 0;
 	}
 
+	.c-star {
+		width: 30px;
+		padding-right: 0;
+		text-align: center;
+	}
+
 	.co {
 		display: block;
 		font-family: var(--font-display);
@@ -1157,6 +1334,22 @@
 		color: var(--ink-4);
 	}
 
+	.ev-quote {
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		margin-top: var(--sp-1);
+		padding-left: 9px;
+		border-left: 2px solid var(--orange-line);
+		font-family: var(--font-display);
+		font-size: var(--fs-base);
+		font-style: italic;
+		line-height: 1.4;
+		color: var(--ink);
+	}
+
 	.tags {
 		display: flex;
 		flex-wrap: wrap;
@@ -1239,9 +1432,7 @@
 		.ask {
 			flex-wrap: wrap;
 		}
-		.ask-note {
-			position: static;
-		}
+
 	}
 
 	@media (max-width: 760px) {
@@ -1286,13 +1477,19 @@
 		.view.split {
 			grid-template-columns: minmax(0, 1fr);
 		}
+		.view :global(.scrim) {
+			position: absolute;
+			inset: 0;
+			z-index: 3;
+			background: rgb(18 16 13 / 0.32);
+		}
 		.view.split .detail {
 			position: absolute;
 			top: 0;
 			right: 0;
 			bottom: 0;
-			width: min(560px, 100%);
-			z-index: 3;
+			width: min(640px, 100%);
+			z-index: 4;
 			border-left: 1px solid var(--ink);
 		}
 	}

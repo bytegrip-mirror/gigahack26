@@ -181,6 +181,7 @@
 		try {
 			await deleteServiceLine(line.id);
 			lines = await fetchServiceLines(true);
+			await workspace.reload();
 			toasts.push(`${line.name} removed.`, 'success');
 		} catch (cause) {
 			toasts.push((cause as Error).message, 'error');

@@ -199,8 +199,9 @@ public class RescoreService {
 
     private List<Signal> classify(Evidence item, PolicyQuestion question, String companyName, String document,
                                   String engineOverride) {
+        ClassifierRouter.Answer answer = router.answer(companyName, question, document, engineOverride);
         List<Signal> produced = new ArrayList<>();
-        for (ClassifierEngine.Finding finding : router.classify(companyName, question, document, engineOverride)) {
+        for (ClassifierEngine.Finding finding : answer.findings()) {
             int start = Math.max(0, Math.min(finding.spanStart(), document.length()));
             int end = Math.max(start, Math.min(finding.spanEnd(), document.length()));
             if (end - start < 2) {
@@ -208,7 +209,7 @@ public class RescoreService {
             }
             produced.add(new Signal(UUID.randomUUID(), item.getId(), item.getCompanyId(), question.getId(),
                     finding.verdict(), finding.confidence(), start, end, finding.rationale(),
-                    router.localEngineId(), true, clock.instant()));
+                    answer.engineId(), answer.spanVerified(), clock.instant()));
         }
         return produced;
     }

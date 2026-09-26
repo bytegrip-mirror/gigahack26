@@ -24,6 +24,7 @@
 	let loading = $state(false);
 	let error = $state<string | null>(null);
 	let copied = $state(false);
+	let marked = $state(false);
 	let subject = $state('');
 	let body = $state('');
 
@@ -38,7 +39,6 @@
 				draft = result;
 				subject = result.subject;
 				body = result.body;
-				ondrafted?.(result.subject);
 			})
 			.catch((cause) => {
 				if (channel === chosen) error = cause.message;
@@ -56,6 +56,7 @@
 	}
 
 	function send() {
+		handled();
 		window.location.href = mailto();
 		toasts.push('Opening your mail client with the draft filled in.', 'info');
 	}
@@ -80,9 +81,21 @@
 		try {
 			await navigator.clipboard.writeText(asText);
 			copied = true;
+			handled();
 			setTimeout(() => (copied = false), 2000);
 		} catch {
 			copied = false;
+		}
+	}
+
+	/**
+	 * Recording the lead is a consequence of acting on the draft, not of looking
+	 * at it: opening this sheet used to mark the company contacted on its own.
+	 */
+	function handled() {
+		if (!marked) {
+			marked = true;
+			ondrafted?.(subject);
 		}
 	}
 
@@ -125,10 +138,15 @@
 		<div class="body">
 			{#if error}
 				<p class="note warn">{error}</p>
-			{:else if loading && !draft}
-				<p class="note"><span class="spinner"></span> Composing</p>
-			{:else if draft}
-				<div class="cols">
+			{:else if !draft}
+				{#if loading}
+					<div class="veil">
+						<span class="spinner"></span>
+						<span>Composing the first draft</span>
+					</div>
+				{/if}
+			{:else}
+				<div class="cols" class:waiting={loading}>
 					<div class="col">
 						<div class="col-head">
 							<p class="label">{channel === 'email' ? 'Subject' : 'Message'}</p>
@@ -189,6 +207,13 @@
 						</div>
 					</aside>
 				</div>
+
+				{#if loading}
+					<div class="veil">
+						<span class="spinner"></span>
+						<span>Rewriting for {channel === 'email' ? 'email' : 'LinkedIn'}</span>
+					</div>
+				{/if}
 			{/if}
 		</div>
 
@@ -247,10 +272,28 @@
 	}
 
 	.body {
+		position: relative;
 		flex: 1;
 		min-height: 0;
 		display: flex;
 		overflow: hidden;
+	}
+
+	.veil {
+		position: absolute;
+		inset: 0;
+		z-index: 3;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--sp-2);
+		background: color-mix(in oklab, var(--paper) 72%, transparent);
+		color: var(--ink-3);
+		font-size: var(--fs-md);
+	}
+
+	.cols.waiting {
+		opacity: 0.4;
 	}
 
 	.col {

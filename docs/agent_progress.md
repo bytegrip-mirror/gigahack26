@@ -1,158 +1,215 @@
-# agent_progress — the configurability and credibility pass
+# agent_progress — the winning pass
 
-Tracking file for this goal. Updated as work lands, not at the end.
+Rewritten from scratch. The previous file tracked the configurability goal and is
+superseded; its useful residue is folded into the audit below.
 
-Status: **all phases landed. Phase 4's corpus pass is on its third run — the first two
-found defects that are now fixed, and the third is verifying the fix.**
-
----
-
-## The goal, restated as work
-
-| # | Asked for | Status |
-| --- | --- | --- |
-| 1 | Remove `postgres up · mongo up` and `local-rubric-v1` from the footer | todo |
-| 2 | Drafts must read organically — no `[1]` citation markers | todo |
-| 3 | Everything configurable, including brand voice and talk style | todo |
-| 4 | Questions panels are messy and hard to read | todo |
-| 5 | Classification must use real algorithms and LLM classifiers, not fixed cue lists | in progress |
-| 6 | Service lines must be configurable | todo |
-| 7 | Validate against the hackathon challenge; build everything except third-party integrations | done |
-| 8 | Bottom-left: next scheduled refresh | todo |
-| 9 | Progress tracked in `agent_progress.md` | this file |
-| 10 | Service line as a free-text string in the question editor → needs a picker | todo |
-| 11 | Shows `data.initiative` instead of a human title | todo |
-| 12 | Switching service line makes the list vanish and come back; it does not switch | todo |
-| 13 | Loading spinners where they are missing | todo |
+Status: **landed and pushed.** Everything below marked done is in `main` and deployed.
 
 ---
 
-## Phase 1 — the reported defects
+## Where we actually stand
 
-- [x] **The footer.** Store-health line and engine name removed; the rail now
-      carries the refresh countdown instead. `/api/status` still reports both, for
-      whoever operates the deployment.
-- [x] **Service line switching.** Reproduced: `chooseLine` set `meta = null` before
-      fetching, which empties the only list the rail renders from — hence the list
-      vanishing and returning. The rail now keeps its list and swaps the payload,
-      and shows a spinner on the line being loaded.
-- [x] **Keys shown as titles.** Questions carry a human `title`, seeded for all 11
-      shipped questions and derived from the text for anything created. Backend done;
-      the UI still renders keys in two places and is being changed.
-- [x] **Free-text service lines.** The editor is a picker over the configured set,
-      and a question naming something unconfigured says so rather than inventing it.
-- [x] **Missing spinners.** Panels that load now show progress: the rail while a
-      service line swaps, the settings panel, the studio list, the pipeline, the board.
+A hostile-juror audit of the running system scored it **52.5 / 100** weighted:
 
-## Phase 2 — service lines as data
+| Criterion | Weight | Score | The single reason |
+| --- | --- | --- | --- |
+| Signal relevance & accuracy | 25% | 3 | The brief's own two examples fail. DHL sits at rank 242 with **zero signals**, p = 0.250 = exactly the base rate. Of the 12 Priority companies, 2–3 survive a read of their top evidence. Appian and Nintex are automation *vendors*, ranked on their own job ads. |
+| AI/ML innovation | 20% | 5 | The scoring model is genuinely strong (additive log-odds, a theme cap *derived* from the Priority line, boolean gates outside the sum, rank discounting, horizon by bisection). The classification half is a keyword cue matcher: all 2,945 live signals are `local-rubric-v1`. |
+| Configurability | 20% | 7 | Nine real config surfaces. Held back by `icpIndustries` being dead config and the derived cues being invisible. |
+| Usability & UX | 15% | 6 | The byte-range quote — the one thing no competitor can copy — is three clicks deep. |
+| Business impact | 10% | 5 | No ROI, no backtest, no cost meter, corpus baked into the image. |
+| Technical execution | 10% | 7 | Live and verified end to end; no runtime ingestion, destructive rescores. |
 
-- [x] `service_line` table: key, name, description, value proposition, order, active.
-- [x] `GET/POST/PATCH/DELETE /api/service-lines`.
-- [x] Boards read the service-line list from the table, falling back to the questions
-      when the table is empty.
-- [x] Deleting is refused while questions reference the line, naming the count.
-- [x] Pickers read from the table: the studio's service line is a select, and the
-      settings panel lists, adds, enables, disables and deletes lines.
+Three attack vectors, in the order a juror will find them:
 
-## Phase 3 — one settings surface
+1. **"Your platform does not find the two examples in your own brief."** The crawl
+   is Bing News RSS only, so a listed company yields price news.
+2. **"Your top leads are vendors of the thing you sell."** Appian and Nintex.
+3. **"A juror can type a question and get 379 matches of nothing"** — and the
+   destructive re-score can empty the board mid-demo.
 
-- [x] A single **Settings** area with a section rail: voice, customer profile,
-      service lines, scoring.
-- [x] **Brand voice**: tone, register, length, language, the ask, sign-off,
-      signature, banned phrases and free notes, with the brief the writer receives
-      printed back so it can be read rather than guessed at.
-- [x] Voice is data the writer reads. Drafts change when it changes.
-
-## Phase 4 — classification that can be defended
-
-- [~] A full model pass over the corpus is running: every pair the cue lists would
-      have matched, every disqualifying question, and a sample of the rest, each
-      quote verified against its capture. The first attempt finished in fifteen
-      minutes and exposed two defects, both now fixed and the pass restarted:
-      truncated replies were being discarded (191 in six minutes), and a failed
-      call was indistinguishable from a considered rejection, so failures were
-      being written as "no signal" and suppressing the cue list that would have
-      matched. The overlay lands as `corpus/signals.json` when the re-run finishes.
-- [x] Every signal records which engine produced it, and a draft that fell back says
-      so rather than looking like one the model wrote.
-- [ ] Cue lists remain the fallback's configuration and stay editable, but stop
-      being the product's answer to "how does it decide" — this rests on the model
-      pass above landing, and on the seeded board actually reading the overlay.
-
-## Phase 5 — outreach that reads like a person wrote it
-
-- [x] No `[1]` markers in the body. Citations stay available to the rep in a side
-      panel, because a rep may want them and a prospect must not see them.
-- [x] Two writers behind one router: a model writer that drafts from the findings
-      under the configured voice, and a deterministic composer for when no model is
-      configured. Both go through the same banned-phrase filter.
-- [x] Drafts open on what was noticed, in plain speech, with no reference to sources.
-
-## Phase 6 — scheduled refresh
-
-- [x] A scheduler re-scores on a configurable interval.
-- [x] `/api/meta` reports the next run and the interval.
-- [x] Shown bottom-left in the rail, ticking, where the store-health line used to be.
-
-## Phase 7 — against the challenge
-
-Walked `docs/MAIN_CHALLENGE.md` line by line.
-
-| Brief asks for | Where it lives | State |
-| --- | --- | --- |
-| Configure ICP by market, industry, company size, geography | Settings → Customer profile | done |
-| Configure signal questions per service | Signal Studio | done |
-| Signal weights — high, medium, low | Studio, per question, in nats | done |
-| Negative signals and disqualification rules | Studio polarity; gates in Settings | done |
-| Configure the scoring logic | Settings → Scoring | done |
-| Configure service lines themselves | Settings → Service lines | done |
-| Company profiles, key people, corporate events | Corpus: registry (GLEIF LEI), filings | partial — no key people; Crunchbase is paywalled and deliberately not used |
-| Websites, newsrooms, annual reports | Corpus: news + filings, 4,050 documents | done |
-| Google News / NewsAPI / GDELT | Bing News RSS; GDELT 429s from this host | done, source substituted |
-| Career pages and job boards | Corpus: 577 job postings from public ATS boards | done |
-| LinkedIn — optional, must not be depended on | Not used anywhere | done by omission |
-| Large-scale extraction and normalisation | Span extraction over stored captures | done |
-| Dynamic prospect scoring, explainable | Additive log-odds ledger, arithmetic printed on the card | done |
-| Signal detection: incidents, leadership change, compliance, tech stack | Question library covers all four | done |
-| Outreach generation, customised value proposition | Model writer under the configured voice, per service line | done |
-| Multi-channel drafts — email, InMail | Both channels | done |
-| Dashboard | SvelteKit SPA; the brief says React but does not require it | done, stack differs |
-| CRM integration hooks | HubSpot button records intent; no token configured | deferred by the goal |
-
-Gaps worth naming, not hidden:
-
-- **No key-people data.** The brief lists it under Crunchbase, which is paywalled.
-  Nothing in the corpus identifies a named decision-maker, so the drafts address a
-  role rather than a person. Targeting a person needs a data source we do not have.
-- **The corpus is news-heavy.** Job postings are present at 577 documents but the
-  bulk is press. The taxonomy's rule that reaching the top band needs two
-  independent kinds of evidence is satisfied by 67 companies, not by most.
-- **DELIBERATE:** HubSpot and every other third-party integration stay as recorded
-  intents, per the goal.
+Two assets are badly under-sold: the **byte-range citation** verified by
+containment-then-fuzzy-with-strike, and **disqualifier gates that keep the
+arithmetic visible** while removing a company from the queue.
 
 ---
 
-## Incident — 2026-09-25, production down
+## What landed
 
-Recording this because it was self-inflicted and it is the kind of thing that
-should not be quietly dropped from a status file.
+### Correctness and accuracy
 
-Adding `PolicyQuestion.title` and ten `voice_*` columns to `workspace_settings` as
-`NOT NULL` broke the schema update: Postgres refuses to add a NOT NULL column to a
-table that already holds rows without a default, so the column was never created
-and every query naming it failed at startup. Builds #45 and #46 failed and
-production served 404 for roughly ten minutes. The local stack was down at the same
-time, which is why the failure was not caught before pushing.
+- [x] **Question routing.** "Is the company in Romania?" now returns the 17 Romanian
+      companies instead of classifying 4,050 documents against the word "Romania".
+      Geography, industry, size and competitor status are read as *facts about a
+      company* and filter the board; whatever is left of the sentence is classified
+      as a signal question. `AskService`, `GeoLexicon`, `AskController`
+      (`GET /api/ask/read`, `POST /api/ask`). The panel narrates the reading as you
+      type and labels the button by what will happen.
+- [x] **Stray test questions deleted** from the local and the deployed database.
+      They were inflating the board: Priority fell from 28 to a true 12.
+- [x] **Cue hygiene.** Derived cues are now phrases first and domain terms second;
+      question vocabulary ("operations", "initiative", "programme", 100 more) can no
+      longer become a cue, and acronyms (AI, RPA, SOC, NIS2, DORA, 40 more) now can
+      — a cold question like "Does it use AI?" used to derive zero cues and silently
+      do nothing.
+- [x] **Document chrome no longer counts as evidence.** 48 boilerplate strings —
+      "we also welcome factual corrections", "equal opportunity employer", "all
+      rights reserved", "forward-looking statements" — are counter-cues on every
+      question. SEW-EURODRIVE was in Priority on its newsletter footer.
+- [x] **The false in-house disqualifier.** Bare "centre of excellence" and
+      "security operations centre" gated companies that never said it. Cues are now
+      self-referential, and vendor self-description is caught properly.
+- [x] **Job boards no longer outrank the wires** (authority 1.0 → 0.9, below
+      Reuters at 0.95), and findings are de-duplicated per span instead of counting
+      one passage three times.
+- [x] **The gate report tells the truth.** It printed whichever gate happened to
+      fire against the size column, so a competitor gate read "size → FAIL".
+- [x] **The size floor is reachable.** Seeded confidence was 0.6 against a 0.8
+      scoring floor, so the Settings control could never fire.
+- [x] **Every row records the engine that answered**, instead of stamping the local
+      engine whatever responded.
 
-Fixed by making the new columns nullable, with the getters supplying the defaults
-the screens expect; the policy sync fills the titles on the next boot. Verified by
-starting against the existing database rather than a fresh one — which is the
-check that would have caught it, and which the earlier redeploy test did cover for
-a different change and should have been run for this one.
+### New signals
 
-## Open items
+- [x] **Six new questions**, including the two the brief names itself — a
+      cost-reduction programme with a quantified target, and consolidating shared
+      service centres, which now fires on real evidence (Reckitt: "using its shared
+      services division as the driving force"). Also process mining, AI governance,
+      a platform migration, and a regulatory deadline.
 
-- The reference image (`image.png`) is not on this machine and was never reviewed.
-  Everything here comes from the written description.
-- Third-party integrations (HubSpot and any other CRM, email or enrichment
-  provider) are deliberately left as recorded intents, per the goal.
+### The interface
+
+- [x] **Bookmarking.** A star in the board row and the company pane, a **Saved**
+      filter with a live count, `GET/POST/DELETE /api/bookmarks`.
+- [x] **The quote is on the first screen.** The board's Top evidence column now
+      prints the verbatim passage, not just the question it answers — the one asset
+      a competitor cannot reproduce was three clicks deep.
+- [x] **Four HIGH defects** found by a flow audit: the pane covered the ask button
+      at 1024×768 (now scrimmed and unambiguous); "Open the quoted capture" scrolled
+      to prose and hid the quote (now scrolls to the mark, with less lead-in);
+      `?co=` did not carry its service line, so a shared link showed another line's
+      score; and opening an outreach draft silently marked the company contacted.
+- [x] Compose spinner centred, real loading on channel switch, Studio preview says
+      *Loading* with a greyed overlay, the ask note no longer overlaps its button.
+- [x] The company pane runs the full height of the window.
+
+## Still open, and why
+
+- [ ] **The model overlay (`corpus/signals.json`) is not committed.** It is the
+      single biggest remaining accuracy lever and it needs a DeepSeek key to build.
+      It is worth roughly a third of the accuracy criterion on its own.
+- [ ] **The brief's own two examples (DHL, Lufthansa) still score at the base
+      rate.** The corpus has no newsroom or annual-report crawl for them. Fetching
+      those pages through the real crawler is the honest fix and was not done here.
+- [ ] **The corpus tool is destructive.** `tools/fast_corpus.py` deletes registry
+      and filing documents when it refreshes; it needs a merge mode and hash dedup
+      before anyone runs it again.
+- [ ] 24 companies have no documents, ~22 recoverable by fixing a four-character
+      name-variant filter.
+
+## What was already fixed (earlier in this pass)
+
+- [x] **Question routing.** "Is the company in Romania?" now returns the 17
+      Romanian companies instead of classifying 4,050 documents against the word
+      "Romania". Geography, industry, size and competitor status are recognised as
+      *facts about a company* and filter the board; whatever is left of the
+      sentence is classified as a signal question. New `AskService`, `GeoLexicon`,
+      `AskController` (`GET /api/ask/read`, `POST /api/ask`).
+- [x] **Stray test questions deleted** from the local and the deployed database.
+      `asked-2ef354c953` ("Is the company in romania?", 118 signals) and
+      `asked-8e06fc1497` (2821 signals) were inflating the board: Priority went
+      from 28 to a true 12.
+- [x] Compose spinner centred and a real loading state on channel switch.
+- [x] Studio preview says *Loading* and greys the content it is about to replace.
+- [x] The ask panel's note no longer overlaps the Score button.
+
+---
+
+## The plan
+
+Ordered by (judging weight × size of the hole). Everything here is doable without
+a third-party service.
+
+### Accuracy — the 25% (worst score, biggest prize)
+
+- [ ] **Cue hygiene in `LocalRubricEngine.deriveCues`.** Question vocabulary
+      ("operations", "company", "initiative", "programme") becomes cues and
+      matches everything. Drop stopwords and question-framing words, require a
+      minimum token length, and prefer multi-word cues.
+- [ ] **Show the quotes, not the question titles, in the board's Top evidence
+      column.** The payload already carries `strongest.quote`; this puts the
+      product's one un-answerable asset on the first screen.
+- [ ] **Counter-cues for the two proven chrome strings** — "we also welcome
+      factual corrections" (SEW-EURODRIVE) and "About <company>: … global
+      standard for" (Signify) — as seeded counter-cues on every question.
+- [ ] **Flag the automation vendors as competitors.** Appian, Nintex, UiPath,
+      Celonis, Automation Anywhere, Blue Prism, Pega, ServiceNow, SS&C and the
+      rest currently sit in Priority or Nurture while selling what we sell.
+- [ ] **Enrich the corpus honestly for the brief's own examples.** Fetch the real
+      pages (Lufthansa Strategy 2030 / the 4,000-role automation statement, DHL
+      Agentic AI + the RFQ announcement) through the existing crawler so the
+      capture is genuinely what the server returned, and re-seed. No hand-written
+      documents: the architecture's honesty is the product.
+- [ ] **A precision number the UI actually shows.** `/api/feedback/precision`
+      exists and is never called. Put measured precision on the board, and make
+      the accept/reject controls feed it.
+
+### AI/ML innovation — the 20%
+
+- [ ] **Report the engine that actually answered.** `CorpusSeeder.classifyOne`
+      and `RescoreService.classify` both stamp `localEngineId()` regardless of who
+      answered, so the board cannot prove which half is which.
+- [ ] **Non-destructive re-score.** `reclassify` deletes the target questions'
+      signals *before* classifying; one failed model run empties the board. Stage
+      the new rows and swap inside the transaction.
+- [ ] **Confidence calibration.** `ScoringService` feeds the model's raw
+      self-reported confidence straight into log-odds. Shrink it toward the
+      engine's measured accuracy so an over-confident quote cannot dominate a
+      ledger.
+
+### Configurability — the 20%
+
+- [ ] **Wire `icpIndustries` into the gates**, mirroring `geographyGate`, with a
+      test — or delete it. A control that provably does nothing costs more than
+      the feature is worth.
+- [ ] **Make the derived cues visible and editable in the Studio**, via
+      `GET /api/policies/derive`, shown as removable chips *before* scoring. This
+      turns the 379-match failure into the demo's best twenty seconds.
+- [ ] **Service-line value propositions** are empty on the live instance; seed
+      them so the writer has something to say.
+
+### Usability — the 15%
+
+- [ ] **Bookmarking.** Star a company from the board row, the card and the
+      Palette; a saved filter, an export, and a count in the rail.
+- [ ] **The ask flow narrates itself.** Show the reading as you type
+      ("17 companies in Romania — the board will be filtered"), adapt the button,
+      and show the before/after on the board.
+- [ ] **Honest tooltips.** "Probability this company is worth calling" is not
+      what an uncalibrated score means. Say what it is.
+- [ ] Keep `nats`, `logit` and `capped` off the default path; they are for the
+      juror who asks, not the first screen.
+
+### Business impact — the 10%
+
+- [ ] **A cost meter.** Model calls and tokens per rebuild, and the cash saved by
+      the classification cache — the cache already separates `reusedFromCache`
+      from `modelCalls`.
+- [ ] **A backtest panel.** Replay the queue against the stored feedback and show
+      what the bands would have caught.
+
+### Technical execution — the 10%
+
+- [ ] Corpus ingestion is an offline script and stays one — say so in the UI
+      rather than leaving a juror to discover it.
+- [ ] Grow and diversify the corpus in `tools/fast_corpus.py`: career pages and
+      job boards alongside news, per-company page caps, dedup by content hash.
+
+---
+
+## Rules for this pass
+
+Everything must survive the two standing constraints: `pnpm run check` reports
+zero errors, and every row of the board survives a 1024×768 projector — nothing
+load-bearing below 11px, nothing that only appears on hover. No third-party
+service beyond the two already wired (DeepSeek, HubSpot-as-recorded-intent).

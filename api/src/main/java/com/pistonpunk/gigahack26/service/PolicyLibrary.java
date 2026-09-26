@@ -150,11 +150,90 @@ public class PolicyLibrary {
 
                         Does not count: a company that has an internal team overseeing external delivery partners.""",
                         WeightTier.HIGH, Polarity.DISQUALIFYING, "in-house", DecayClass.STRUCTURAL,
-                        List.of("centre of excellence", "center of excellence", "in-house automation",
-                                "internal automation team", "automation factory", "in-house developed",
-                                "own automation platform", "proprietary automation", "internal r&d",
-                                "we build our own", "developed in-house", "own rpa"),
-                        List.of("delivery partner", "systems integrator", "third-party provider", "outsourced")),
+                        List.of("in-house automation", "internal automation team", "automation factory",
+                                "in-house developed", "our automation platform", "our rpa platform",
+                                "our process mining platform", "our low-code platform",
+                                "our intelligent automation platform", "our automation software",
+                                "we build our own", "developed in-house",
+                                "build our own automation", "automation centre of excellence in-house",
+                                "leading rpa platform", "leading process mining platform",
+                                "automation platform for enterprises", "customers use our platform",
+                                "automation platform that", "customers automate with"),
+                        List.of("delivery partner", "systems integrator", "third-party provider", "outsourced",
+                                "centre of excellence is", "center of excellence is", "what is a centre of excellence",
+                                "explainer", "how to set up", "evaluating", "considering", "selecting a platform",
+                                "market guide", "gartner", "forrester", "magic quadrant", "we compared")),
+                new Definition(
+                        "automation.cost_programme", "A cost-reduction programme with a target", AUTOMATION,
+                        "Has the company announced a cost-reduction or efficiency programme with a quantified target?",
+                        """
+                        Counts: a stated programme to cut cost, headcount or the cost base, with a number attached \
+                        — a percentage, an amount, or a number of roles. The brief names this signal directly: a \
+                        quantified target is what turns a vague efficiency ambition into a budget.
+
+                        Does not count: generic cost pressure in a results story, or a bank analyst's estimate.""",
+                        WeightTier.HIGH, Polarity.POSITIVE, "efficiency", DecayClass.EVENT,
+                        List.of("cost reduction programme", "cost-cutting programme", "cost savings programme",
+                                "efficiency programme", "savings target", "reduce costs by", "cut costs by",
+                                "reduce operating costs", "cost base reduction", "reduction in headcount",
+                                "headcount reduction", "restructuring programme", "simplification programme",
+                                "targeted savings", "cost optimisation programme", "cost optimization programme"),
+                        List.of("analysts expect", "could reduce", "may cut", "threatens to")),
+                new Definition(
+                        "automation.ssc", "Consolidating shared service centres", AUTOMATION,
+                        "Is the company consolidating shared service centres or business services into a captive operation?",
+                        """
+                        Counts: moving scattered finance, HR or IT operations into one shared service centre, a \
+                        global business services organisation, or a captive centre — the classic precursor to an \
+                        automation programme, because consolidation is what makes volume worth automating.
+
+                        Does not count: a company selling shared-service outsourcing to others.""",
+                        WeightTier.HIGH, Polarity.POSITIVE, "operating-model", DecayClass.STRUCTURAL,
+                        List.of("shared service centre", "shared services centre", "shared services center",
+                                "global business services", "global capability centre", "captive centre",
+                                "captive operation", "consolidating shared services", "ssc consolidation",
+                                "business services centre", "consolidate its shared"),
+                        List.of("provider of shared services", "we provide shared services")),
+                new Definition(
+                        "automation.process_mining", "Adopting process mining", AUTOMATION,
+                        "Is the company adopting process mining, task mining or process intelligence?",
+                        """
+                        Counts: a named process-mining platform or a stated process-discovery programme. Naming the \
+                        tooling is the strongest form of this signal, because it means the budget is already approved.
+
+                        Does not count: a vendor describing its own product to the market.""",
+                        WeightTier.MEDIUM, Polarity.POSITIVE, "capability", DecayClass.STRUCTURAL,
+                        List.of("process mining", "task mining", "process discovery", "process intelligence",
+                                "celonis", "signavio", "process mining platform", "process mining initiative"),
+                        List.of("our process mining", "process mining vendor", "leading process mining")),
+                new Definition(
+                        "data.platform_migration", "A platform migration under way", DATA,
+                        "Is the company migrating a core platform — ERP, core banking or a data platform?",
+                        """
+                        Counts: a named migration with a destination or a deadline. A migration is the moment a \
+                        buyer is forced to re-examine the processes around the system, which is when services get \
+                        bought.
+
+                        Does not count: a vendor announcing a product.""",
+                        WeightTier.HIGH, Polarity.POSITIVE, "platform", DecayClass.EVENT,
+                        List.of("s/4hana", "sap s/4", "erp migration", "erp transformation",
+                                "core banking platform", "core banking replacement", "data platform migration",
+                                "cloud migration programme", "replatforming", "migration programme",
+                                "system migration", "modernising its core", "modernizing its core"),
+                        List.of("our platform", "vendor", "customers migrate")),
+                new Definition(
+                        "data.ai_governance", "An AI governance mandate", DATA,
+                        "Has the company stood up AI governance, a responsible-AI policy or an AI risk function?",
+                        """
+                        Counts: a named AI governance body, a responsible-AI policy, or work to meet the EU AI Act. \
+                        It precedes the spend: a company that has to govern models has to know what models it runs.
+
+                        Does not count: a think-piece about AI risk.""",
+                        WeightTier.MEDIUM, Polarity.POSITIVE, "governance", DecayClass.EVENT,
+                        List.of("ai governance", "responsible ai", "ai ethics", "ai risk assessment",
+                                "ai act", "eu ai act", "model governance", "ai policy", "ai oversight board",
+                                "ai assurance"),
+                        List.of("what is ai governance", "explainer", "commentary")),
                 new Definition(
                         "automation.vendor_lock", "Already committed to an automation vendor", AUTOMATION,
                         "Does the company already run a multi-year automation programme with a named vendor, which would make switching unlikely?",
@@ -230,10 +309,11 @@ public class PolicyLibrary {
 
                         Does not count: a company that outsources to a managed security provider.""",
                         WeightTier.HIGH, Polarity.DISQUALIFYING, "in-house", DecayClass.STRUCTURAL,
-                        List.of("security operations centre", "security operations center", "in-house soc",
-                                "own soc", "in-house security team", "security centre of excellence",
-                                "internal security operations", "we handle security ourselves"),
-                        List.of("managed security provider", "outsourced security")),
+                        List.of("in-house soc", "own soc", "in-house security team", "internal soc team",
+                                "we run our own soc", "internal security operations centre",
+                                "we handle security ourselves", "security operations centre in-house"),
+                        List.of("managed security provider", "outsourced security", "what is a soc",
+                                "security operations centre is", "center is", "explainer")),
                 new Definition(
                         "data.initiative", "A data or AI initiative", DATA,
                         "Has the company started a data, analytics or AI initiative with a named use case?",

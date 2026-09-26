@@ -13,7 +13,7 @@
 	let error = $state<string | null>(null);
 	let whole = $state(false);
 
-	const CONTEXT = 900;
+	const CONTEXT = 320;
 
 	$effect(() => {
 		const id = evidenceId;
@@ -38,6 +38,18 @@
 		};
 		window.addEventListener('keydown', onKey);
 		return () => window.removeEventListener('keydown', onKey);
+	});
+
+	let pane = $state<HTMLPreElement | null>(null);
+
+	$effect(() => {
+		const node = pane;
+		const highlight = capture.span;
+		if (!node || !highlight) return;
+		const mark = node.querySelector('mark.span');
+		if (mark) {
+			mark.scrollIntoView({ block: 'center' });
+		}
 	});
 
 	const capture = $derived.by(() => {
@@ -135,7 +147,7 @@
 							{whole ? 'Passage only' : `All ${detail.charLength} chars`}
 						</button>
 					</div>
-					<pre>{#if !capture.whole && !whole && capture.before}<span class="fade">…</span>{/if}{capture.before}{#if capture.span}<mark class="span">{capture.span}</mark>{/if}{capture.after}{#if capture.truncated}<span class="fade">…</span>{/if}</pre>
+					<pre bind:this={pane}>{#if !capture.whole && !whole && capture.before}<span class="fade">…</span>{/if}{capture.before}{#if capture.span}<mark class="span">{capture.span}</mark>{/if}{capture.after}{#if capture.truncated}<span class="fade">…</span>{/if}</pre>
 					<p class="sub dim">
 						{#if capture.span}
 							Characters {focus?.start}–{focus?.end} of the stored capture. The quote is a slice of what the

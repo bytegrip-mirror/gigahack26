@@ -16,6 +16,8 @@
 	import Ledger from '$lib/components/Ledger.svelte';
 	import OutreachModal from '$lib/components/OutreachModal.svelte';
 	import Hubspot from '$lib/components/Hubspot.svelte';
+	import Star from '$lib/components/Star.svelte';
+	import { fetchBookmarks } from '$lib/api';
 	import Icon from '$lib/components/Icon.svelte';
 	import Menu from '$lib/components/Menu.svelte';
 	import Metric from '$lib/components/Metric.svelte';
@@ -56,6 +58,7 @@
 	let silentOnly = $state(false);
 	let lead = $state<LeadView | null>(null);
 	let busy = $state<string | null>(null);
+	let saved = $state(false);
 
 	$effect(() => {
 		const id = companyId;
@@ -76,6 +79,11 @@
 			.finally(() => {
 				if (!cancelled) loading = false;
 			});
+		fetchBookmarks()
+			.then((list) => {
+				if (!cancelled) saved = list.some((bookmark) => bookmark.companyId === id && bookmark.serviceLine === line);
+			})
+			.catch(() => {});
 		return () => {
 			cancelled = true;
 		};
@@ -181,6 +189,16 @@
 			{/if}
 		</div>
 		<div class="head-tools">
+			{#if detail}
+				<Star
+					companyId={detail.id}
+					companyName={detail.name}
+					{serviceLine}
+					{saved}
+					size={17}
+					onsaved={(on) => (saved = on)}
+				/>
+			{/if}
 			<Menu items={overflow} onselect={runOverflow} label={`More actions for ${detail?.name ?? 'this company'}`} />
 			<button class="icon-btn" onclick={onclose} aria-label="Close detail"><Icon name="close" size={16} /></button>
 		</div>

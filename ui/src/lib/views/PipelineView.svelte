@@ -134,9 +134,9 @@
 	}
 
 	async function runRow(lead: LeadView, id: string) {
-		if (id === 'open') window.location.assign(`/?co=${lead.companyId}`);
+		if (id === 'open') window.location.assign(`/?co=${lead.companyId}&line=${encodeURIComponent(lead.serviceLine)}`);
 		else if (id === 'link') {
-			const ok = await copy(`${window.location.origin}/?co=${lead.companyId}`);
+			const ok = await copy(`${window.location.origin}/?co=${lead.companyId}&line=${encodeURIComponent(lead.serviceLine)}`);
 			toasts.push(ok ? `Link to ${lead.company} copied.` : 'This browser blocked the clipboard.', ok ? 'success' : 'warn');
 		} else if (id === 'export') {
 			save(
@@ -274,7 +274,7 @@
 								{#each stage.rows as lead (lead.id)}
 									<tr>
 										<td class="c-co">
-											<a class="co" href="/?co={lead.companyId}">{lead.company}</a>
+											<a class="co" href="/?co={lead.companyId}&line={encodeURIComponent(lead.serviceLine)}">{lead.company}</a>
 											<span class="sub">{lead.domain ? host(lead.domain) : '—'} · {lead.serviceLine}</span>
 										</td>
 										<td class="c-fit num">

@@ -5,8 +5,9 @@
 		name,
 		size = 15,
 		title = '',
-		width = 1.7
-	}: { name: IconName; size?: number; title?: string; width?: number } = $props();
+		width = 1.7,
+		filled = false
+	}: { name: IconName; size?: number; title?: string; width?: number; filled?: boolean } = $props();
 
 	const paths = $derived(PATHS[name]);
 </script>
@@ -16,7 +17,7 @@
 	width={size}
 	height={size}
 	viewBox="0 0 24 24"
-	fill="none"
+	fill={filled ? 'currentColor' : 'none'}
 	stroke="currentColor"
 	stroke-width={width}
 	stroke-linecap="round"

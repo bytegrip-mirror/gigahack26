@@ -48,7 +48,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class CorpusSeeder implements ApplicationRunner {
 
     private static final Logger log = LoggerFactory.getLogger(CorpusSeeder.class);
-    private static final double ESTIMATED_SIZE_CONFIDENCE = 0.6;
+    private static final double ESTIMATED_SIZE_CONFIDENCE = 0.85;
 
     private final CompanyRepository companies;
     private final CompanyAliasRepository aliases;
@@ -277,16 +277,16 @@ public class CorpusSeeder implements ApplicationRunner {
                     span.get().start(), span.get().end(), over.rationale(), over.engine(), span.get().exact()));
         }
 
+        ClassifierRouter.Answer answer = router.answer(companyName, question, document, null);
         List<Signal> produced = new ArrayList<>();
-        for (ClassifierEngine.Finding finding :
-                router.classify(companyName, question, document)) {
+        for (ClassifierEngine.Finding finding : answer.findings()) {
             int start = Math.max(0, Math.min(finding.spanStart(), document.length()));
             int end = Math.max(start, Math.min(finding.spanEnd(), document.length()));
             if (end - start < 2) {
                 continue;
             }
             produced.add(signal(item, question, finding.verdict(), finding.confidence(), start, end,
-                    finding.rationale(), router.localEngineId(), true));
+                    finding.rationale(), answer.engineId(), answer.spanVerified()));
         }
         return produced;
     }
@@ -376,7 +376,7 @@ public class CorpusSeeder implements ApplicationRunner {
         String host = publisher == null ? "" : publisher.toLowerCase();
         if (host.contains("greenhouse") || host.contains("lever.co") || host.contains("ashbyhq")
                 || host.contains("smartrecruiters") || host.contains("workday")) {
-            return 1.0;
+            return 0.9;
         }
         if (host.contains("reuters") || host.contains("bloomberg") || host.contains("ft.com")
                 || host.contains("wsj")) {

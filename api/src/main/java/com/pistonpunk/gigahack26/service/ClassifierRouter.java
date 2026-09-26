@@ -53,6 +53,20 @@ public class ClassifierRouter {
         return classify(companyName, question, document, null);
     }
 
+    /**
+     * The findings and the engine that produced them, so a row can never claim the
+     * local rubric answered when the language model did. Span verification is the
+     * language model's own gate: the local engine reads the document itself.
+     */
+    public record Answer(String engineId, boolean spanVerified, List<ClassifierEngine.Finding> findings) {
+    }
+
+    public Answer answer(String companyName, PolicyQuestion question, String document, String engineOverride) {
+        ClassifierEngine chosen = engine(engineOverride);
+        boolean model = chosen != local;
+        return new Answer(chosen.id(), !model, classify(companyName, question, document, engineOverride));
+    }
+
     public List<ClassifierEngine.Finding> classify(String companyName, PolicyQuestion question, String document,
                                                    String engineOverride) {
         ClassifierEngine chosen = engine(engineOverride);

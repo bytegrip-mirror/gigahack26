@@ -486,6 +486,72 @@ export function previewPolicy(input: {
 	);
 }
 
+export type AskFacet = {
+	kind: 'country' | 'industry' | 'sizeBand' | 'minEmployees' | 'maxEmployees' | 'competitor';
+	value: string;
+	label: string;
+	matches: number;
+};
+
+export type AskReading = {
+	kind: 'FILTER' | 'SIGNAL' | 'FILTER_AND_SIGNAL';
+	reading: string;
+	question: string;
+	facets: AskFacet[];
+};
+
+export function readAsk(question: string): Promise<AskReading> {
+	return request<AskReading>(`/api/ask/read${query({ q: question })}`);
+}
+
+export type AskOutcome = AskReading & {
+	serviceLine: string;
+	matchedCompanies?: number;
+	companyIds?: string[];
+	movedRows?: number;
+	changedTop?: number;
+	tookMs?: number;
+	documentsScanned?: number;
+	signalsProduced?: number;
+	board?: BoardRow[];
+	moves?: Move[];
+};
+
+export function ask(input: {
+	serviceLine: string;
+	question: string;
+	engine?: Engine;
+	tier?: WeightTier;
+	polarity?: Polarity;
+}): Promise<AskOutcome> {
+	return request<AskOutcome>('/api/ask', { method: 'POST', body: JSON.stringify(input) });
+}
+
+export type Bookmark = {
+	companyId: string;
+	company: string;
+	domain: string | null;
+	country: string | null;
+	serviceLine: string;
+	note: string | null;
+	createdAt: string;
+};
+
+export function fetchBookmarks(): Promise<Bookmark[]> {
+	return request<Bookmark[]>('/api/bookmarks');
+}
+
+export function addBookmark(companyId: string, serviceLine: string, note?: string): Promise<Bookmark> {
+	return request<Bookmark>(`/api/bookmarks/${companyId}`, {
+		method: 'POST',
+		body: JSON.stringify({ serviceLine, note: note ?? null })
+	});
+}
+
+export function removeBookmark(companyId: string, serviceLine: string): Promise<void> {
+	return request<void>(`/api/bookmarks/${companyId}${query({ serviceLine })}`, { method: 'DELETE' });
+}
+
 export type Engine = 'local' | 'deepseek';
 
 export function rescore(input: {

@@ -134,7 +134,7 @@ public class ScoringService {
                 round(nats),
                 band,
                 gate.orElse(null),
-                gateLine(company, gate.orElse(null), properties),
+                gateLine(company, gate.orElse(null), blockedByBuild, properties),
                 rows,
                 themeTotals(rows),
                 (int) rows.stream().filter(row -> !row.blocking()).count(),
@@ -244,18 +244,29 @@ public class ScoringService {
         return Optional.empty();
     }
 
-    private static String gateLine(Company company, String gateReason, ScoringProperties properties) {
+    private static String gateLine(Company company, String gateReason, boolean blockedByBuild,
+                                   ScoringProperties properties) {
         String country = company.getCountry() == null ? "unknown" : company.getCountry();
-        String geography = icpCountries(properties).contains(country) ? "PASS" : "FAIL";
-        String size = company.getEmployees() == null
+        String geography = icpCountries(properties).contains(country) ? "pass" : "fail";
+        Integer employees = company.getEmployees();
+        double confidence = company.getSizeConfidence() == null ? 0.0 : company.getSizeConfidence();
+        String size = employees == null
                 ? "unknown"
-                : company.getEmployees() + " employees";
-        return "Gate: geography — HQ %s %s ∈ ICP → %s · size — %s → %s · competitor — %s"
+                : confidence >= SIZE_CONFIDENCE_FLOOR
+                        ? employees + (employees < properties.icpMinEmployees() ? " → below floor" : " → pass")
+                        : employees + " → unconfirmed";
+        String build = !blockedByBuild ? "pass" : "fail";
+        String competitor = company.isCompetitor() ? "flagged" : "no";
+        return "Geography: HQ %s%s ∈ ICP → %s (%s) · Size: %s (%s) · Competitor: %s (%s) · Building in-house: %s (%s)"
                 .formatted(company.getHqCity() == null ? "" : company.getHqCity().trim() + ", ", country,
-                        properties.geographyGate() ? geography : "off",
+                        properties.geographyGate() ? geography : "gate off",
+                        properties.geographyGate() ? "removes" : "kept",
                         size,
-                        properties.sizeGate() || !"FAIL".equals(geography) ? (gateReason == null ? "PASS" : "FAIL") : "off",
-                        properties.competitorGate() ? (company.isCompetitor() ? "YES" : "no") : "off");
+                        properties.sizeGate() ? "gate on" : "gate off",
+                        competitor,
+                        properties.competitorGate() ? "removes" : "kept",
+                        build,
+                        gateReason == null ? "no reason recorded" : gateReason);
     }
 
     private static Set<String> icpCountries(ScoringProperties properties) {
