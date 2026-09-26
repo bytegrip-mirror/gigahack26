@@ -65,7 +65,22 @@ All of it is in `ui/src/app.css`. Views use the tokens; they do not invent px.
 | Control heights | `--ctl` 28 · `--ctl-sm` 22 · `--row` 34 · `--bar` 44 | buttons, inputs, toolbars |
 | Type | `--fs-micro` 11 · `--fs-sm` 11.5 · `--fs-base` 12.5 · `--fs-md` 13.5 · `--fs-lg` 15.5 · `--fs-xl` 18 · `--fs-title` 22 | see below |
 | Depth | `--z-sticky` 2 · `--z-menu` 200 · `--z-sheet` 260 · `--z-toast` 300 | never hardcode a z-index |
-| Motion | `--ease` | every transition |
+| Motion | `--ease`, `--ease-enter` | every transition; surface entries |
+
+**Surfaces arrive.** Panels, sheets, popovers and toasts enter with one of four
+keyframes in `app.css` — `rise`, `fade-in`, `enter-right`, `enter-left` — on one
+of two durations: `--ease` (120ms) for things that attach to a control and
+`--ease-enter` (160ms) for things that take the screen. A few pixels of travel,
+on the same curve as every other transition, and no scaling or bounce anywhere.
+
+Entry only. Exit animation requires keeping a component mounted while it leaves,
+which is where flicker and double-render bugs live; a panel that closes instantly
+is not a defect anyone notices.
+
+Every keyframe ends on the element's default state rather than on an explicit
+transform, so an animation that is skipped cannot strand anything invisible.
+`prefers-reduced-motion` collapses them all to 0.01ms, verified with the media
+feature emulated: the detail pane still lands at its final position, opacity 1.
 
 Type is three roles, and a size belongs to exactly one of them:
 
