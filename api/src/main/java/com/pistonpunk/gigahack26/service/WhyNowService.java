@@ -72,7 +72,7 @@ public class WhyNowService {
 
     private String headline(LedgerRow trigger) {
         return "%s — %s, %s".formatted(shorten(trigger.questionText()), source(trigger.publisher()),
-                age(trigger.ageDays()));
+                age(trigger));
     }
 
     static String source(String publisher) {
@@ -127,7 +127,7 @@ public class WhyNowService {
                              LedgerRow trigger, ScoringProperties properties) {
         StringBuilder text = new StringBuilder();
         text.append(happened(trigger)).append(" — ").append(source(trigger.publisher()))
-                .append(", ").append(age(trigger.ageDays())).append(".");
+                .append(", ").append(age(trigger)).append(".");
 
         List<LedgerRow> others = positives.stream()
                 .filter(row -> !row.theme().equals(trigger.theme()))
@@ -147,7 +147,7 @@ public class WhyNowService {
 
         if (!counters.isEmpty()) {
             text.append(" Against it: ").append(happened(counters.get(0))).append(", ")
-                    .append(age(counters.get(0).ageDays()))
+                    .append(age(counters.get(0)))
                     .append(". Read that before writing.");
         }
 
@@ -180,25 +180,38 @@ public class WhyNowService {
 
     private static String joinPlain(List<LedgerRow> rows) {
         List<String> parts = rows.stream()
-                .map(row -> happened(row) + " (" + age(row.ageDays()) + ")")
+                .map(row -> happened(row) + " (" + age(row) + ")")
                 .toList();
         return String.join(", and ", parts);
     }
 
-    private static String age(double days) {
+    /**
+     * When the evidence is from — published if the page said, captured if not.
+     *
+     * A newsroom page with no date on it is anchored to the day the crawler read
+     * it, and calling that "published today" claims the company said something
+     * this morning when all that is known is that we looked. The ledger already
+     * records which of the two it is; the card says which.
+     */
+    static String age(LedgerRow row) {
+        String verb = "observed".equals(row.anchorKind()) ? "captured" : "published";
+        return verb + " " + span(row.ageDays());
+    }
+
+    private static String span(double days) {
         if (days < 1) {
-            return "published today";
+            return "today";
         }
         if (days < 2) {
-            return "published yesterday";
+            return "yesterday";
         }
         if (days < 45) {
-            return "published " + Math.round(days) + " days ago";
+            return Math.round(days) + " days ago";
         }
         if (days < 365) {
-            return "published " + Math.round(days / 30) + " months ago";
+            return Math.round(days / 30) + " months ago";
         }
-        return "published over a year ago";
+        return "over a year ago";
     }
 
     private static String shorten(String question) {
