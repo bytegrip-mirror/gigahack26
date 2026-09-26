@@ -12,7 +12,10 @@ public record OutreachDraft(
         List<Citation> citations,
         String persona,
         String valueProposition,
-        String engine) {
+        String engine,
+        UUID recipientId,
+        String recipientName,
+        String recipientEmail) {
 
     public record Citation(String marker, String question, String quote, String sourceUrl, String publisher) {
     }

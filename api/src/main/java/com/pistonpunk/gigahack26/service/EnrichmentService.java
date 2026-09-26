@@ -33,7 +33,7 @@ public class EnrichmentService {
 
     private static final Logger log = LoggerFactory.getLogger(EnrichmentService.class);
 
-    public record Enriched(String linkedinUrl, String headline, String seniority, boolean found) {
+    public record Enriched(String linkedinUrl, String headline, String seniority, String email, boolean found) {
     }
 
     private final EnrichmentProperties properties;
@@ -77,7 +77,7 @@ public class EnrichmentService {
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() == 404) {
-                return Optional.of(new Enriched(null, null, null, false));
+                return Optional.of(new Enriched(null, null, null, null, false));
             }
             if (response.statusCode() != 200) {
                 log.warn("enrichment provider returned {}", response.statusCode());
@@ -92,7 +92,11 @@ public class EnrichmentService {
             JsonNode record = root.path("data").isObject() ? root.path("data") : root;
             String linkedin = text(record, "linkedin_url");
             String headline = text(record, "job_title");
-            return Optional.of(new Enriched(linkedin, headline, text(record, "job_seniority"),
+            String email = text(record, "work_email");
+            if (email == null) {
+                email = text(record, "recommended_personal_email");
+            }
+            return Optional.of(new Enriched(linkedin, headline, text(record, "job_seniority"), email,
                     linkedin != null || headline != null));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

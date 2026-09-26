@@ -163,6 +163,18 @@ export type CompanyDetail = {
 	counterEvidence: LedgerRow[];
 	themes: { name: string; total: number; capped: boolean; rows: number }[];
 	profiles: string[];
+	contacts: {
+		id: string;
+		name: string;
+		role: string;
+		email: string | null;
+		linkedinUrl: string | null;
+		status: string;
+		statusLabel: string;
+		contactCount: number;
+		lastContactedAt: string | null;
+		sourceUrl: string | null;
+	}[];
 	weakestLink: string | null;
 	priorityHorizonDays: number | null;
 	nurtureHorizonDays: number | null;
@@ -374,6 +386,9 @@ export type Outreach = {
 	}[];
 	persona: string;
 	valueProposition: string;
+	recipientId: string | null;
+	recipientName: string | null;
+	recipientEmail: string | null;
 	engine: string;
 };
 
@@ -877,6 +892,7 @@ export type PersonRow = {
 	sourceUrl: string;
 	publisher: string;
 	publishedAt: string | null;
+	email: string | null;
 	linkedinUrl: string | null;
 	headline: string | null;
 	enrichedAt: string | null;
@@ -892,6 +908,13 @@ export function movePerson(id: string, status: string, subject?: string): Promis
 	return request<PersonRow>(`/api/people/${id}/stage`, {
 		method: 'POST',
 		body: JSON.stringify({ status, subject })
+	});
+}
+
+export function setPersonEmail(id: string, email: string): Promise<PersonRow> {
+	return request<PersonRow>(`/api/people/${id}/email`, {
+		method: 'POST',
+		body: JSON.stringify({ email })
 	});
 }
 

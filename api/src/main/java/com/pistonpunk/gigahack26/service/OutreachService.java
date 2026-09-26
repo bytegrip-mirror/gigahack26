@@ -1,5 +1,6 @@
 package com.pistonpunk.gigahack26.service;
 
+import com.pistonpunk.gigahack26.domain.Person;
 import com.pistonpunk.gigahack26.web.dto.CompanyDetail;
 import com.pistonpunk.gigahack26.web.dto.OutreachDraft;
 import org.springframework.stereotype.Service;
@@ -29,13 +30,15 @@ public class OutreachService {
             PolicyLibrary.DATA,
             "we take one named use case to production and leave a platform your team can extend");
 
+    private final PersonService people;
     private final BoardService board;
     private final SettingsService settings;
     private final ServiceLineService serviceLines;
     private final DraftWriterRouter writer;
 
-    public OutreachService(BoardService board, SettingsService settings, ServiceLineService serviceLines,
+    public OutreachService(PersonService people, BoardService board, SettingsService settings, ServiceLineService serviceLines,
                            DraftWriterRouter writer) {
+        this.people = people;
         this.board = board;
         this.settings = settings;
         this.serviceLines = serviceLines;
@@ -89,6 +92,19 @@ public class OutreachService {
 
         DraftWriter.Composed composed = writer.write(brief, citations);
 
+        // The draft is addressed to a person, not to a company: the first contact
+        // whose job matches the seat this service line sells into, preferring one we
+        // actually hold an address for.
+        List<Person> contacts = people.contactsFor(detail.id());
+        String wanted = brief.persona().toLowerCase();
+        Person recipient = contacts.stream()
+                .filter(person -> person.getEmail() != null)
+                .filter(person -> wanted.contains(person.getRole().toLowerCase().split(" ")[0]))
+                .findFirst()
+                .or(() -> contacts.stream().filter(person -> person.getEmail() != null).findFirst())
+                .or(() -> contacts.stream().findFirst())
+                .orElse(null);
+
         return new OutreachDraft(
                 detail.id(),
                 detail.name(),
@@ -98,7 +114,10 @@ public class OutreachService {
                 citations,
                 brief.persona(),
                 proposition,
-                composed.engine());
+                composed.engine(),
+                recipient == null ? null : recipient.getId(),
+                recipient == null ? null : recipient.getName(),
+                recipient == null ? null : recipient.getEmail());
     }
 
     static String finding(LedgerRow row) {

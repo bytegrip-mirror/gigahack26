@@ -5,6 +5,7 @@
 		fetchEnrichmentProvider,
 		fetchPeople,
 		movePerson,
+		setPersonEmail,
 		type PersonRow
 	} from '$lib/api';
 	import { session } from '$lib/session.svelte';
@@ -33,6 +34,20 @@
 	let provider = $state<{ provider: string; available: boolean } | null>(null);
 	let stage = $state('NEW');
 	let busyOn = $state<string | null>(null);
+	let mailFor = $state<{ id: string; value: string } | null>(null);
+
+	async function saveEmail(id: string, value: string) {
+		busyOn = id;
+		try {
+			await setPersonEmail(id, value);
+			await load();
+			mailFor = null;
+		} catch (cause) {
+			toasts.push((cause as Error).message, 'error');
+		} finally {
+			busyOn = null;
+		}
+	}
 
 	const STAGES = [
 		{ id: 'NEW', label: 'To contact' },
@@ -319,6 +334,44 @@
 							<td class="c-person">
 								<span class="p-name">{person.name}</span>
 								<span class="sub dim">{person.role}</span>
+								{#if mailFor?.id === person.id}
+									<span class="mail-edit" role="presentation" onclick={(event) => event.stopPropagation()}>
+										<input
+											class="input input-sm"
+											bind:value={mailFor.value}
+											placeholder="name@company.com"
+											onkeydown={(event) => {
+												if (event.key === 'Enter') saveEmail(person.id, mailFor?.value ?? '');
+												if (event.key === 'Escape') mailFor = null;
+											}}
+										/>
+										<button class="btn btn-sm btn-ink" disabled={busyOn === person.id} onclick={() => saveEmail(person.id, mailFor?.value ?? '')}>
+											Save
+										</button>
+									</span>
+								{:else if person.email}
+									<button
+										class="mail"
+										title="Click to correct it"
+										onclick={(event) => {
+											event.stopPropagation();
+											mailFor = { id: person.id, value: person.email ?? '' };
+										}}
+									>
+										{person.email}
+									</button>
+								{:else}
+									<button
+										class="mail-add"
+										title="Add an address for this person"
+										onclick={(event) => {
+											event.stopPropagation();
+											mailFor = { id: person.id, value: '' };
+										}}
+									>
+										no address
+									</button>
+								{/if}
 							</td>
 							<td>
 								<span class="co-line">
@@ -505,6 +558,47 @@
 		font-size: var(--text-lg);
 		font-weight: 500;
 		line-height: 1.2;
+	}
+
+	.mail {
+		display: block;
+		margin-top: 2px;
+		font-family: var(--font-ui);
+		font-size: var(--text-sm);
+		color: var(--color-ink-2);
+		text-decoration: underline;
+		text-underline-offset: 2px;
+		text-decoration-color: var(--color-rule-strong);
+		cursor: pointer;
+	}
+
+	.mail:hover {
+		text-decoration-color: var(--color-orange);
+		color: var(--color-orange-ink);
+	}
+
+	.mail-add {
+		display: block;
+		margin-top: 2px;
+		font-size: var(--text-micro);
+		letter-spacing: 0.04em;
+		color: var(--color-ink-4);
+		cursor: pointer;
+	}
+
+	.mail-add:hover {
+		color: var(--color-orange-ink);
+	}
+
+	.mail-edit {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-1);
+		margin-top: var(--spacing-1);
+	}
+
+	.mail-edit .input {
+		max-width: 200px;
 	}
 
 	.co-line {

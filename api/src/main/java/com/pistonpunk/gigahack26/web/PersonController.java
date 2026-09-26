@@ -43,7 +43,7 @@ public class PersonController {
     private PersonRow row(Person person) {
         return new PersonRow(person.getId(), person.getCompanyId(), null, null, person.getName(), person.getRole(),
                 null, 0, null, person.getSourceUrl(), person.getPublisher(), person.getPublishedAt(),
-                person.getLinkedinUrl(), person.getHeadline(), person.getEnrichedAt(),
+                person.getEmail(), person.getLinkedinUrl(), person.getHeadline(), person.getEnrichedAt(),
                 person.getStatus().name(), person.getStatus().label(), person.getContactCount(),
                 person.getLastContactedAt(), person.getOutreachSubject(), List.of());
     }
@@ -90,6 +90,7 @@ public class PersonController {
                     person.getSourceUrl(),
                     person.getPublisher(),
                     person.getPublishedAt(),
+                    person.getEmail(),
                     person.getLinkedinUrl(),
                     person.getHeadline(),
                     person.getEnrichedAt(),
@@ -104,6 +105,16 @@ public class PersonController {
     }
 
     public record StageRequest(String status, String channel, String subject) {
+    }
+
+    public record EmailRequest(String email) {
+    }
+
+    @PostMapping("/{id}/email")
+    public ResponseEntity<PersonRow> email(@PathVariable UUID id, @RequestBody EmailRequest request) {
+        return people.setEmail(id, request.email())
+                .map(person -> ResponseEntity.ok(row(person)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping("/{id}/stage")

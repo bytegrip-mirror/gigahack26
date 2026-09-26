@@ -47,6 +47,11 @@ public class Person {
     @Column(name = "linkedin_url", length = 300)
     private String linkedinUrl;
 
+    /** Work address only, and only from somewhere that gave it: a licensed
+     * provider, or a rep who typed it. Never guessed from a name and a domain. */
+    @Column(length = 200)
+    private String email;
+
     @Column(length = 160)
     private String headline;
 
@@ -143,6 +148,14 @@ public class Person {
 
     public String getLinkedinUrl() {
         return linkedinUrl;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email == null || email.isBlank() ? null : email.trim();
     }
 
     public String getHeadline() {

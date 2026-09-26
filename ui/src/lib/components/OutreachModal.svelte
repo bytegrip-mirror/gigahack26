@@ -39,6 +39,7 @@
 	let subject = $state('');
 	let body = $state('');
 	let instruction = $state('');
+	let to = $state('');
 
 	$effect(() => {
 		const chosen = channel;
@@ -51,6 +52,7 @@
 				draft = result;
 				subject = result.subject;
 				body = result.body;
+				to = result.recipientEmail ?? '';
 			})
 			.catch((cause) => {
 				if (channel === chosen) error = cause.message;
@@ -87,6 +89,7 @@
 			draft = result;
 			subject = result.subject;
 			body = result.body;
+			if (result.recipientEmail) to = result.recipientEmail;
 			if (!result.engine.includes('@draft')) {
 				toasts.push('No writing model is configured, so the wording could not be changed. Edit it by hand below.', 'warn');
 			}
@@ -98,7 +101,8 @@
 	}
 
 	function mailto(): string {
-		return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+		const who = to.trim() ? encodeURIComponent(to.trim()) : '';
+		return `mailto:${who}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 	}
 
 	function send() {
@@ -239,6 +243,26 @@
 			{:else}
 				<div class="cols" class:waiting={loading || rewriting}>
 					<div class="col">
+						{#if channel === 'email'}
+							<div class="to">
+								<label class="label" for="outreach-to">To</label>
+								<input
+									id="outreach-to"
+									class="input input-sm"
+									bind:value={to}
+									placeholder="nobody on file — type an address"
+									aria-label="Who this goes to"
+								/>
+								<span class="sub dim">
+									{#if draft?.recipientName}
+										{draft.recipientName}{#if draft.recipientEmail} · from the contacts on file{:else} · no address on file{/if}
+									{:else}
+										No contact is on file for this company yet — the Contacts tab on its page is where one goes.
+									{/if}
+								</span>
+							</div>
+						{/if}
+
 						<div class="col-head">
 							<p class="label">{channel === 'email' ? 'Subject' : 'Message'}</p>
 							<span class="sub dim num">
@@ -444,6 +468,19 @@
 		justify-content: space-between;
 		gap: var(--spacing-2);
 		flex: none;
+	}
+
+	.to {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		flex: none;
+		padding-bottom: var(--spacing-2);
+		border-bottom: 1px solid var(--color-rule);
+	}
+
+	.to .input {
+		max-width: 420px;
 	}
 
 	.subject {

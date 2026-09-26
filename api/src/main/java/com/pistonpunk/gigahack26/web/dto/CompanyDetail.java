@@ -44,6 +44,7 @@ public record CompanyDetail(
         List<LedgerRow> counterEvidence,
         List<Theme> themes,
         List<String> profiles,
+        List<Contact> contacts,
         String weakestLink,
         Double priorityHorizonDays,
         Double nurtureHorizonDays,
@@ -87,5 +88,19 @@ public record CompanyDetail(
             int spanEnd,
             String spanText,
             String rationale) {
+    }
+
+    /** One person a rep can write to, with whatever we actually hold on them. */
+    public record Contact(
+            UUID id,
+            String name,
+            String role,
+            String email,
+            String linkedinUrl,
+            String status,
+            String statusLabel,
+            int contactCount,
+            Instant lastContactedAt,
+            String sourceUrl) {
     }
 }

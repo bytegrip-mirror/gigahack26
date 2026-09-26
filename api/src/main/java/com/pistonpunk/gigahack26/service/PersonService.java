@@ -133,6 +133,24 @@ public class PersonService {
     }
 
     @Transactional
+    public Optional<Person> setEmail(UUID id, String email) {
+        return people.findById(id).map(person -> {
+            person.setEmail(email);
+            return people.save(person);
+        });
+    }
+
+    /** The people at one company, the ones with an address first. */
+    @Transactional(readOnly = true)
+    public List<Person> contactsFor(UUID companyId) {
+        return people.findByCompanyIdIn(List.of(companyId)).stream()
+                .sorted(java.util.Comparator
+                        .comparing((Person person) -> person.getEmail() == null ? 1 : 0)
+                        .thenComparing(Person::getName))
+                .toList();
+    }
+
+    @Transactional
     public Optional<Person> move(UUID id, String rawStatus, String channel, String subject) {
         if (rawStatus == null || rawStatus.isBlank()) {
             return Optional.empty();
@@ -159,6 +177,9 @@ public class PersonService {
             enrichment.enrich(person, domain).ifPresent(found -> {
                 if (found.found()) {
                     person.enrich(found.linkedinUrl(), found.headline(), clock.instant());
+                    if (person.getEmail() == null) {
+                        person.setEmail(found.email());
+                    }
                 }
             });
             return people.save(person);
@@ -192,6 +213,9 @@ public class PersonService {
             }
             if (found.get().found()) {
                 person.enrich(found.get().linkedinUrl(), found.get().headline(), clock.instant());
+                if (person.getEmail() == null) {
+                    person.setEmail(found.get().email());
+                }
                 people.save(person);
                 done += 1;
             } else {

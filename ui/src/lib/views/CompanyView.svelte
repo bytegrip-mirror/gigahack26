@@ -9,9 +9,12 @@
 	import LoadingVeil from '$lib/components/LoadingVeil.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 
+	import { setPersonEmail } from '$lib/api';
+
 	let { companyId, serviceLine }: { companyId: string; serviceLine: string } = $props();
 
 	const TABS = [
+		{ id: 'contacts', label: 'Contacts' },
 		{ id: 'signals', label: 'Signals' },
 		{ id: 'news', label: 'News' },
 		{ id: 'history', label: 'History' },
@@ -21,7 +24,25 @@
 	let detail = $state<CompanyDetail | null>(null);
 	let loading = $state(true);
 	let error = $state<string | null>(null);
-	let tab = $state('signals');
+	let tab = $state('contacts');
+	let emailDraft = $state<{ id: string; value: string } | null>(null);
+	let savingEmail = $state(false);
+
+	const withEmail = $derived((detail?.contacts ?? []).filter((contact) => contact.email).length);
+
+	async function saveEmail(id: string, value: string) {
+		savingEmail = true;
+		try {
+			await setPersonEmail(id, value);
+			const fresh = await fetchCompany(companyId, serviceLine);
+			detail = fresh;
+			emailDraft = null;
+		} catch (cause) {
+			toasts.push((cause as Error).message, 'error');
+		} finally {
+			savingEmail = false;
+		}
+	}
 	let proposition = $state<string | null>(null);
 	const profiles = $derived(detail?.profiles ?? []);
 
@@ -130,6 +151,7 @@
 			{#each TABS as option (option.id)}
 				<button role="tab" aria-selected={tab === option.id} onclick={() => (tab = option.id)}>
 					{option.label}
+					{#if option.id === 'contacts'}<span class="num">{detail.contacts.length}</span>{/if}
 					{#if option.id === 'signals'}<span class="num">{scored.length}</span>{/if}
 					{#if option.id === 'news'}<span class="num">{documents.length}</span>{/if}
 				</button>
@@ -137,6 +159,92 @@
 		</div>
 
 		<section class="body scroll">
+			{#if tab === 'contacts'}
+				<p class="lede">
+					The people our documents named at this company, and the addresses we hold. An address is only ever
+					one somebody gave us — a licensed provider or a rep — never one guessed from a name and a domain.
+				</p>
+				<table class="tbl contacts">
+					<thead>
+						<tr>
+							<th scope="col" class="c-name">Name</th>
+							<th scope="col">Role</th>
+							<th scope="col" class="c-mail">Email</th>
+							<th scope="col" class="c-stage">Stage</th>
+							<th scope="col" class="c-src">Said</th>
+						</tr>
+					</thead>
+					<tbody>
+						{#each detail.contacts as contact (contact.id)}
+							<tr>
+								<td class="c-name">
+									<span class="p-name">{contact.name}</span>
+									{#if contact.linkedinUrl}
+										<a class="link" href={safeHref(contact.linkedinUrl)} target="_blank" rel="noreferrer noopener">
+											profile
+										</a>
+									{/if}
+								</td>
+								<td class="sub">{contact.role}</td>
+								<td class="c-mail">
+									{#if emailDraft?.id === contact.id}
+										<span class="mail-edit">
+											<input
+												class="input input-sm"
+												bind:value={emailDraft.value}
+												placeholder="name@company.com"
+												onkeydown={(event) => {
+													if (event.key === 'Enter') saveEmail(contact.id, emailDraft?.value ?? '');
+													if (event.key === 'Escape') emailDraft = null;
+												}}
+											/>
+											<button class="btn btn-sm btn-ink" disabled={savingEmail} onclick={() => saveEmail(contact.id, emailDraft?.value ?? '')}>
+												Save
+											</button>
+										</span>
+									{:else if contact.email}
+										<button
+											class="mail"
+											title="Click to correct it"
+											onclick={() => (emailDraft = { id: contact.id, value: contact.email ?? '' })}
+										>
+											{contact.email}
+										</button>
+									{:else}
+										<button class="btn btn-sm btn-quiet" onclick={() => (emailDraft = { id: contact.id, value: '' })}>
+											<Icon name="plus" size={12} /> Add an address
+										</button>
+									{/if}
+								</td>
+								<td class="c-stage">
+									<span class="p-stage" data-stage={contact.status}>{contact.statusLabel}</span>
+									{#if contact.contactCount > 0}
+										<span class="sub dim">{contact.contactCount}×</span>
+									{/if}
+								</td>
+								<td class="c-src">
+									{#if safeHref(contact.sourceUrl)}
+										<a class="link" href={safeHref(contact.sourceUrl)} target="_blank" rel="noreferrer noopener">
+											{host(contact.sourceUrl ?? '')}
+										</a>
+									{:else}
+										<span class="sub dim">—</span>
+									{/if}
+								</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
+				{#if detail.contacts.length === 0}
+					<p class="sub dim">No document has named anybody at this company yet.</p>
+				{:else if withEmail === 0}
+					<p class="sub dim">
+						None of them has an address on file. Read the sources, use a licensed provider from the People
+						board, or type one in here.
+					</p>
+				{/if}
+			{/if}
+
 			{#if tab === 'signals'}
 				<p class="lede">
 					Every reading behind this score, strongest first. Each one is a sentence in a document we hold.
@@ -449,6 +557,85 @@
 
 	.history-facts dd {
 		margin-bottom: var(--spacing-1);
+	}
+
+	.contacts .c-name {
+		width: 26%;
+	}
+
+	.contacts .c-mail {
+		width: 26%;
+	}
+
+	.contacts .c-stage {
+		width: 130px;
+	}
+
+	.contacts .c-src {
+		width: 170px;
+	}
+
+	.contacts .sub {
+		display: block;
+	}
+
+	.p-name {
+		display: block;
+		font-family: var(--font-display);
+		font-size: var(--text-md);
+		font-weight: 500;
+	}
+
+	.mail {
+		font-family: var(--font-ui);
+		font-size: var(--text-base);
+		color: var(--color-ink);
+		text-decoration: underline;
+		text-underline-offset: 2px;
+		text-decoration-color: var(--color-rule-strong);
+		cursor: pointer;
+	}
+
+	.mail:hover {
+		text-decoration-color: var(--color-orange);
+		color: var(--color-orange-ink);
+	}
+
+	.mail-edit {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-1);
+	}
+
+	.mail-edit .input {
+		max-width: 220px;
+	}
+
+	.p-stage {
+		display: inline-block;
+		font-size: var(--text-micro);
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.07em;
+		padding: 1px 5px;
+		border: 1px solid var(--color-rule-strong);
+		color: var(--color-ink-3);
+	}
+
+	.p-stage[data-stage='QUALIFIED'] {
+		border-color: var(--color-accent);
+		color: var(--color-accent);
+	}
+
+	.p-stage[data-stage='REJECTED'] {
+		border-color: var(--color-oxblood-line);
+		color: var(--color-oxblood);
+	}
+
+	.p-stage[data-stage='CONTACTED'],
+	.p-stage[data-stage='REPLIED'] {
+		border-color: var(--color-orange-line);
+		color: var(--color-orange-ink);
 	}
 
 	.cards {

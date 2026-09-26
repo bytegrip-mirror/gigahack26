@@ -53,13 +53,15 @@ public class BoardService {
     private final ScoringConfig settings;
     private final RegionService regions;
     private final IcpProfileService icpProfiles;
+    private final PersonService people;
     private final Clock clock;
 
     public BoardService(CompanyRepository companies, CompanyAliasRepository aliases, EvidenceRepository evidence,
                         SignalRepository signals, PolicyScoreRepository scores, ScoreboardService scoreboard,
                         ScoringService scoringService, WhyNowService whyNow, LeadService leads,
                         ClassifierRouter router, LocalRubricEngine localEngine, CaptureStore captureStore,
-                        ScoringConfig settings, RegionService regions, IcpProfileService icpProfiles, Clock clock) {
+                        ScoringConfig settings, RegionService regions, IcpProfileService icpProfiles,
+                        PersonService people, Clock clock) {
         this.companies = companies;
         this.aliases = aliases;
         this.evidence = evidence;
@@ -75,6 +77,7 @@ public class BoardService {
         this.settings = settings;
         this.regions = regions;
         this.icpProfiles = icpProfiles;
+        this.people = people;
         this.clock = clock;
     }
 
@@ -261,6 +264,12 @@ public class BoardService {
                 detail.counterEvidence(),
                 themes,
                 icpProfiles.membership(List.of(company)).getOrDefault(company.getId(), List.of()),
+                people.contactsFor(company.getId()).stream()
+                        .map(person -> new com.pistonpunk.gigahack26.web.dto.CompanyDetail.Contact(
+                                person.getId(), person.getName(), person.getRole(), person.getEmail(),
+                                person.getLinkedinUrl(), person.getStatus().name(), person.getStatus().label(),
+                                person.getContactCount(), person.getLastContactedAt(), person.getSourceUrl()))
+                        .toList(),
                 detail.weakestLink(),
                 detail.priorityHorizonDays(),
                 detail.nurtureHorizonDays(),

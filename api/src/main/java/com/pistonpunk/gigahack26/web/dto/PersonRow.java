@@ -17,6 +17,7 @@ public record PersonRow(
         String sourceUrl,
         String publisher,
         Instant publishedAt,
+        String email,
         String linkedinUrl,
         String headline,
         Instant enrichedAt,
