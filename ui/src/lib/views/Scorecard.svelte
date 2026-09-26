@@ -423,10 +423,7 @@
 									</span>
 								</button>
 							{/each}
-							<p class="sub dim">
-								Passages that matched, scored under the confidence floor, and were not counted. Shown so the
-								floor can be argued with rather than trusted.
-							</p>
+							<p class="sub dim">Matched, scored under the floor, not counted.</p>
 						</section>
 					{/if}
 
@@ -520,12 +517,13 @@
 
 	.head {
 		display: flex;
-		align-items: flex-start;
+		align-items: center;
 		justify-content: space-between;
 		gap: var(--sp-2);
-		padding: var(--sp-3);
+		padding: var(--sp-3) var(--sp-4);
 		border-bottom: 1px solid var(--ink);
 		flex: none;
+		min-height: var(--head-h);
 	}
 
 	.head-tools {

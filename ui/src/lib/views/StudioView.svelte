@@ -706,7 +706,7 @@
 					{:else}
 						<div class="metrics">
 							<Metric value={preview.matchedCompanies} label="Companies" />
-							<Metric value={shortNumber(preview.matchedEvidence)} label="Documents" hint={`of ${shortNumber(preview.scannedEvidence)}`} />
+							<Metric value={shortNumber(preview.matchedEvidence)} label="Documents" />
 							<Metric value={duration(preview.tookMs)} label="Scan" />
 						</div>
 

@@ -86,58 +86,6 @@ public class WhyNowService {
         return host.isBlank() ? "an unnamed source" : host;
     }
 
-    private String narrative(ScoreComputation detail, List<LedgerRow> positives, List<LedgerRow> counters,
-                             LedgerRow trigger, ScoringProperties properties) {
-        StringBuilder text = new StringBuilder();
-
-        text.append("It is the strongest of ")
-                .append(positives.size())
-                .append(positives.size() == 1 ? " weighted signal" : " weighted signals")
-                .append(" pointing at ").append(trigger.theme()).append(".");
-        if (trigger.ageDays() < 45) {
-            text.append(" It is recent enough to open with.");
-        } else {
-            text.append(" It is ").append(age(trigger.ageDays()))
-                    .append(", so lead with the question rather than the claim.");
-        }
-
-        int themes = detail.themeCount();
-        if (themes >= 2) {
-            text.append(" ").append(themes)
-                    .append(" independent kinds of evidence agree, which is what put this company in the top band:");
-            text.append(" ").append(String.join(", ", detail.themeTotals().entrySet().stream()
-                    .filter(entry -> entry.getValue() > 0)
-                    .map(entry -> entry.getKey() + " " + String.format("%.2f", entry.getValue()))
-                    .toList())).append(" nats.");
-        } else {
-            text.append(" Only one kind of evidence is present, so it reaches the ")
-                    .append(String.format("%.2f", properties.priorityThreshold()))
-                    .append(" line and stops there — a second independent theme is what would move it up.");
-        }
-
-        if (counters.isEmpty()) {
-            text.append(" Nothing in the corpus argues against contacting them.");
-        } else {
-            text.append(" ").append(counters.size())
-                    .append(counters.size() == 1 ? " item argues" : " items argue")
-                    .append(" against, worth ")
-                    .append(String.format("%.2f", counters.stream().mapToDouble(LedgerRow::contributionNats).sum()))
-                    .append(" nats — read it before you write.");
-        }
-
-        Double horizon = detail.priorityHorizonDays();
-        if (horizon != null && horizon > 0) {
-            text.append(" Without new evidence this stays in the top band for about ")
-                    .append(Math.round(horizon)).append(" more days.");
-        } else if (detail.band() == com.pistonpunk.gigahack26.domain.Band.PRIORITY) {
-            text.append(" The evidence is fresh enough that the band is not time-limited yet.");
-        } else {
-            text.append(" It is below the top band and time alone will not lift it.");
-        }
-
-        return text.toString();
-    }
-
     private String urgency(ScoreComputation detail, LedgerRow trigger, ScoringProperties properties) {
         if (detail.band() == com.pistonpunk.gigahack26.domain.Band.DISQUALIFIED) {
             return "NONE";
@@ -162,6 +110,79 @@ public class WhyNowService {
             case "MONITOR" -> "Monitor";
             default -> "No trigger";
         };
+    }
+
+    /**
+     * Why now, in the words a rep would use.
+     *
+     * This used to explain the scoring model — the count of weighted signals,
+     * the nats each theme contributed, the line a single theme stops at. Every
+     * one of those numbers is real and every one of them is on the ledger, one
+     * tab across, for the reader who wants to check the arithmetic. What a
+     * person opening a lead wants first is what happened, when, and whether
+     * anything argues against calling. So the narrative names the events, dates
+     * them, and names the disagreement; the arithmetic stays where it belongs.
+     */
+    private String narrative(ScoreComputation detail, List<LedgerRow> positives, List<LedgerRow> counters,
+                             LedgerRow trigger, ScoringProperties properties) {
+        StringBuilder text = new StringBuilder();
+        text.append(happened(trigger)).append(" — ").append(source(trigger.publisher()))
+                .append(", ").append(age(trigger.ageDays())).append(".");
+
+        List<LedgerRow> others = positives.stream()
+                .filter(row -> !row.theme().equals(trigger.theme()))
+                .limit(2)
+                .toList();
+        if (!others.isEmpty()) {
+            text.append(" Separately, ").append(joinPlain(others)).append(".");
+            text.append(" Two unrelated things pointing the same way is what separates this from a company that "
+                    + "merely mentioned the subject once.");
+        } else if (positives.size() > 1) {
+            text.append(" ").append(positives.size() - 1)
+                    .append(positives.size() == 2 ? " further document says" : " further documents say")
+                    .append(" the same kind of thing, so the reading does not rest on one page.");
+        } else {
+            text.append(" Nothing else in the corpus says anything of the same kind, so this rests on one document.");
+        }
+
+        if (!counters.isEmpty()) {
+            text.append(" Against it: ").append(happened(counters.get(0))).append(", ")
+                    .append(age(counters.get(0).ageDays()))
+                    .append(". Read that before writing.");
+        }
+
+        Double horizon = detail.priorityHorizonDays();
+        if (detail.band() == com.pistonpunk.gigahack26.domain.Band.PRIORITY
+                || detail.band() == com.pistonpunk.gigahack26.domain.Band.NURTURE) {
+            text.append(horizon != null && horizon > 0
+                    ? " On the evidence here it holds for about " + Math.round(horizon) + " more days."
+                    : " The evidence is fresh, so the opening is now rather than later.");
+        }
+        return text.toString();
+    }
+
+    /**
+     * The question title as an event rather than as a question.
+     *
+     * The titles are written as questions because they are what the classifier
+     * answers; on a card they read better as the thing that happened.
+     */
+    static String happened(LedgerRow row) {
+        String title = row.questionTitle() == null || row.questionTitle().isBlank()
+                ? shorten(row.questionText())
+                : row.questionTitle();
+        String lowered = title.toLowerCase();
+        if (lowered.startsWith("an announced") || lowered.startsWith("a named") || lowered.startsWith("a ")) {
+            return Character.toUpperCase(title.charAt(0)) + title.substring(1);
+        }
+        return title;
+    }
+
+    private static String joinPlain(List<LedgerRow> rows) {
+        List<String> parts = rows.stream()
+                .map(row -> happened(row) + " (" + age(row.ageDays()) + ")")
+                .toList();
+        return String.join(", and ", parts);
     }
 
     private static String age(double days) {

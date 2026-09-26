@@ -76,7 +76,6 @@
 				value={String(market?.blindSpots ?? 0)}
 				label="Blind spots"
 				tone={(market?.blindSpots ?? 0) > 0 ? 'bad' : 'good'}
-				hint="Companies we hold no document for. They are counted rather than scored."
 			/>
 		</div>
 	</div>
@@ -126,12 +125,7 @@
 							tone={(backtest.lift ?? 0) > 1 ? 'good' : 'bad'}
 						/>
 					</div>
-					<p class="sub dim">
-						Every document the corpus holds was hidden from the scorer, the board was rebuilt as of
-						{new Date(backtest.asOf).toISOString().slice(0, 10)}, and then the documents that arrived after that date were
-						read back. This tests whether the score <em>precedes</em> the evidence — the corpus confirming itself — and not
-						whether it precedes a purchase, which only a sales team that has used the system could show.
-					</p>
+					<p class="sub dim">\n\t\t\t\t\t\tEvery document was hidden from the scorer, the board rebuilt as of {new Date(backtest.asOf).toISOString().slice(0, 10)}, then the later documents read back. This tests whether the score precedes the evidence, not whether it precedes a purchase.\n\t\t\t\t\t</p>
 				</section>
 			{/if}
 

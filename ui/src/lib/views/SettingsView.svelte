@@ -554,10 +554,7 @@
 								</span>
 							</label>
 						</div>
-						<p class="sub dim">
-							The base rate is the share of the pool worth calling. The theme cap follows the Priority line, so one
-							kind of evidence reaches it and never passes it.
-						</p>
+						<p class="sub dim">The base rate is the share of the pool worth calling.</p>
 					</section>
 
 					<section class="panel">
@@ -584,10 +581,7 @@
 								<Metric value={simulated.WATCH} label="Watch" />
 								<Metric value={simulated.THIN} label="Thin" />
 							</div>
-							<p class="sub dim">
-								Every company's fit is already computed, so moving a line re-tallies {curve.length} scores here without
-								touching the database. Save and every service line re-scores for real.
-							</p>
+							
 							{#if simulated.PRIORITY !== (bands.PRIORITY ?? 0)}
 								<p class="note warn">
 									Priority would go from {bands.PRIORITY ?? 0} to {simulated.PRIORITY}.
@@ -611,13 +605,11 @@
 								<Metric
 									value={shortNumber(read)}
 									label="Pairs the model actually read"
-									hint="Where the cue matcher pointed, plus a sample of where it did not"
 								/>
 								<Metric
 									value={shortNumber(Math.max(0, pairs - read))}
 									label="Pairs never sent"
 									tone="good"
-									hint="Documents sharing no vocabulary with the question are not worth a model call"
 								/>
 							</div>
 							<label class="field">
@@ -630,11 +622,7 @@
 									<strong>{(pairs / 1000 * perThousand).toFixed(2)}</strong> asked question by question.
 								</span>
 							</label>
-							<p class="sub dim">
-								{cached > 0
-									? `${shortNumber(cached)} answers are cached, so a re-run over unchanged documents pays for nothing it has already read.`
-									: 'Nothing is cached yet; the first re-run over unchanged documents is where the saving shows.'}
-							</p>
+							
 						{:else}
 							<p class="sub dim">No telemetry yet.</p>
 						{/if}
@@ -653,36 +641,23 @@
 								<Metric
 									value={shortNumber(telemetry.overlay.pairsSeen ?? 0)}
 									label="Pairs read by the model"
-									hint="Every pair sharing vocabulary with the question, plus a random sample of the ones that do not"
 								/>
 								<Metric
 									value={shortNumber(telemetry.signalsBySource?.classificationPairs ?? 0)}
 									label="Pairs in the corpus"
-									hint="documents x questions"
 								/>
 								<Metric
 									value={((telemetry.overlay.strikeRate ?? 0) * 100).toFixed(2) + '%'}
 									label="Quotes struck"
 									tone={(telemetry.overlay.strikeRate ?? 0) > 0.02 ? 'bad' : 'good'}
-									hint="Answers whose quote was not found in its own capture. A struck row is dropped, not repaired."
 								/>
 							</div>
 							{#if telemetry.overlay.sampling}
 								{@const sampling = telemetry.overlay.sampling}
-								<p class="sub dim">
-									The cue matcher was silent on {shortNumber(sampling.cueSilentSampled)} pairs chosen at random
-									({(sampling.sampleRate * 100).toFixed(0)}% of the ones it said nothing about) and the model was asked
-									anyway. It found a signal on {sampling.cueSilentSignals} of them —
-									{(sampling.cueSilentYield * 100).toFixed(2)}% — against {(sampling.cueLiveYield * 100).toFixed(1)}%
-									where the cue matcher had already fired. That first number is what the cheap engine alone would have
-									missed, measured rather than assumed.
-								</p>
+								<p class="sub dim">\n\t\t\t\t\t\t\t\t\tThe cue matcher was silent on {shortNumber(sampling.cueSilentSampled)} pairs sampled at random; the model found a signal on {(sampling.cueSilentYield * 100).toFixed(2)}% of them. That is what the cheap engine alone misses.\n\t\t\t\t\t\t\t\t</p>
 							{/if}
 						{:else}
-							<p class="sub dim">
-								Every row on the board was answered by the local rubric engine. It is deterministic and needs no
-								network, which is why the demo runs on it; the model is the precision layer and is built offline.
-							</p>
+							<p class="sub dim">Every row was answered by the local rubric engine.</p>
 						{/if}
 					</section>
 					<section class="panel">
@@ -705,14 +680,9 @@
 								value={String(telemetry?.coverage?.withoutDocuments ?? 0)}
 								label="Blind spots"
 								tone={(telemetry?.coverage?.withoutDocuments ?? 0) > 0 ? 'bad' : 'good'}
-								hint="Companies we hold no document for: nothing can be said about them either way"
 							/>
 						</div>
-						<p class="sub dim">
-							{telemetry?.coverage?.documentsPerCompany ?? 0} documents per company on average. A company with no
-							document is not a company with no signal — it is a company this crawl did not reach, and it is counted
-							here rather than quietly scored at the base rate.
-						</p>
+						
 					</section>
 
 					<section class="panel">
@@ -733,7 +703,6 @@
 								value={shortNumber(telemetry?.classificationCache?.reused ?? 0)}
 								label="Answers reused"
 								tone="good"
-								hint="A pair already read costs nothing to read again, so a re-run pays only for what it has not seen"
 							/>
 						</div>
 					</section>
@@ -742,12 +711,7 @@
 						<div class="panel-head">
 							<h2 class="dsp">What the team did with what it was shown</h2>
 						</div>
-						{#if (precision?.decisions ?? 0) === 0}
-							<p class="sub dim">
-								No row has been accepted or rejected yet. Mark a company from its card and the number appears here —
-								it is the only accuracy figure in the product that the system did not mark itself.
-							</p>
-						{:else}
+						{#if (precision?.decisions ?? 0) > 0}
 							<div class="metrics">
 								<Metric value={String(precision?.decisions ?? 0)} label="Rows reviewed" />
 								<Metric value={String(precision?.accepted ?? 0)} label="Accepted" tone="good" />
@@ -755,13 +719,8 @@
 								<Metric
 									value={precision?.queuePrecision != null ? precision.queuePrecision.toFixed(2) : '—'}
 									label="Accepted share"
-									hint="Of the rows a rep looked at. Reviews are not a random sample of the queue, so treat this as a floor on agreement, not as precision."
 								/>
 							</div>
-							<p class="sub dim">
-								This is measured against the team's own judgement rather than a rubric we wrote, which is why it is
-								worth more than a self-marked score — and why it is labelled for what it is.
-							</p>
 						{/if}
 					</section>
 				{/if}

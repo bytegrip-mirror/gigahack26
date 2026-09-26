@@ -41,6 +41,7 @@
 	--ctl-sm: 22px;
 	--row: 34px;
 	--bar: 44px;
+	--head-h: 67px;
 
 	--fs-micro: 11px;
 	--fs-sm: 11.5px;
@@ -205,7 +206,12 @@ a:hover {
 	border-bottom: 1px solid var(--ink);
 	background: var(--surface);
 	flex: none;
-	min-height: 56px;
+	/*
+	 * One height for every pane header, so the board's title rule and the
+	 * detail pane's sit on the same line. They were sized by their own content,
+	 * three pixels apart, and three pixels is enough to look wrong.
+	 */
+	min-height: var(--head-h);
 }
 
 .topbar h1 {

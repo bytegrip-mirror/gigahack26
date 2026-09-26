@@ -110,7 +110,6 @@
 							value={String(savedCount)}
 							label="Saved"
 							tone={savedCount > 0 ? 'good' : null}
-							hint="Companies you have starred. The board's Saved filter shows them."
 						/>
 					</div>
 				</section>
