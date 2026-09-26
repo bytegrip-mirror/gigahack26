@@ -2037,8 +2037,13 @@
 		width: 360px;
 	}
 
+	/*
+	 * The titles wrap now, and `flex-start` put the dot level with the top of the
+	 * first line box rather than on its baseline — the mark was visibly above the
+	 * words it belongs to. A baseline is a baseline however many lines follow it.
+	 */
 	.c-sig .evidence li {
-		align-items: flex-start;
+		align-items: baseline;
 	}
 
 	.ev-title {

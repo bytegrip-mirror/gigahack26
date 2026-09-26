@@ -378,7 +378,7 @@
 									</button>
 								{/if}
 							</td>
-							<td>
+							<td class="c-co">
 								<span class="co-line">
 									<CompanyMark name={person.company} domain={person.domain} />
 									<span class="co">{person.company}</span>
@@ -497,14 +497,28 @@
 		background: var(--color-paper);
 	}
 
+	/*
+	 * The table stretched to the whole window and the columns spread with it, so
+	 * the headings sat hundreds of pixels apart and stopped reading as one row of
+	 * labels over their own data. It stops at the width the columns actually need
+	 * and the rest of the pane stays empty.
+	 */
+	.pane table.tbl {
+		max-width: 1080px;
+	}
+
 	.c-person {
-		width: 26%;
+		width: 30%;
 		vertical-align: top;
 	}
 
 	.c-fit {
 		width: 96px;
 		vertical-align: top;
+	}
+
+	.c-co {
+		width: 260px;
 	}
 
 	.c-stage {
@@ -549,12 +563,12 @@
 	}
 
 	.c-when {
-		width: 110px;
+		width: 120px;
 		color: var(--color-ink-3);
 	}
 
 	.c-src {
-		width: 200px;
+		width: 190px;
 	}
 
 	.p-name {

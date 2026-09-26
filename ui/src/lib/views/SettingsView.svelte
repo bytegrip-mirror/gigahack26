@@ -1,22 +1,3 @@
-						{#if exclusions.length > 0}
-							<p class="label against-label">Also kept out</p>
-							<p class="sub dim">
-								Companies that sell what we sell. Take one off and it is callable again.
-							</p>
-							<div class="chips">
-								{#each exclusions as company (company.id)}
-									<button
-										class="chip"
-										type="button"
-										title={`Bring ${company.name} back into the queue`}
-										disabled={profileBusy === company.id}
-										onclick={() => bringBack(company)}
-									>
-										{company.name}<Icon name="close" size={11} />
-									</button>
-								{/each}
-							</div>
-						{/if}
 <script lang="ts">
 	import {
 		createServiceLine,
@@ -723,6 +704,26 @@
 							/>
 							<button class="btn btn-sm" type="button" onclick={addBlacklist}>Add</button>
 						</div>
+
+						{#if exclusions.length > 0}
+							<p class="label against-label">Also kept out</p>
+							<p class="sub dim">
+								Companies that sell what we sell. Take one off and it is callable again.
+							</p>
+							<div class="chips">
+								{#each exclusions as company (company.id)}
+									<button
+										class="chip"
+										type="button"
+										title={`Bring ${company.name} back into the queue`}
+										disabled={profileBusy === company.id}
+										onclick={() => bringBack(company)}
+									>
+										{company.name}<Icon name="close" size={11} />
+									</button>
+								{/each}
+							</div>
+						{/if}
 
 						{#if exclusions.length > 0}
 							<p class="label against-label">Also kept out</p>
