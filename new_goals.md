@@ -273,7 +273,7 @@ Make it live: drag priority/nurture/watch and watch the band counts recompute
 from the stored scores without saving. Files: `SettingsView.svelte`. **Verify:**
 moving priority from 0.55 to 0.40 changes the Priority count on screen.
 
-[ ] C8. Policy import and export as a set
+[x] C8. Policy import and export as a set
 The Studio exports a CSV of questions; it cannot import one. A JSON round-trip
 makes "here is a policy set for a new market" a thing a user can actually do.
 Files: `PolicyController`, `StudioView.svelte`. **Verify:** export, delete,

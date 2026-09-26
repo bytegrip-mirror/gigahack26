@@ -156,32 +156,51 @@ public class CorpusSeeder implements ApplicationRunner {
     }
 
     /**
-     * Identifies the shipped corpus by its content, so a deploy that changes the
-     * file re-reads it without an operator remembering a flag.
+     * Identifies the shipped corpus and its overlay by content, so a deploy that
+     * changes either re-reads them without an operator remembering a flag.
+     *
+     * Both files, because the overlay is what decides which engine answers: a
+     * deployment that ships a rebuilt signals.json and fingerprints only the raw
+     * corpus would keep serving the classifications the overlay was built to
+     * replace, and would look like it had worked.
      *
      * Re-seeding is safe to repeat: company, evidence and capture identifiers are
      * all derived from the corpus keys, so the rows that leads, bookmarks and
      * feedback point at keep their identity across a rebuild.
      */
     private String fingerprintOf() {
+        byte[] corpus = readOrNull(properties.rawPath());
+        if (corpus == null) {
+            return null;
+        }
+        byte[] overlay = readOrNull(properties.signalsPath());
         try {
-            ClassPathResource resource = new ClassPathResource(properties.rawPath());
-            byte[] bytes;
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            digest.update(corpus);
+            digest.update((byte) 0);
+            digest.update(overlay == null ? new byte[0] : overlay);
+            return "sha256:" + HexFormat.of().formatHex(digest.digest(), 0, 16);
+        } catch (Exception e) {
+            log.warn("could not fingerprint the corpus: {}", e.toString());
+            return null;
+        }
+    }
+
+    private byte[] readOrNull(String location) {
+        if (location == null || location.isBlank()) {
+            return null;
+        }
+        try {
+            ClassPathResource resource = new ClassPathResource(location);
             if (resource.exists()) {
                 try (InputStream stream = resource.getInputStream()) {
-                    bytes = stream.readAllBytes();
+                    return stream.readAllBytes();
                 }
-            } else {
-                Path path = Path.of(properties.rawPath());
-                if (!Files.exists(path)) {
-                    return null;
-                }
-                bytes = Files.readAllBytes(path);
             }
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            return "sha256:" + HexFormat.of().formatHex(digest.digest(bytes), 0, 16);
+            Path path = Path.of(location);
+            return Files.exists(path) ? Files.readAllBytes(path) : null;
         } catch (Exception e) {
-            log.warn("could not fingerprint {}: {}", properties.rawPath(), e.toString());
+            log.warn("could not read {}: {}", location, e.toString());
             return null;
         }
     }
