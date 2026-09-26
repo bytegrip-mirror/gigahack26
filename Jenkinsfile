@@ -297,11 +297,11 @@ pipeline {
                         board=$(docker exec ${API_CONTAINER} wget -q -O - "https://${API_DOMAIN}/api/companies") \
                             || fail "the board payload did not answer — status alone can be green while reads fail"
                         case "$board" in
-                            \[*\]) ;;
+                            \\[*\\]) ;;
                             *) fail "the board payload is not a JSON array: $(echo "$board" | head -c 200)" ;;
                         esac
                         case "$board" in
-                            \[\]) fail "the board payload is empty" ;;
+                            \\[\\]) fail "the board payload is empty" ;;
                         esac
                         sleep 2
                     done

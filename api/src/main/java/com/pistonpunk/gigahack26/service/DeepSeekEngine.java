@@ -139,7 +139,7 @@ public class DeepSeekEngine implements ClassifierEngine {
         ObjectNode root = mapper.createObjectNode();
         root.put("model", properties.deepseek().model());
         root.put("temperature", 0);
-        root.put("max_tokens", 1400);
+        root.put("max_tokens", 1800);
         root.put("stream", false);
 
         ObjectNode responseFormat = root.putObject("response_format");
@@ -252,6 +252,17 @@ public class DeepSeekEngine implements ClassifierEngine {
         try {
             return mapper.readTree(raw);
         } catch (Exception e) {
+            String cleaned = raw.replaceAll("[\\u0000-\\u001F&&[^\\n\\r\\t]]", " ");
+            try {
+                return mapper.readTree(cleaned);
+            } catch (Exception ignored) {
+                return salvage(raw);
+            }
+        }
+    }
+
+    private JsonNode salvage(String raw) {
+        {
             int quoteStart = raw.indexOf("\"quote\"");
             if (quoteStart < 0) {
                 return null;

@@ -254,9 +254,19 @@ def classify(job):
             "rationale": str(answer.get("reason") or "")[:200]}
 
 
-def load_questions(base_url):
-    with urllib.request.urlopen(base_url + "/api/policies", timeout=30) as response:
-        policies = json.loads(response.read())
+def load_questions(base_url, attempts=8):
+    policies = None
+    last = None
+    for attempt in range(attempts):
+        try:
+            with urllib.request.urlopen(base_url + "/api/policies", timeout=30) as response:
+                policies = json.loads(response.read())
+            break
+        except Exception as exc:
+            last = exc
+            time.sleep(2 * (attempt + 1))
+    if policies is None:
+        raise RuntimeError("could not read the policy set: %s" % last)
     out = []
     for policy in policies:
         if not policy.get("active"):
