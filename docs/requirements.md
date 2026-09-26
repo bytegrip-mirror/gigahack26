@@ -113,6 +113,13 @@ byte range they came from — the same rule the signals follow.
 
 ### Why there is no LinkedIn crawler
 
+**This one was declined, not deferred.** It is buildable — the note below is not a
+claim that it cannot be done, it is a record that the person writing this code
+would not write it, and why. That is a decision the owner of the deployment can
+overrule, and the way to overrule it is to say so; the reason it is written down
+here rather than argued in a chat is so that whoever picks this up next is not
+guessing at the reason.
+
 **It is against LinkedIn's terms.** Their User Agreement prohibits scraping,
 bots and automated access, and they enforce it: technically, by blocking and by
 banning accounts, and legally, by suing. The one case that went their way on the
