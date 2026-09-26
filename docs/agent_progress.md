@@ -93,6 +93,29 @@ arithmetic visible** while removing a company from the queue.
       *Loading* with a greyed overlay, the ask note no longer overlaps its button.
 - [x] The company pane runs the full height of the window.
 
+## Security review of the new endpoints
+
+Three automated reviews flagged the same class — missing tenant scoping and
+authorization — against `AskService`, `AskController` and `BookmarkController`.
+None of them is exploitable here, and the reasoning is the posture AGENTS.md
+already records: **there is no authentication and no tenancy, by design.** The
+corpus is public web pages, there are no user accounts and no personal data, and
+the jury is meant to type a question into the Studio themselves. `/api/ask` reads
+the same public corpus that `/api/companies` already serves to anyone, so it
+grants no access that did not exist before. Adding `@PreAuthorize` would break the
+only interaction the demo depends on.
+
+One finding did point at something real, and it is fixed: `/api/ask/read` is
+called on every keystroke and was loading all 578 companies from Postgres each
+time. It now reads a 30-second snapshot.
+
+One is a genuine, accepted trade-off rather than a bug: **bookmarks are shared,
+mutable state with no owner.** A visitor to the public demo can add or clear
+them. That is the same exposure as the rest of the product — anyone who can reach
+the API can already rewrite policies and re-score the board — and it carries no
+personal data, so it is left consistent with the deployment's stated posture
+rather than given a half-measure of auth.
+
 ## Still open, and why
 
 - [ ] **The model overlay (`corpus/signals.json`) is not committed.** It is the
