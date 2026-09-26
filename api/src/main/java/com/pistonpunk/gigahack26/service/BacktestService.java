@@ -44,25 +44,35 @@ public class BacktestService {
      * The rates are components rather than methods because they are computed for
      * the payload: a record's methods are not serialised, so a panel reading
      * calledRate() got nothing and drew a dash where the number should be.
+     *
+     * `powered` is false when too few companies reached a band for the comparison
+     * to mean anything. A corpus crawled this week has almost no dated evidence
+     * before a cutoff three months back, so the "as of" board has nothing at the
+     * top and the comparison is one company against three hundred. A test whose
+     * sample cannot support its conclusion has to say so — that was the sharpest
+     * criticism the research levelled at its own rehearsal protocol.
      */
-    public record Outcome(int asOfDaysAgo, Instant asOf, long companies, long called, long control,
-                          long calledConfirmed, long controlConfirmed,
-                          Double calledRate, Double controlRate, Double lift, List<Row> rows) {
+    public record Outcome(int asOfDaysAgo, Instant asOf, long companies, long withEvidence, long called,
+                          long control, long calledConfirmed, long controlConfirmed,
+                          Double calledRate, Double controlRate, Double lift, boolean powered,
+                          List<Row> rows) {
 
-        static Outcome of(int asOfDaysAgo, Instant asOf, long called, long control,
+        static Outcome of(int asOfDaysAgo, Instant asOf, long withEvidence, long called, long control,
                           long calledConfirmed, long controlConfirmed, List<Row> rows) {
             Double calledRate = called == 0 ? null : round((double) calledConfirmed / called);
             Double controlRate = control == 0 ? null : round((double) controlConfirmed / control);
             Double lift = calledRate == null || controlRate == null || controlRate == 0.0
                     ? null : round(calledRate / controlRate);
-            return new Outcome(asOfDaysAgo, asOf, called + control, called, control,
-                    calledConfirmed, controlConfirmed, calledRate, controlRate, lift, rows);
+            return new Outcome(asOfDaysAgo, asOf, called + control, withEvidence, called, control,
+                    calledConfirmed, controlConfirmed, calledRate, controlRate, lift,
+                    called >= MIN_CALLS_TO_COMPARE, rows);
         }
     }
 
     public record Row(String company, String band, double probability, int before, int after, boolean confirmed) {
     }
 
+    private static final int MIN_CALLS_TO_COMPARE = 10;
     private static final int MAX_ROWS = 40;
 
     private final CompanyRepository companies;
@@ -90,7 +100,7 @@ public class BacktestService {
         Instant asOf = clock.instant().minus(Duration.ofDays(daysAgo));
         List<PolicyQuestion> questions = scoreboard.activeQuestions(serviceLine);
         if (questions.isEmpty()) {
-            return Outcome.of(daysAgo, asOf, 0, 0, 0, 0, List.of());
+            return Outcome.of(daysAgo, asOf, 0, 0, 0, 0, 0, List.of());
         }
         Set<UUID> questionIds = questions.stream().map(PolicyQuestion::getId).collect(Collectors.toSet());
 
@@ -102,6 +112,7 @@ public class BacktestService {
 
         ScoringProperties profile = settings.effective();
         List<Row> rows = new ArrayList<>();
+        long hadEvidence = 0;
         long called = 0;
         long control = 0;
         long calledConfirmed = 0;
@@ -118,6 +129,7 @@ public class BacktestService {
             if (before.isEmpty()) {
                 continue;
             }
+            hadEvidence++;
             Set<UUID> beforeIds = before.stream().map(Evidence::getId).collect(Collectors.toSet());
             List<Signal> beforeSignals = signalsByCompany.getOrDefault(company.getId(), List.of()).stream()
                     .filter(signal -> beforeIds.contains(signal.getEvidenceId()))
@@ -155,8 +167,8 @@ public class BacktestService {
         if (rows.size() > MAX_ROWS) {
             rows = rows.subList(0, MAX_ROWS);
         }
-        return Outcome.of(daysAgo, asOf, called, control, calledConfirmed, controlConfirmed,
-                List.copyOf(rows));
+        return Outcome.of(daysAgo, asOf, hadEvidence, called, control, calledConfirmed,
+                controlConfirmed, List.copyOf(rows));
     }
 
     private static double round(double value) {

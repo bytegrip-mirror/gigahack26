@@ -97,6 +97,16 @@
 							{/each}
 						</div>
 					</div>
+					{#if !backtest.powered}
+						<p class="note warn">
+							<strong>Not enough history to answer.</strong> Of {backtest.withEvidence} companies holding a
+							document dated before {(backtest.asOf ?? '').slice(0, 10)}, only {backtest.called}
+							{backtest.called === 1 ? 'reaches' : 'reach'} a band on the evidence from before that date. The
+							corpus was crawled this week, so the board as of three months ago is nearly empty and any rate
+							computed from it would be measuring the corpus's age rather than the board's judgement. Shorten the
+							horizon, or crawl older pages, before reading a number here.
+						</p>
+					{/if}
 					<div class="metrics">
 						<Metric value={String(backtest.called)} label="It would have called" tone="hot" />
 						<Metric

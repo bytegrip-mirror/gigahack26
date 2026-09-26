@@ -719,6 +719,7 @@ export type Backtest = {
 	asOfDaysAgo: number;
 	asOf: string;
 	companies: number;
+	withEvidence: number;
 	called: number;
 	control: number;
 	calledConfirmed: number;
@@ -726,6 +727,7 @@ export type Backtest = {
 	calledRate: number | null;
 	controlRate: number | null;
 	lift: number | null;
+	powered: boolean;
 	rows: {
 		company: string;
 		band: string;
