@@ -476,6 +476,18 @@ what is missing and why — an absence with a reason, not a silent gap.
   the cache groups by what is stored. `maxCandidatesPerDocument`,
   `Voice.targetWords()`, the unused tokens and `PolicyScore.computedMs` remain.
 
+## What the backtest actually said
+
+Run against the live corpus at thirty, sixty, ninety and a hundred and eighty
+days, it reports a lift of 0.0 every time: one company reaches a band where three
+hundred and sixty-six do not, and none of the one is confirmed. That is not a
+finding about the board. The corpus was crawled this week, so a board rebuilt as
+of three months ago has almost nothing at the top, and the rate from a sample of
+one measures the corpus's age. The panel now says so before it shows a number,
+and the honest reading is: crawl older pages before asking it anything. Building
+the instrument was still worth it — an instrument that reported a confident 0.0
+would have been worse than none.
+
 ## What was not on the list
 
 1. **The deployed database answered with the union of every corpus ever seeded.**
