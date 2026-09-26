@@ -783,7 +783,7 @@
 		width: 10px;
 		height: 10px;
 		flex: none;
-		border-radius: 2px;
+		border-radius: var(--radius);
 		border: 1px solid var(--color-ink-4);
 	}
 
@@ -920,7 +920,7 @@
 		width: 22px;
 		height: 22px;
 		flex: none;
-		border-radius: 2px;
+		border-radius: var(--radius);
 		border: 1px solid var(--color-ink-4);
 	}
 
@@ -937,7 +937,7 @@
 		animation: fade-in var(--ease-enter) both;
 		position: fixed;
 		inset: 0;
-		background: rgb(18 16 13 / 0.34);
+		background: rgb(0 0 0 / 0.34);
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -972,7 +972,7 @@
 	.cell {
 		aspect-ratio: 1;
 		border: 1px solid var(--color-rule-strong);
-		border-radius: 2px;
+		border-radius: var(--radius);
 		cursor: pointer;
 	}
 

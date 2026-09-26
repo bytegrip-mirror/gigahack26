@@ -582,9 +582,7 @@
 		align-items: center;
 		gap: 3px;
 		font-size: var(--text-micro);
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.06em;
+		font-weight: 700;
 		color: var(--color-accent);
 	}
 
@@ -619,9 +617,7 @@
 
 	.urgency {
 		font-size: var(--text-micro);
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.09em;
+		font-weight: 700;
 		color: var(--color-ink-3);
 	}
 

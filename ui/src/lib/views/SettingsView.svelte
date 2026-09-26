@@ -993,7 +993,7 @@
 		gap: 4px;
 		padding: 2px var(--spacing-2);
 		border: 1px solid var(--color-rule);
-		border-radius: 2px;
+		border-radius: var(--radius);
 		background: var(--color-surface);
 		font: inherit;
 		font-size: var(--text-sm);
