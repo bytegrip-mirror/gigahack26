@@ -274,6 +274,7 @@ def load_questions(base_url, attempts=8):
         polarity = policy.get("polarity")
         out.append({
             "key": policy["key"],
+            "serviceLine": policy.get("serviceLine") or "unsorted",
             "text": policy.get("text") or "",
             "instructions": policy.get("instructions") or "",
             "polarity": polarity,
