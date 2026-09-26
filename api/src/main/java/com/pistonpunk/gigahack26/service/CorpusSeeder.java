@@ -40,8 +40,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -266,6 +268,35 @@ public class CorpusSeeder implements ApplicationRunner {
 
         evidence.saveAll(rows);
         captures.saveAll(captureRows);
+        dropVanished(List.copyOf(rows));
+    }
+
+    /**
+     * Evidence the corpus no longer carries stops being scored.
+     *
+     * Writing the new rows is additive, and for a long time that was the whole
+     * of it: a document that left the corpus kept its row, kept its capture and
+     * kept its signals, so the deployed board answered with the union of every
+     * corpus that had ever been seeded. It was scoring pages the sweep had
+     * thrown away as 404s and passages a later sweep had replaced. Signals and
+     * captures are rebuilt from the corpus on each seed, so anything keyed to a
+     * document the corpus dropped goes with it.
+     */
+    private void dropVanished(List<Evidence> kept) {
+        Set<String> present = kept.stream().map(Evidence::getKey).collect(Collectors.toSet());
+        List<Evidence> stale = evidence.findAll().stream()
+                .filter(item -> !present.contains(item.getKey()))
+                .toList();
+        if (stale.isEmpty()) {
+            return;
+        }
+        for (Evidence item : stale) {
+            captures.deleteByEvidenceKey(item.getKey());
+            captureStore.forget(item.getKey());
+        }
+        signals.deleteByEvidenceIdIn(stale.stream().map(Evidence::getId).toList());
+        evidence.deleteAll(stale);
+        log.info("dropped {} evidence units the corpus no longer carries", stale.size());
     }
 
     private void persistSignals() {

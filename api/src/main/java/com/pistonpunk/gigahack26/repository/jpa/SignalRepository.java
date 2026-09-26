@@ -27,6 +27,10 @@ public interface SignalRepository extends JpaRepository<Signal, UUID> {
     void deleteByQuestionId(UUID questionId);
 
     @Modifying
+    @Query("delete from Signal s where s.evidenceId in :evidenceIds")
+    void deleteByEvidenceIdIn(Collection<UUID> evidenceIds);
+
+    @Modifying
     @Query("delete from Signal s where s.companyId = :companyId and s.questionId = :questionId")
     void deleteByCompanyIdAndQuestionId(UUID companyId, UUID questionId);
 }

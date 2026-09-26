@@ -49,6 +49,10 @@ public class CaptureStore {
                 .orElse(null);
     }
 
+    public void forget(String evidenceKey) {
+        texts.remove(evidenceKey);
+    }
+
     public int size() {
         return texts.size();
     }

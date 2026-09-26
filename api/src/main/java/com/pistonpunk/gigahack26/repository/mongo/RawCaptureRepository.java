@@ -8,4 +8,6 @@ import java.util.Optional;
 public interface RawCaptureRepository extends MongoRepository<RawCapture, String> {
 
     Optional<RawCapture> findByEvidenceKey(String evidenceKey);
+
+    void deleteByEvidenceKey(String evidenceKey);
 }
