@@ -85,11 +85,15 @@ public class EnrichmentService {
             }
 
             JsonNode root = mapper.readTree(response.body());
-            return Optional.of(new Enriched(
-                    text(root, "linkedin_url"),
-                    text(root, "job_title"),
-                    text(root, "job_seniority"),
-                    true));
+            // People Data Labs wraps the person in `data`; the others put the
+            // fields at the root. Read the envelope when it is there and the body
+            // when it is not, so a second provider is a new base URL rather than a
+            // new parser.
+            JsonNode record = root.path("data").isObject() ? root.path("data") : root;
+            String linkedin = text(record, "linkedin_url");
+            String headline = text(record, "job_title");
+            return Optional.of(new Enriched(linkedin, headline, text(record, "job_seniority"),
+                    linkedin != null || headline != null));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return Optional.empty();
