@@ -91,6 +91,18 @@ export function plural(count: number, one: string, many?: string): string {
 	return `${count} ${count === 1 ? one : (many ?? `${one}s`)}`;
 }
 
+/**
+ * A link only when it is a link.
+ *
+ * Source URLs come from the crawler and are http(s) by construction, but they are
+ * still text that arrived from the open web, and `href="javascript:…"` runs on
+ * click. Anything that is not http(s) is rendered as words instead of a link.
+ */
+export function safeHref(url: string | null | undefined): string | null {
+	if (!url) return null;
+	return /^https?:\/\//i.test(url.trim()) ? url.trim() : null;
+}
+
 export function host(url: string): string {
 	try {
 		return new URL(url).hostname.replace(/^www\./, '');

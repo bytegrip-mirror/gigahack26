@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { fetchCompany, fetchServiceLines, type CompanyDetail } from '$lib/api';
 	import { toasts } from '$lib/toast.svelte';
-	import { age, date, fit, fitTone, fitWord, host, plural, sourceKind, theme } from '$lib/format';
+	import { age, date, fit, fitTone, fitWord, host, plural, safeHref, sourceKind, theme } from '$lib/format';
 	import { copy } from '$lib/export';
 	import Tag from '$lib/components/Tag.svelte';
 	import CompanyMark from '$lib/components/CompanyMark.svelte';
@@ -153,7 +153,13 @@
 							</div>
 							{#if row.spanText}<blockquote>{row.spanText}</blockquote>{/if}
 							<div class="line-foot">
-								<a class="link" href={row.sourceUrl} target="_blank" rel="noreferrer noopener">{row.publisher}</a>
+								{#if safeHref(row.sourceUrl)}
+									<a class="link" href={safeHref(row.sourceUrl)} target="_blank" rel="noreferrer noopener">
+										{row.publisher}
+									</a>
+								{:else}
+									<span>{row.publisher}</span>
+								{/if}
 								<span class="dim">· {sourceKind(row.sourceKind)} · {age(row.ageDays)}</span>
 								{#if row.rationale}<span class="dim">· {row.rationale}</span>{/if}
 							</div>
@@ -169,9 +175,13 @@
 				<ul class="docs">
 					{#each documents as item (item.id)}
 						<li>
-							<a class="doc-title" href={item.sourceUrl} target="_blank" rel="noreferrer noopener">
-								{item.title ?? host(item.sourceUrl)}
-							</a>
+							{#if safeHref(item.sourceUrl)}
+								<a class="doc-title" href={safeHref(item.sourceUrl)} target="_blank" rel="noreferrer noopener">
+									{item.title ?? host(item.sourceUrl)}
+								</a>
+							{:else}
+								<span class="doc-title">{item.title ?? 'untitled'}</span>
+							{/if}
 							<span class="sub dim">
 								{item.publisher} · {sourceKind(item.sourceKind)} · {date(item.publishedAt ?? item.observedAt)}
 								{#if item.signalCount > 0}

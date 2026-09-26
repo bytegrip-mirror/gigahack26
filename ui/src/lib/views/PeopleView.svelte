@@ -3,7 +3,7 @@
 	import { session } from '$lib/session.svelte';
 	import { workspace } from '$lib/workspace.svelte';
 	import { toasts } from '$lib/toast.svelte';
-	import { age, date, fitTone, fitWord, host } from '$lib/format';
+	import { date, fitTone, fitWord, host, safeHref } from '$lib/format';
 	import { csv, save } from '$lib/export';
 	import CompanyMark from '$lib/components/CompanyMark.svelte';
 	import LoadingVeil from '$lib/components/LoadingVeil.svelte';
@@ -219,15 +219,19 @@
 							</td>
 							<td class="c-when num">{person.publishedAt ? date(person.publishedAt) : '—'}</td>
 							<td class="c-src">
-								<a
-									class="link"
-									href={person.sourceUrl}
-									target="_blank"
-									rel="noreferrer noopener"
-									onclick={(event) => event.stopPropagation()}
-								>
-									{host(person.sourceUrl)}
-								</a>
+								{#if safeHref(person.sourceUrl)}
+									<a
+										class="link"
+										href={safeHref(person.sourceUrl)}
+										target="_blank"
+										rel="noreferrer noopener"
+										onclick={(event) => event.stopPropagation()}
+									>
+										{host(person.sourceUrl)}
+									</a>
+								{:else}
+									<span class="dim">no link on file</span>
+								{/if}
 								<span class="sub dim">{person.publisher}</span>
 							</td>
 						</tr>

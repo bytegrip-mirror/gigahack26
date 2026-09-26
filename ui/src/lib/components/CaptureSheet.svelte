@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { apiBase, fetchEvidence, type EvidenceDetail } from '$lib/api';
-	import { date, host, plural, tier, timestamp } from '$lib/format';
+	import { date, host, plural, safeHref, tier, timestamp } from '$lib/format';
 	import Icon from './Icon.svelte';
 
 	let {
@@ -105,7 +105,7 @@
 				<dl class="meta">
 					<dt>Source</dt>
 					<dd>
-						<a href={detail.sourceUrl} target="_blank" rel="noreferrer noopener">{host(detail.sourceUrl)}</a>
+						<a href={safeHref(detail.sourceUrl) ?? '#'} target="_blank" rel="noreferrer noopener">{host(detail.sourceUrl)}</a>
 					</dd>
 					<dt>Publisher</dt>
 					<dd>{detail.publisher}</dd>
@@ -161,7 +161,9 @@
 				The full document
 			</a>
 			{#if detail}
-				<a class="btn btn-sm" href={detail.sourceUrl} target="_blank" rel="noreferrer noopener">Open source</a>
+				{#if safeHref(detail.sourceUrl)}
+					<a class="btn btn-sm" href={safeHref(detail.sourceUrl)} target="_blank" rel="noreferrer noopener">Open source</a>
+				{/if}
 			{/if}
 			<button class="btn btn-ink btn-sm" onclick={onclose}>Close</button>
 		</footer>
