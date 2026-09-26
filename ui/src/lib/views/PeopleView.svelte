@@ -101,9 +101,14 @@
 		priority: workspace.meta?.scoring.priorityThreshold ?? 0.55
 	});
 
+	let ticket = 0;
+
 	async function load() {
 		if (!serviceLine) return;
-		rows = await fetchPeople(serviceLine);
+		const mine = ++ticket;
+		const result = await fetchPeople(serviceLine);
+		if (mine !== ticket) return;
+		rows = result;
 	}
 
 	$effect(() => {

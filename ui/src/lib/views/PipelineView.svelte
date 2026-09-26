@@ -54,12 +54,22 @@
 
 	const lines = $derived(allLines ? (workspace.lines.length > 0 ? workspace.lines : [serviceLine]) : [serviceLine]);
 
+	/**
+	 * Every load carries a ticket, and only the newest one is allowed to write.
+	 * Without it a slow answer for the scope you just left lands after the fast
+	 * answer for the scope you are on, and the screen shows the wrong leads under
+	 * the right heading — which is what "it shows stale data" looks like.
+	 */
+	let ticket = 0;
+
 	async function load() {
+		const mine = ++ticket;
 		const results = await Promise.all(
 			lines.map((line) =>
 				Promise.all([fetchLeads(line), fetchLeadTally(line)]).then(([list, counts]) => ({ list, counts }))
 			)
 		);
+		if (mine !== ticket) return;
 		leads = results.flatMap(({ list }) => list);
 		tally = results.reduce<LeadTally>(
 			(total, { counts }) => ({
