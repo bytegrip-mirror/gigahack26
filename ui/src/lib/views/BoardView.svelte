@@ -1479,6 +1479,7 @@
 	 */
 	.view .scrim {
 		display: none;
+		animation: fade-in var(--ease-enter) both;
 	}
 
 	.main {
@@ -1515,6 +1516,7 @@
 	}
 
 	.detail {
+		animation: enter-right var(--ease-enter) both;
 		min-height: 0;
 		border-left: 1px solid var(--ink);
 		background: var(--surface);

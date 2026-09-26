@@ -368,6 +368,7 @@
 	}
 
 	.toasts {
+		animation: rise var(--ease-enter) both;
 		position: fixed;
 		right: var(--sp-4);
 		bottom: var(--sp-4);

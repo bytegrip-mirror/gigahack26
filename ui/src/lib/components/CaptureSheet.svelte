@@ -191,15 +191,9 @@
 		display: flex;
 		flex-direction: column;
 		min-height: 0;
-		animation: slide 160ms cubic-bezier(0.2, 0, 0.2, 1);
+		animation: enter-right var(--ease-enter) both;
 	}
 
-	@keyframes slide {
-		from {
-			transform: translateX(14px);
-			opacity: 0.6;
-		}
-	}
 
 	header {
 		display: flex;

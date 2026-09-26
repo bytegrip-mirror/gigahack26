@@ -57,6 +57,8 @@
 	--z-toast: 300;
 
 	--ease: 120ms cubic-bezier(0.2, 0, 0.2, 1);
+	--ease-enter: 160ms cubic-bezier(0.2, 0, 0.2, 1);
+	--enter-shift: 6px;
 }
 
 *,
@@ -686,6 +688,7 @@ a:hover {
 /* ── popover menu ──────────────────────────────────────────────────────── */
 
 .menu {
+	animation: rise var(--ease) both;
 	position: fixed;
 	z-index: var(--z-menu);
 	min-width: 190px;
@@ -761,6 +764,7 @@ a:hover {
 }
 
 .menu-scrim {
+	animation: fade-in var(--ease) both;
 	position: fixed;
 	inset: 0;
 	z-index: calc(var(--z-menu) - 1);
@@ -1023,6 +1027,58 @@ mark.span {
 
 .pulsing {
 	animation: pulse 1.5s ease-in-out infinite;
+}
+
+/*
+ * Surfaces arrive. Every panel, sheet and popover enters the same way: a short
+ * fade and a few pixels of travel on the one curve the rest of the interface
+ * uses. Nothing bounces, nothing scales from nothing, and nothing moves further
+ * than the distance it takes to read as arriving rather than appearing.
+ *
+ * These animate on entry only. Exit animation needs a component to stay mounted
+ * while it leaves, which is where flicker and double-render bugs live, and a
+ * panel that closes instantly is not a defect anyone notices.
+ */
+@keyframes fade-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes rise {
+	from {
+		opacity: 0;
+		transform: translateY(var(--enter-shift));
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+@keyframes enter-right {
+	from {
+		opacity: 0;
+		transform: translateX(calc(var(--enter-shift) * 2));
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+@keyframes enter-left {
+	from {
+		opacity: 0;
+		transform: translateX(calc(var(--enter-shift) * -2));
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
 }
 
 @media (prefers-reduced-motion: reduce) {

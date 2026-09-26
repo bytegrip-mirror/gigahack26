@@ -364,6 +364,7 @@
 	}
 
 	.palette {
+		animation: rise var(--ease-enter) both;
 		width: min(620px, 100%);
 		background: var(--surface);
 		border: 1px solid var(--ink);

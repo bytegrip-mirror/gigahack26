@@ -236,6 +236,7 @@
 
 <style>
 	.scrim {
+		animation: fade-in var(--ease-enter) both;
 		position: fixed;
 		inset: 0;
 		background: rgb(18 16 13 / 0.34);
@@ -247,6 +248,7 @@
 	}
 
 	.sheet {
+		animation: rise var(--ease-enter) both;
 		width: min(1080px, 100%);
 		height: min(760px, 92vh);
 		background: var(--surface);
