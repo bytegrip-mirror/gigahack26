@@ -132,6 +132,13 @@
 
 	const meta = $derived(workspace.meta);
 	const serviceLine = $derived(session.serviceLine);
+	const moved = $derived(
+		(applied?.moves ?? [])
+			.filter((move) => move.direction !== 'flat')
+			.sort((a, b) => (a.afterRank ?? 0) - (b.afterRank ?? 0))
+			.slice(0, 6)
+	);
+
 	const filtered = $derived(session.region !== 'world' || stage !== '' || query !== '' || applied !== null);
 	const allLines = $derived(session.allLines);
 	const scopeItems = $derived([
@@ -879,6 +886,24 @@
 							<Metric value={applied.facets.length} label="Attributes read" />
 						</div>
 					{/if}
+					{#if moved.length > 0}
+						<ul class="moved">
+							{#each moved as entry (entry.companyId)}
+								<li>
+									<button class="moved-row" type="button" onclick={() => select(entry.companyId)}>
+										<span class="moved-name">{entry.company}</span>
+										<span class="num muted">
+											{entry.beforeRank > 0 ? `#${entry.beforeRank}` : 'new'} → #{entry.afterRank}
+										</span>
+										<span class="moved-delta" data-dir={entry.direction}>
+											{entry.direction === 'up' ? '▲' : entry.direction === 'down' ? '▼' : '='}
+											{Math.abs((entry.beforeProbability ?? 0) - entry.afterProbability).toFixed(2)}
+										</span>
+									</button>
+								</li>
+							{/each}
+						</ul>
+					{/if}
 					<div class="result-text">
 						<p class="result-q dsp">“{applied.question}”</p>
 						{#if applied.facets.length > 0}
@@ -1457,6 +1482,47 @@
 		font-weight: 500;
 		line-height: 1.1;
 		margin-bottom: 3px;
+	}
+
+	.moved {
+		list-style: none;
+		margin: var(--sp-3) 0 0;
+		padding: 0;
+		border-top: 1px solid var(--rule);
+	}
+
+	.moved-row {
+		display: flex;
+		align-items: center;
+		gap: var(--sp-3);
+		width: 100%;
+		padding: var(--sp-2) var(--sp-3);
+		border: 0;
+		border-bottom: 1px solid var(--rule);
+		background: transparent;
+		font: inherit;
+		text-align: left;
+		cursor: pointer;
+	}
+
+	.moved-row:hover {
+		background: var(--sunken);
+	}
+
+	.moved-name {
+		flex: 1;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.moved-delta[data-dir='up'] {
+		color: var(--accent);
+	}
+
+	.moved-delta[data-dir='down'] {
+		color: var(--oxblood);
 	}
 
 	.ask-cues {
