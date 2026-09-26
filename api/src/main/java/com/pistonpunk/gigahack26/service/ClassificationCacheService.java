@@ -75,9 +75,11 @@ public class ClassificationCacheService {
         Map<String, Object> summary = new LinkedHashMap<>();
         summary.put("entries", cache.count());
         summary.put("reused", cache.totalHits());
-        summary.put("byEngine", Map.of(
-                "language-model", cache.countByEngine("deepseek-flash@deepseek"),
-                "local", cache.countByEngine("local-rubric-v1")));
+        Map<String, Long> byEngine = new LinkedHashMap<>();
+        for (Object[] row : cache.countGroupedByEngine()) {
+            byEngine.put(String.valueOf(row[0]), ((Number) row[1]).longValue());
+        }
+        summary.put("byEngine", byEngine);
         return summary;
     }
 }

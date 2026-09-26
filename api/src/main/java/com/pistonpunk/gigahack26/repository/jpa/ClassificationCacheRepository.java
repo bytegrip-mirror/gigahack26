@@ -17,6 +17,9 @@ public interface ClassificationCacheRepository extends JpaRepository<Classificat
 
     long countByEngine(String engine);
 
+    @Query("select c.engine, count(c) from ClassificationCache c group by c.engine")
+    List<Object[]> countGroupedByEngine();
+
     @Query("select coalesce(sum(c.hitCount), 0) from ClassificationCache c")
     long totalHits();
 }

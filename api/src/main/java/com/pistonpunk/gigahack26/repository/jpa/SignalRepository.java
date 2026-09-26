@@ -19,6 +19,9 @@ public interface SignalRepository extends JpaRepository<Signal, UUID> {
 
     long countByQuestionId(UUID questionId);
 
+    @Query("select s.engine, count(s) from Signal s group by s.engine order by count(s) desc")
+    List<Object[]> countGroupedByEngine();
+
     @Modifying
     @Query("delete from Signal s where s.questionId = :questionId")
     void deleteByQuestionId(UUID questionId);
