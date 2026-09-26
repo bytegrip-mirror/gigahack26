@@ -312,12 +312,15 @@
 	</header>
 
 	<div class="toolbar">
-		<label class="search">
+		<label class="search-field">
 			<span class="sr-only">Filter by name, role or company</span>
 			<Icon name="search" size={14} />
-			<input class="input input-sm" placeholder="Name, role, company" bind:value={query} />
+			<input class="input input-sm" type="search" placeholder="Name, role, company" bind:value={query} />
 		</label>
-		<div class="seg" role="tablist" aria-label="Which people">
+	</div>
+
+	<div class="toolbar">
+		<div class="tabs" role="tablist" aria-label="Which people">
 			{#each STAGES as option (option.id)}
 				<button role="tab" aria-selected={stage === option.id} onclick={() => (stage = option.id)}>
 					{option.label}
@@ -468,25 +471,6 @@
 
 	.toolbar .spacer {
 		margin-left: auto;
-	}
-
-	.search {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-1);
-		flex: 0 1 280px;
-		padding-left: var(--spacing-2);
-		border: 1px solid var(--color-rule-strong);
-		border-radius: var(--radius);
-		background: var(--color-surface);
-		color: var(--color-ink-3);
-	}
-
-	.search .input {
-		border: 0;
-		background: transparent;
-		padding-left: 0;
-		box-shadow: none;
 	}
 
 	.pane {

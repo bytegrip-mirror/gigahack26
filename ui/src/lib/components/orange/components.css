@@ -581,6 +581,80 @@
 		color: var(--color-orange);
 	}
 
+	/* A list's view filter: plain words on the page, not a boxed control. The one
+	   in force is black with an Orange underline, as Boosted underlines a nav. */
+	.tabs {
+		display: inline-flex;
+		align-items: stretch;
+		flex-wrap: wrap;
+		gap: 0 var(--spacing-4);
+		min-height: var(--spacing-ctl);
+	}
+
+	.tabs button {
+		display: inline-flex;
+		align-items: center;
+		gap: 5px;
+		padding: 0;
+		border-bottom: var(--border-width-ctl) solid transparent;
+		font-size: var(--text-base);
+		font-weight: 700;
+		color: var(--color-ink-3);
+		white-space: nowrap;
+		transition: color var(--ease), border-color var(--ease);
+	}
+
+	.tabs button:hover:not(:disabled) {
+		color: var(--color-ink);
+	}
+
+	.tabs button[aria-selected='true'] {
+		color: var(--color-ink);
+		border-bottom-color: var(--color-orange);
+	}
+
+	.tabs button:disabled {
+		color: var(--color-ink-4);
+		cursor: not-allowed;
+	}
+
+	.tabs .num {
+		font-size: var(--text-micro);
+		font-weight: 400;
+		color: var(--color-ink-4);
+	}
+
+	.tabs button[aria-selected='true'] .num {
+		color: var(--color-orange-deep);
+	}
+
+	/* A search box with its icon inside the border. It fills the toolbar row it
+	   sits on, up to a line length a query needs. */
+	.search-field {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-1);
+		flex: 1 1 240px;
+		max-width: 520px;
+		padding-left: var(--spacing-2);
+		border: var(--border-width-ctl) solid var(--color-rule-strong);
+		background: var(--color-surface);
+		color: var(--color-ink-3);
+		transition: border-color var(--ease);
+	}
+
+	.search-field:focus-within {
+		border-color: var(--color-ink);
+		color: var(--color-ink);
+	}
+
+	.search-field .input,
+	.search-field .input:focus {
+		border: 0;
+		background: transparent;
+		padding-left: 0;
+	}
+
 	.chk {
 		display: inline-flex;
 		align-items: center;

@@ -266,6 +266,14 @@
 	</header>
 
 	<div class="toolbar">
+		<label class="search-field">
+			<span class="sr-only">Filter leads</span>
+			<Icon name="search" size={14} />
+			<input class="input input-sm" type="search" placeholder="Company or subject" bind:value={query} />
+		</label>
+	</div>
+
+	<div class="toolbar">
 		<Menu
 			text={session.scopeLabel()}
 			icon="layers"
@@ -279,7 +287,7 @@
 		{#if workspace.switching}<span class="spinner"></span>{/if}
 		<span class="sep"></span>
 
-		<div class="seg" role="tablist" aria-label="Which leads">
+		<div class="tabs" role="tablist" aria-label="Which leads">
 			{#each onBoard as entry (entry.id)}
 				<button
 					role="tab"
@@ -293,13 +301,6 @@
 			{/each}
 		</div>
 
-		<span class="sep"></span>
-
-		<label class="search">
-			<span class="sr-only">Filter leads</span>
-			<Icon name="search" size={14} />
-			<input class="input input-sm" placeholder="Company or subject" bind:value={query} />
-		</label>
 		<span class="spacer"></span>
 		<Menu
 			text={SORTS.find((entry) => entry.id === sort)?.label ?? 'Sort'}
@@ -547,33 +548,6 @@
 		gap: var(--spacing-1);
 	}
 
-	.search {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-1);
-		width: 280px;
-		padding-left: var(--spacing-2);
-		border: 1px solid var(--color-rule-strong);
-		border-radius: var(--radius);
-		background: var(--color-surface);
-		color: var(--color-ink-3);
-	}
-
-	.search:focus-within {
-		border-color: var(--color-orange);
-		box-shadow: 0 0 0 2px var(--color-orange-wash);
-	}
-
-	.search .input {
-		border: 0;
-		background: transparent;
-		padding-left: 0;
-	}
-
-	.search .input:focus {
-		box-shadow: none;
-	}
-
 	@media (max-width: 760px) {
 		.metrics {
 			flex: 1 1 100%;
@@ -582,9 +556,6 @@
 		}
 		.toolbar {
 			flex-wrap: wrap;
-		}
-		.search {
-			width: 100%;
 		}
 		.panes table.tbl {
 			min-width: 520px;

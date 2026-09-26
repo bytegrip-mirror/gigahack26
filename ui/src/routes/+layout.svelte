@@ -60,13 +60,23 @@
 <div class="app">
 	<aside class="rail on-ink">
 		<div class="rail-top">
-			<a class="brand" href="/">
-				<Logo size={19} />
-				<span class="wordmark">
-					<strong class="dsp">Signal Desk</strong>
-					<span class="label">Orange Systems</span>
-				</span>
-			</a>
+			<div class="brand-row">
+				<a class="brand" href="/">
+					<Logo size={19} />
+					<span class="wordmark">
+						<strong class="dsp">Signal Desk</strong>
+						<span class="label">Orange Systems</span>
+					</span>
+				</a>
+				<Menu
+					icon="bell"
+					align="start"
+					label="Notifications"
+					title="Notifications"
+					items={[{ id: 'none', label: 'Nothing new', disabled: true }]}
+					onselect={() => {}}
+				/>
+			</div>
 
 			<button class="searchbox" type="button" onclick={() => command.show()}>
 				<Icon name="search" size={15} />
@@ -150,8 +160,14 @@
 	}
 
 	.rail-top {
-		border-bottom: 1px solid var(--color-rule);
 		padding-bottom: var(--spacing-2);
+	}
+
+	.brand-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding-right: var(--spacing-2);
 	}
 
 	.brand {
@@ -221,7 +237,6 @@
 		display: flex;
 		flex-direction: column;
 		padding: var(--spacing-1) 0;
-		border-bottom: 1px solid var(--color-rule);
 	}
 
 	nav a {
