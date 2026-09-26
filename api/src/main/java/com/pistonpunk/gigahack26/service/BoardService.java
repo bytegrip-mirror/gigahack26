@@ -293,6 +293,12 @@ public class BoardService {
 
         List<BoardRow.Chip> chips = ranked.stream().limit(6).map(BoardService::toChip).toList();
         BoardRow.Chip strongest = chips.isEmpty() ? null : chips.get(0);
+        String engine = ranked.stream()
+                .collect(Collectors.groupingBy(LedgerRow::engine, Collectors.counting()))
+                .entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(router.localEngineId());
         WhyNowService.Brief why = whyNow.brief(detail, settings.effective());
 
         Instant newest = detail.rows().stream()
@@ -326,6 +332,7 @@ public class BoardService {
                 strongest,
                 chips,
                 new ArrayList<>(detail.themeTotals().keySet()),
+                engine,
                 lead == null ? null : lead.getStatus().name(),
                 lead == null ? null : lead.getStatus().label(),
                 lead == null ? null : lead.getLastContactedAt(),
@@ -428,7 +435,8 @@ public class BoardService {
                 row.gateReason(),
                 row.nats(), row.signalCount(), row.themeCount(), row.evidenceCount(), row.scannedDocuments(),
                 row.silentDocuments(), row.newestSignalAt(), row.newestSignalAgeDays(), row.strongest(),
-                row.chips(), row.themes(), row.leadStatus(), row.leadStatusLabel(), row.lastContactedAt(),
+                row.chips(), row.themes(), row.engine(), row.leadStatus(), row.leadStatusLabel(),
+                row.lastContactedAt(),
                 row.contactCount(), row.urgency(), row.whyNow());
     }
 

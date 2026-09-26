@@ -105,6 +105,7 @@
 	let error = $state<string | null>(null);
 
 	let filter = $state('all');
+	let engineFilter = $state<'all' | 'model' | 'local'>('all');
 	let stage = $state('');
 	let query = $state('');
 	let selected = $state<string | null>(untrack(() => initialSelected));
@@ -163,11 +164,16 @@
 		return map;
 	});
 
+	const localEngine = $derived(workspace.meta?.localEngine ?? 'local-rubric-v1');
+
 	const visible = $derived.by(() => {
 		const bandWanted = BAND_FILTERS[filter] ?? BAND_FILTERS.all;
 		return rows.filter((row) => {
 			const passesBand = filter === 'saved' ? saved.has(row.id) : bandWanted(row.band);
-			return passesBand && (!askIds || askIds.has(row.id));
+			const passesEngine =
+				engineFilter === 'all' ||
+				(engineFilter === 'model' ? row.engine !== localEngine : row.engine === localEngine);
+			return passesBand && passesEngine && (!askIds || askIds.has(row.id));
 		});
 	});
 
@@ -1007,6 +1013,20 @@
 				<Icon name="link" size={14} /> Copy links
 			</button>
 			{#if busy}<span class="spinner"></span>{/if}
+			<Menu
+				text={engineFilter === 'all' ? 'Any engine' : engineFilter === 'model' ? 'Model only' : 'Rubric only'}
+				icon="studio"
+				size="sm"
+				align="end"
+				label="Filter by the engine that answered"
+				items={[
+					{ id: 'all', label: 'Any engine', checked: engineFilter === 'all' },
+					{ id: 'model', label: 'Model only', checked: engineFilter === 'model' },
+					{ id: 'local', label: 'Rubric only', checked: engineFilter === 'local' }
+				]}
+				onselect={(id) => (engineFilter = id as 'all' | 'model' | 'local')}
+			/>
+
 			<span class="spacer"></span>
 			<button class="icon-btn" aria-label="Clear the selection" title="Clear the selection" onclick={() => (picked = new Set())}>
 				<Icon name="close" size={16} />

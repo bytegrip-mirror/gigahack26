@@ -34,6 +34,7 @@ public record BoardRow(
         Chip strongest,
         List<Chip> chips,
         List<String> themes,
+        String engine,
         String leadStatus,
         String leadStatusLabel,
         java.time.Instant lastContactedAt,
