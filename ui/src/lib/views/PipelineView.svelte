@@ -236,8 +236,8 @@
 		<div class="ident">
 			<h1 class="dsp">Pipeline</h1>
 			<p class="sub num">
-				{plural(leads.length, 'company', 'companies')} in the pipeline{#if allLines}
-					across every service line{:else}
+				{plural(leads.length, 'company', 'companies')} in the pipeline{#if allLines}{' '}
+					across every service line{:else}{' '}
 					on {serviceLine}{/if}
 			</p>
 		</div>
