@@ -36,23 +36,47 @@ public class ServiceLineService {
                 .map(PolicyQuestion::getServiceLine)
                 .distinct()
                 .toList();
-        for (PolicyLibrary.Definition definition : PolicyLibrary.definitions()) {
-            if (lines.findByKey(definition.serviceLine()).isPresent()) {
+        for (ServiceLineLibrary.Definition definition : ServiceLineLibrary.definitions()) {
+            Optional<ServiceLine> found = lines.findByKey(definition.key());
+            if (found.isPresent()) {
+                fillBlanks(found.get(), definition);
                 continue;
             }
-            if (!existing.contains(definition.serviceLine())) {
+            if (!existing.contains(definition.key())) {
                 continue;
             }
             lines.save(new ServiceLine(
                     UUID.randomUUID(),
-                    definition.serviceLine(),
-                    definition.serviceLine(),
-                    null,
-                    null,
-                    definition.serviceLine().equals(PolicyLibrary.AUTOMATION) ? 0 : 10,
+                    definition.key(),
+                    definition.name(),
+                    definition.description(),
+                    definition.valueProposition(),
+                    definition.sortOrder(),
                     true,
                     clock.instant()));
         }
+    }
+
+    /**
+     * A line seeded before it had copy keeps its place and gains the words.
+     *
+     * The writer falls back to a hardcoded proposition when the line has none,
+     * so an empty field is invisible until someone edits it on the Settings
+     * screen and finds nothing to edit. Only blanks are filled: a line whose
+     * proposition was written by hand is left alone.
+     */
+    private void fillBlanks(ServiceLine line, ServiceLineLibrary.Definition definition) {
+        boolean blankDescription = line.getDescription() == null || line.getDescription().isBlank();
+        boolean blankProposition = line.getValueProposition() == null || line.getValueProposition().isBlank();
+        if (!blankDescription && !blankProposition) {
+            return;
+        }
+        line.revise(
+                line.getName(),
+                blankDescription ? definition.description() : line.getDescription(),
+                blankProposition ? definition.valueProposition() : line.getValueProposition(),
+                line.getSortOrder(),
+                line.isActive());
     }
 
     @Transactional(readOnly = true)
