@@ -42,7 +42,7 @@
 		for (const row of scored) {
 			const days = Math.max(0, (now - new Date(row.anchor).getTime()) / 86_400_000);
 			const back = Math.min(11, Math.floor(days / 30));
-			months[11 - back] += Math.abs(row.contributionNats);
+			months[11 - back] += 1;
 		}
 		return months;
 	});

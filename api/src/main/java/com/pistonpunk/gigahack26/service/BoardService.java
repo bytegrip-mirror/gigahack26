@@ -300,10 +300,12 @@ public class BoardService {
     private static final int SPARK_MONTHS = 12;
 
     /**
-     * One bar per month for the last year, oldest first: the strength of everything
-     * read about this company in that month. It is the shape of the company's year,
-     * so the row can show at a glance whether the evidence is arriving or has gone
-     * quiet — the same reading a rep gets from a customer's order history.
+     * How many readings arrived in each of the last twelve months, oldest first.
+     *
+     * It counts rather than weighs: the chart answers "is anything still happening
+     * here", and a month that produced one very strong reading and a month that
+     * produced one ordinary one are the same answer to that question. The weights
+     * are on the signals list, one click away.
      */
     private static List<Double> spark(List<LedgerRow> rows, Instant now) {
         double[] months = new double[SPARK_MONTHS];
@@ -313,11 +315,11 @@ public class BoardService {
             if (back >= SPARK_MONTHS) {
                 continue;
             }
-            months[SPARK_MONTHS - 1 - back] += Math.abs(row.contributionNats());
+            months[SPARK_MONTHS - 1 - back] += 1;
         }
         List<Double> out = new ArrayList<>(SPARK_MONTHS);
         for (double month : months) {
-            out.add(round(month));
+            out.add(month);
         }
         return out;
     }

@@ -1376,7 +1376,7 @@
 										spark={row.spark ?? []}
 										title={row.newestSignalAgeDays === null
 											? 'Nothing dated has been read about this company'
-											: `Signal strength by month for the last year. Most recent, ${ageShort(row.newestSignalAgeDays)}.`}
+											: `When the signals arrived over the last year. Latest, ${ageShort(row.newestSignalAgeDays)}.`}
 									/>
 								</td>
 								<td class="num c-doc">
