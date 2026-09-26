@@ -237,9 +237,8 @@
 										{host(person.sourceUrl)}
 									</a>
 								{:else}
-									<span class="dim">no link on file</span>
+									<span class="dim">{person.publisher}</span>
 								{/if}
-								<span class="sub dim">{person.publisher}</span>
 							</td>
 						</tr>
 					{/each}

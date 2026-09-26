@@ -101,17 +101,31 @@ public final class PersonExtractor {
     private static String trimToAName(String raw) {
         java.util.List<String> words = new java.util.ArrayList<>(
                 java.util.Arrays.asList(raw.replaceAll("\\s+", " ").trim().split(" ")));
-        while (words.size() > 2 && NOT_A_FIRST_NAME.contains(words.get(0).toLowerCase(java.util.Locale.ROOT))) {
+        while (words.size() > 2
+                && (NOT_A_FIRST_NAME.contains(words.get(0).toLowerCase(java.util.Locale.ROOT))
+                        || HONORIFICS.contains(words.get(0).replace(".", "").toLowerCase(java.util.Locale.ROOT)))) {
             words.remove(0);
         }
         if (words.size() < 2 || words.size() > 3) {
             return null;
+        }
+        for (String word : words) {
+            // A person's name is letters, an apostrophe and a hyphen. Anything else
+            // in it means the pattern caught a place name, a headline or a
+            // fragment: "Americas US.CA,MEDIAandPR" and "Kris Licht.The" are not
+            // people, and neither is a token that is all capitals.
+            if (!word.matches("[\\p{L}][\\p{L}'’-]*") || word.toUpperCase(java.util.Locale.ROOT).equals(word)) {
+                return null;
+            }
         }
         String name = String.join(" ", words);
         return name.length() < 4 ? null : name;
     }
 
     /** Job titles that are written as initials, and are wrong in title case. */
+    private static final java.util.Set<String> HONORIFICS =
+            java.util.Set.of("prof", "dr", "mr", "mrs", "ms", "sir", "dame", "ing", "mag");
+
     private static final java.util.Set<String> SMALL_WORDS =
             java.util.Set.of("of", "for", "and", "the", "in", "at", "to", "on");
 

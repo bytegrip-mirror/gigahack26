@@ -56,6 +56,23 @@ class PersonExtractorTest {
     }
 
     @Test
+    void aFragmentThatIsNotANameIsRefused() {
+        assertTrue(PersonExtractor.find("Americas US.CA,MEDIAandPR, head of communications, said.").isEmpty(),
+                "punctuation inside a token means the pattern caught a place name or a headline");
+        assertTrue(PersonExtractor.find("Kris Licht.The, ceo, said.").isEmpty(),
+                "a sentence break inside the name means it was two sentences");
+        assertTrue(PersonExtractor.find("The IEA, ceo, said.").isEmpty(),
+                "an all-capitals token is an organisation, not a person");
+    }
+
+    @Test
+    void aTitleBeforeTheNameIsNotPartOfIt() {
+        List<PersonExtractor.Found> found = PersonExtractor.find("Prof. Vartika Saxena, head of community medicine, said.");
+        assertEquals(1, found.size());
+        assertEquals("Vartika Saxena", found.get(0).name());
+    }
+
+    @Test
     void theSamePersonIsReturnedOnceWithTheirFullestTitle() {
         String text = "Ana Silva, chief executive officer, said. Later Ana Silva, chief executive officer of the group, added.";
         List<PersonExtractor.Found> found = PersonExtractor.find(text);
