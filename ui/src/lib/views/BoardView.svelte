@@ -1231,7 +1231,7 @@
 										class="fitval dsp"
 										data-tone={fitTone(row.probability, thresholds)}
 										title={meta
-											? `Fit ${fit(row.probability)} — the evidence is ${fitWord(row.probability, thresholds).toLowerCase()} against the ${fit(meta.scoring.baseRate)} a company in your market shows by default.`
+											? `Fit ${fit(row.probability)} — ${fitWord(row.probability, thresholds).toLowerCase()} evidence. A company in your market scores ${fit(meta.scoring.baseRate)} with no evidence at all.`
 											: `Fit ${fit(row.probability)}`}
 									>{fitWord(row.probability, thresholds)}</span>
 								</td>
