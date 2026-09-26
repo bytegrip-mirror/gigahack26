@@ -154,8 +154,20 @@ public class Person {
         return email;
     }
 
+    /**
+     * Nothing but an address, and nothing but one line of it.
+     *
+     * The value reaches a `mailto:` and a mail client's header, so a newline in it
+     * is a header injection rather than a typo. It is refused here rather than at
+     * the call site so every path that sets one gets the same answer.
+     */
     public void setEmail(String email) {
-        this.email = email == null || email.isBlank() ? null : email.trim();
+        if (email == null || email.isBlank()) {
+            this.email = null;
+            return;
+        }
+        String cleaned = email.replaceAll("[\\r\\n\\t]", "").trim();
+        this.email = cleaned.matches("[^@\\s]+@[^@\\s]+\\.[^@\\s]{2,}") ? cleaned : null;
     }
 
     public String getHeadline() {

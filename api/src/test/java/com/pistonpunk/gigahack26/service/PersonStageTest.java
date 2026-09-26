@@ -30,6 +30,28 @@ class PersonStageTest {
     }
 
     @Test
+    void anAddressIsAnAddressOrItIsNothing() {
+        Person person = person();
+        person.setEmail("bastien.parizot@reckitt.com");
+        assertEquals("bastien.parizot@reckitt.com", person.getEmail());
+
+        person.setEmail("not an address");
+        assertEquals(null, person.getEmail());
+
+        person.setEmail("a@b.co");
+        assertEquals("a@b.co", person.getEmail());
+    }
+
+    @Test
+    void aNewlineInAnAddressIsRefusedRatherThanMailed() {
+        Person person = person();
+        person.setEmail("someone@example.com\r\nBcc: leak@elsewhere.com");
+
+        assertEquals(null, person.getEmail(),
+                "the address reaches a mailto: header — a newline in it is an injection");
+    }
+
+    @Test
     void theCountMovesOnARealTransitionAndNotOnAReSave() {
         Person person = person();
         Instant now = Instant.now();
