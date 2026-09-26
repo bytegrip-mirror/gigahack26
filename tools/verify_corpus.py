@@ -18,6 +18,9 @@ import os
 import re
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import sanitize_corpus
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RAW = os.path.join(ROOT, "api", "src", "main", "resources", "corpus", "raw.json")
 SIGNALS = os.path.join(ROOT, "api", "src", "main", "resources", "corpus", "signals.json")
@@ -59,11 +62,18 @@ def check(report, path=RAW, signals_path=SIGNALS):
                     % (len(repeated), sum(1 for k in keys if k in repeated),
                        ", ".join(sorted(repeated)[:5])))
 
+    companies_by_key = {c["key"]: c for c in companies}
+    misattributed = {}
     for item in evidence:
         key = item.get("key") or ""
         if not key:
             report.fail("an evidence row has no key")
             continue
+        company = companies_by_key.get(item.get("companyKey"))
+        if company is not None:
+            reason = sanitize_corpus.rejection(company, item)
+            if reason:
+                misattributed.setdefault(reason, []).append(key)
         if item.get("companyKey") not in known:
             report.fail("%s belongs to an unknown company %s" % (key, item.get("companyKey")))
         text = item.get("text") or ""
@@ -79,6 +89,14 @@ def check(report, path=RAW, signals_path=SIGNALS):
             report.warn("%s has no source URL" % key)
         if MISSING.search((item.get("title") or "")[:200]) or MISSING.search(text[:400]):
             report.warn("%s reads like a missing-page notice" % key)
+
+    if misattributed:
+        total = sum(len(rows) for rows in misattributed.values())
+        report.fail("%d document(s) are not attributable to the company they are filed under, so the "
+                    "board would quote them as evidence about somebody else: %s"
+                    % (total, "; ".join("%d %s" % (len(rows), reason)
+                                        for reason, rows in sorted(misattributed.items(),
+                                                                   key=lambda pair: -len(pair[1])))))
 
     if not os.path.exists(signals_path):
         report.warn("no overlay is shipped")

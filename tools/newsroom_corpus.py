@@ -33,6 +33,7 @@ import urllib.parse
 import urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import attribution
 import browser_fetch
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -220,11 +221,7 @@ def same_site(url, domain):
 
 
 def mentions(text, variants):
-    low = text.lower()
-    for variant in variants:
-        if len(variant) >= 4 and variant.lower() in low:
-            return True
-    return False
+    return attribution.mentions_company(variants, text)
 
 
 def key_for(company, url):
@@ -339,7 +336,7 @@ def gather(company, observed):
         if built is None:
             bump("article_too_thin")
             continue
-        if not mentions(built["text"] + " " + built["title"], variants) and not same_site(url, domain):
+        if not mentions(built["text"] + " " + built["title"], variants):
             bump("article_offtopic")
             continue
         docs.append(built)

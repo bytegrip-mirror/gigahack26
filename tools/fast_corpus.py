@@ -22,6 +22,7 @@ import urllib.parse
 import urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import attribution
 from build_corpus import COMPANIES
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -164,16 +165,7 @@ def age_days(iso):
 
 
 def mentions(text, variants):
-    low = text.lower()
-    for v in variants:
-        if len(v) >= 4:
-            if v.lower() in low:
-                return True
-        elif 2 <= len(v) <= 3 and v.isupper() and re.search(r"\b%s\b" % re.escape(v), text):
-            # ABB, BP, EY, UBS: a two-letter name is only a match as a standalone
-            # capitalised token, never as a substring of an ordinary word.
-            return True
-    return False
+    return attribution.mentions_company(variants, text)
 
 
 def key_for(company, url):

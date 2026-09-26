@@ -18,6 +18,7 @@ import xml.etree.ElementTree as ET
 import zlib
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import attribution
 from vendor_registry import is_vendor
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -385,11 +386,7 @@ def name_variants(company):
 
 
 def mentions_company(text, variants):
-    low = text.lower()
-    for v in variants:
-        if v in low:
-            return True
-    return False
+    return attribution.mentions_company(variants, text)
 
 
 def short_token(name):
@@ -1827,6 +1824,10 @@ def news_docs(company, observed):
     return docs
 
 
+def board_belongs(company, url, text):
+    return attribution.ats_board_belongs_to(company, url, text)
+
+
 def job_tokens(company):
     name = company["name"]
     out = []
@@ -1961,10 +1962,19 @@ def job_docs(company, observed):
                 bump("job_probe_fail")
                 continue
             bump("job_probes")
-            if got:
-                postings = got
+            if not got:
+                continue
+            # A guessed slug that answers is not proof of ownership: "vinci",
+            # "atlas", "maxima", "novo", "phoenix" and "technology" all resolved
+            # to unrelated companies. Keep the board only when it can show the
+            # company is its own.
+            named = [p for p in got
+                     if attribution.mentions_company(company, p["title"] + "\n" + p["text"])]
+            if named:
+                postings = named
                 provider_used = (pname, tok)
                 break
+            bump("job_board_rejected")
         if postings:
             break
     if not postings:

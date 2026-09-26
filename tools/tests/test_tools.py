@@ -115,7 +115,7 @@ class CorpusCheckTest(unittest.TestCase):
                            "companies": [{"key": "acme", "name": "Acme"}],
                            "evidence": evidence})
 
-    def row(self, key, text="a real body of text long enough to be a document"):
+    def row(self, key, text="Acme said the programme would cut costs across the group this year"):
         import hashlib
         return {"key": key, "companyKey": "acme", "sourceUrl": "https://example.com/a",
                 "publisher": "example.com", "sourceKind": "news", "title": "A story",
@@ -142,6 +142,23 @@ class CorpusCheckTest(unittest.TestCase):
         row["companyKey"] = "nobody"
         report = verify_corpus.check(verify_corpus.Report(), self.corpus([row]), "/nonexistent")
         self.assertTrue(any("unknown company" in f for f in report.failures), report.failures)
+
+    def test_a_document_about_another_company_fails(self):
+        row = self.row("a", text="Seb Menzies won the 49er European championships in Germany")
+        report = verify_corpus.check(verify_corpus.Report(), self.corpus([row]), "/nonexistent")
+        self.assertTrue(any("not attributable" in f for f in report.failures), report.failures)
+
+    def test_a_document_that_names_the_company_in_another_case_passes(self):
+        row = self.row("a", text="ACME GROUP announced an efficiency programme with a quantified target")
+        report = verify_corpus.check(verify_corpus.Report(), self.corpus([row]), "/nonexistent")
+        self.assertEqual([], report.failures)
+
+    def test_a_job_board_slug_for_a_different_company_fails(self):
+        row = self.row("a", text="We are hiring a backend engineer to join a fast-growing team")
+        row["sourceKind"] = "job_posting"
+        row["sourceUrl"] = "https://jobs.ashbyhq.com/otherco/123"
+        report = verify_corpus.check(verify_corpus.Report(), self.corpus([row]), "/nonexistent")
+        self.assertTrue(any("not attributable" in f for f in report.failures), report.failures)
 
     def test_an_overlay_pointing_at_missing_evidence_fails(self):
         path = self.corpus([self.row("a")])
