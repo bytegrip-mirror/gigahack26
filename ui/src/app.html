@@ -6,6 +6,13 @@
 		<meta name="text-scale" content="scale" />
 		<link rel="icon" href="%sveltekit.assets%/favicon.svg" />
 		<meta name="theme-color" content="#f6f6f6" />
+		<script>
+			try {
+				var held = localStorage.getItem('gigahack26.theme');
+				var dark = held ? held === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+				document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+			} catch (e) {}
+		</script>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">

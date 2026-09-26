@@ -407,7 +407,7 @@
 							</button>
 						{/each}
 					</div>
-					<button class="btn btn-ink btn-block" onclick={() => (outreachOpen = true)}>
+					<button class="btn btn-primary btn-block" onclick={() => (outreachOpen = true)}>
 						<Icon name="mail" size={15} />
 						Generate outreach
 					</button>

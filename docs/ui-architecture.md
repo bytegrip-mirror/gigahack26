@@ -184,7 +184,7 @@ All of them are in `ui/src/lib/components/`. Read the file for the exact props.
 | `Star` | The bookmark toggle. |
 | `CompanyMark` | The company's icon, 20/26/34px, or a monogram when `tools/fetch_logos.py` found none. Always the same square, so a row without one does not go ragged. |
 | `CaptureSheet` | The stored document with the marked span, opened from any quote. |
-| `OutreachModal` | The drafted message, full window. Consumes Escape so a draft and the board position survive it. Mounts through `use:portal` — see section 8. |
+| `OutreachModal` | The drafted message in a centred dialog: the email in the middle, the channel, quick edits and sources on the right. Consumes Escape so a draft and the board position survive it. Mounts through `use:portal` — see section 8. |
 | `LoadingVeil` | Sits over its pane, so a load never moves the layout. |
 | `Hubspot` | The HubSpot mark. |
 | `Logo` | The wordmark. |

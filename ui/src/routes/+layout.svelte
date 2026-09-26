@@ -10,6 +10,7 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import Menu from '$lib/components/Menu.svelte';
 	import CommandPalette from '$lib/components/CommandPalette.svelte';
+	import { theme } from '$lib/theme.svelte';
 
 	let { children } = $props();
 
@@ -95,6 +96,11 @@
 					onselect={(key) => session.setRegion(key)}
 				/>
 			</div>
+
+			<button class="btn btn-quiet btn-sm theme" type="button" onclick={() => theme.toggle()}>
+				<Icon name={theme.mode === 'dark' ? 'sun' : 'moon'} size={14} />
+				{theme.mode === 'dark' ? 'Light mode' : 'Dark mode'}
+			</button>
 
 			{#if workspace.meta?.nextRefreshAt}
 				<p class="refresh" title="The board re-scores itself on this interval">
@@ -232,6 +238,12 @@
 
 	.region .label {
 		display: block;
+	}
+
+	.theme {
+		align-self: flex-start;
+		padding: 0;
+		gap: var(--spacing-1);
 	}
 
 	.refresh {
