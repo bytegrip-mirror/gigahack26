@@ -364,6 +364,10 @@ shows depends on what the queue decided:
 | `THIN` | `Unproven` |
 | `DISQUALIFIED` | the `Out of the queue` tag and the gate's reason |
 
+The Pipeline reads the same word off the same thresholds, because a rep moves
+between the two screens on the same company and two vocabularies for one fact is
+one too many.
+
 A separate band column was redundant: the word is cut from the same three
 thresholds that place the band, so the two agreed on every row that was not gated.
 The one case where they disagree is the capped one — evidence at the line and a
