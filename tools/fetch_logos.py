@@ -9,12 +9,21 @@ never has to lay out fourteen aspect ratios.
 
 Writes ui/static/logos/<key>.png and ui/src/lib/logos.json, which the board reads
 at build time. Nothing is fetched at render time: the demo runs on venue wi-fi.
+
+The one href here that is not ours is the icon a company's own homepage declares,
+so it is treated as hostile input: http or https only, the host has to resolve
+entirely to public addresses, and a redirect is re-checked before it is followed.
+Nothing in this file is reachable from the deployed app — it runs against the
+committed company list on a developer's machine — but a page that points its icon
+at a link-local address should not be able to make this read one.
 """
 import concurrent.futures as futures
 import io
+import ipaddress
 import json
 import os
 import re
+import socket
 import sys
 import urllib.error
 import urllib.parse
@@ -47,10 +56,40 @@ HREF = re.compile(r"href=[\"']([^\"']+)[\"']", re.I)
 SIZES = re.compile(r"sizes=[\"'](\d+)", re.I)
 
 
+def public(url: str) -> bool:
+    parsed = urllib.parse.urlparse(url)
+    if parsed.scheme not in ("http", "https") or not parsed.hostname:
+        return False
+    try:
+        resolved = socket.getaddrinfo(parsed.hostname, None)
+    except OSError:
+        return False
+    for entry in resolved:
+        try:
+            address = ipaddress.ip_address(entry[4][0])
+        except ValueError:
+            return False
+        if not address.is_global:
+            return False
+    return True
+
+
+class GuardedRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        if not public(newurl):
+            raise urllib.error.URLError(f"refused a redirect to {newurl}")
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+OPENER = urllib.request.build_opener(GuardedRedirect)
+
+
 def get(url: str) -> bytes | None:
+    if not public(url):
+        return None
     try:
         request = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "*/*"})
-        with urllib.request.urlopen(request, timeout=TIMEOUT) as response:
+        with OPENER.open(request, timeout=TIMEOUT) as response:
             if response.status != 200:
                 return None
             return response.read(MAX_BYTES)
