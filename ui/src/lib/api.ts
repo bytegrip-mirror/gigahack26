@@ -740,6 +740,23 @@ export type Telemetry = {
 	};
 	freshness: { newestCaptureAt: string | null; newestCaptureAgeHours: number | null };
 	classificationCache: { entries: number; reused: number; byEngine: Record<string, number> };
+	signalsBySource: { documents: number; questions: number; classificationPairs: number };
+	overlay: {
+		present: boolean;
+		engine?: string;
+		generatedAt?: string;
+		pairsSeen?: number;
+		strikeRate?: number;
+		sampling?: {
+			cueLivePairs: number;
+			cueLiveSignals: number;
+			cueLiveYield: number;
+			cueSilentSampled: number;
+			cueSilentSignals: number;
+			cueSilentYield: number;
+			sampleRate: number;
+		};
+	};
 };
 
 export function fetchTelemetry(): Promise<Telemetry> {

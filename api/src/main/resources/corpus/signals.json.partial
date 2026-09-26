@@ -1,7 +1,7 @@
 {
  "engine": "deepseek-flash@deepseek",
- "generatedAt": "2026-09-26T08:01:51Z",
- "pairsSeen": 5000,
+ "generatedAt": "2026-09-26T08:02:19Z",
+ "pairsSeen": 5200,
  "signals": [
   {
    "evidenceKey": "air-france-klm:bing:f0ba6667f526",
@@ -39998,6 +39998,1606 @@
   {
    "evidenceKey": "ciklum:bing:45e36447ad19",
    "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ciklum:bing:43fadf39c223",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ciklum:bing:43fadf39c223",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "n-ix:bing:95f659fc6b06",
+   "questionKey": "data.initiative",
+   "verdict": "BUILD",
+   "confidence": 0.6,
+   "quote": "N-iX announced a strategic partnership with AI platform Cursor to accelerate the transition to software development using artificial intelligence.",
+   "rationale": "N-iX sells AI-augmented development services and a GenAI Value Lab; this is its own offering, not internal buying."
+  },
+  {
+   "evidenceKey": "n-ix:bing:95f659fc6b06",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "n-ix:bing:95f659fc6b06",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "COUNTER",
+   "confidence": 0.6,
+   "quote": "N-iX announced a strategic partnership with AI platform Cursor to accelerate the transition to software development using artificial intelligence.",
+   "rationale": "Named strategic AI partner already in place, reducing likelihood of switching to a new automation vendor."
+  },
+  {
+   "evidenceKey": "n-ix:bing:aff63e65dd1d",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "n-ix:bing:aff63e65dd1d",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "n-ix:bing:aff63e65dd1d",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "n-ix:bing:2285754bc4cf",
+   "questionKey": "data.initiative",
+   "verdict": "BUILD",
+   "confidence": 0.7,
+   "quote": "As part of the AWS Data Foundations for Generative AI program , N-iX offers a full suite of services tailored to support businesses at every stage of their AI journey.",
+   "rationale": "N-iX sells data and GenAI foundation services to clients; vendor marketing, not a buyer signal."
+  },
+  {
+   "evidenceKey": "n-ix:bing:2285754bc4cf",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sigma-software:bing:d69dee898bc5",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "intellias:bing:ec068fe4e0d4",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "intellias:bing:ec068fe4e0d4",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "intellias:bing:ec068fe4e0d4",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "intellias:bing:ec068fe4e0d4",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "intellias:bing:ec068fe4e0d4",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "intellias:bing:9d1d9e10255e",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "intellias:bing:9d1d9e10255e",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "intellias:bing:9d1d9e10255e",
+   "questionKey": "data.initiative",
+   "verdict": "BUILD",
+   "confidence": 0.7,
+   "quote": "Intellias , an AI-enabled product engineering and digital solutions partner, has achieved the AWS AI Services Competency.",
+   "rationale": "Intellias is an AI services vendor; document is its own marketing about delivering AI for clients, not buying."
+  },
+  {
+   "evidenceKey": "intellias:bing:9d1d9e10255e",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "intellias:bing:7a1052bdd9d1",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "intellias:bing:7a1052bdd9d1",
+   "questionKey": "data.initiative",
+   "verdict": "BUILD",
+   "confidence": 0.6,
+   "quote": "AIを活用した音声アシスタントや物体検知",
+   "rationale": "Intellias sells AI-enabled mobility platform; vendor's own product, not a buyer."
+  },
+  {
+   "evidenceKey": "intellias:bing:7a1052bdd9d1",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "intellias:bing:d9cc67e20d21",
+   "questionKey": "data.initiative",
+   "verdict": "BUILD",
+   "confidence": 0.8,
+   "quote": "Intellias Pragmatic AI Playbook is grounded in a defining capability: applying AI directly inside software engineering and IT operations",
+   "rationale": "Intellias markets its own AI playbook and client services, not a buyer initiative."
+  },
+  {
+   "evidenceKey": "intellias:bing:d9cc67e20d21",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "intellias:bing:d9cc67e20d21",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "intellias:bing:853d256725b9",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "intellias:bing:853d256725b9",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "intellias:bing:853d256725b9",
+   "questionKey": "data.initiative",
+   "verdict": "BUILD",
+   "confidence": 0.6,
+   "quote": "Ukrainian service company Intellias has developed the Pragmatic AI Playbook, which contains recommendations for integrating artificial intelligence into business workflows.",
+   "rationale": "Intellias is an IT service vendor selling its own AI methodology and client AI projects."
+  },
+  {
+   "evidenceKey": "intellias:bing:853d256725b9",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "intellias:bing:853d256725b9",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "BUILD",
+   "confidence": 0.6,
+   "quote": "Ukrainian service company Intellias has developed the Pragmatic AI Playbook, which contains recommendations for integrating artificial intelligence into business workflows.",
+   "rationale": "Intellias sells AI implementation methodology and services; it is a provider, not a buyer."
+  },
+  {
+   "evidenceKey": "intellias:bing:70cf3139149a",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "tremend:bing:df655255a9e7",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "tremend:bing:df655255a9e7",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "tremend:bing:4df94cda73b7",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "tremend:bing:4df94cda73b7",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "tremend:bing:4df94cda73b7",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "tremend:bing:4df94cda73b7",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "arobs:bing:a5b5dd593581",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "arobs:bing:a5b5dd593581",
+   "questionKey": "data.initiative",
+   "verdict": "BUILD",
+   "confidence": 0.6,
+   "quote": "TrackGPS launched ODDO, its AI assistant, and joined the SECASSURED consortium to validate AI-based cybersecurity solutions under real-world conditions",
+   "rationale": "Named AI products (ODDO, AlertBox 2.0) are AROBS's own offerings sold to clients."
+  },
+  {
+   "evidenceKey": "arobs:bing:a5b5dd593581",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "arobs:bing:a5b5dd593581",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "arobs:bing:2c8f08c300c5",
+   "questionKey": "data.insourcing",
+   "verdict": "BUILD",
+   "confidence": 0.6,
+   "quote": "Building software products (Optima, TrackGPS, UCMS) alongside client services since 2003",
+   "rationale": "AROBS sells its own software products and services, positioning it as a vendor, not a buyer."
+  },
+  {
+   "evidenceKey": "arobs:bing:2c8f08c300c5",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "arobs:bing:c2021212d1d4",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "arobs:bing:11c8c1a744ba",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "arobs:bing:11c8c1a744ba",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "arobs:bing:11c8c1a744ba",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "arobs:bing:11c8c1a744ba",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "arobs:bing:ace269b3d42e",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "arobs:bing:2cab2df7652f",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "arobs:bing:2cab2df7652f",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "arobs:bing:2cab2df7652f",
+   "questionKey": "automation.insourcing",
+   "verdict": "BUILD",
+   "confidence": 0.65,
+   "quote": "Travel Technology, IoT, Clinical Trials, Fintech, Enterprise Solutions, Cybersecurity and Intelligent Automation.",
+   "rationale": "AROBS is a software services vendor selling automation capability, not a buyer."
+  },
+  {
+   "evidenceKey": "fortech:bing:c7cff9cfa2b4",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "fortech:bing:c7cff9cfa2b4",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "fortech:bing:c7cff9cfa2b4",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "bitdefender:bing:b78aaf73acce",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "bitdefender:bing:b78aaf73acce",
+   "questionKey": "data.initiative",
+   "verdict": "BUILD",
+   "confidence": 0.6,
+   "quote": "Bitdefender Launches GravityZone AI Visibility and Control, a Powerful Solution for Securing AI Use in the Enterprise",
+   "rationale": "Bitdefender's own product launch; it sells AI security capability, not buying one."
+  },
+  {
+   "evidenceKey": "bitdefender:bing:b78aaf73acce",
+   "questionKey": "data.ai_governance",
+   "verdict": "BUILD",
+   "confidence": 0.65,
+   "quote": "Assess Risk and Enforce AI Governance — Rank AI usage by risk level to prioritize unknown, high-risk activity over routine business use",
+   "rationale": "Bitdefender sells AI governance tooling to customers; a vendor, not an internal adopter."
+  },
+  {
+   "evidenceKey": "bitdefender:bing:b78aaf73acce",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "bitdefender:bing:b78aaf73acce",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "bitdefender:bing:246c35b2f4ea",
+   "questionKey": "data.initiative",
+   "verdict": "BUILD",
+   "confidence": 0.6,
+   "quote": "the Romanian company was launching a VPN built for AI agents rather than for people",
+   "rationale": "Bitdefender's own AI-agent VPN product; vendor capability, not an internal buying signal."
+  },
+  {
+   "evidenceKey": "bitdefender:bing:246c35b2f4ea",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "bitdefender:bing:35c564d1193c",
+   "questionKey": "data.initiative",
+   "verdict": "BUILD",
+   "confidence": 0.55,
+   "quote": "today announced the public beta launch of Bitdefender VPN for AI Agents, a new consumer",
+   "rationale": "Bitdefender sells its own AI-agent security product; vendor offering, not a buying signal."
+  },
+  {
+   "evidenceKey": "bitdefender:bing:35c564d1193c",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "bitdefender:bing:6153d43f95c1",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "bitdefender:bing:6153d43f95c1",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "bitdefender:bing:6153d43f95c1",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "bitdefender:bing:c3778e97da24",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "bitdefender:bing:c3778e97da24",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "bitdefender:bing:c3778e97da24",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "bitdefender:bing:c3778e97da24",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "amdaris:bing:959e6b2fc84d",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "amdaris:bing:959e6b2fc84d",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "amdaris:bing:959e6b2fc84d",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "amdaris:bing:31553e0b67d2",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "amdaris:bing:a29abdf0bcce",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "amdaris:bing:d84e7d50bcdb",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "amdaris:bing:d84e7d50bcdb",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "amdaris:bing:d84e7d50bcdb",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "stefanini:bing:8a2549cc92a9",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "stefanini:bing:3ab48143ddd9",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "stefanini:bing:3ab48143ddd9",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "stefanini:bing:41d8625982e4",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "stefanini:bing:41d8625982e4",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "stefanini:bing:41d8625982e4",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "stefanini:bing:41d8625982e4",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "stefanini:bing:a2aac427a895",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "stefanini:bing:a2aac427a895",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "stefanini:bing:a2aac427a895",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "stefanini:bing:36d3feefadf2",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "stefanini:bing:36d3feefadf2",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "stefanini:bing:36d3feefadf2",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "stefanini:bing:bcfadecd0d5c",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "stefanini:bing:bcfadecd0d5c",
+   "questionKey": "data.insourcing",
+   "verdict": "BUILD",
+   "confidence": 0.85,
+   "quote": "the Stefanini Group brings together its broad offering across seven business units: Technology, Cyber, Data Analytics, Financial Tech, Operations, Marketing, and Manufacturing.",
+   "rationale": "Stefanini is a global tech consulting firm selling data analytics and AI solutions to clients."
+  },
+  {
+   "evidenceKey": "stefanini:bing:bcfadecd0d5c",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "stefanini:bing:bcfadecd0d5c",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "stefanini:bing:bcfadecd0d5c",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "deloitte:bing:eff827eff149",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "deloitte:bing:eff827eff149",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "deloitte:bing:eff827eff149",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "deloitte:bing:12d9d8d2da02",
+   "questionKey": "data.initiative",
+   "verdict": "BUILD",
+   "confidence": 0.72,
+   "quote": "Deloitte India and CAST have announced a strategic alliance to advance artificial intelligence-led application modernisation and technology portfolio optimisation across Asia-Pacific and Japan.",
+   "rationale": "Deloitte is a consultancy selling AI-led modernisation services to clients, not a buyer."
+  },
+  {
+   "evidenceKey": "deloitte:bing:83751924d444",
+   "questionKey": "data.initiative",
+   "verdict": "BUILD",
+   "confidence": 0.62,
+   "quote": "Deloitte today unveiled its M&A Platform , an AI-enabled M&A solution designed to help organizations make smarter, cross-capability informed deal decisions",
+   "rationale": "Deloitte markets its own AI M&A platform to clients; vendor product, not a buying signal."
+  },
+  {
+   "evidenceKey": "deloitte:bing:83751924d444",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "deloitte:bing:56794c0f6618",
+   "questionKey": "data.initiative",
+   "verdict": "BUILD",
+   "confidence": 0.75,
+   "quote": "ControlCatalyst.AI is a good example because it isn’t just about putting AI on top of one task.",
+   "rationale": "Deloitte markets its own AI governance product to clients, not buying as a customer."
+  },
+  {
+   "evidenceKey": "deloitte:bing:56794c0f6618",
+   "questionKey": "data.ai_governance",
+   "verdict": "BUILD",
+   "confidence": 0.6,
+   "quote": "A lot of the work we do with clients first starts with getting visibility into the landscape.",
+   "rationale": "Deloitte sells AI governance advisory to clients; document is its own market offering, not an internal buyer."
+  },
+  {
+   "evidenceKey": "deloitte:bing:56794c0f6618",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "deloitte:bing:208b02197f6b",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "deloitte:bing:71370fd385ed",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "deloitte:bing:71370fd385ed",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "deloitte:bing:71370fd385ed",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "kpmg:bing:a85d6f1beae1",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "kpmg:bing:a85d6f1beae1",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "kpmg:bing:a85d6f1beae1",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "kpmg:bing:a85d6f1beae1",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "kpmg:bing:045259ddb97d",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "kpmg:bing:045259ddb97d",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "kpmg:bing:770063907bac",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "kpmg:bing:af39f5972495",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "kpmg:bing:e7f0b05e3c85",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "kpmg:bing:e7f0b05e3c85",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "kpmg:bing:1e39e0311551",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "kpmg:bing:1e39e0311551",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "kpmg:bing:1e39e0311551",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "bain:bing:74f1599084d9",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "bain:bing:74f1599084d9",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "bain:bing:e86191ee058f",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "bain:bing:e86191ee058f",
+   "questionKey": "data.initiative",
+   "verdict": "BUILD",
+   "confidence": 0.6,
+   "quote": "as it rapidly expands its own digital teams across its AI, Insights, and Solutions practice, which includes more than 1,500 AI, data, analytics, architecture, and engineering personnel",
+   "rationale": "Bain is a consultancy that sells AI, data and analytics services to clients, not a buyer."
+  },
+  {
+   "evidenceKey": "bain:bing:e86191ee058f",
+   "questionKey": "data.insourcing",
+   "verdict": "BUILD",
+   "confidence": 0.72,
+   "quote": "rapidly expands its own digital teams across its AI, Insights, and Solutions practice, which includes more than 1,500 AI, data, analytics, architecture, and engineering personnel",
+   "rationale": "Bain sells AI, data and analytics consulting solutions to clients through its own practice."
+  },
+  {
+   "evidenceKey": "bain:bing:e86191ee058f",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "bain:bing:e86191ee058f",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "bain:bing:587ba64a0b25",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "bain:bing:587ba64a0b25",
+   "questionKey": "data.initiative",
+   "verdict": "BUILD",
+   "confidence": 0.65,
+   "quote": "Bain & Company is launching this partnership to spur AI innovation among clients as it rapidly expands its own digital teams across its AI, Insights, and Solutions practice",
+   "rationale": "Bain is a consultancy selling AI, data and analytics services to clients, not buying them."
+  },
+  {
+   "evidenceKey": "bain:bing:587ba64a0b25",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "bain:bing:a513453dd2c7",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "bain:bing:a513453dd2c7",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "bain:bing:a513453dd2c7",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "bain:bing:04b1dd4b61a5",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "bain:bing:04b1dd4b61a5",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "bain:bing:04b1dd4b61a5",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "bain:bing:04b1dd4b61a5",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "bain:bing:4b82200a4a1c",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "bain:bing:4b82200a4a1c",
+   "questionKey": "data.initiative",
+   "verdict": "BUILD",
+   "confidence": 0.72,
+   "quote": "Bain & Company announced a partnership with Microsoft which will enable Bain’s client businesses to build and deploy new artificial intelligence (AI) applications across their operations faster, more effectively, and at scale.",
+   "rationale": "Bain sells AI advisory services to clients; this is its own offering, not internal buying."
+  },
+  {
+   "evidenceKey": "bain:bing:4b82200a4a1c",
+   "questionKey": "data.insourcing",
+   "verdict": "BUILD",
+   "confidence": 0.72,
+   "quote": "Bain is supporting its client companies with AI implementation strategies across industries and sectors",
+   "rationale": "Bain is a consultancy selling AI implementation services to clients, not buying platforms."
+  },
+  {
+   "evidenceKey": "bain:bing:4b82200a4a1c",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "bcg:bing:256064d2fad8",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "infosys-bpm:bing:d5f0cfb9b60f",
+   "questionKey": "data.initiative",
+   "verdict": "BUILD",
+   "confidence": 0.8,
+   "quote": "today announced the launch of AI agents for invoice processing within its flagship Infosys Accounts Payable on Cloud solution.",
+   "rationale": "Infosys BPM sells this AI invoice-processing product to clients; it is the vendor, not a buyer."
+  },
+  {
+   "evidenceKey": "infosys-bpm:bing:d5f0cfb9b60f",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "infosys-bpm:bing:d5f0cfb9b60f",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sap:bing:1eb799ae37bd",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sap:bing:1eb799ae37bd",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sap:bing:1eb799ae37bd",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "software-ag:bing:d64669dc24d6",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "software-ag:bing:d64669dc24d6",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "software-ag:bing:83da7cc8767c",
+   "questionKey": "data.initiative",
+   "verdict": "BUILD",
+   "confidence": 0.6,
+   "quote": "Software AG enhanced its Aris process mining and Alfabet portfolio management products with generative AI.",
+   "rationale": "Named genAI use case in Software AG's own Aris process mining product it sells to customers."
+  },
+  {
+   "evidenceKey": "software-ag:bing:83da7cc8767c",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "software-ag:bing:83da7cc8767c",
+   "questionKey": "data.governance",
+   "verdict": "BUILD",
+   "confidence": 0.55,
+   "quote": "New features included a Smart Data Workbench for customizing information displays, Data Quality rules that set parameters for acceptable quality and the application of reasoning-based AI to reduce product configuration effort.",
+   "rationale": "Data quality rules are a feature Software AG sells in Alfabet; vendor, not internal programme buyer."
+  },
+  {
+   "evidenceKey": "software-ag:bing:83da7cc8767c",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "software-ag:bing:83da7cc8767c",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "teamviewer:bing:474aa12e3946",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "teamviewer:bing:474aa12e3946",
+   "questionKey": "data.initiative",
+   "verdict": "BUILD",
+   "confidence": 0.6,
+   "quote": "Tia Troubleshooting shows where we believe AI in IT is heading: toward greater autonomy, but with the controls that make it practical for organizations,\" said Mei Dent, Chief Product and Technology Officer at TeamViewer.",
+   "rationale": "TeamViewer's own AI product with named use case; it sells this capability, not buying it."
+  },
+  {
+   "evidenceKey": "teamviewer:bing:474aa12e3946",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "teamviewer:bing:880ca68c9806",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "teamviewer:bing:880ca68c9806",
+   "questionKey": "automation.insourcing",
+   "verdict": "BUILD",
+   "confidence": 0.85,
+   "quote": "Governed autonomy offers a balanced way to expand AI's involvement as trust develops, and that's the direction we're building with Tia.",
+   "rationale": "TeamViewer develops and sells its own automation product, Tia AI agent."
+  },
+  {
+   "evidenceKey": "teamviewer:bing:880ca68c9806",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "teamviewer:bing:bf0088ffc8c7",
+   "questionKey": "data.initiative",
+   "verdict": "BUILD",
+   "confidence": 0.75,
+   "quote": "Tia Troubleshooting shows where we believe AI in IT is heading: toward greater autonomy, but with the controls that make it practical for organizations",
+   "rationale": "Document describes TeamViewer's own AI product with named use case; vendor, not buyer."
+  },
+  {
+   "evidenceKey": "teamviewer:bing:bf0088ffc8c7",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "teamviewer:bing:bf0088ffc8c7",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "teamviewer:bing:bf0088ffc8c7",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "teamviewer:bing:bf0088ffc8c7",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "teamviewer:bing:fe7bfaceb366",
+   "questionKey": "security.incident",
+   "verdict": "BUY",
+   "confidence": 0.9,
+   "quote": "The remote maintenance software provider TeamViewer has to pay a fine of 240,000 euros. The reason is a delay in informing the public after a cyber attack in mid-2024.",
+   "rationale": "TeamViewer suffered a 2024 cyber attack and a BaFin enforcement fine."
+  },
+  {
+   "evidenceKey": "teamviewer:bing:fe7bfaceb366",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "teamviewer:bing:fe7bfaceb366",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "teamviewer:bing:fe7bfaceb366",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "teamviewer:bing:78d6815ab4b9",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "teamviewer:bing:78d6815ab4b9",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "teamviewer:bing:78d6815ab4b9",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "teamviewer:bing:78d6815ab4b9",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "COUNTER",
+   "confidence": 0.75,
+   "quote": "ServiceNow and TeamViewer signed a multi-year technology partnership focused on enterprise IT automation.",
+   "rationale": "TeamViewer has a named multi-year automation partner (ServiceNow), making switching less likely."
+  },
+  {
+   "evidenceKey": "teamviewer:bing:73b4017dff9c",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "teamviewer:bing:73b4017dff9c",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "teamviewer:bing:73b4017dff9c",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "teamviewer:bing:73b4017dff9c",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "nemetschek:bing:343cc3c15965",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "nemetschek:bing:343cc3c15965",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "nemetschek:bing:90cc0838cda6",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "nemetschek:bing:045143137204",
+   "questionKey": "data.initiative",
+   "verdict": "BUILD",
+   "confidence": 0.6,
+   "quote": "Nemetschek dTwin showcases the power of digital twins in transforming facility operations through real-time asset visibility, predictive maintenance and performance optimisation.",
+   "rationale": "Vendor marketing its own AEC/O data and digital twin products, not buying such a service."
+  },
+  {
+   "evidenceKey": "nemetschek:bing:045143137204",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "nemetschek:bing:31ad2f9d3b82",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "nemetschek:bing:31ad2f9d3b82",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "compugroup:bing:45ee27fcad0e",
+   "questionKey": "data.initiative",
+   "verdict": "BUY",
+   "confidence": 0.55,
+   "quote": "The company sees new technologies, particularly artificial intelligence, as an important opportunity to improve customer value, simplify healthcare workflows",
+   "rationale": "Named executive owns AI expansion ambition, but no specific use case described."
+  },
+  {
+   "evidenceKey": "compugroup:bing:45ee27fcad0e",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "compugroup:bing:45ee27fcad0e",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "compugroup:bing:87d4e50e25bf",
+   "questionKey": "data.insourcing",
+   "verdict": "BUILD",
+   "confidence": 0.9,
+   "quote": "is proud to announce the launch of CGM INDEX.AI, an innovative document automation solution designed to streamline administrative processes in healthcare settings.",
+   "rationale": "Company markets its own AI document automation product that customers buy, positioning it as an AI vendor."
+  },
+  {
+   "evidenceKey": "compugroup:bing:87d4e50e25bf",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "compugroup:bing:87d4e50e25bf",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "compugroup:bing:836c3173320e",
+   "questionKey": "data.initiative",
+   "verdict": "BUILD",
+   "confidence": 0.6,
+   "quote": "Examples include clinical decision support modules, smarter coding and billing assistance, and predictive tools for hospital bed and staff planning.",
+   "rationale": "Named AI use cases are CGM's own products sold to providers, not an outside purchase."
+  },
+  {
+   "evidenceKey": "compugroup:bing:836c3173320e",
+   "questionKey": "data.insourcing",
+   "verdict": "BUILD",
+   "confidence": 0.95,
+   "quote": "This is where CGM increasingly talks about AI, decision support and population health management — not as buzzwords, but as features layered on top of the large, structured datasets its systems already hold.",
+   "rationale": "Document describes CGM's own healthcare IT platform, data backbone, and AI features sold to providers."
+  },
+  {
+   "evidenceKey": "compugroup:bing:836c3173320e",
+   "questionKey": "data.governance",
+   "verdict": "BUILD",
+   "confidence": 0.55,
+   "quote": "That makes it easier to integrate niche specialist systems while retaining a single source of truth for core patient data.",
+   "rationale": "CGM sells healthcare IT platforms offering single-source-of-truth data; this is vendor product copy, not internal programme."
+  },
+  {
+   "evidenceKey": "compugroup:bing:836c3173320e",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "compugroup:bing:b710fb425560",
+   "questionKey": "automation.cost_programme",
    "verdict": "NONE",
    "confidence": 0.0,
    "quote": null,

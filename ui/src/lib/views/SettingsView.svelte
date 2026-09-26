@@ -576,6 +576,52 @@
 				{#if section === 'pipeline'}
 					<section class="panel">
 						<div class="panel-head">
+							<h2 class="dsp">What the model half cost, and what it found</h2>
+							{#if telemetry?.overlay?.present}
+								<span class="sub dim num">{telemetry.overlay.engine}</span>
+							{:else}
+								<span class="sub dim">no overlay shipped</span>
+							{/if}
+						</div>
+						{#if telemetry?.overlay?.present}
+							<div class="metrics">
+								<Metric
+									value={shortNumber(telemetry.overlay.pairsSeen ?? 0)}
+									label="Pairs read by the model"
+									hint="Every pair sharing vocabulary with the question, plus a random sample of the ones that do not"
+								/>
+								<Metric
+									value={shortNumber(telemetry.signalsBySource?.classificationPairs ?? 0)}
+									label="Pairs in the corpus"
+									hint="documents x questions"
+								/>
+								<Metric
+									value={((telemetry.overlay.strikeRate ?? 0) * 100).toFixed(2) + '%'}
+									label="Quotes struck"
+									tone={(telemetry.overlay.strikeRate ?? 0) > 0.02 ? 'bad' : 'good'}
+									hint="Answers whose quote was not found in its own capture. A struck row is dropped, not repaired."
+								/>
+							</div>
+							{#if telemetry.overlay.sampling}
+								{@const sampling = telemetry.overlay.sampling}
+								<p class="sub dim">
+									The cue matcher was silent on {shortNumber(sampling.cueSilentSampled)} pairs chosen at random
+									({(sampling.sampleRate * 100).toFixed(0)}% of the ones it said nothing about) and the model was asked
+									anyway. It found a signal on {sampling.cueSilentSignals} of them —
+									{(sampling.cueSilentYield * 100).toFixed(2)}% — against {(sampling.cueLiveYield * 100).toFixed(1)}%
+									where the cue matcher had already fired. That first number is what the cheap engine alone would have
+									missed, measured rather than assumed.
+								</p>
+							{/if}
+						{:else}
+							<p class="sub dim">
+								Every row on the board was answered by the local rubric engine. It is deterministic and needs no
+								network, which is why the demo runs on it; the model is the precision layer and is built offline.
+							</p>
+						{/if}
+					</section>
+					<section class="panel">
+						<div class="panel-head">
 							<h2 class="dsp">What the crawl reached</h2>
 							<span class="sub dim num">
 								{telemetry?.freshness?.newestCaptureAgeHours != null
