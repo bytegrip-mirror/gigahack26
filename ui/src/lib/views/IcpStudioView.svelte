@@ -13,6 +13,7 @@
 	import { toasts } from '$lib/toast.svelte';
 	import { regionChoices, regionLabel } from '$lib/regions';
 	import { shortNumber } from '$lib/format';
+	import { portal } from '$lib/portal';
 	import Icon from '$lib/components/Icon.svelte';
 	import Menu from '$lib/components/Menu.svelte';
 	import Metric from '$lib/components/Metric.svelte';
@@ -30,15 +31,17 @@
 		'10001+'
 	];
 
-	const SWATCHES = [
-		'#2f6f4f',
-		'#1f4e79',
-		'#7a3fa0',
-		'#8a4b1f',
-		'#0f6f7a',
-		'#6f2f4f',
-		'#4f5f2f',
-		'#3f3f6f'
+	/** Twelve hues at four depths. Wide enough that two books are told apart at a
+	 * glance in the list, and the hex box below it takes anything else. */
+	const PALETTE = [
+		'#5f2f2f', '#6f4a1f', '#6f6220', '#5f6f2f', '#3f6f3f', '#2f6f5f',
+		'#2f626f', '#2f4a6f', '#3a3a6f', '#552f6f', '#6f2f5f', '#6f2f42',
+		'#8f4a4a', '#9f6f2f', '#9f8f3a', '#8f9f4a', '#5f9f5f', '#4a9f8f',
+		'#4a8f9f', '#4a6f9f', '#55559f', '#7a4a9f', '#9f4a8f', '#9f4a62',
+		'#c96f6f', '#d99a4f', '#d9c95f', '#bfd97a', '#8fcf8f', '#7acfb8',
+		'#7ab8cf', '#7a9fcf', '#8a8acf', '#ab7acf', '#cf7ab8', '#cf7a94',
+		'#e6b3b3', '#e6cfa6', '#e6e0a6', '#d9e6b8', '#c2e6c2', '#b8e6da',
+		'#b8dae6', '#b8c9e6', '#c2c2e6', '#d4b8e6', '#e6b8da', '#e6b8c4'
 	];
 
 	type Draft = {
@@ -58,7 +61,7 @@
 	const BLANK: Draft = {
 		id: null,
 		name: '',
-		color: SWATCHES[0],
+		color: '#2f6f4f',
 		countries: '',
 		regions: '',
 		industries: '',
@@ -81,6 +84,8 @@
 	let industriesPresent = $state<string[]>([]);
 	let industryDraft = $state('');
 	let countryDraft = $state('');
+	let paletteOpen = $state(false);
+	let hexDraft = $state('');
 
 	function list(value: string): string[] {
 		return value
@@ -114,11 +119,7 @@
 		return profiles.filter((profile) => profile.name.toLowerCase().includes(needle));
 	});
 
-	function load() {
-		return fetchIcpProfiles()
-			.then((list) => (profiles = list))
-			.catch(() => (profiles = []));
-	}
+	const reach = $derived(preview ? preview.companies : 0);
 
 	$effect(() => {
 		let cancelled = false;
@@ -171,6 +172,12 @@
 		};
 	});
 
+	function load() {
+		return fetchIcpProfiles()
+			.then((list) => (profiles = list))
+			.catch(() => (profiles = []));
+	}
+
 	function startNew() {
 		draft = { ...BLANK };
 		dirty = true;
@@ -180,7 +187,7 @@
 		draft = {
 			id: profile.id,
 			name: profile.name,
-			color: profile.color ?? SWATCHES[0],
+			color: profile.color ?? BLANK.color,
 			countries: join(profile.countries),
 			regions: join(profile.regions),
 			industries: join(profile.industries),
@@ -301,6 +308,22 @@
 		else draft.regions = toggleIn(draft.regions, entry);
 		dirty = true;
 	}
+
+	function openPalette() {
+		hexDraft = draft.color;
+		paletteOpen = true;
+	}
+
+	function chooseColour(value: string) {
+		draft.color = value;
+		dirty = true;
+		paletteOpen = false;
+	}
+
+	function applyHex() {
+		const value = hexDraft.trim();
+		if (/^#[0-9a-fA-F]{3,8}$/.test(value)) chooseColour(value.toLowerCase());
+	}
 </script>
 
 <div class="view">
@@ -309,7 +332,7 @@
 			<h1 class="dsp">ICP Studio</h1>
 			<p class="sub">
 				{profiles.length} {profiles.length === 1 ? 'profile' : 'profiles'} ·
-				{profiles.filter((profile) => profile.active).length} switched on · the board shows the companies in them
+				{profiles.filter((profile) => profile.active).length} in force · the board is the companies in them
 			</p>
 		</div>
 		<div class="topbar-tools">
@@ -327,7 +350,7 @@
 			<input class="input input-sm" type="search" bind:value={query} placeholder="Filter profiles" />
 		</label>
 		<span class="spacer"></span>
-		<span class="sub dim">Selection lives on the board · switch profiles on to narrow it</span>
+		<span class="sub dim">A profile defines a market · the board narrows to the ones in force</span>
 	</div>
 
 	<div class="panes">
@@ -347,15 +370,11 @@
 								<span class="row-name">{profile.name}</span>
 								<span class="sub dim">
 									{shortNumber(profile.companies)} {profile.companies === 1 ? 'company' : 'companies'}
-									{#if !profile.active} · off{/if}
+									{#if !profile.active} · out of force{/if}
 								</span>
 							</span>
 						</button>
-						<Menu
-							items={rowMenu(profile)}
-							onselect={(id) => runRow(profile, id)}
-							label={`Actions for ${profile.name}`}
-						/>
+						<Menu items={rowMenu(profile)} onselect={(id) => runRow(profile, id)} label={`Actions for ${profile.name}`} />
 					</li>
 				{:else}
 					<li class="empty">
@@ -371,56 +390,46 @@
 			<div class="editor-head">
 				<h2 class="dsp">{draft.id ? draft.name || 'Untitled profile' : 'New profile'}</h2>
 				{#if !draft.id}<span class="tag tag-wash">unsaved</span>{/if}
-				{#if !draft.active}<span class="tag tag-wash">off</span>{/if}
+				{#if !draft.active}<span class="tag tag-wash">out of force</span>{/if}
+				<span class="spacer"></span>
+				{#if dirty}<span class="sub dim">Unsaved changes</span>{/if}
 			</div>
 
 			<div class="editor-body scroll">
 				<section class="panel">
-					<div class="panel-head"><h2 class="dsp">What to call it</h2></div>
-					<div class="fields">
-						<label class="field">
-							<span class="label">Title</span>
-							<input
-								class="input"
-								bind:value={draft.name}
-								oninput={() => (dirty = true)}
-								placeholder="DACH banks and insurers"
-							/>
-						</label>
-						<div class="field">
-							<span class="label">Colour</span>
-							<div class="colour">
-								<input
-									type="color"
-									class="colour-input"
-									bind:value={draft.color}
-									oninput={() => (dirty = true)}
-									aria-label="The colour this profile wears on the board"
-								/>
-								{#each SWATCHES as swatch (swatch)}
-									<button
-										class="swatch-btn"
-										class:chosen={draft.color.toLowerCase() === swatch}
-										style={`background:${swatch}`}
-										aria-label={`Use ${swatch}`}
-										onclick={() => {
-											draft.color = swatch;
-											dirty = true;
-										}}
-									></button>
-								{/each}
-							</div>
-						</div>
-					</div>
+					<div class="panel-head"><h3 class="label">Identity</h3></div>
+					<label class="field">
+						<span class="label">Profile name</span>
+						<input
+							class="input"
+							bind:value={draft.name}
+							oninput={() => (dirty = true)}
+							placeholder="DACH industrial automation"
+						/>
+					</label>
+					<label class="check">
+						<input
+							type="checkbox"
+							checked={draft.active}
+							onchange={() => {
+								draft.active = !draft.active;
+								dirty = true;
+							}}
+						/>
+						<span>In force — the board counts this book</span>
+					</label>
 				</section>
 
 				<section class="panel">
-					<div class="panel-head"><h2 class="dsp">Where they are</h2></div>
+					<div class="panel-head">
+						<h3 class="label">Geography</h3>
+						<span class="sub dim">{chosenRegions.length + chosenCountries.length || 'any'}</span>
+					</div>
 					<div class="chips">
 						{#each chosenRegions as region (region)}
 							<button
 								class="chip"
-								title="Everything this region covers"
+								title="Every country this region covers"
 								onclick={() => {
 									draft.regions = toggleIn(draft.regions, region);
 									dirty = true;
@@ -443,7 +452,7 @@
 							</button>
 						{/each}
 						{#if chosenRegions.length === 0 && chosenCountries.length === 0}
-							<span class="sub dim">Everywhere. Add a region or a country to narrow it.</span>
+							<span class="sub dim">Anywhere.</span>
 						{/if}
 					</div>
 					<div class="add">
@@ -470,7 +479,7 @@
 							<input
 								class="input input-sm"
 								bind:value={countryDraft}
-								placeholder="Or a country code, e.g. RO"
+								placeholder="Country code, e.g. DE"
 								aria-label="Add a country"
 							/>
 							<button class="btn btn-sm" type="submit">Add</button>
@@ -479,7 +488,10 @@
 				</section>
 
 				<section class="panel">
-					<div class="panel-head"><h2 class="dsp">What they do</h2></div>
+					<div class="panel-head">
+						<h3 class="label">Industries</h3>
+						<span class="sub dim">{chosenIndustries.length || 'any'}</span>
+					</div>
 					<div class="chips">
 						{#each chosenIndustries as industry (industry)}
 							<button
@@ -494,7 +506,7 @@
 							</button>
 						{/each}
 						{#if chosenIndustries.length === 0}
-							<span class="sub dim">Every industry.</span>
+							<span class="sub dim">Any industry.</span>
 						{/if}
 					</div>
 					<div class="add">
@@ -506,9 +518,7 @@
 							items={industriesPresent.map((industry) => ({
 								id: industry,
 								label: industry,
-								checked: chosenIndustries.some(
-									(chosen) => chosen.toLowerCase() === industry.toLowerCase()
-								)
+								checked: chosenIndustries.some((chosen) => chosen.toLowerCase() === industry.toLowerCase())
 							}))}
 							onselect={(industry) => addCue('industry', industry)}
 						/>
@@ -532,7 +542,7 @@
 				</section>
 
 				<section class="panel">
-					<div class="panel-head"><h2 class="dsp">How big they are</h2></div>
+					<div class="panel-head"><h3 class="label">Company size</h3></div>
 					<div class="chips">
 						{#each BANDS as band (band)}
 							<button
@@ -547,8 +557,8 @@
 							</button>
 						{/each}
 					</div>
-					<label class="field small">
-						<span class="label">At least this many employees</span>
+					<label class="field">
+						<span class="label">Headcount floor</span>
 						<input
 							class="input input-sm num"
 							type="number"
@@ -558,12 +568,12 @@
 						/>
 					</label>
 					{#if chosenBands.length === 0 && draft.minEmployees === 0}
-						<span class="sub dim">Every size. Employees are estimated from the size band.</span>
+						<span class="sub dim">Any size. Headcount is estimated from the size band.</span>
 					{/if}
 				</section>
 
 				<section class="panel">
-					<div class="panel-head"><h2 class="dsp">Who to keep out</h2></div>
+					<div class="panel-head"><h3 class="label">Exclusions</h3></div>
 					<label class="check">
 						<input
 							type="checkbox"
@@ -573,7 +583,7 @@
 								dirty = true;
 							}}
 						/>
-						<span>Companies that sell what we sell</span>
+						<span>Vendors — companies that sell what we sell</span>
 					</label>
 					<label class="check">
 						<input
@@ -584,43 +594,41 @@
 								dirty = true;
 							}}
 						/>
-						<span>Only companies nobody has worked yet</span>
-					</label>
-					<label class="check">
-						<input
-							type="checkbox"
-							checked={draft.active}
-							onchange={() => {
-								draft.active = !draft.active;
-								dirty = true;
-							}}
-						/>
-						<span>Switched on — the board counts it</span>
+						<span>Accounts already worked</span>
 					</label>
 				</section>
 
-				<section class="panel preview">
-					<div class="panel-head"><h2 class="dsp">What that covers</h2></div>
-					{#if preview}
-						<div class="metrics">
-							<Metric value={shortNumber(preview.companies)} label="Companies" tone="hot" />
-						</div>
-						{#if preview.sample.length > 0}
-							<p class="sub">
-								{preview.sample.join(' · ')}{#if preview.companies > preview.sample.length}, and {shortNumber(
-										preview.companies - preview.sample.length
-									)} more{/if}
-							</p>
-						{:else}
-							<p class="note warn">
-								<Icon name="alert" size={14} />
-								<span>No company we hold matches this. Loosen a filter or clear one.</span>
-							</p>
-						{/if}
-					{:else}
-						<p class="sub dim">Counting…</p>
+				<section class="panel">
+					<div class="panel-head">
+						<h3 class="label">Reach</h3>
+						{#if previewing}<span class="sub dim">counting</span>{/if}
+					</div>
+					<div class="metrics">
+						<Metric value={shortNumber(reach)} label="Companies in this book" tone="hot" />
+					</div>
+					{#if preview && preview.sample.length > 0}
+						<p class="sub">
+							{preview.sample.join(' · ')}{#if preview.companies > preview.sample.length}, and {shortNumber(
+									preview.companies - preview.sample.length
+								)} more{/if}
+						</p>
+					{:else if preview}
+						<p class="note warn">
+							<Icon name="alert" size={14} />
+							<span>No company we hold matches this. Loosen a filter or clear one.</span>
+						</p>
 					{/if}
-					{#if previewing}<span class="sub dim">still counting</span>{/if}
+				</section>
+
+				<section class="panel">
+					<div class="panel-head"><h3 class="label">Appearance</h3></div>
+					<button class="colour-btn" onclick={openPalette}>
+						<span class="colour-swatch" style={`background:${draft.color}`}></span>
+						<span class="num">{draft.color}</span>
+						<span class="spacer"></span>
+						<span class="sub dim">Choose</span>
+					</button>
+					<span class="sub dim">Marks this book in the list, and wherever a book is chosen.</span>
 				</section>
 			</div>
 
@@ -633,18 +641,78 @@
 					<button class="btn btn-quiet" onclick={discard}>Discard changes</button>
 				{/if}
 				<span class="spacer"></span>
-				{#if dirty}<span class="sub dim">Unsaved changes</span>{/if}
+				<span class="sub dim">{draft.id ? draft.name : 'not saved yet'}</span>
 			</footer>
 		</section>
 	</div>
 </div>
+
+{#if paletteOpen}
+	<div
+		class="scrim"
+		use:portal
+		role="presentation"
+		onclick={(event) => {
+			if (event.target === event.currentTarget) paletteOpen = false;
+		}}
+	>
+		<div class="palette" role="dialog" aria-modal="true" aria-label="Choose a colour">
+			<header class="palette-head">
+				<h2 class="dsp">Choose a colour</h2>
+				<span class="spacer"></span>
+				<button class="icon-btn" onclick={() => (paletteOpen = false)} aria-label="Close">
+					<Icon name="close" size={15} />
+				</button>
+			</header>
+			<div class="palette-grid">
+				{#each PALETTE as hex (hex)}
+					<button
+						class="cell"
+						class:chosen={draft.color.toLowerCase() === hex}
+						style={`background:${hex}`}
+						aria-label={hex}
+						title={hex}
+						onclick={() => chooseColour(hex)}
+					></button>
+				{/each}
+			</div>
+			<div class="palette-foot">
+				<label class="field">
+					<span class="label">Or a hex value</span>
+					<input
+						class="input input-sm num"
+						bind:value={hexDraft}
+						onkeydown={(event) => {
+							if (event.key === 'Enter') applyHex();
+						}}
+						placeholder="#2f6f4f"
+					/>
+				</label>
+				<input
+					type="color"
+					class="colour-input"
+					bind:value={draft.color}
+					oninput={() => (dirty = true)}
+					aria-label="Pick any colour"
+				/>
+				<span class="spacer"></span>
+				<button class="btn btn-sm" onclick={applyHex}>Use it</button>
+			</div>
+		</div>
+	</div>
+{/if}
 
 <style>
 	.topbar .sub {
 		color: var(--color-ink-3);
 	}
 
-	.toolbar .spacer {
+	.toolbar .spacer,
+	.editor-head .spacer,
+	.colour-btn .spacer,
+	.palette-head .spacer,
+	.palette-foot .spacer,
+	.editor-foot .spacer {
 		margin-left: auto;
 	}
 
@@ -746,54 +814,35 @@
 		flex: none;
 	}
 
+	/*
+	 * The panels tile the width rather than stacking in a 760px column: this
+	 * screen is for comparing criteria, and a column of narrow panels left half
+	 * the window empty. Each panel's own fields stay one line to a decision.
+	 */
 	.editor-body {
 		flex: 1;
 		min-height: 0;
 		padding: var(--spacing-4);
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+		gap: var(--spacing-3);
+		align-content: start;
+	}
+
+	.panel {
 		display: flex;
 		flex-direction: column;
-		gap: var(--spacing-3);
-		max-width: 760px;
-	}
-
-	.fields {
-		display: flex;
-		flex-direction: column;
-		gap: var(--spacing-3);
-	}
-
-	.field.small {
-		margin-top: var(--spacing-3);
-		max-width: 240px;
-	}
-
-	.colour {
-		display: flex;
-		align-items: center;
 		gap: var(--spacing-2);
-		flex-wrap: wrap;
 	}
 
-	.colour-input {
-		width: 44px;
-		height: var(--spacing-ctl);
-		padding: 0;
-		border: 1px solid var(--color-rule-strong);
-		background: none;
-		cursor: pointer;
+	.panel-head {
+		display: flex;
+		align-items: baseline;
+		gap: var(--spacing-2);
 	}
 
-	.swatch-btn {
-		width: 22px;
-		height: 22px;
-		border: 1px solid var(--color-rule-strong);
-		border-radius: 2px;
-		cursor: pointer;
-	}
-
-	.swatch-btn.chosen {
-		outline: 1px solid var(--color-ink);
-		outline-offset: 1px;
+	.panel-head .label {
+		color: var(--color-ink-2);
 	}
 
 	.chips {
@@ -829,7 +878,6 @@
 		display: flex;
 		align-items: center;
 		gap: var(--spacing-2);
-		margin-top: var(--spacing-2);
 		flex-wrap: wrap;
 	}
 
@@ -840,17 +888,40 @@
 	}
 
 	.cue-add .input {
-		width: 200px;
+		width: 160px;
 	}
 
-	.preview .metrics {
+	.panel .metrics {
 		margin-left: 0;
 	}
 
-	.preview .note {
+	.panel .note {
 		display: flex;
 		align-items: baseline;
 		gap: var(--spacing-2);
+	}
+
+	.colour-btn {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-2);
+		padding: var(--spacing-2) var(--spacing-3);
+		border: 1px solid var(--color-rule-strong);
+		background: var(--color-surface);
+		cursor: pointer;
+		text-align: left;
+	}
+
+	.colour-btn:hover {
+		border-color: var(--color-ink);
+	}
+
+	.colour-swatch {
+		width: 22px;
+		height: 22px;
+		flex: none;
+		border-radius: 2px;
+		border: 1px solid var(--color-ink-4);
 	}
 
 	.editor-foot {
@@ -862,8 +933,67 @@
 		flex: none;
 	}
 
-	.editor-foot .spacer {
-		margin-left: auto;
+	.scrim {
+		animation: fade-in var(--ease-enter) both;
+		position: fixed;
+		inset: 0;
+		background: rgb(18 16 13 / 0.34);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: var(--z-index-sheet);
+	}
+
+	.palette {
+		animation: rise var(--ease-enter) both;
+		width: min(680px, calc(100vw - var(--spacing-5) * 2));
+		max-height: calc(100vh - var(--spacing-5) * 2);
+		overflow-y: auto;
+		background: var(--color-surface);
+		border: 1px solid var(--color-ink);
+		padding: var(--spacing-4);
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-3);
+	}
+
+	.palette-head {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-2);
+	}
+
+	.palette-grid {
+		display: grid;
+		grid-template-columns: repeat(8, 1fr);
+		gap: var(--spacing-1);
+	}
+
+	.cell {
+		aspect-ratio: 1;
+		border: 1px solid var(--color-rule-strong);
+		border-radius: 2px;
+		cursor: pointer;
+	}
+
+	.cell.chosen {
+		outline: 2px solid var(--color-ink);
+		outline-offset: 1px;
+	}
+
+	.palette-foot {
+		display: flex;
+		align-items: flex-end;
+		gap: var(--spacing-3);
+	}
+
+	.colour-input {
+		width: 44px;
+		height: var(--spacing-ctl);
+		padding: 0;
+		border: 1px solid var(--color-rule-strong);
+		background: none;
+		cursor: pointer;
 	}
 
 	@media (max-width: 1000px) {

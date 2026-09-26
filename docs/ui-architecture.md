@@ -348,13 +348,25 @@ Every company node is a link and opens its scorecard; a question is a label, not
 a destination, now that there is nowhere to edit one. Hovering dims everything
 not connected to the node under the cursor.
 
-**The ICP Studio keeps the books of business.** A profile is a title, a colour and
-a set of filters — where the companies are, what they do, how big they are, and
-who to keep out — and the board shows the union of the profiles switched on. The
-list is on the left and the open profile on the right, in the same two panes the
-Signal Studio used. The last panel counts what the filters would hold before
-anything is saved; that count and the board's rows come from one predicate on the
-server, so the screen cannot promise a number the board will not show.
+**The ICP Studio keeps the books of business.** A profile is a name, a colour and
+a set of criteria — geography, industries, company size, exclusions — and the
+board shows the union of the profiles in force. The list is on the left and the
+open profile on the right — a list beside a detail, the same shape the board uses
+for a company.
+
+Its criteria panels **tile the width** rather than stacking in one column. This is
+the one screen that breaks the single-column rule of §2.1, and it earns it: the
+reader is comparing six short criteria, not reading prose, and a 760px column left
+half the window empty while the panels scrolled past each other. Each panel's own
+fields still run one to a line.
+
+The colour is the **last** panel, and it opens a palette rather than sitting inline.
+Choosing from thirty swatches at once is one decision; a swatch row beside the name
+field is a decision that has to be made before the reader knows what the profile
+is for. The palette is a full-window surface and so is mounted through `portal`
+(§8). Reach — the count of what the criteria hold — sits above it and comes from
+the same predicate the board uses, so the screen cannot promise a number the board
+will not show.
 
 The board says which books are on in the **Filters** menu, and says nothing about
 them on the rows themselves. A coloured chip on every row was tried and taken out

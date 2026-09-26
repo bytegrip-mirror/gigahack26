@@ -14,9 +14,15 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Ten books of business, so a database that has just been created opens on a
- * board that means something and nobody has to click ten profiles together after
- * every deploy.
+ * Twenty books of business, so a database that has just been created opens on a
+ * board that means something and nobody has to click twenty profiles together
+ * after every deploy. They are spread across industries and regions on purpose:
+ * a rep's books do not all look alike, and a picker with one flavour in it
+ * demonstrates nothing.
+ *
+ * Every one of them was checked against the corpus before it was written down, so
+ * none of them is empty — except the public-sector book, which holds only the two
+ * government-services firms the corpus has.
  *
  * They are matched by name and only added when missing. A profile that is already
  * there is left exactly as it is, edits and all — this class restores what is
@@ -82,6 +88,32 @@ public class IcpProfileLibrary implements ApplicationRunner {
                         "IT Services,Business Process Outsourcing,Software", 200, "", false, false, true),
                 new IcpProfileService.Draft("United States pharmaceuticals and life sciences", "#4f6f7f", "",
                         "united-states", "Pharmaceuticals,Biotechnology,Medical Devices", 1000, "", false, false,
-                        true));
+                        true),
+                new IcpProfileService.Draft("DACH industrial automation and machinery", "#1f6f3f", "", "dach",
+                        "Industrial Automation,Industrial Machinery,Industrial Engineering", 1000, "", false, false,
+                        true),
+                new IcpProfileService.Draft("Southern Europe energy and utilities", "#2f3f8f", "",
+                        "southern-europe", "Utilities,Electricity Grid,Gas Distribution,Oil & Gas", 1000, "", false,
+                        false, true),
+                new IcpProfileService.Draft("European mining and metals", "#6f2f8f", "", "europe",
+                        "Mining,Metals,Steel,Aluminium", 1000, "", false, false, true),
+                new IcpProfileService.Draft("European chemicals and packaging", "#0f5f5f", "", "europe",
+                        "Chemicals,Packaging,Paper Packaging", 1000, "", false, false, true),
+                new IcpProfileService.Draft("United States healthcare and life sciences", "#8f2f6f", "",
+                        "united-states",
+                        "Healthcare,Health Technology,Diagnostics,Life Sciences,Healthcare Software,Medical Devices",
+                        1000, "", false, false, true),
+                new IcpProfileService.Draft("UK and Ireland travel and transport", "#3f6f5f", "", "uk-ireland",
+                        "Airlines,Airport Operations,Travel Technology,Rail Transport,Shipping", 500, "", false, false,
+                        true),
+                new IcpProfileService.Draft("French media, gaming and luxury", "#1f4f5f", "", "france",
+                        "Media,Gaming,Luxury Goods", 500, "", false, false, true),
+                new IcpProfileService.Draft("Nordics IT and cybersecurity", "#5f6f1f", "", "nordics",
+                        "IT Services,Cybersecurity,Software", 500, "", false, false, true),
+                new IcpProfileService.Draft("Nordics construction and infrastructure", "#4f3f7f", "", "nordics",
+                        "Construction,Building Materials,Infrastructure,Industrial Engineering", 500, "", false, false,
+                        true),
+                new IcpProfileService.Draft("Public sector services", "#7f5f3f", "", "", "Public Services", 0, "",
+                        false, false, true));
     }
 }
