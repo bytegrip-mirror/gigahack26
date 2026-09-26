@@ -1,7 +1,7 @@
 {
  "engine": "deepseek-flash@deepseek",
- "generatedAt": "2026-09-26T08:52:08Z",
- "pairsSeen": 4725,
+ "generatedAt": "2026-09-26T08:52:28Z",
+ "pairsSeen": 5316,
  "signals": [
   {
    "evidenceKey": "air-france-klm:bing:f0ba6667f526",
@@ -37802,6 +37802,4734 @@
    "confidence": 0.0,
    "quote": null,
    "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "pfizer:bing:232eddcfe75c",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "pfizer:bing:232eddcfe75c",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "pfizer:bing:232eddcfe75c",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "pfizer:bing:232eddcfe75c",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "pfizer:bing:232eddcfe75c",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "pfizer:bing:232eddcfe75c",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "pfizer:bing:232eddcfe75c",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "pfizer:bing:a502ad315874",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "pfizer:bing:a502ad315874",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "pfizer:bing:a502ad315874",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "pfizer:bing:a502ad315874",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "pfizer:bing:738f977854d3",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "pfizer:bing:738f977854d3",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "pfizer:bing:738f977854d3",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "pfizer:bing:738f977854d3",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "merck-and-co:bing:ebba3d13d2aa",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "merck-and-co:bing:ebba3d13d2aa",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "merck-and-co:bing:ebba3d13d2aa",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "merck-and-co:bing:ebba3d13d2aa",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "merck-and-co:bing:ebba3d13d2aa",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "merck-and-co:bing:ebba3d13d2aa",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "merck-and-co:bing:ebba3d13d2aa",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "merck-and-co:bing:ebba3d13d2aa",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "merck-and-co:bing:ebba3d13d2aa",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "merck-and-co:bing:ebba3d13d2aa",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "merck-and-co:bing:ebba3d13d2aa",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "merck-and-co:bing:ebba3d13d2aa",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "merck-and-co:bing:ebba3d13d2aa",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "merck-and-co:bing:c8031dd1c219",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "merck-and-co:bing:c8031dd1c219",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "merck-and-co:bing:c8031dd1c219",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "merck-and-co:bing:c8031dd1c219",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "merck-and-co:bing:c8031dd1c219",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "merck-and-co:bing:c8031dd1c219",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "merck-and-co:bing:c8031dd1c219",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gilead:bing:61941ccabdce",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gilead:bing:61941ccabdce",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gilead:bing:61941ccabdce",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gilead:bing:61941ccabdce",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gilead:bing:61941ccabdce",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "gilead:bing:61941ccabdce",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "boston-scientific:bing:e0b79fe175a5",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "boston-scientific:bing:e0b79fe175a5",
+   "questionKey": "security.incident",
+   "verdict": "BUY",
+   "confidence": 0.9,
+   "quote": "following August 25’s cyberattack that caused a global network outage",
+   "rationale": "Confirmed cyberattack caused global outage and financial impact."
+  },
+  {
+   "evidenceKey": "boston-scientific:bing:e0b79fe175a5",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "boston-scientific:bing:e0b79fe175a5",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "boston-scientific:bing:45fd9be0e26c",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "boston-scientific:bing:45fd9be0e26c",
+   "questionKey": "security.incident",
+   "verdict": "BUY",
+   "confidence": 0.93,
+   "quote": "Boston Scientific has restored its operations weeks after being hit by a cyberattack.",
+   "rationale": "Confirmed cyberattack shut plants and distribution; incident response spending likely."
+  },
+  {
+   "evidenceKey": "boston-scientific:bing:45fd9be0e26c",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "boston-scientific:bing:45fd9be0e26c",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "boston-scientific:bing:c320a2959420",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "boston-scientific:bing:c320a2959420",
+   "questionKey": "security.incident",
+   "verdict": "BUY",
+   "confidence": 0.92,
+   "quote": "after a cybersecurity incident identified on Aug. 25",
+   "rationale": "Company disclosed a cybersecurity incident disrupting operations and guidance."
+  },
+  {
+   "evidenceKey": "boston-scientific:bing:c320a2959420",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "boston-scientific:bing:c320a2959420",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "boston-scientific:bing:ade3343feab4",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "boston-scientific:bing:ade3343feab4",
+   "questionKey": "security.incident",
+   "verdict": "BUY",
+   "confidence": 0.95,
+   "quote": "Boston Scientific reported that a cybersecurity incident identified on August 25, 2026 disrupted key information technology systems and led to a global interruption of operations",
+   "rationale": "Company-named cyberattack disrupted operations and forced guidance withdrawal."
+  },
+  {
+   "evidenceKey": "boston-scientific:bing:ade3343feab4",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "boston-scientific:bing:ade3343feab4",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "boston-scientific:bing:f41f7c912e4f",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "boston-scientific:bing:f41f7c912e4f",
+   "questionKey": "security.incident",
+   "verdict": "BUY",
+   "confidence": 0.9,
+   "quote": "Boston Scientific said last month's cyber event continues to disrupt operations as it works to bring systems back online",
+   "rationale": "Confirmed cyber event disrupting Boston Scientific operations and financial outlook."
+  },
+  {
+   "evidenceKey": "boston-scientific:bing:f41f7c912e4f",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "boston-scientific:bing:f41f7c912e4f",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "stryker:bing:b922edb4dbeb",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "stryker:bing:b922edb4dbeb",
+   "questionKey": "security.incident",
+   "verdict": "BUY",
+   "confidence": 0.9,
+   "quote": "Citizens cut its target to USD 400 because of operational disruptions including a cyberattack and supply-chain issues.",
+   "rationale": "Reported cyberattack caused operational disruptions for Stryker."
+  },
+  {
+   "evidenceKey": "stryker:bing:b922edb4dbeb",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "stryker:bing:b922edb4dbeb",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "stryker:bing:2289656a3513",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "stryker:bing:2289656a3513",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "stryker:bing:2289656a3513",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "stryker:bing:2289656a3513",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "stryker:bing:2289656a3513",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "stryker:bing:2289656a3513",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "stryker:bing:d70a0567fb36",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "stryker:bing:d70a0567fb36",
+   "questionKey": "security.incident",
+   "verdict": "BUY",
+   "confidence": 0.85,
+   "quote": "after an Iran-backed cyberattack earlier this year",
+   "rationale": "Stryker suffered cyberattack that took manufacturing down for several weeks."
+  },
+  {
+   "evidenceKey": "stryker:bing:d70a0567fb36",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "stryker:bing:d70a0567fb36",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ge-healthcare:bing:f9da1597daf5",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ge-healthcare:bing:f9da1597daf5",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ge-healthcare:bing:f9da1597daf5",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ge-healthcare:bing:f9da1597daf5",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ge-healthcare:bing:f9da1597daf5",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ge-healthcare:bing:f9da1597daf5",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ge-healthcare:bing:f9da1597daf5",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ge-healthcare:bing:5c996d95e4ba",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ge-healthcare:bing:5c996d95e4ba",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ge-healthcare:bing:5c996d95e4ba",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "ge-healthcare:bing:5c996d95e4ba",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "siemens-healthineers:bing:2e47b9f86249",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "siemens-healthineers:bing:2e47b9f86249",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "siemens-healthineers:bing:2e47b9f86249",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "siemens-healthineers:bing:2e47b9f86249",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "siemens-healthineers:bing:2e47b9f86249",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "siemens-healthineers:bing:2e47b9f86249",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "siemens-healthineers:bing:2e47b9f86249",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "siemens-healthineers:bing:2e47b9f86249",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "siemens-healthineers:bing:2e47b9f86249",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "siemens-healthineers:bing:2e47b9f86249",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "siemens-healthineers:bing:2e47b9f86249",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "siemens-healthineers:bing:ee4eb010524d",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "siemens-healthineers:bing:ee4eb010524d",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "siemens-healthineers:bing:ee4eb010524d",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "siemens-healthineers:bing:ee4eb010524d",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "siemens-healthineers:bing:f62074a90c12",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "siemens-healthineers:bing:f62074a90c12",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "siemens-healthineers:bing:f62074a90c12",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "siemens-healthineers:bing:f62074a90c12",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "siemens-healthineers:bing:f62074a90c12",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "siemens-healthineers:bing:f62074a90c12",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "siemens-healthineers:bing:f62074a90c12",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "elekta:bing:53d55b667ecd",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "elekta:bing:53d55b667ecd",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "elekta:bing:53d55b667ecd",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "elekta:bing:53d55b667ecd",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "elekta:bing:53d55b667ecd",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "elekta:bing:53d55b667ecd",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "elekta:bing:53d55b667ecd",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "elekta:bing:65178f2d80d0",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "elekta:bing:65178f2d80d0",
+   "questionKey": "security.incident",
+   "verdict": "BUY",
+   "confidence": 0.85,
+   "quote": "On August 30, 2026, the extortion group shinyhunters claimed to have targeted Elekta AB, a Swedish organization operating within the healthcare sector.",
+   "rationale": "Extortion group claims attack on Elekta with credential exposure."
+  },
+  {
+   "evidenceKey": "elekta:bing:65178f2d80d0",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "elekta:bing:65178f2d80d0",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "elekta:bing:889837fb0794",
+   "questionKey": "data.initiative",
+   "verdict": "BUY",
+   "confidence": 0.8,
+   "quote": "The initiative – dubbed the Partnership for Online Personalized AI-driven Adaptive RT (POP-AART) – is focusing on adaptive radiotherapy",
+   "rationale": "Named AI programme POP-AART with concrete adaptive radiotherapy use case."
+  },
+  {
+   "evidenceKey": "elekta:bing:889837fb0794",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "elekta:bing:889837fb0794",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "elekta:bing:889837fb0794",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "elekta:bing:889837fb0794",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "elekta:bing:889837fb0794",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "elekta:bing:1ef8591be133",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "elekta:bing:1ef8591be133",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "elekta:bing:1ef8591be133",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "elekta:bing:1ef8591be133",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "elekta:bing:1ef8591be133",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "elekta:bing:1ef8591be133",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "elekta:bing:1ef8591be133",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:7b8f3d24874a",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:7b8f3d24874a",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:7b8f3d24874a",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:7b8f3d24874a",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:7b8f3d24874a",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:7b8f3d24874a",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:e963c09238af",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:e963c09238af",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:e963c09238af",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:e963c09238af",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:e963c09238af",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:e963c09238af",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:e963c09238af",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:cafdf63c2cf4",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:cafdf63c2cf4",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:cafdf63c2cf4",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:cafdf63c2cf4",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:cafdf63c2cf4",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:cafdf63c2cf4",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:cafdf63c2cf4",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:b356be625b8a",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:b356be625b8a",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:b356be625b8a",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:b356be625b8a",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:b356be625b8a",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:b356be625b8a",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:1b86ffc45826",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:1b86ffc45826",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:1b86ffc45826",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:1b86ffc45826",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:1b86ffc45826",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:1b86ffc45826",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "getinge:bing:1b86ffc45826",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sobi:bing:eb141f464c0a",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sobi:bing:eb141f464c0a",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sobi:bing:eb141f464c0a",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sobi:bing:eb141f464c0a",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sobi:bing:eb141f464c0a",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sobi:bing:eb141f464c0a",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "sobi:bing:eb141f464c0a",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "uniper:bing:7b7a166181e1",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "uniper:bing:7b7a166181e1",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "uniper:bing:7b7a166181e1",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "uniper:bing:7b7a166181e1",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "uniper:bing:7b7a166181e1",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "uniper:bing:7b7a166181e1",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "uniper:bing:7b7a166181e1",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "uniper:bing:87a7b6f89a82",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "uniper:bing:87a7b6f89a82",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "uniper:bing:87a7b6f89a82",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "uniper:bing:87a7b6f89a82",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "uniper:bing:87a7b6f89a82",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "uniper:bing:87a7b6f89a82",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "iberdrola:bing:c56acc8b3fa5",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "iberdrola:bing:c56acc8b3fa5",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "iberdrola:bing:c56acc8b3fa5",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "iberdrola:bing:c56acc8b3fa5",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "iberdrola:bing:c56acc8b3fa5",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "iberdrola:bing:c56acc8b3fa5",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "iberdrola:bing:c56acc8b3fa5",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "iberdrola:bing:5bf82bb919ad",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "iberdrola:bing:5bf82bb919ad",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "iberdrola:bing:5bf82bb919ad",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "iberdrola:bing:5bf82bb919ad",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "iberdrola:bing:5bf82bb919ad",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "iberdrola:bing:5bf82bb919ad",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "iberdrola:bing:5bf82bb919ad",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "iberdrola:bing:b65de91cba2e",
+   "questionKey": "data.initiative",
+   "verdict": "BUY",
+   "confidence": 0.85,
+   "quote": "the energy firm currently manages a portfolio of over 300 active projects based on machine learning algorithms and intelligent systems",
+   "rationale": "Named portfolio of 300 ML projects plus €1.6B AI investment."
+  },
+  {
+   "evidenceKey": "iberdrola:bing:b65de91cba2e",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "iberdrola:bing:b65de91cba2e",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "iberdrola:bing:b65de91cba2e",
+   "questionKey": "data.ai_governance",
+   "verdict": "BUY",
+   "confidence": 0.9,
+   "quote": "Iberdrola stands as the first organization in the global energy sector to obtain certification under the international ISO 42001 standard for the responsible management of artificial intelligence.",
+   "rationale": "ISO 42001 responsible-AI certification, first in energy sector."
+  },
+  {
+   "evidenceKey": "iberdrola:bing:b65de91cba2e",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "iberdrola:bing:b65de91cba2e",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "iberdrola:bing:75231bb6e065",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "iberdrola:bing:75231bb6e065",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "iberdrola:bing:75231bb6e065",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "iberdrola:bing:75231bb6e065",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "iberdrola:bing:75231bb6e065",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "iberdrola:bing:75231bb6e065",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "iberdrola:bing:75231bb6e065",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "iberdrola:bing:75231bb6e065",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "iberdrola:bing:75231bb6e065",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "iberdrola:bing:75231bb6e065",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "iberdrola:bing:75231bb6e065",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "endesa:bing:d30113dce625",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "endesa:bing:d30113dce625",
+   "questionKey": "security.incident",
+   "verdict": "BUY",
+   "confidence": 0.92,
+   "quote": "Spanish energy provider Endesa and its regulated electricity operator Energía XXI have begun notifying customers after detecting unauthorized access to the company’s internal systems",
+   "rationale": "Reported data breach exposing customer data, disclosed by Endesa itself."
+  },
+  {
+   "evidenceKey": "endesa:bing:d30113dce625",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "endesa:bing:d30113dce625",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "endesa:bing:d1e74aa5791d",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "endesa:bing:d1e74aa5791d",
+   "questionKey": "security.incident",
+   "verdict": "BUY",
+   "confidence": 0.96,
+   "quote": "Endesa disclosed a data breach exposing full customer data, including contact details, national ID numbers, and payment information.",
+   "rationale": "Confirmed data breach with exfiltrated customer data at Endesa."
+  },
+  {
+   "evidenceKey": "endesa:bing:d1e74aa5791d",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "endesa:bing:d1e74aa5791d",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "endesa:bing:ff4eee6bd157",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "endesa:bing:ff4eee6bd157",
+   "questionKey": "security.incident",
+   "verdict": "BUY",
+   "confidence": 0.92,
+   "quote": "Spanish electricity company Endesa reports customer data theft, including bank details",
+   "rationale": "Confirmed breach exposing customer and bank data at Endesa."
+  },
+  {
+   "evidenceKey": "endesa:bing:ff4eee6bd157",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "endesa:bing:ff4eee6bd157",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "naturgy:bing:0950ed81cec1",
+   "questionKey": "data.initiative",
+   "verdict": "BUY",
+   "confidence": 0.85,
+   "quote": "Naturgy ha implementado 130 casos de uso de inteligencia artificial en sus diferentes áreas de negocio, apoyándose en una política interna para facilitar la adopción de la tecnología.",
+   "rationale": "130 named AI use cases and Dani assistant in production."
+  },
+  {
+   "evidenceKey": "naturgy:bing:0950ed81cec1",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "naturgy:bing:0950ed81cec1",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "naturgy:bing:0950ed81cec1",
+   "questionKey": "data.ai_governance",
+   "verdict": "BUY",
+   "confidence": 0.8,
+   "quote": "Eso sí, siempre con unas políticas claras de riesgo y con la seguridad que ha de llevar implementada: los denominados guardarraíles de la IA",
+   "rationale": "Internal AI risk policies and guardrails named by CIO."
+  },
+  {
+   "evidenceKey": "naturgy:bing:0950ed81cec1",
+   "questionKey": "data.governance",
+   "verdict": "BUY",
+   "confidence": 0.55,
+   "quote": "un trabajo previo de superposición de infraestructuras y de gestión y gobierno del motor de esta tecnología, el dato",
+   "rationale": "Stated data governance groundwork and departmental data structuring project."
+  },
+  {
+   "evidenceKey": "naturgy:bing:0950ed81cec1",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "repsol:bing:fdcfa84812d5",
+   "questionKey": "data.initiative",
+   "verdict": "BUY",
+   "confidence": 0.9,
+   "quote": "Repsol has introduced an internal platform for creating intelligent agents designed to automate and reorganise its teams’ operational processes.",
+   "rationale": "Named multi-agent platform pilot, 22 agents, 60 genAI use cases in production."
+  },
+  {
+   "evidenceKey": "repsol:bing:fdcfa84812d5",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "repsol:bing:fdcfa84812d5",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "repsol:bing:fdcfa84812d5",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "repsol:bing:fdcfa84812d5",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "repsol:bing:fdcfa84812d5",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "repsol:bing:fdcfa84812d5",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "repsol:bing:fdcfa84812d5",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "repsol:bing:fdcfa84812d5",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "repsol:bing:fdcfa84812d5",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "repsol:bing:fdcfa84812d5",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "repsol:bing:fdcfa84812d5",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "repsol:bing:fdcfa84812d5",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "galp:bing:e34aa9d7773f",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "galp:bing:e34aa9d7773f",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "galp:bing:e34aa9d7773f",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "galp:bing:e34aa9d7773f",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "galp:bing:e34aa9d7773f",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "galp:bing:e34aa9d7773f",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "galp:bing:c9e6c9b2a19e",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "galp:bing:c9e6c9b2a19e",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "galp:bing:c9e6c9b2a19e",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "galp:bing:c9e6c9b2a19e",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "galp:bing:c9e6c9b2a19e",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "galp:bing:c9e6c9b2a19e",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "galp:bing:c9e6c9b2a19e",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "galp:bing:c9e6c9b2a19e",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "galp:bing:c9e6c9b2a19e",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "galp:bing:c9e6c9b2a19e",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "galp:bing:c9e6c9b2a19e",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "enel:bing:2913c200ac5b",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "enel:bing:2913c200ac5b",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "enel:bing:2913c200ac5b",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "enel:bing:2913c200ac5b",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "enel:bing:2913c200ac5b",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "enel:bing:2913c200ac5b",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "enel:bing:2913c200ac5b",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "enel:bing:c473b5cf3c14",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "enel:bing:c473b5cf3c14",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "enel:bing:c473b5cf3c14",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "enel:bing:c473b5cf3c14",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "enel:bing:c473b5cf3c14",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "enel:bing:c473b5cf3c14",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "enel:bing:3ad8c34335b9",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "enel:bing:3ad8c34335b9",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "enel:bing:3ad8c34335b9",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "enel:bing:3ad8c34335b9",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "enel:bing:3ad8c34335b9",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "enel:bing:3ad8c34335b9",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "enel:bing:3ad8c34335b9",
+   "questionKey": "automation.cost_programme",
+   "verdict": "BUY",
+   "confidence": 0.65,
+   "quote": "€1 billion in cash cost savings already realized toward its 2027 target",
+   "rationale": "Quantified cost-savings programme toward 2027 target; needs efficiency delivery."
+  },
+  {
+   "evidenceKey": "enel:bing:3ad8c34335b9",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "enel:bing:3ad8c34335b9",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "enel:bing:3ad8c34335b9",
+   "questionKey": "automation.programme",
+   "verdict": "BUY",
+   "confidence": 0.6,
+   "quote": "€1 billion in cash cost savings already realized toward its 2027 target",
+   "rationale": "Stated financial target for cost savings running to 2027."
+  },
+  {
+   "evidenceKey": "enel:bing:3ad8c34335b9",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "enel:bing:3ad8c34335b9",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "enel:bing:3ad8c34335b9",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "terna:bing:866c41e2465a",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "terna:bing:866c41e2465a",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "terna:bing:866c41e2465a",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "terna:bing:866c41e2465a",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "terna:bing:866c41e2465a",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "terna:bing:866c41e2465a",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "hera:bing:526f01e8212c",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "hera:bing:526f01e8212c",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "hera:bing:526f01e8212c",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "hera:bing:526f01e8212c",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "hera:bing:526f01e8212c",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "hera:bing:526f01e8212c",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "orsted:bing:6b6f6ca01a50",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "orsted:bing:6b6f6ca01a50",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "orsted:bing:6b6f6ca01a50",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "orsted:bing:6b6f6ca01a50",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "orsted:bing:6b6f6ca01a50",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "orsted:bing:6b6f6ca01a50",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "orsted:bing:6b6f6ca01a50",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "orsted:bing:57f5335fbf6b",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "orsted:bing:57f5335fbf6b",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "orsted:bing:57f5335fbf6b",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "orsted:bing:57f5335fbf6b",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "orsted:bing:57f5335fbf6b",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "orsted:bing:57f5335fbf6b",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "orsted:bing:57f5335fbf6b",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "orsted:bing:fb35fe017bde",
+   "questionKey": "automation.cost_programme",
+   "verdict": "BUY",
+   "confidence": 0.7,
+   "quote": "The Danish firm said it was axing about 2,000 roles out of its 8,000-strong workforce, with plans to make around 500 staff redundant by the end of the year",
+   "rationale": "Quantified headcount cut of 2,000 roles driven by efficiency drive."
+  },
+  {
+   "evidenceKey": "orsted:bing:fb35fe017bde",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "orsted:bing:fb35fe017bde",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "orsted:bing:fb35fe017bde",
+   "questionKey": "automation.programme",
+   "verdict": "BUY",
+   "confidence": 0.65,
+   "quote": "The Danish firm said it was axing about 2,000 roles out of its 8,000-strong workforce, with plans to make around 500 staff redundant by the end of the year",
+   "rationale": "Headcount reduction programme with stated target; efficiency and competitiveness goals."
+  },
+  {
+   "evidenceKey": "orsted:bing:fb35fe017bde",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "orsted:bing:fb35fe017bde",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "orsted:bing:fb35fe017bde",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "equinor:bing:ddd5ffcd0738",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "equinor:bing:ddd5ffcd0738",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "equinor:bing:ddd5ffcd0738",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "equinor:bing:ddd5ffcd0738",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "equinor:bing:ddd5ffcd0738",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "equinor:bing:ddd5ffcd0738",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "equinor:bing:ddd5ffcd0738",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "equinor:bing:831fcd8e952c",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "equinor:bing:831fcd8e952c",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "equinor:bing:831fcd8e952c",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "equinor:bing:831fcd8e952c",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "equinor:bing:831fcd8e952c",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "equinor:bing:831fcd8e952c",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "equinor:bing:831fcd8e952c",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "COUNTER",
+   "confidence": 0.6,
+   "quote": "Equinor has cooperated with Emerson for over 40 years using a vast array of its automation technologies",
+   "rationale": "Long-standing named automation vendor; new strategic collaboration deepens lock-in."
+  },
+  {
+   "evidenceKey": "shell:bing:d040f10a2152",
+   "questionKey": "automation.cost_programme",
+   "verdict": "BUY",
+   "confidence": 0.85,
+   "quote": "Last year Shell launched a $5-7 billion structural cost reduction target by 2028 relative to 2022.",
+   "rationale": "Shell has a quantified structural cost reduction target, a funded programme."
+  },
+  {
+   "evidenceKey": "shell:bing:d040f10a2152",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "shell:bing:d040f10a2152",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "shell:bing:d040f10a2152",
+   "questionKey": "automation.programme",
+   "verdict": "BUY",
+   "confidence": 0.8,
+   "quote": "Last year Shell launched a $5-7 billion structural cost reduction target by 2028 relative to 2022.",
+   "rationale": "Stated cost-reduction target with a dollar figure attached."
+  },
+  {
+   "evidenceKey": "shell:bing:d040f10a2152",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "shell:bing:d040f10a2152",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "shell:bing:d040f10a2152",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "totalenergies:bing:28f3adcb53b9",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "totalenergies:bing:28f3adcb53b9",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "totalenergies:bing:28f3adcb53b9",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "totalenergies:bing:28f3adcb53b9",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "totalenergies:bing:28f3adcb53b9",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "totalenergies:bing:28f3adcb53b9",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "totalenergies:bing:28f3adcb53b9",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "totalenergies:bing:856f09a0aa65",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "totalenergies:bing:856f09a0aa65",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "totalenergies:bing:856f09a0aa65",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "totalenergies:bing:856f09a0aa65",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "glencore:bing:2ccbffab01a2",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "glencore:bing:2ccbffab01a2",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "glencore:bing:2ccbffab01a2",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "glencore:bing:2ccbffab01a2",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "glencore:bing:2ccbffab01a2",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "glencore:bing:2ccbffab01a2",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "glencore:bing:2ccbffab01a2",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "glencore:bing:2ccbffab01a2",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "glencore:bing:2ccbffab01a2",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "glencore:bing:2ccbffab01a2",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "glencore:bing:2ccbffab01a2",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "glencore:bing:3dcb108a751b",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "glencore:bing:3dcb108a751b",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "glencore:bing:3dcb108a751b",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "glencore:bing:3dcb108a751b",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "glencore:bing:3dcb108a751b",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "glencore:bing:3dcb108a751b",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "rio-tinto:bing:10332ebaf260",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "rio-tinto:bing:10332ebaf260",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "rio-tinto:bing:10332ebaf260",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "rio-tinto:bing:10332ebaf260",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "rio-tinto:bing:10332ebaf260",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "rio-tinto:bing:10332ebaf260",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "rio-tinto:bing:10332ebaf260",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "rio-tinto:bing:0317b1100b65",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "rio-tinto:bing:0317b1100b65",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "rio-tinto:bing:0317b1100b65",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "rio-tinto:bing:0317b1100b65",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "anglo-american:bing:f51b02355ffd",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "anglo-american:bing:f51b02355ffd",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "anglo-american:bing:f51b02355ffd",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "anglo-american:bing:f51b02355ffd",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "anglo-american:bing:f51b02355ffd",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "anglo-american:bing:f51b02355ffd",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "anglo-american:bing:f51b02355ffd",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "anglo-american:bing:f51b02355ffd",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "anglo-american:bing:f51b02355ffd",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "anglo-american:bing:f51b02355ffd",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "anglo-american:bing:f51b02355ffd",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "anglo-american:bing:f51b02355ffd",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "anglo-american:bing:f51b02355ffd",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "arcelormittal:bing:76b295963c5e",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "arcelormittal:bing:76b295963c5e",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "arcelormittal:bing:76b295963c5e",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "arcelormittal:bing:76b295963c5e",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "arcelormittal:bing:76b295963c5e",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "arcelormittal:bing:76b295963c5e",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "arcelormittal:bing:76b295963c5e",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "arcelormittal:bing:70aacd23300c",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "arcelormittal:bing:70aacd23300c",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "arcelormittal:bing:70aacd23300c",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "arcelormittal:bing:70aacd23300c",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "arcelormittal:bing:70aacd23300c",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "arcelormittal:bing:70aacd23300c",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "arcelormittal:bing:70aacd23300c",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "norsk-hydro:bing:a8e8a132a9ae",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "norsk-hydro:bing:a8e8a132a9ae",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "norsk-hydro:bing:a8e8a132a9ae",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "norsk-hydro:bing:a8e8a132a9ae",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "aurubis:bing:1c9b8dbb0cba",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "aurubis:bing:1c9b8dbb0cba",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "aurubis:bing:1c9b8dbb0cba",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "aurubis:bing:1c9b8dbb0cba",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "aurubis:bing:1c9b8dbb0cba",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "aurubis:bing:1c9b8dbb0cba",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "aurubis:bing:1c9b8dbb0cba",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "accenture:bing:5be6c5c5049c",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "accenture:bing:5be6c5c5049c",
+   "questionKey": "data.insourcing",
+   "verdict": "BUILD",
+   "confidence": 0.75,
+   "quote": "Our strategy is to be the reinvention partner of choice for our clients and lead in the safe, widespread adoption of AI",
+   "rationale": "Accenture positions itself as the provider of AI delivery services."
+  },
+  {
+   "evidenceKey": "accenture:bing:5be6c5c5049c",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "accenture:bing:5be6c5c5049c",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "accenture:bing:5be6c5c5049c",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "accenture:bing:5be6c5c5049c",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "accenture:bing:5be6c5c5049c",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "accenture:bing:5be6c5c5049c",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "accenture:bing:5be6c5c5049c",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "accenture:bing:5be6c5c5049c",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "accenture:bing:5be6c5c5049c",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "accenture:bing:5be6c5c5049c",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "accenture:bing:5be6c5c5049c",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "accenture:bing:3543f0e76e5f",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "accenture:bing:3543f0e76e5f",
+   "questionKey": "data.insourcing",
+   "verdict": "BUILD",
+   "confidence": 0.75,
+   "quote": "The partnership will bring together Accenture’s scale in AI delivery and its established ecosystem relationships",
+   "rationale": "Accenture positions itself as an AI delivery provider serving clients, not a buyer."
+  },
+  {
+   "evidenceKey": "accenture:bing:3543f0e76e5f",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "accenture:bing:3543f0e76e5f",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "accenture:bing:3543f0e76e5f",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "accenture:bing:3543f0e76e5f",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "accenture:bing:3543f0e76e5f",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "accenture:bing:3543f0e76e5f",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "accenture:bing:3543f0e76e5f",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "accenture:bing:3543f0e76e5f",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "accenture:bing:3543f0e76e5f",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "accenture:bing:3543f0e76e5f",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "accenture:bing:3543f0e76e5f",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "accenture:bing:766e3e4b6e76",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "accenture:bing:766e3e4b6e76",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "accenture:bing:766e3e4b6e76",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "accenture:bing:766e3e4b6e76",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "accenture:bing:766e3e4b6e76",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "accenture:bing:766e3e4b6e76",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "capgemini:bing:b0a8fe8d8434",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "capgemini:bing:b0a8fe8d8434",
+   "questionKey": "data.insourcing",
+   "verdict": "BUILD",
+   "confidence": 0.55,
+   "quote": "investors are pricing in stronger medium-term demand for AI consulting and implementation",
+   "rationale": "Capgemini described as AI consulting and implementation provider, selling that capability to clients."
+  },
+  {
+   "evidenceKey": "capgemini:bing:b0a8fe8d8434",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "capgemini:bing:b0a8fe8d8434",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "capgemini:bing:b0a8fe8d8434",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "capgemini:bing:b0a8fe8d8434",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "capgemini:bing:b0a8fe8d8434",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "capgemini:bing:b0a8fe8d8434",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "capgemini:bing:b0a8fe8d8434",
+   "questionKey": "automation.insourcing",
+   "verdict": "BUILD",
+   "confidence": 0.55,
+   "quote": "Capgemini is moving away from purely labor-based IT services toward software and artificial intelligence solutions, backed by new pricing models that aim to monetize intellectual property more directly.",
+   "rationale": "Consultancy selling its own AI/software services and platforms to clients."
+  },
+  {
+   "evidenceKey": "capgemini:bing:b0a8fe8d8434",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "capgemini:bing:b0a8fe8d8434",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "capgemini:bing:b0a8fe8d8434",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "capgemini:bing:b0a8fe8d8434",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "capgemini:bing:7b626ac12816",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "capgemini:bing:7b626ac12816",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "capgemini:bing:7b626ac12816",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "capgemini:bing:7b626ac12816",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "capgemini:bing:7b626ac12816",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "capgemini:bing:7b626ac12816",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "capgemini:bing:7b626ac12816",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "capgemini:bing:7b626ac12816",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "capgemini:bing:7b626ac12816",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "capgemini:bing:7b626ac12816",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "capgemini:bing:2a7285df4726",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "capgemini:bing:2a7285df4726",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "capgemini:bing:2a7285df4726",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "capgemini:bing:2a7285df4726",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "capgemini:bing:2a7285df4726",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "capgemini:bing:2a7285df4726",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "cognizant:bing:80a48d1e1693",
+   "questionKey": "data.initiative",
+   "verdict": "BUILD",
+   "confidence": 0.55,
+   "quote": "A September 23 report cited production results from AI-driven engineering work with Odyssey Logistics",
+   "rationale": "Cognizant's own AI engineering offering in production, delivered to clients."
+  },
+  {
+   "evidenceKey": "cognizant:bing:80a48d1e1693",
+   "questionKey": "data.insourcing",
+   "verdict": "BUILD",
+   "confidence": 0.6,
+   "quote": "the company also expanded automation offerings with Cognition",
+   "rationale": "Cognizant sells AI and automation offerings to customers, a provider not buyer."
+  },
+  {
+   "evidenceKey": "cognizant:bing:80a48d1e1693",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "cognizant:bing:80a48d1e1693",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "cognizant:bing:80a48d1e1693",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "cognizant:bing:80a48d1e1693",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "cognizant:bing:80a48d1e1693",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "cognizant:bing:80a48d1e1693",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "cognizant:bing:80a48d1e1693",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "cognizant:bing:80a48d1e1693",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "cognizant:bing:80a48d1e1693",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "cognizant:bing:80a48d1e1693",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "cognizant:bing:80a48d1e1693",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "cognizant:bing:ea9c6613171e",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "cognizant:bing:ea9c6613171e",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "cognizant:bing:ea9c6613171e",
+   "questionKey": "automation.insourcing",
+   "verdict": "BUILD",
+   "confidence": 0.55,
+   "quote": "Cognizant Technology Solutions (NasdaqGS:CTSH) and Cognition launched joint AI driven engineering offerings that are already live with several clients.",
+   "rationale": "Cognizant sells AI engineering automation offerings to clients, builds not buys."
+  },
+  {
+   "evidenceKey": "cognizant:bing:ea9c6613171e",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "cognizant:bing:ea9c6613171e",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "cognizant:bing:ea9c6613171e",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "cognizant:bing:ea9c6613171e",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "cognizant:bing:c754ca893628",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "cognizant:bing:c754ca893628",
+   "questionKey": "data.insourcing",
+   "verdict": "BUILD",
+   "confidence": 0.85,
+   "quote": "Cognizant has gone further still, arguing that what enterprises actually need is a permanent, accountable workforce combining deep industry expertise with AI fluency.",
+   "rationale": "Cognizant sells the AI delivery capability itself as a vendor."
+  },
+  {
+   "evidenceKey": "cognizant:bing:c754ca893628",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "cognizant:bing:c754ca893628",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "cognizant:bing:c754ca893628",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "cognizant:bing:c754ca893628",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "cognizant:bing:c754ca893628",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "cognizant:bing:c754ca893628",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "cognizant:bing:c754ca893628",
+   "questionKey": "automation.insourcing",
+   "verdict": "BUILD",
+   "confidence": 0.55,
+   "quote": "Cognizant has gone further still, arguing that what enterprises actually need is a permanent, accountable workforce combining deep industry expertise with AI fluency.",
+   "rationale": "Cognizant sells AI-delivery workforce to enterprises; provider, not buyer."
+  },
+  {
+   "evidenceKey": "cognizant:bing:c754ca893628",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "cognizant:bing:c754ca893628",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "cognizant:bing:c754ca893628",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "cognizant:bing:c754ca893628",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "cognizant:bing:7f6023b2f7b8",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "cognizant:bing:7f6023b2f7b8",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "cognizant:bing:7f6023b2f7b8",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "cognizant:bing:7f6023b2f7b8",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "cognizant:bing:7f6023b2f7b8",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "cognizant:bing:7f6023b2f7b8",
+   "questionKey": "data.insourcing",
+   "verdict": "BUILD",
+   "confidence": 0.6,
+   "quote": "Vishal Salvi is the Global Head of Cybersecurity Service Line at Cognizant .",
+   "rationale": "Cognizant executive speaks as a services provider selling AI-security capability."
+  },
+  {
+   "evidenceKey": "cognizant:bing:7f6023b2f7b8",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "cognizant:bing:7f6023b2f7b8",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "cognizant:bing:7f6023b2f7b8",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "cognizant:bing:7f6023b2f7b8",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "infosys:bing:513dea7def6e",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "infosys:bing:513dea7def6e",
+   "questionKey": "data.insourcing",
+   "verdict": "BUILD",
+   "confidence": 0.95,
+   "quote": "Infosys reportedly does AI work for 90% of its 200 large clients",
+   "rationale": "Infosys is an IT services vendor providing AI work to clients."
+  },
+  {
+   "evidenceKey": "infosys:bing:513dea7def6e",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "infosys:bing:513dea7def6e",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "infosys:bing:513dea7def6e",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "infosys:bing:513dea7def6e",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "infosys:bing:a2e700878114",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "infosys:bing:a2e700878114",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "infosys:bing:a2e700878114",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "infosys:bing:a2e700878114",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "infosys:bing:a2e700878114",
+   "questionKey": "data.initiative",
+   "verdict": "BUILD",
+   "confidence": 0.55,
+   "quote": "it runs on Infosys Topaz, the company's AI offering",
+   "rationale": "Topaz is Infosys's own AI offering sold to clients, not a bought initiative."
+  },
+  {
+   "evidenceKey": "infosys:bing:a2e700878114",
+   "questionKey": "data.insourcing",
+   "verdict": "BUILD",
+   "confidence": 0.9,
+   "quote": "announced a long-term deal to manage the enterprise software behind Knorr-Bremse AG",
+   "rationale": "Infosys sells AI and managed services; a vendor, not a buyer."
+  },
+  {
+   "evidenceKey": "infosys:bing:a2e700878114",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "infosys:bing:a2e700878114",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "infosys:bing:a2e700878114",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "infosys:bing:a2e700878114",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "infosys:bing:a2e700878114",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "infosys:bing:a2e700878114",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "infosys:bing:a2e700878114",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "infosys:bing:a2e700878114",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "infosys:bing:a2e700878114",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "infosys:bing:a2e700878114",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "infosys:bing:a2e700878114",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "infosys:bing:dada11f19c4f",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "infosys:bing:dada11f19c4f",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "infosys:bing:dada11f19c4f",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "infosys:bing:dada11f19c4f",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "infosys:bing:dada11f19c4f",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "infosys:bing:dada11f19c4f",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "infosys:bing:1d040fb02772",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "infosys:bing:1d040fb02772",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "infosys:bing:1d040fb02772",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "infosys:bing:1d040fb02772",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "infosys:bing:1d040fb02772",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "infosys:bing:1d040fb02772",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "infosys:bing:1d040fb02772",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "infosys:bing:b2caf3e4d16e",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "infosys:bing:b2caf3e4d16e",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "infosys:bing:b2caf3e4d16e",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "infosys:bing:b2caf3e4d16e",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "infosys:bing:b2caf3e4d16e",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "infosys:bing:b2caf3e4d16e",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "infosys:bing:b2caf3e4d16e",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "infosys:bing:b2caf3e4d16e",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "infosys:bing:b2caf3e4d16e",
+   "questionKey": "automation.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "infosys:bing:b2caf3e4d16e",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "infosys:bing:b2caf3e4d16e",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "infosys:bing:b2caf3e4d16e",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "infosys:bing:b2caf3e4d16e",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "tcs:bing:005acd25980c",
+   "questionKey": "security.compliance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "tcs:bing:005acd25980c",
+   "questionKey": "security.incident",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "tcs:bing:005acd25980c",
+   "questionKey": "security.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "tcs:bing:005acd25980c",
+   "questionKey": "security.leadership",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "tcs:bing:8f45c42d29aa",
+   "questionKey": "automation.cost_programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "tcs:bing:8f45c42d29aa",
+   "questionKey": "automation.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "tcs:bing:8f45c42d29aa",
+   "questionKey": "automation.insourcing",
+   "verdict": "BUILD",
+   "confidence": 0.6,
+   "quote": "TCS wins ₹122.6 crore Odisha deal to modernise digital governance with AI, automation and analytics.",
+   "rationale": "TCS sells automation and AI delivery to clients as its business."
+  },
+  {
+   "evidenceKey": "tcs:bing:8f45c42d29aa",
+   "questionKey": "automation.programme",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "tcs:bing:8f45c42d29aa",
+   "questionKey": "automation.ssc",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "tcs:bing:8f45c42d29aa",
+   "questionKey": "automation.process_mining",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "tcs:bing:8f45c42d29aa",
+   "questionKey": "automation.vendor_lock",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "The model read this document and found no signal"
+  },
+  {
+   "evidenceKey": "wipro:bing:fd57ff388383",
+   "questionKey": "data.initiative",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "wipro:bing:fd57ff388383",
+   "questionKey": "data.insourcing",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "wipro:bing:fd57ff388383",
+   "questionKey": "data.platform_migration",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "wipro:bing:fd57ff388383",
+   "questionKey": "data.ai_governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "wipro:bing:fd57ff388383",
+   "questionKey": "data.governance",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
+  },
+  {
+   "evidenceKey": "wipro:bing:fd57ff388383",
+   "questionKey": "data.hiring",
+   "verdict": "NONE",
+   "confidence": 0.0,
+   "quote": null,
+   "rationale": "the model's answer could not be parsed"
   }
  ]
 }

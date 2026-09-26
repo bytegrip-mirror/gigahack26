@@ -411,7 +411,11 @@
 								<span class="sub dim num">{detail?.belowFloor?.length ?? 0}</span>
 							</div>
 							{#each (detail?.belowFloor ?? []).slice(0, 8) as row (row.evidenceId + row.spanStart)}
-								<button class="below-row" onclick={() => oncapture(row.evidenceId, { start: row.spanStart, end: row.spanEnd })}>
+								<button
+									class="below-row"
+									title={row.rationale ?? 'matched the rubric below the floor'}
+									onclick={() => oncapture(row.evidenceId, { start: row.spanStart, end: row.spanEnd })}
+								>
 									<span class="num below-score">{row.confidence.toFixed(2)}</span>
 									<span class="below-text">
 										{row.spanText.slice(0, 130)}
