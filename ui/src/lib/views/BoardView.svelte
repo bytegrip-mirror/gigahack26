@@ -1038,7 +1038,7 @@
 													? `Fit ${fit(row.probability)} — ${fitWord(row.probability, thresholds).toLowerCase()} evidence. A company in your market scores ${fit(meta.scoring.baseRate)} with no evidence at all.`
 													: `Fit ${fit(row.probability)}`}
 											>{fitWord(row.probability, thresholds)}</span>
-											<span class="fitnum num" title="The reading itself">{fit(row.probability)}</span>
+											<span class="fitnum num dsp" title="The reading itself">{fit(row.probability)}</span>
 										</span>
 										<FitBar value={fitMeter(row.probability, thresholds)} />
 										{#if row.themeCount === 1 && row.probability >= thresholds.priority}
@@ -1269,7 +1269,12 @@
 	}
 
 	.c-fit {
-		vertical-align: top;
+		/* Bottom, not top: the bar is a meter along the row's floor. Tied to the
+		   top of the cell it landed level with the middle of a tall row — the
+		   signals list above it runs to four lines — and read as if it belonged to
+		   nothing. The trend column already sits on this same floor, so the two
+		   marks now share a baseline across the row. */
+		vertical-align: bottom;
 		min-width: 0;
 	}
 
@@ -1354,20 +1359,21 @@
 		line-height: 1.4;
 	}
 
-	/* The word and the reading on one line: the word is what a rep says out loud
-	   and the number is what they check it against. */
+	/* The word and the reading on one line, adjacent: the word is what a rep says
+	   out loud and the number is what they check it against, so the two belong
+	   together rather than at opposite ends of the cell. */
 	.fitline {
 		display: flex;
 		align-items: baseline;
-		justify-content: space-between;
 		gap: var(--spacing-2);
 	}
 
-	/* Right-aligned against the cell edge, so the readings form a column of their
-	   own down the board and a rep can scan the numbers without the words. */
+	/* The reading wears the classifier's own face and size, and gives up only
+	   colour: the word leads and the number follows it, but the pair reads as one
+	   label. Tabular figures from `.num` keep the digits in a column. */
 	.fitnum {
-		font-size: var(--text-sm);
-		color: var(--color-ink-2);
+		font-size: var(--text-lg);
+		color: var(--color-ink-3);
 		white-space: nowrap;
 	}
 
