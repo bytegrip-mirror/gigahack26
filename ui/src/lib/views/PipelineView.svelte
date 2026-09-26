@@ -3,7 +3,7 @@
 	import { session } from '$lib/session.svelte';
 	import { workspace } from '$lib/workspace.svelte';
 	import { toasts } from '$lib/toast.svelte';
-	import { age, fit, host, plural } from '$lib/format';
+	import { age, fit, fitTone, fitWord, host, plural } from '$lib/format';
 	import { copy, csv, save } from '$lib/export';
 	import Tag from '$lib/components/Tag.svelte';
 	import LoadingVeil from '$lib/components/LoadingVeil.svelte';
@@ -34,6 +34,11 @@
 
 	const ALL_LINES = '__all__';
 	const serviceLine = $derived(session.serviceLine);
+	const thresholds = $derived({
+		watch: workspace.meta?.scoring.watchThreshold ?? 0.28,
+		nurture: workspace.meta?.scoring.nurtureThreshold ?? 0.45,
+		priority: workspace.meta?.scoring.priorityThreshold ?? 0.55
+	});
 	const allLines = $derived(session.allLines);
 	const scopeItems = $derived([
 		{ id: ALL_LINES, label: 'All service lines', checked: allLines },
@@ -266,7 +271,6 @@
 								<tr>
 									<th scope="col" class="c-co">Company</th>
 									<th scope="col" class="c-fit">Fit</th>
-									<th scope="col" class="c-band">Band</th>
 									<th scope="col" class="c-contact">Last contact</th>
 									<th scope="col" class="c-subject">Draft subject</th>
 									<th scope="col" class="c-act"><span class="sr-only">Actions</span></th>
@@ -279,11 +283,18 @@
 											<a class="co" href="/?co={lead.companyId}&line={encodeURIComponent(lead.serviceLine)}">{lead.company}</a>
 											<span class="sub">{lead.domain ? host(lead.domain) : '—'} · {lead.serviceLine}</span>
 										</td>
-										<td class="c-fit num">
-											{lead.probability === null ? '—' : fit(lead.probability)}
-										</td>
-										<td class="c-band m">
-											{#if lead.band}<Tag band={lead.band}>{lead.band}</Tag>{:else}—{/if}
+										<td class="c-fit">
+											{#if lead.probability === null}
+												<span class="sub dim">—</span>
+											{:else if lead.band === 'DISQUALIFIED'}
+												<Tag band={lead.band}>Out of the queue</Tag>
+											{:else if lead.band === 'THIN'}
+												<span class="fitval dsp" data-tone="weak">Unproven</span>
+											{:else}
+												<span class="fitval dsp" data-tone={fitTone(lead.probability, thresholds)}
+													>{fitWord(lead.probability, thresholds)}</span
+												>
+											{/if}
 										</td>
 										<td class="c-contact">
 											{#if lead.lastContactedAt}
@@ -399,13 +410,23 @@
 		margin-top: 1px;
 	}
 
-	.c-fit {
-		width: 68px;
-		font-size: var(--text-lg);
+	.fitval {
+		display: block;
+		font-size: var(--text-base);
+		line-height: 1.2;
+		color: var(--color-ink-2);
 	}
 
-	.c-band {
-		width: 96px;
+	.fitval[data-tone='strong'] {
+		color: var(--color-orange-ink);
+	}
+
+	.fitval[data-tone='weak'] {
+		color: var(--color-ink-3);
+	}
+
+	.c-fit {
+		width: 118px;
 	}
 
 	.c-contact {
@@ -493,7 +514,6 @@
 	}
 
 	@media (max-width: 1000px) {
-		.c-band,
 		.c-contact {
 			display: none;
 		}
