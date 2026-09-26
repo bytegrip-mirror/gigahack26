@@ -15,7 +15,8 @@ public record RescoreResponse(
         int changedTop,
         List<Move> moves,
         List<BoardRow> board,
-        List<String> bands) {
+        List<String> bands,
+        boolean keptPrevious) {
 
     public record Move(
             UUID companyId,

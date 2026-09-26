@@ -70,6 +70,7 @@ public class AskController {
             response.put("tookMs", scored.tookMs());
             response.put("documentsScanned", scored.documentsScanned());
             response.put("signalsProduced", scored.signalsProduced());
+            response.put("keptPrevious", scored.keptPrevious());
             response.put("board", scored.board());
             response.put("moves", scored.moves());
             response.put("question", interpretation.kind().equals("SIGNAL") ? question : interpretation.question());

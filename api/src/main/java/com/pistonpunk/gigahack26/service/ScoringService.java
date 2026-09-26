@@ -64,7 +64,10 @@ public class ScoringService {
             double shrink = 2.0 * signal.getConfidence() - 1.0;
             double tierNats = question.signedMagnitude();
             double raw = tierNats * source.getSourceAuthority() * decay * shrink;
-            boolean blocking = signal.getVerdict() == Verdict.BUILD || question.getPolarity() == Polarity.DISQUALIFYING;
+            boolean blocking = question.getPolarity() == Polarity.DISQUALIFYING;
+            if (blocking && signal.getVerdict() == Verdict.COUNTER) {
+                blocking = false;
+            }
             if (blocking) {
                 blockedByBuild = true;
                 buildReason = source.getPublisher() + " — " + question.getText();

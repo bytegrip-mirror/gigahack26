@@ -266,6 +266,45 @@ class ScoringServiceTest {
         assertNull(result.gateReason());
     }
 
+    @Test
+    void aModelVerdictCannotRemoveACompanyTheConfigurationKept() {
+        Company buyer = company(false, "DE", 4000, 0.9);
+        PolicyQuestion question = question("a", Polarity.POSITIVE, WeightTier.HIGH, "initiative");
+        Evidence source = evidence("e1", "cue here");
+        List<Signal> signals = List.of(signal(source, question, Verdict.BUILD, 0.9));
+
+        ScoreComputation result = scoring.compute(buyer, List.of(source), signals, List.of(question), NOW);
+
+        assertNull(result.gateReason(),
+                "a BUILD reading on a question the team configured as positive must not delete the company");
+        assertNotEquals(Band.DISQUALIFIED, result.band());
+    }
+
+    @Test
+    void aDisqualifyingQuestionStillRemovesTheCompany() {
+        Company buyer = company(false, "DE", 4000, 0.9);
+        PolicyQuestion question = question("a", Polarity.DISQUALIFYING, WeightTier.HIGH, "in-house");
+        Evidence source = evidence("e1", "cue here");
+        List<Signal> signals = List.of(signal(source, question, Verdict.BUILD, 0.9));
+
+        ScoreComputation result = scoring.compute(buyer, List.of(source), signals, List.of(question), NOW);
+
+        assertEquals(Band.DISQUALIFIED, result.band());
+        assertNotNull(result.gateReason());
+    }
+
+    @Test
+    void aModelDisagreementDoesNotGateOnADisqualifyingQuestion() {
+        Company buyer = company(false, "DE", 4000, 0.9);
+        PolicyQuestion question = question("a", Polarity.DISQUALIFYING, WeightTier.HIGH, "in-house");
+        Evidence source = evidence("e1", "cue here");
+        List<Signal> signals = List.of(signal(source, question, Verdict.COUNTER, 0.9));
+
+        ScoreComputation result = scoring.compute(buyer, List.of(source), signals, List.of(question), NOW);
+
+        assertNull(result.gateReason(), "the model read the passage and disagreed with the disqualifier");
+    }
+
     private ScoreComputation scoreWith(boolean gateOff, String industries) {
         Company manufacturer = company(false, "DE", 4000, 0.9);
         PolicyQuestion question = question("a", Polarity.POSITIVE, WeightTier.HIGH, "automation");

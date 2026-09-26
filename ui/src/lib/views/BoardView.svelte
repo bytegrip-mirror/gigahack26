@@ -886,6 +886,12 @@
 							<Metric value={applied.facets.length} label="Attributes read" />
 						</div>
 					{/if}
+					{#if applied.keptPrevious}
+						<p class="note warn">
+							Every classification in that run failed, so the signals already stored were kept rather than
+							replaced. The board is unchanged — re-run when the engine is reachable.
+						</p>
+					{/if}
 					{#if moved.length > 0}
 						<ul class="moved">
 							{#each moved as entry (entry.companyId)}

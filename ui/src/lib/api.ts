@@ -295,6 +295,7 @@ export type Rescore = {
 	question: string | null;
 	movedRows: number;
 	changedTop: number;
+	keptPrevious?: boolean;
 	moves: Move[];
 	board: BoardRow[];
 	bands: string[];
@@ -527,6 +528,7 @@ export type AskOutcome = AskReading & {
 	tookMs?: number;
 	documentsScanned?: number;
 	signalsProduced?: number;
+	keptPrevious?: boolean;
 	board?: BoardRow[];
 	moves?: Move[];
 };

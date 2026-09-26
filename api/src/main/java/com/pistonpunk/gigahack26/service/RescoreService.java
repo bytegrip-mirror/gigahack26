@@ -65,7 +65,8 @@ public class RescoreService {
         this.clock = clock;
     }
 
-    public record Outcome(int signalsProduced, int documentsScanned, long tookMs, String engine) {
+    public record Outcome(int signalsProduced, int documentsScanned, long tookMs, String engine,
+                          boolean keptPrevious) {
     }
 
     @Transactional
@@ -77,6 +78,7 @@ public class RescoreService {
                 .collect(Collectors.toMap(Company::getId, Company::getName, (a, b) -> a));
 
         AtomicInteger produced = new AtomicInteger();
+        AtomicInteger failures = new AtomicInteger();
         List<Signal> collected;
         try (ExecutorService pool = Executors.newVirtualThreadPerTaskExecutor()) {
             List<Future<List<Signal>>> futures = new ArrayList<>(all.size() * target.size());
@@ -96,21 +98,38 @@ public class RescoreService {
                 try {
                     collected.addAll(future.get());
                 } catch (Exception e) {
+                    failures.incrementAndGet();
                     log.warn("rescore task failed: {}", e.toString());
                 }
             }
         }
         produced.set(collected.size());
 
-        if (replace && !target.isEmpty()) {
+        boolean keptPrevious = replace && !target.isEmpty() && collected.isEmpty()
+                && failures.get() > 0 && heldByTarget(target) > 0;
+        if (keptPrevious) {
+            log.warn("every one of {} classifications failed against {} questions; keeping the {} signals "
+                            + "already stored rather than emptying the board",
+                    all.size(), target.size(), heldByTarget(target));
+        } else if (replace && !target.isEmpty()) {
             for (PolicyQuestion question : target) {
                 signals.deleteByQuestionId(question.getId());
             }
+            signals.saveAll(collected);
+        } else {
+            signals.saveAll(collected);
         }
-        signals.saveAll(collected);
 
         return new Outcome(produced.get(), all.size(), (System.nanoTime() - started) / 1_000_000,
-                router.engineId(engineOverride));
+                router.engineId(engineOverride), keptPrevious);
+    }
+
+    private long heldByTarget(List<PolicyQuestion> target) {
+        long held = 0;
+        for (PolicyQuestion question : target) {
+            held += signals.countByQuestionId(question.getId());
+        }
+        return held;
     }
 
     @org.springframework.cache.annotation.CacheEvict(value = "board", allEntries = true)
@@ -185,7 +204,8 @@ public class RescoreService {
                 changedTop,
                 moves,
                 after,
-                List.of());
+                List.of(),
+                outcome.keptPrevious());
     }
 
     private List<PolicyQuestion> serviceLineQuestions(String serviceLine, UUID questionId) {

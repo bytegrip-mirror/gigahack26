@@ -61,8 +61,11 @@ evidence. Do not inflate.
 - verdict BUY: the document shows the company needs this service from an outside provider.
 - verdict COUNTER: the document shows something that argues against buying (a hiring freeze, \
 budget cuts, a signed competitor contract, a pause).
-- verdict BUILD: the document shows the company is building this capability in-house, is a \
-competitor, or is a provider of this service itself.
+- verdict BUILD is narrow: the company SELLS or provides this capability to others — a vendor, \
+a consultancy or a competitor — and the document is about its own product or service. \
+A company that uses, buys, hires for or runs this capability internally is NOT BUILD: an internal \
+data team or AI in production is the normal state of a large company and is often exactly the \
+buying signal the question asks for.
 - The question is scoped to ONE company. Evidence about a different company, a customer, or a \
 partner is not evidence about this company. Return match=false.
 - A vendor's own marketing copy is not evidence about the vendor being a buyer."""
