@@ -50,6 +50,7 @@
 	let themes = $state<string[]>([]);
 	let decayClasses = $state<DecayOption[]>([]);
 	let loading = $state(true);
+	let loadError = $state<string | null>(null);
 	let selectedId = $state<string | null>(null);
 	let draft = $state<PolicyInput>({ ...BLANK });
 	let creating = $state(false);
@@ -88,8 +89,10 @@
 					if (first) select(first);
 				}
 			})
-			.catch(() => {
-				if (!cancelled) loading = false;
+			.catch((cause) => {
+				if (cancelled) return;
+				loading = false;
+				loadError = (cause as Error).message;
 			});
 		return () => {
 			cancelled = true;
@@ -433,7 +436,11 @@
 		<div class="ident">
 			<h1 class="dsp">Signal Studio</h1>
 			<p class="sub num">
-				{policies.length} questions · {scored} producing signals on {serviceLine}
+				{#if loadError}
+					The policy set could not be read — a failure, not an empty set
+				{:else}
+					{policies.length} questions · {scored} producing signals on {serviceLine}
+				{/if}
 			</p>
 		</div>
 

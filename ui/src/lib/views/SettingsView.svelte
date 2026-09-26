@@ -41,6 +41,7 @@
 
 	let section = $state('voice');
 	let telemetry = $state<Telemetry | null>(null);
+	let loadError = $state<string | null>(null);
 	let precision = $state<Awaited<ReturnType<typeof fetchPrecision>> | null>(null);
 	let curve = $state<number[]>([]);
 	let perThousand = $state(0);
@@ -87,7 +88,10 @@
 				lines = lineList;
 				regionCountries = countryRows;
 			})
-			.catch((cause) => toasts.push((cause as Error).message, 'error'))
+			.catch((cause) => {
+				loadError = (cause as Error).message;
+				toasts.push((cause as Error).message, 'error');
+			})
 			.finally(() => {
 				if (!cancelled) loading = false;
 			});
@@ -259,7 +263,11 @@
 		<div class="ident">
 			<h1 class="dsp">Settings</h1>
 			<p class="sub num">
-				{shortNumber(settings?.indexedCompanies ?? 0)} companies indexed · {lines.length} service lines · applies to
+				{#if loadError}
+					The settings could not be read from the API — a failure, not a reset
+				{:else}
+					{shortNumber(settings?.indexedCompanies ?? 0)} companies indexed · {lines.length} service lines · applies to
+				{/if}
 				all of them
 			</p>
 		</div>

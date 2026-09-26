@@ -830,8 +830,12 @@
 		<div class="ident">
 			<h1 class="dsp">Board</h1>
 			<p class="sub num">
-				{shortNumber(rows.length)} companies · {regionLabel(meta?.regions ?? [], session.region)}{#if stage}
-					· {STAGES.find((s) => s.id === stage)?.label}{/if}
+				{#if error}
+					The board could not be read from the API — a failure, not an empty result
+				{:else}
+					{shortNumber(rows.length)} companies · {regionLabel(meta?.regions ?? [], session.region)}{#if stage}
+						· {STAGES.find((s) => s.id === stage)?.label}{/if}
+				{/if}
 			</p>
 		</div>
 
