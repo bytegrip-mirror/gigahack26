@@ -28,7 +28,21 @@
 
 	const status = $derived(workspace.status);
 	const meta = $derived(workspace.meta);
-	const bands = $derived(meta?.bands ?? {});
+	/**
+	 * The band counts. `meta` is fetched for the selected service line, so under
+	 * "All service lines" its counts describe one line — the headline figures on
+	 * this screen — while the label above them claims every line. Counted from the
+	 * merged rows instead once they arrive, which is the same set the lists below
+	 * are drawn from.
+	 */
+	const bands = $derived(
+		session.allLines && rows.length > 0
+			? rows.reduce<Record<string, number>>((tally, row) => {
+					tally[row.band] = (tally[row.band] ?? 0) + 1;
+					return tally;
+				}, {})
+			: (meta?.bands ?? {})
+	);
 	const thresholds = $derived({
 		watch: meta?.scoring.watchThreshold ?? 0.28,
 		nurture: meta?.scoring.nurtureThreshold ?? 0.45,
@@ -134,18 +148,58 @@
 	$effect(() => {
 		const line = session.serviceLine;
 		const region = session.region;
+		const all = session.allLines;
 		if (!line) return;
+		/*
+		 * Every line at once is a client-side union. The API answers for one line at
+		 * a time, and asking it with no line at all quietly falls back to the
+		 * default rather than to all of them — so the label said "All service
+		 * lines" over one line's numbers.
+		 *
+		 * The merge has to be the board's merge: one company can sit in the queue
+		 * for several lines, and the board keeps its best reading. Anything else and
+		 * the two screens disagree about the same company.
+		 */
+		const lines = all ? (workspace.lines.length > 0 ? workspace.lines : [line]) : [line];
 		let cancelled = false;
-		fetchBoard({ serviceLine: line, region })
-			.then((list) => {
-				if (!cancelled) rows = list;
+
+		Promise.all(lines.map((each) => fetchBoard({ serviceLine: each, region }).catch(() => [] as BoardRow[])))
+			.then((lists) => {
+				if (cancelled) return;
+				if (!all) {
+					rows = lists[0] ?? [];
+					return;
+				}
+				const best = new Map<string, BoardRow>();
+				for (const list of lists) {
+					for (const row of list) {
+						const held = best.get(row.id);
+						if (!held || row.probability > held.probability) best.set(row.id, row);
+					}
+				}
+				rows = [...best.values()].sort(
+					(a, b) =>
+						(a.band === 'DISQUALIFIED' ? 1 : 0) - (b.band === 'DISQUALIFIED' ? 1 : 0) ||
+						b.probability - a.probability ||
+						a.name.localeCompare(b.name)
+				);
 			})
 			.catch(() => {
 				if (!cancelled) rows = [];
 			});
-		fetchPeople(line)
-			.then((list) => {
-				if (!cancelled) people = list.length;
+
+		Promise.all(lines.map((each) => fetchPeople(each).catch(() => [])))
+			.then((lists) => {
+				if (cancelled) return;
+				if (!all) {
+					people = lists[0]?.length ?? 0;
+					return;
+				}
+				// A person belongs to a line, but the same person can be named for
+				// more than one, and counting them twice would overstate the desk.
+				const seen = new Set<string>();
+				for (const list of lists) for (const person of list) seen.add(person.id);
+				people = seen.size;
 			})
 			.catch(() => {
 				if (!cancelled) people = 0;
@@ -169,7 +223,7 @@
 	<header class="topbar">
 		<div class="ident">
 			<h1 class="dsp">Welcome, {USER}</h1>
-			<p class="sub">{session.serviceLine} · {session.region === 'world' ? 'Worldwide' : session.region}</p>
+			<p class="sub">{session.scopeLabel()} · {session.region === 'world' ? 'Worldwide' : session.region}</p>
 		</div>
 		<div class="topbar-tools">
 			<a class="btn btn-primary" href="/companies">

@@ -149,13 +149,19 @@
 
 	$effect(() => {
 		const line = serviceLine;
+		const all = session.allLines;
 		if (!line) return;
+		// Asking for one line at a time and joining them, the same union the board
+		// makes: the people endpoint has no "every line" form, and the subtitle
+		// above this list names the scope, so the list has to match it.
+		const lines = all ? (workspace.lines.length > 0 ? workspace.lines : [line]) : [line];
 		let cancelled = false;
 		loading = true;
-		fetchPeople(line)
-			.then((result) => {
+		Promise.all(lines.map((each) => fetchPeople(each).catch(() => [])))
+			.then((lists) => {
 				if (cancelled) return;
-				rows = result;
+				const seen = new Set<string>();
+				rows = lists.flat().filter((person) => (seen.has(person.id) ? false : seen.add(person.id)));
 				error = null;
 			})
 			.catch((cause) => {
@@ -282,8 +288,8 @@
 		<div class="ident">
 			<h1 class="dsp">People</h1>
 			<p class="sub">
-				{serviceLine} · signals from people. Who to reach, what they have said publicly, and how strong the
-				evidence behind it is.
+				{session.scopeLabel()} · signals from people. Who to reach, what they have said publicly, and how
+				strong the evidence behind it is.
 			</p>
 		</div>
 		<div class="topbar-tools">
@@ -355,8 +361,12 @@
 						No document has named anybody at these companies yet. Press <strong>Read for names</strong> to
 						look through the documents we already hold.
 					</p>
-				{:else}
+				{:else if query.trim()}
 					<p>Nobody matches “{query}”.</p>
+				{:else}
+					<!-- Nobody was filtered out by a search, so it is the stage that did
+					     it — the message used to read "Nobody matches ""." -->
+					<p>Nobody in this list is at that stage yet.</p>
 				{/if}
 			</div>
 		{:else}
@@ -629,6 +639,12 @@
 		color: var(--color-ink-3);
 	}
 
+	/*
+	 * The whole pane, centred. The shared `.empty` is a small message inside a
+	 * panel and caps itself at 60ch; this rule overrode its alignment, padding and
+	 * colour but not that cap, so the box stayed 486px wide in a 1368px pane and
+	 * centred its text on 475 instead of on the middle of the screen.
+	 */
 	.empty {
 		display: flex;
 		flex-direction: column;
@@ -636,6 +652,7 @@
 		justify-content: center;
 		gap: var(--spacing-2);
 		height: 100%;
+		max-width: none;
 		padding: var(--spacing-5);
 		text-align: center;
 		color: var(--color-ink-3);
