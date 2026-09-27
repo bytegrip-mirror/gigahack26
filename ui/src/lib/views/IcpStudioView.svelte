@@ -708,20 +708,30 @@
 	 * screen is for comparing criteria, and a column of narrow panels left half
 	 * the window empty. Each panel's own fields stay one line to a decision.
 	 */
+	/*
+	 * One column, not as many panels as will fit across the pane. A profile is
+	 * filled in in the order the questions are asked — who it is, where, how big,
+	 * what to keep out — and a panel sitting beside another reads as a second
+	 * answer to the same question rather than as the next one. The body scrolls
+	 * for the same reason: the form is longer than the pane now.
+	 */
 	.editor-body {
 		flex: 1;
 		min-height: 0;
+		overflow-y: auto;
 		padding: var(--spacing-4);
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+		display: flex;
+		flex-direction: column;
 		gap: var(--spacing-3);
-		align-content: start;
 	}
 
 	.panel {
 		display: flex;
 		flex-direction: column;
 		gap: var(--spacing-2);
+		/* The same measure the settings form uses. A text field the width of the
+		   pane is a field nobody can read a value back from. */
+		max-width: 900px;
 	}
 
 	.panel-head {
