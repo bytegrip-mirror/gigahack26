@@ -20,6 +20,9 @@ public class PolicyLibrary {
     public static final String AUTOMATION = "Intelligent Automation";
     public static final String SECURITY = "Cybersecurity";
     public static final String DATA = "Data & AI";
+    public static final String CLOUD = "Cloud & Infrastructure";
+    public static final String ERP = "ERP & Business Applications";
+    public static final String DIGITAL = "Digital Customer Experience";
 
     private final PolicyQuestionRepository questions;
     private final Clock clock;
@@ -414,6 +417,142 @@ public class PolicyLibrary {
                         List.of("data governance", "master data management", "data quality", "data catalogue",
                                 "data catalog", "data lineage", "single source of truth", "data stewardship",
                                 "data management programme"),
-                        List.of("what is data governance")));
+                        List.of("what is data governance")),
+                new Definition(
+                        "cloud.migration", "A cloud migration programme", CLOUD,
+                        "Is the company moving workloads, applications or its own data centres to a public cloud?",
+                        """
+                        Counts: a named migration or cloud adoption programme, a stated target to move a share of \
+                        the estate, a data-centre exit, or a published timeline for leaving a hosting contract.
+
+                        Does not count: a product that runs on someone else's cloud, a partner's case study about \
+                        work done for another company, or a general statement that the company "uses the cloud". \
+                        The move must be this company's own and must be under way.""",
+                        WeightTier.HIGH, Polarity.POSITIVE, "platform", DecayClass.STRUCTURAL,
+                        List.of("cloud migration", "migrating to the cloud", "move to aws", "moving to aws",
+                                "microsoft azure", "google cloud", "cloud-first", "cloud first",
+                                "cloud adoption", "cloud transformation", "replatform", "lift and shift",
+                                "data centre exit", "data center exit", "exit our data centre",
+                                "decommission data centre", "cloud strategy", "multi-cloud", "hybrid cloud",
+                                "cloud-native", "cloud native", "containerisation", "containerization",
+                                "kubernetes", "modernise the estate", "modernize the estate"),
+                        List.of("cloud computing market", "what is the cloud")),
+                new Definition(
+                        "cloud.hiring", "Hiring cloud and platform engineers", CLOUD,
+                        "Is the company hiring cloud, DevOps, SRE or platform engineers to run its own estate?",
+                        """
+                        Counts: roles that build or operate this company's own platform — cloud engineer, platform \
+                        engineer, site reliability engineer, DevOps engineer, infrastructure architect.
+
+                        Does not count: a vendor or consultancy advertising the same roles for client projects, or \
+                        a sales role with "cloud" in the title.""",
+                        WeightTier.MEDIUM, Polarity.POSITIVE, "capability", DecayClass.HIRING,
+                        List.of("cloud engineer", "platform engineer", "site reliability engineer", "sre",
+                                "devops engineer", "cloud architect", "infrastructure engineer",
+                                "cloud operations", "platform team", "head of platform", "cloud security engineer",
+                                "infrastructure architect", "cloud infrastructure"),
+                        List.of("internship", "for our client", "client site", "cloud sales")),
+                new Definition(
+                        "cloud.exit", "Bringing the estate back in-house", CLOUD,
+                        "Is the company taking infrastructure work back from a supplier, or building a platform of its own to sell?",
+                        """
+                        Counts: the company says it is ending an outsourcing or hosting arrangement to run the \
+                        estate itself, or sells cloud and infrastructure services as its own product.
+
+                        Does not count: a company that merely prefers one cloud over another.""",
+                        WeightTier.MEDIUM, Polarity.NEGATIVE, "in-house", DecayClass.STRUCTURAL,
+                        List.of("in-house infrastructure", "in house platform", "bring infrastructure in-house",
+                                "end the outsourcing", "insource", "we provide cloud services",
+                                "our cloud platform", "managed cloud provider", "we sell cloud",
+                                "own data centre", "own data center", "build our own platform"),
+                        List.of("in-house team of one")),
+                new Definition(
+                        "erp.programme", "A core system replacement", ERP,
+                        "Is the company replacing or upgrading its ERP, finance or core operating system?",
+                        """
+                        Counts: a named ERP programme, an upgrade to a named release, a stated go-live date, or a \
+                        published plan to replace the system of record for finance, supply chain or HR.
+
+                        Does not count: a vendor describing an implementation it delivered for a customer, or a \
+                        general statement about "digitalising processes". The replacement must be this company's.""",
+                        WeightTier.HIGH, Polarity.POSITIVE, "platform", DecayClass.STRUCTURAL,
+                        List.of("erp", "enterprise resource planning", "sap s/4hana", "s/4hana", "sap hana",
+                                "sap implementation", "oracle fusion", "microsoft dynamics", "dynamics 365",
+                                "netsuite", "workday", "sap go-live", "system integrator", "core system",
+                                "system of record", "upgrade our erp", "erp rollout", "finance transformation"),
+                        List.of("erp market", "what is erp")),
+                new Definition(
+                        "erp.hiring", "Hiring for a core-system rollout", ERP,
+                        "Is the company hiring people to run or deliver an ERP, finance-systems or business-applications programme?",
+                        """
+                        Counts: roles that select, deliver or run the core system — ERP analyst, SAP consultant on \
+                        the company's own payroll, finance systems manager, business applications lead.
+
+                        Does not count: a consultancy advertising the same roles for client engagements, or a \
+                        support-desk role with no programme behind it.""",
+                        WeightTier.MEDIUM, Polarity.POSITIVE, "capability", DecayClass.HIRING,
+                        List.of("erp analyst", "sap consultant", "erp manager", "finance systems",
+                                "business systems analyst", "erp developer", "sap analyst", "workday analyst",
+                                "erp project manager", "head of business applications", "erp lead",
+                                "systems accountant", "finance systems manager"),
+                        List.of("internship", "for our client", "client site")),
+                new Definition(
+                        "erp.insourcing", "Building or selling the system instead of buying", ERP,
+                        "Does the company sell ERP or business-application software, or run its own implementation practice?",
+                        """
+                        Counts: the company states it provides ERP implementation, or sells a business-applications \
+                        product of its own.
+
+                        Does not count: a company that merely has an ERP system.""",
+                        WeightTier.MEDIUM, Polarity.NEGATIVE, "in-house", DecayClass.STRUCTURAL,
+                        List.of("we implement sap", "our erp product", "we provide erp", "erp implementation partner",
+                                "sap partner", "we sell erp", "our business applications platform",
+                                "system integrator for", "implementation practice"),
+                        List.of("our erp system is")),
+                new Definition(
+                        "digital.channel", "A new customer channel", DIGITAL,
+                        "Is the company launching or rebuilding a customer-facing digital channel — an app, a portal or a self-service journey?",
+                        """
+                        Counts: a named launch or rebuild of a customer app, portal or self-service journey, with \
+                        a date or a stated scope.
+
+                        Does not count: a marketing campaign, a social-media presence, or a supplier's case study \
+                        about a channel it built for someone else.""",
+                        WeightTier.HIGH, Polarity.POSITIVE, "initiative", DecayClass.EVENT,
+                        List.of("new mobile app", "launch our app", "customer portal", "digital channel",
+                                "self-service", "self service portal", "online journey", "customer app",
+                                "digital experience", "new website platform", "customer platform",
+                                "digital-first", "rebuild our website", "omnichannel", "mobile banking app",
+                                "customer facing platform", "digital onboarding"),
+                        List.of("app store ranking", "download our app")),
+                new Definition(
+                        "digital.hiring", "Hiring digital product people", DIGITAL,
+                        "Is the company hiring product, design or digital-delivery people for its own channels?",
+                        """
+                        Counts: roles that own or build a customer-facing channel — product owner, product manager, \
+                        UX or service designer, digital delivery lead, front-end engineer.
+
+                        Does not count: an agency advertising the same roles for client work, or a marketing role \
+                        that does not touch the channel.""",
+                        WeightTier.MEDIUM, Polarity.POSITIVE, "capability", DecayClass.HIRING,
+                        List.of("product owner", "product manager", "ux designer", "service designer",
+                                "digital product", "head of digital", "digital delivery", "front-end engineer",
+                                "frontend engineer", "user researcher", "digital product manager",
+                                "customer experience manager", "head of product"),
+                        List.of("internship", "for our client", "for a client")),
+                new Definition(
+                        "digital.commerce", "Replatforming commerce", DIGITAL,
+                        "Is the company moving or rebuilding its e-commerce or transactional platform?",
+                        """
+                        Counts: a named replatforming or commerce-system programme, a stated move to a new \
+                        commerce platform, or a published plan to rebuild checkout or payments.
+
+                        Does not count: a product page or an offer.""",
+                        WeightTier.MEDIUM, Polarity.POSITIVE, "platform", DecayClass.STRUCTURAL,
+                        List.of("replatform", "e-commerce platform", "ecommerce platform", "commerce platform",
+                                "shopify", "magento", "salesforce commerce", "adobe commerce", "new checkout",
+                                "payment platform", "digital commerce", "online store rebuild",
+                                "headless commerce", "order management system"),
+                        List.of("shop now", "add to cart")));
     }
 }
