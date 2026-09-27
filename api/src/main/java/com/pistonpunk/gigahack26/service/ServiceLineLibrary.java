@@ -1,6 +1,7 @@
 package com.pistonpunk.gigahack26.service;
 
 import java.util.List;
+import java.util.Set;
 
 public final class ServiceLineLibrary {
 
@@ -45,10 +46,30 @@ public final class ServiceLineLibrary {
                         "we land the core system on a dated cutover and stay through the first close",
                         40),
                 new Definition(
-                        PolicyLibrary.DIGITAL,
-                        PolicyLibrary.DIGITAL,
-                        "Customer-facing channels: portals, commerce and the journeys through them.",
-                        "we ship the channel a customer actually finishes, and measure it after launch",
+                        PolicyLibrary.SOFTWARE,
+                        PolicyLibrary.SOFTWARE,
+                        "Delivery capacity for the software a company has decided to build itself.",
+                        "we put a team behind the roadmap you have already committed to, and hand over the code, "
+                                + "the tests and the people who wrote them",
                         50));
+    }
+
+    /**
+     * Lines that were seeded once and are not any more.
+     *
+     * A line is never deleted: the signals, scores and feedback that point at it
+     * are a record of what the board said at the time, and a row is cheaper to
+     * keep than a cascade. But a renamed line leaves its old row behind with no
+     * questions under it, and that row stays in the picker and returns an empty
+     * board — so the ones that have been superseded are named here and switched
+     * off. "Digital Customer Experience" became "Software Engineering": same slot,
+     * same sort order, different thing sold.
+     *
+     * This is a list and not "retire whatever the library does not declare",
+     * because a service line can be created by hand on the Service lines screen,
+     * and that would switch off the user's own work on the next boot.
+     */
+    public static Set<String> retired() {
+        return Set.of("Digital Customer Experience");
     }
 }

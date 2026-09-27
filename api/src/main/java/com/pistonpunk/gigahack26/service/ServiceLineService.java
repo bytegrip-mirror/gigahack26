@@ -32,6 +32,14 @@ public class ServiceLineService {
 
     @Transactional
     public void ensureSeeded() {
+        for (String key : ServiceLineLibrary.retired()) {
+            lines.findByKey(key).ifPresent(line -> {
+                if (line.isActive()) {
+                    line.revise(line.getName(), line.getDescription(), line.getValueProposition(),
+                            line.getSortOrder(), false);
+                }
+            });
+        }
         List<String> existing = questions.findAll().stream()
                 .map(PolicyQuestion::getServiceLine)
                 .distinct()

@@ -22,7 +22,7 @@ public class PolicyLibrary {
     public static final String DATA = "Data & AI";
     public static final String CLOUD = "Cloud & Infrastructure";
     public static final String ERP = "ERP & Business Applications";
-    public static final String DIGITAL = "Digital Customer Experience";
+    public static final String SOFTWARE = "Software Engineering";
 
     private final PolicyQuestionRepository questions;
     private final Clock clock;
@@ -510,49 +510,76 @@ public class PolicyLibrary {
                                 "system integrator for", "implementation practice"),
                         List.of("our erp system is")),
                 new Definition(
-                        "digital.channel", "A new customer channel", DIGITAL,
-                        "Is the company launching or rebuilding a customer-facing digital channel — an app, a portal or a self-service journey?",
+                        "software.product", "Building a software product of its own", SOFTWARE,
+                        "Is the company building, launching or extending a software product, platform or major application of its own?",
                         """
-                        Counts: a named launch or rebuild of a customer app, portal or self-service journey, with \
-                        a date or a stated scope.
+                        Counts: a named product or platform being built or launched, a stated release or roadmap, \
+                        an in-house application replacing a bought one, or a company that is not a software business \
+                        saying it is now writing software — a manufacturer building a connected-product platform, a \
+                        retailer building its own ordering system, a bank building a new core.
 
-                        Does not count: a marketing campaign, a social-media presence, or a supplier's case study \
-                        about a channel it built for someone else.""",
-                        WeightTier.HIGH, Polarity.POSITIVE, "initiative", DecayClass.EVENT,
-                        List.of("new mobile app", "launch our app", "customer portal", "digital channel",
-                                "self-service", "self service portal", "online journey", "customer app",
-                                "digital experience", "new website platform", "customer platform",
-                                "digital-first", "rebuild our website", "omnichannel", "mobile banking app",
-                                "customer facing platform", "digital onboarding"),
-                        List.of("app store ranking", "download our app")),
+                        Does not count: a supplier's case study about a product it built for someone else, or a \
+                        company buying a product off the shelf. The building has to be theirs.""",
+                        WeightTier.HIGH, Polarity.POSITIVE, "initiative", DecayClass.STRUCTURAL,
+                        List.of("new platform", "in-house product", "we are building", "we're building",
+                                "our platform", "product roadmap", "minimum viable product", "mvp",
+                                "greenfield", "in-house development", "we developed", "proprietary platform",
+                                "new application", "build our own", "software development team",
+                                "in-house software", "connected product", "digital platform",
+                                "our engineering team", "release our"),
+                        List.of("software market", "buy our")),
                 new Definition(
-                        "digital.hiring", "Hiring digital product people", DIGITAL,
-                        "Is the company hiring product, design or digital-delivery people for its own channels?",
+                        "software.hiring", "Hiring software engineers", SOFTWARE,
+                        "Is the company hiring software engineers in numbers that suggest it needs delivery capacity rather than one replacement?",
                         """
-                        Counts: roles that own or build a customer-facing channel — product owner, product manager, \
-                        UX or service designer, digital delivery lead, front-end engineer.
+                        Counts: open engineering roles — backend, frontend, full-stack, mobile, QA, platform — \
+                        several at once, a stated plan to grow the engineering team, or an engineering hub or \
+                        tech centre being opened.
 
-                        Does not count: an agency advertising the same roles for client work, or a marketing role \
-                        that does not touch the channel.""",
+                        Does not count: a software company hiring the engineers its product is made of, though a \
+                        company *growing* its engineering organisation counts however it makes its money — the \
+                        question is whether there is more to build than there are people to build it.""",
                         WeightTier.MEDIUM, Polarity.POSITIVE, "capability", DecayClass.HIRING,
-                        List.of("product owner", "product manager", "ux designer", "service designer",
-                                "digital product", "head of digital", "digital delivery", "front-end engineer",
-                                "frontend engineer", "user researcher", "digital product manager",
-                                "customer experience manager", "head of product"),
-                        List.of("internship", "for our client", "for a client")),
+                        List.of("software engineer", "software developer", "backend engineer", "back-end engineer",
+                                "frontend engineer", "front-end engineer", "full stack", "full-stack",
+                                "engineering manager", "staff engineer", "principal engineer", "tech lead",
+                                "technical lead", "engineering team", "engineering hub", "technology hub",
+                                "qa engineer", "test engineer", "mobile developer", "growing our engineering",
+                                "expansion of our engineering", "developers to join", "software development team"),
+                        List.of("internship", "for our client", "client site", "unpaid")),
                 new Definition(
-                        "digital.commerce", "Replatforming commerce", DIGITAL,
-                        "Is the company moving or rebuilding its e-commerce or transactional platform?",
+                        "software.modernisation", "Modernising software it already runs", SOFTWARE,
+                        "Is the company rewriting, replacing or modernising a software system of its own?",
                         """
-                        Counts: a named replatforming or commerce-system programme, a stated move to a new \
-                        commerce platform, or a published plan to rebuild checkout or payments.
+                        Counts: a named rewrite or replacement, a stated move off a legacy platform, a \
+                        re-platforming or migration of an application it runs, or a published plan to break up a \
+                        monolith or pay down technical debt.
 
-                        Does not count: a product page or an offer.""",
+                        Does not count: infrastructure moving to a cloud, which is a different question and a \
+                        different service line.""",
                         WeightTier.MEDIUM, Polarity.POSITIVE, "platform", DecayClass.STRUCTURAL,
-                        List.of("replatform", "e-commerce platform", "ecommerce platform", "commerce platform",
-                                "shopify", "magento", "salesforce commerce", "adobe commerce", "new checkout",
-                                "payment platform", "digital commerce", "online store rebuild",
-                                "headless commerce", "order management system"),
-                        List.of("shop now", "add to cart")));
+                        List.of("legacy system", "legacy platform", "legacy application", "technical debt",
+                                "rewrite", "re-platform", "replatform", "application modernisation",
+                                "application modernization", "modernise our", "modernize our",
+                                "monolith", "microservices", "refactor", "upgrade our platform",
+                                "replace our system", "ageing system", "aging system", "end of life",
+                                "end-of-life platform", "core system replacement"),
+                        List.of("legacy is a")),
+                new Definition(
+                        "software.insourcing", "Sells software engineering of its own", SOFTWARE,
+                        "Does the company sell software development or engineering services, rather than needing them?",
+                        """
+                        Counts: the company states it builds software for clients — a software house, a \
+                        development agency, an outsourced or nearshore delivery provider, an IT services firm with \
+                        an engineering practice.
+
+                        Does not count: a company that merely employs engineers.""",
+                        WeightTier.MEDIUM, Polarity.NEGATIVE, "in-house", DecayClass.STRUCTURAL,
+                        List.of("software development services", "software development company", "software house",
+                                "custom software development", "bespoke software", "we build software for",
+                                "software development partner", "development agency", "outsourcing provider",
+                                "offshore development", "nearshore", "it services provider", "it consulting",
+                                "engineering services provider", "we deliver software", "software consultancy"),
+                        List.of("our software development team is")));
     }
 }
