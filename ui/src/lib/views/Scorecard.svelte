@@ -2,6 +2,7 @@
 	import {
 		fetchCompany,
 		fetchBookmarks,
+		fetchServiceLines,
 		pushToHubspot,
 		recordLead,
 		sendFeedback,
@@ -66,6 +67,8 @@
 	let lead = $state<LeadView | null>(null);
 	let busy = $state<string | null>(null);
 	let saved = $state(false);
+	/** What we sell for this line, as written on the service line itself. */
+	let proposition = $state<string | null>(null);
 
 	$effect(() => {
 		const id = companyId;
@@ -96,6 +99,14 @@
 			.finally(() => {
 				if (!cancelled) loading = false;
 			});
+		fetchServiceLines(false)
+			.then((lines) => {
+				if (cancelled) return;
+				proposition = lines.find((entry) => entry.key === line)?.valueProposition ?? null;
+			})
+			.catch(() => {
+				if (!cancelled) proposition = null;
+			});
 		fetchBookmarks()
 			.then((list) => {
 				if (!cancelled) saved = list.some((bookmark) => bookmark.companyId === id && bookmark.serviceLine === line);
@@ -114,6 +125,12 @@
 	const word = $derived(detail ? fitWord(detail.probability, thresholds) : '');
 	const tone = $derived(detail ? fitTone(detail.probability, thresholds) : 'fair');
 	const triggers = $derived(strongest(detail?.whyNow?.triggers ?? []));
+	/**
+	 * The themes the reasons actually sit in — efficiency, capability, incident —
+	 * read off the evidence rather than the company, so the offer is tied to what
+	 * was found and not just to the line we happen to be ranked for.
+	 */
+	const offerThemes = $derived([...new Set(triggers.map((row) => row.theme))]);
 	const counters = $derived(strongest(detail?.whyNow?.counters ?? []));
 	const notEvidence = $derived.by(() => {
 		const scored = new Set([...triggers, ...counters].map((row) => row.questionKey));
@@ -390,6 +407,24 @@
 					{/if}
 				</section>
 
+				<section class="panel offer">
+					<div class="panel-head">
+						<h3 class="label">What we can offer</h3>
+						<span class="sub dim">{detail.serviceLine}</span>
+					</div>
+					<p class="offer-line">
+						{proposition ?? 'No proposition has been written for this service line yet.'}
+					</p>
+					{#if offerThemes.length > 0}
+						<div class="themes">
+							<span class="label">Their evidence sits in</span>
+							<span class="theme-tags">
+								{#each offerThemes as name (name)}<Tag>{theme(name)}</Tag>{/each}
+							</span>
+						</div>
+					{/if}
+				</section>
+
 				<section class="panel">
 					<div class="panel-head">
 						<h3 class="label">Stage</h3>
@@ -583,6 +618,15 @@
 		font-size: var(--text-base);
 		line-height: 1.5;
 		color: var(--color-ink-2);
+	}
+
+	/* The offer is the sentence a rep says out loud, so it leads the panel rather
+	   than sitting under its heading as another grey line. */
+	.offer-line {
+		margin: 0;
+		font-size: var(--text-md);
+		line-height: 1.5;
+		color: var(--color-ink);
 	}
 
 	.themes {
