@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
@@ -117,6 +118,7 @@ public class CorpusSeeder implements ApplicationRunner {
      * pipeline and a nightly batch, and this is the smallest honest version of
      * it — the files are the interface, and the running process reads them.
      */
+    @CacheEvict(value = "board", allEntries = true)
     public boolean reload() {
         CorpusFiles.RawCorpus raw = readJson(properties.rawPath(), CorpusFiles.RawCorpus.class);
         if (raw == null || raw.companies() == null || raw.evidence() == null) {
@@ -144,7 +146,18 @@ public class CorpusSeeder implements ApplicationRunner {
         return true;
     }
 
+    /**
+     * The board cache is dropped when the seed finishes.
+     *
+     * Redis outlives the application, so a restart that re-scores — a corpus
+     * change, a policy change, a rename — left the previously cached board in
+     * place and served it for up to a minute. That is exactly the minute someone
+     * spends opening the board after a restart, and it happened to me: a new
+     * service line scored nothing, which turned out to be a cache entry written
+     * while the re-score was still running.
+     */
     @Override
+    @CacheEvict(value = "board", allEntries = true)
     public void run(ApplicationArguments args) {
         readiness.seeding(true);
         try {
