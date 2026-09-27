@@ -255,8 +255,13 @@
 							<div class="line-head">
 								<span class="dot" data-polarity={row.polarity}></span>
 								<span class="q">{row.questionTitle}</span>
-								<span class="num amount" class:neg={row.contributionNats < 0}>
-									{row.tierNats === 0 ? 'not counted' : row.contributionNats.toFixed(2)}
+								<span class="amount-cell">
+									<span class="num amount" class:neg={row.contributionNats < 0}>
+										{row.tierNats === 0 ? 'not counted' : row.contributionNats.toFixed(2)}
+									</span>
+									<!-- A bare 0.83 in a column of prose is a number nobody can
+									     place. It is worth this much to the score. -->
+									{#if row.tierNats !== 0}<span class="amount-label">score</span>{/if}
 								</span>
 							</div>
 							{#if row.spanText}<blockquote>{row.spanText}</blockquote>{/if}
@@ -306,7 +311,6 @@
 			{/if}
 
 			{#if tab === 'history'}
-				<p class="lede">What we have done about this company, and when.</p>
 				<dl class="facts history-facts">
 					<dt>Stage</dt>
 					<dd>{detail.lead?.statusLabel ?? 'Not worked'}</dd>
@@ -502,6 +506,17 @@
 		color: var(--color-ink);
 	}
 
+	.amount-cell {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+	}
+
+	.amount-label {
+		font-size: var(--text-micro);
+		color: var(--color-ink-4);
+	}
+
 	.amount {
 		font-size: var(--text-base);
 		color: var(--color-ink-3);
@@ -666,7 +681,14 @@
 	.cards {
 		display: flex;
 		flex-direction: column;
-		gap: var(--spacing-5);
+	}
+
+	/* A rule between the sections, so the eye is told where one answer ends and
+	   the next begins; without it the four ran together as one block of prose. */
+	.card + .card {
+		margin-top: var(--spacing-3);
+		padding-top: var(--spacing-3);
+		border-top: 1px solid var(--color-rule);
 	}
 
 	.prose {
