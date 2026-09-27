@@ -460,6 +460,15 @@
 		);
 	}
 
+	/*
+	 * Two, not three. A signal title wraps to two lines in this column, so a third
+	 * one made that row twice the height of the rows around it — and a board is
+	 * read down the left edge, where a tall row is a row the eye has to stop on
+	 * for a reason that turns out to be "there was more to say". The rest are on
+	 * the scorecard, one click away, and the count of them is printed underneath.
+	 */
+	const SIGNALS_PER_ROW = 2;
+
 	function reasons(row: BoardRow): Chip[] {
 		const seen = new Map<string, Chip>();
 		for (const chip of row.chips) {
@@ -470,7 +479,7 @@
 		}
 		return [...seen.values()]
 			.sort((a, b) => Math.abs(b.contribution) - Math.abs(a.contribution))
-			.slice(0, 3);
+			.slice(0, SIGNALS_PER_ROW);
 	}
 
 	function partial(node: HTMLInputElement, value: boolean) {
