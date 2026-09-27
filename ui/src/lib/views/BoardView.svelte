@@ -1350,11 +1350,16 @@
 	}
 
 	/*
-	 * A measure, not a bucket. The signal titles are a line or two each, and this
-	 * column has no business being wider than the longest of them needs.
+	 * A measure, not a bucket, and narrower than it looks like it needs to be.
+	 *
+	 * The titles wrap to two lines here and that is the point: the dead space a
+	 * reader sees is inside this cell, between the end of the text and the edge,
+	 * and it grows with the screen — 97px at 1600, 264px at 2800. A title that
+	 * wraps costs a line; a title with a third of a screen of nothing beside it
+	 * costs the whole row's credibility as a dense list.
 	 */
 	.c-sig {
-		width: 340px;
+		width: 230px;
 		min-width: 0;
 	}
 
@@ -1388,13 +1393,19 @@
 	 * tall left that axis floating in the middle of the cell.
 	 */
 	.c-trend {
-		/* A share, not a fixed 180px: the graph is the thing on this row that is
-		   worth more room on a bigger screen. `min-width` does not hold here —
-		   a fixed-layout table sizes columns from the first row's widths and
-		   ignores the minimum — so this is a percentage, which scales at both ends
-		   instead of collapsing on a laptop and stretching into a hairline on a
-		   monitor. */
-		width: 18%;
+		/*
+		 * No width at all, and it is the only column that has none — which is what
+		 * makes it take everything the others leave. A percentage looked right and
+		 * measured wrong: with every column declaring a width, a fixed-layout table
+		 * spreads the leftover over all of them proportionally, so the signals
+		 * column kept growing (340 → 507) and the graph only grew a little. One
+		 * column without a width is the only way to name the column that absorbs
+		 * the slack.
+		 *
+		 * `min-width` is not an option here: a fixed-layout table sizes columns
+		 * from the first row's declared widths and ignores the minimum, which I
+		 * tried and measured — the graph collapsed to 62px on a laptop.
+		 */
 		vertical-align: bottom;
 	}
 
@@ -1557,12 +1568,25 @@
 		color: var(--color-orange-ink);
 	}
 
-	@media (max-width: 1180px) {
-		.c-trend,
+	/*
+	 * A laptop does not fit this table. At 1366 the columns already added up to
+	 * more than the width, and the browser squeezed whatever it could — which,
+	 * once the graph was the column that took the slack, meant the graph collapsed
+	 * to 8px and disappeared. The two count columns go first: a document count and
+	 * an age are the only things on this row a rep can get anywhere else, and the
+	 * graph is the thing the row is read for.
+	 */
+	@media (max-width: 1500px) {
 		.c-doc,
 		.c-age,
 		:global(th.c-doc),
 		:global(th.c-age) {
+			display: none;
+		}
+	}
+
+	@media (max-width: 1180px) {
+		.c-trend {
 			display: none;
 		}
 		.view.split {
