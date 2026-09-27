@@ -25,15 +25,18 @@ export const PATHS = {
 	studio: ['M4 7h9', 'M17 7h3', 'M4 17h4', 'M12 17h8', 'M15 4.5v5', 'M10 14.5v5'],
 	pipeline: ['M3.5 4.5h5v15h-5z', 'M9.5 4.5h5v9h-5z', 'M15.5 4.5h5v6h-5z'],
 	settings: [
-		'M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6',
-		'M12 2.5v3',
-		'M12 18.5v3',
-		'M2.5 12h3',
-		'M18.5 12h3',
-		'M5.3 5.3 7.4 7.4',
-		'M16.6 16.6l2.1 2.1',
-		'M18.7 5.3 16.6 7.4',
-		'M7.4 16.6l-2.1 2.1'
+		// The ring, the teeth, the hub. Without the ring this was a hub with eight
+		// spokes, which is a sun — the shape that means brightness, not settings.
+		'M12 5a7 7 0 1 0 0 14 7 7 0 0 0 0-14',
+		'M12 2.5V5',
+		'M12 19v2.5',
+		'M2.5 12H5',
+		'M19 12h2.5',
+		'M5.3 5.3 7.1 7.1',
+		'M16.9 16.9 18.7 18.7',
+		'M18.7 5.3 16.9 7.1',
+		'M7.1 16.9 5.3 18.7',
+		'M12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4'
 	],
 	clock: ['M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17', 'M12 7.5V12l3 2'],
 	alert: ['M12 3.5 22 20.5H2z', 'M12 9.5v5', 'M12 17.5h.01'],

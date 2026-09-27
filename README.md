@@ -1,4 +1,4 @@
-# Signal Desk — Gigahack 26
+# Lead Radar — Gigahack 26
 
 A B2B buying-signal platform for Orange Systems. A sales team writes a question
 in plain language; the platform re-classifies a stored corpus of public documents

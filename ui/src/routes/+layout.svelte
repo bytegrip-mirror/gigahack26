@@ -63,7 +63,7 @@
 			<a class="brand" href="/">
 				<Logo size={19} />
 				<span class="wordmark">
-					<strong class="dsp">Signal Desk</strong>
+					<strong class="dsp">Lead Radar</strong>
 					<span class="label">Orange Systems</span>
 				</span>
 			</a>

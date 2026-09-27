@@ -2,6 +2,6 @@
 	import DashboardView from '$lib/views/DashboardView.svelte';
 </script>
 
-<svelte:head><title>Dashboard · Signal Desk</title></svelte:head>
+<svelte:head><title>Dashboard · Lead Radar</title></svelte:head>
 
 <DashboardView />
