@@ -502,26 +502,32 @@
 	 * column is left unsized, so it takes the room the others do not use and the
 	 * headings stay where they are however wide the window gets.
 	 */
+	/*
+	 * Declared once for the table rather than once per column. Each column used to
+	 * carry its own `vertical-align: top`, which is the kind of rule that is
+	 * correct until somebody adds a column and does not know to copy it — and it
+	 * had already happened: the headers for Said and Where never got theirs and
+	 * fell back to the browser's default of `middle`, sitting six pixels below the
+	 * other five. The columns that do say `top` no longer need to.
+	 */
+	.tbl th,
+	.tbl td {
+		vertical-align: top;
+	}
+
 	/* The same shape as the board's rank column, so the two lists read alike. */
 	.c-rank {
 		width: 42px;
 		font-size: var(--text-base);
 		color: var(--color-ink-3);
-		vertical-align: top;
-	}
-
-	.c-person {
-		vertical-align: top;
 	}
 
 	.c-fit {
 		width: 96px;
-		vertical-align: top;
 	}
 
 	.c-stage {
 		width: 190px;
-		vertical-align: top;
 	}
 
 	.p-stage {
@@ -569,7 +575,6 @@
 
 	.c-signal {
 		width: 340px;
-		vertical-align: top;
 	}
 
 	.sig-text {
