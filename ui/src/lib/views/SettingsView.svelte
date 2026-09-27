@@ -63,6 +63,32 @@
 	 * reads. The first screenful is enough to see what the gate is doing, and the
 	 * rest is one click away.
 	 */
+	/**
+	 * The notes box grows to fit what is in it.
+	 *
+	 * `rows="3"` is a fixed height, and notes longer than three lines were cut
+	 * through the middle of a line at the box's bottom edge — an editable box that
+	 * hides its own content reads as broken, and the fix is not a bigger number
+	 * because the next person writes more. `rows` stays as the floor so an empty
+	 * box is still a box.
+	 */
+	function grow(node: HTMLTextAreaElement, _notes: string) {
+		const floor = node.scrollHeight;
+		const fit = () => {
+			node.style.height = 'auto';
+			node.style.height = `${Math.max(floor, node.scrollHeight)}px`;
+		};
+		fit();
+		node.addEventListener('input', fit);
+		return {
+			// The notes are the action's argument, so this runs again whenever they
+			// are assigned — they arrive with the settings fetch, which is a change
+			// no keystroke announced.
+			update: () => fit(),
+			destroy: () => node.removeEventListener('input', fit)
+		};
+	}
+
 	const EXCLUSIONS_SHOWN = 12;
 	let allExclusions = $state(false);
 	const shownExclusions = $derived(allExclusions ? exclusions : exclusions.slice(0, EXCLUSIONS_SHOWN));
@@ -374,7 +400,13 @@
 							<h2 class="dsp">Voice and style</h2>
 							<span class="sub dim">applies to every draft</span>
 						</div>
-						<div class="fields">
+						<!--
+							One grid for the whole form. It used to alternate between a
+							four-column `.fields` row and lone fields capped at 460px, so
+							every other row ended two thirds of the way across the panel and
+							nothing lined up with what was above it.
+						-->
+						<div class="voice-grid">
 							<label class="field">
 								<span class="label">Tone</span>
 								<select class="select" bind:value={draft.voiceTone}>
@@ -399,12 +431,11 @@
 									{#each LANGUAGES as option (option)}<option value={option}>{option}</option>{/each}
 								</select>
 							</label>
-						</div>
-						<label class="field">
-							<span class="label">The ask</span>
-							<input class="input" bind:value={draft.voiceAsk} />
-						</label>
-						<div class="fields">
+
+							<label class="field span-2">
+								<span class="label">The ask</span>
+								<input class="input" bind:value={draft.voiceAsk} />
+							</label>
 							<label class="field">
 								<span class="label">Sign-off</span>
 								<input class="input" bind:value={draft.voiceSignOff} />
@@ -413,16 +444,22 @@
 								<span class="label">Signature</span>
 								<input class="input" bind:value={draft.voiceSignature} placeholder="Name, role, company" />
 							</label>
+
+							<label class="field span-2">
+								<span class="label">Never use these words</span>
+								<input class="input" bind:value={draft.voiceAvoid} placeholder="leverage, synergy, circle back" />
+								<span class="sub dim">Comma separated, applied to every draft.</span>
+							</label>
+							<label class="field span-2">
+								<span class="label">Anything else the writer should know</span>
+								<textarea
+									class="textarea"
+									rows="4"
+									use:grow={draft.voiceNotes}
+									bind:value={draft.voiceNotes}
+								></textarea>
+							</label>
 						</div>
-						<label class="field">
-							<span class="label">Never use these words</span>
-							<input class="input" bind:value={draft.voiceAvoid} placeholder="leverage, synergy, circle back" />
-							<span class="sub dim">Comma separated, applied to every draft.</span>
-						</label>
-						<label class="field">
-							<span class="label">Anything else the writer should know</span>
-							<textarea class="textarea" rows="3" bind:value={draft.voiceNotes}></textarea>
-						</label>
 					</section>
 
 					<section class="panel">
@@ -964,6 +1001,44 @@
 	.body {
 		min-height: 0;
 		background: var(--color-surface);
+	}
+
+	/*
+	 * Four columns, and every field names how many it takes, so each row ends at
+	 * the same right edge and the columns hold from one row to the next. It folds
+	 * to two and then to one as the pane narrows, and the spans reset with it —
+	 * a `span 2` in a one-column grid would ask for two columns that are not there.
+	 */
+	.voice-grid {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: var(--spacing-3) var(--spacing-4);
+		align-items: start;
+	}
+
+	.voice-grid .span-2 {
+		grid-column: span 2;
+	}
+
+	@media (max-width: 1200px) {
+		.voice-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	@media (max-width: 900px) {
+		.voice-grid {
+			grid-template-columns: minmax(0, 1fr);
+		}
+
+		.voice-grid .span-2 {
+			grid-column: auto;
+		}
+	}
+
+	/* The notes box is sized by its content — see the `grow` action. */
+	.voice-grid .textarea {
+		resize: none;
 	}
 
 	/*
