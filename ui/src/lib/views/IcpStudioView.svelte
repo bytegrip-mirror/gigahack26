@@ -14,7 +14,6 @@
 	import { toasts } from '$lib/toast.svelte';
 	import { regionChoices, regionLabel } from '$lib/regions';
 	import { shortNumber } from '$lib/format';
-	import { portal } from '$lib/portal';
 	import Icon from '$lib/components/Icon.svelte';
 	import Menu from '$lib/components/Menu.svelte';
 	import Metric from '$lib/components/Metric.svelte';
@@ -32,23 +31,9 @@
 		'10001+'
 	];
 
-	/** Twelve hues at four depths. Wide enough that two books are told apart at a
-	 * glance in the list, and the hex box below it takes anything else. */
-	const PALETTE = [
-		'#5f2f2f', '#6f4a1f', '#6f6220', '#5f6f2f', '#3f6f3f', '#2f6f5f',
-		'#2f626f', '#2f4a6f', '#3a3a6f', '#552f6f', '#6f2f5f', '#6f2f42',
-		'#8f4a4a', '#9f6f2f', '#9f8f3a', '#8f9f4a', '#5f9f5f', '#4a9f8f',
-		'#4a8f9f', '#4a6f9f', '#55559f', '#7a4a9f', '#9f4a8f', '#9f4a62',
-		'#c96f6f', '#d99a4f', '#d9c95f', '#bfd97a', '#8fcf8f', '#7acfb8',
-		'#7ab8cf', '#7a9fcf', '#8a8acf', '#ab7acf', '#cf7ab8', '#cf7a94',
-		'#e6b3b3', '#e6cfa6', '#e6e0a6', '#d9e6b8', '#c2e6c2', '#b8e6da',
-		'#b8dae6', '#b8c9e6', '#c2c2e6', '#d4b8e6', '#e6b8da', '#e6b8c4'
-	];
-
 	type Draft = {
 		id: string | null;
 		name: string;
-		color: string;
 		countries: string;
 		regions: string;
 		industries: string;
@@ -62,7 +47,6 @@
 	const BLANK: Draft = {
 		id: null,
 		name: '',
-		color: '#2f6f4f',
 		countries: '',
 		regions: '',
 		industries: '',
@@ -85,8 +69,6 @@
 	let industriesPresent = $state<string[]>([]);
 	let industryDraft = $state('');
 	let countryDraft = $state('');
-	let paletteOpen = $state(false);
-	let hexDraft = $state('');
 
 	function list(value: string): string[] {
 		return value
@@ -188,7 +170,6 @@
 		draft = {
 			id: profile.id,
 			name: profile.name,
-			color: profile.color ?? BLANK.color,
 			countries: join(profile.countries),
 			regions: join(profile.regions),
 			industries: join(profile.industries),
@@ -209,7 +190,6 @@
 	function body(source: Draft) {
 		return {
 			name: source.name.trim(),
-			color: source.color,
 			countries: source.countries,
 			regions: source.regions,
 			industries: source.industries,
@@ -248,7 +228,6 @@
 		try {
 			await updateIcpProfile(profile.id, {
 				name: profile.name,
-				color: profile.color,
 				countries: join(profile.countries),
 				regions: join(profile.regions),
 				industries: join(profile.industries),
@@ -310,21 +289,6 @@
 		dirty = true;
 	}
 
-	function openPalette() {
-		hexDraft = draft.color;
-		paletteOpen = true;
-	}
-
-	function chooseColour(value: string) {
-		draft.color = value;
-		dirty = true;
-		paletteOpen = false;
-	}
-
-	function applyHex() {
-		const value = hexDraft.trim();
-		if (/^#[0-9a-fA-F]{3,8}$/.test(value)) chooseColour(value.toLowerCase());
-	}
 </script>
 
 <div class="view">
@@ -367,7 +331,6 @@
 							aria-current={draft.id === profile.id}
 							onclick={() => open(profile)}
 						>
-							<span class="swatch" style={`background:${profile.color ?? 'var(--color-rule-strong)'}`}></span>
 							<span class="row-body">
 								<span class="row-name">{profile.name}</span>
 								<span class="sub dim">
@@ -622,16 +585,6 @@
 					{/if}
 				</section>
 
-				<section class="panel">
-					<div class="panel-head"><h3 class="label">Appearance</h3></div>
-					<button class="colour-btn" onclick={openPalette}>
-						<span class="colour-swatch" style={`background:${draft.color}`}></span>
-						<span class="num">{draft.color}</span>
-						<span class="spacer"></span>
-						<span class="sub dim">Choose</span>
-					</button>
-					<span class="sub dim">Marks this book in the list, and wherever a book is chosen.</span>
-				</section>
 			</div>
 
 			<footer class="editor-foot">
@@ -649,61 +602,6 @@
 	</div>
 </div>
 
-{#if paletteOpen}
-	<div
-		class="scrim"
-		use:portal
-		role="presentation"
-		onclick={(event) => {
-			if (event.target === event.currentTarget) paletteOpen = false;
-		}}
-	>
-		<div class="palette" role="dialog" aria-modal="true" aria-label="Choose a colour">
-			<header class="palette-head">
-				<h2 class="dsp">Choose a colour</h2>
-				<span class="spacer"></span>
-				<button class="icon-btn" onclick={() => (paletteOpen = false)} aria-label="Close">
-					<Icon name="close" size={15} />
-				</button>
-			</header>
-			<div class="palette-grid">
-				{#each PALETTE as hex (hex)}
-					<button
-						class="cell"
-						class:chosen={draft.color.toLowerCase() === hex}
-						style={`background:${hex}`}
-						aria-label={hex}
-						title={hex}
-						onclick={() => chooseColour(hex)}
-					></button>
-				{/each}
-			</div>
-			<div class="palette-foot">
-				<label class="field">
-					<span class="label">Or a hex value</span>
-					<input
-						class="input input-sm num"
-						bind:value={hexDraft}
-						onkeydown={(event) => {
-							if (event.key === 'Enter') applyHex();
-						}}
-						placeholder="#2f6f4f"
-					/>
-				</label>
-				<input
-					type="color"
-					class="colour-input"
-					bind:value={draft.color}
-					oninput={() => (dirty = true)}
-					aria-label="Pick any colour"
-				/>
-				<span class="spacer"></span>
-				<button class="btn btn-sm" onclick={applyHex}>Use it</button>
-			</div>
-		</div>
-	</div>
-{/if}
-
 <style>
 	.topbar .sub {
 		color: var(--color-ink-3);
@@ -711,9 +609,6 @@
 
 	.toolbar .spacer,
 	.editor-head .spacer,
-	.colour-btn .spacer,
-	.palette-head .spacer,
-	.palette-foot .spacer,
 	.editor-foot .spacer {
 		margin-left: auto;
 	}
@@ -779,14 +674,6 @@
 
 	.row.current {
 		background: var(--color-orange-wash);
-	}
-
-	.swatch {
-		width: 10px;
-		height: 10px;
-		flex: none;
-		border-radius: var(--radius);
-		border: 1px solid var(--color-ink-4);
 	}
 
 	.row-body {
@@ -903,29 +790,6 @@
 		gap: var(--spacing-2);
 	}
 
-	.colour-btn {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-2);
-		padding: var(--spacing-2) var(--spacing-3);
-		border: 1px solid var(--color-rule-strong);
-		background: var(--color-surface);
-		cursor: pointer;
-		text-align: left;
-	}
-
-	.colour-btn:hover {
-		border-color: var(--color-ink);
-	}
-
-	.colour-swatch {
-		width: 22px;
-		height: 22px;
-		flex: none;
-		border-radius: var(--radius);
-		border: 1px solid var(--color-ink-4);
-	}
-
 	.editor-foot {
 		display: flex;
 		align-items: center;
@@ -933,69 +797,6 @@
 		padding: var(--spacing-3) var(--spacing-4);
 		border-top: 1px solid var(--color-rule);
 		flex: none;
-	}
-
-	.scrim {
-		animation: fade-in var(--ease-enter) both;
-		position: fixed;
-		inset: 0;
-		background: rgb(0 0 0 / 0.34);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		z-index: var(--z-index-sheet);
-	}
-
-	.palette {
-		animation: rise var(--ease-enter) both;
-		width: min(680px, calc(100vw - var(--spacing-5) * 2));
-		max-height: calc(100vh - var(--spacing-5) * 2);
-		overflow-y: auto;
-		background: var(--color-surface);
-		border: 1px solid var(--color-ink);
-		padding: var(--spacing-4);
-		display: flex;
-		flex-direction: column;
-		gap: var(--spacing-3);
-	}
-
-	.palette-head {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-2);
-	}
-
-	.palette-grid {
-		display: grid;
-		grid-template-columns: repeat(8, 1fr);
-		gap: var(--spacing-1);
-	}
-
-	.cell {
-		aspect-ratio: 1;
-		border: 1px solid var(--color-rule-strong);
-		border-radius: var(--radius);
-		cursor: pointer;
-	}
-
-	.cell.chosen {
-		outline: 2px solid var(--color-ink);
-		outline-offset: 1px;
-	}
-
-	.palette-foot {
-		display: flex;
-		align-items: flex-end;
-		gap: var(--spacing-3);
-	}
-
-	.colour-input {
-		width: 44px;
-		height: var(--spacing-ctl);
-		padding: 0;
-		border: 1px solid var(--color-rule-strong);
-		background: none;
-		cursor: pointer;
 	}
 
 	@media (max-width: 1000px) {

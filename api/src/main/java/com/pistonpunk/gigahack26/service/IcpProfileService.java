@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 @Service
 public class IcpProfileService {
 
-    public record Draft(String name, String color, String countries, String regions, String industries,
+    public record Draft(String name, String countries, String regions, String industries,
                         int minEmployees, String sizeBands, boolean excludeCompetitors, boolean untouchedOnly,
                         boolean active) {
     }
@@ -42,7 +42,6 @@ public class IcpProfileService {
     }
 
     private static final int SAMPLE = 8;
-    private static final String COLOR = "#[0-9a-fA-F]{3,8}";
 
     private final IcpProfileRepository profiles;
     private final CompanyRepository companies;
@@ -77,7 +76,7 @@ public class IcpProfileService {
     @Transactional
     public Optional<IcpProfile> update(UUID id, Draft draft) {
         return profiles.findById(id).map(profile -> {
-            profile.revise(name(draft), color(draft.color()), clean(draft.countries()), clean(draft.regions()),
+            profile.revise(name(draft), clean(draft.countries()), clean(draft.regions()),
                     clean(draft.industries()), Math.max(0, draft.minEmployees()), clean(draft.sizeBands()),
                     draft.excludeCompetitors(), draft.untouchedOnly(), draft.active(), profile.getSortOrder());
             return profiles.save(profile);
@@ -157,7 +156,7 @@ public class IcpProfileService {
     }
 
     private IcpProfile probe(Draft draft, int sortOrder, boolean active) {
-        return new IcpProfile(UUID.randomUUID(), name(draft), color(draft.color()), clean(draft.countries()),
+        return new IcpProfile(UUID.randomUUID(), name(draft), clean(draft.countries()),
                 clean(draft.regions()), clean(draft.industries()), Math.max(0, draft.minEmployees()),
                 clean(draft.sizeBands()), draft.excludeCompetitors(), draft.untouchedOnly(), active, sortOrder,
                 clock.instant());
@@ -193,13 +192,6 @@ public class IcpProfileService {
         return value.isEmpty() ? "Untitled profile" : value.substring(0, Math.min(120, value.length()));
     }
 
-    private static String color(String value) {
-        if (value == null) {
-            return null;
-        }
-        String trimmed = value.trim();
-        return trimmed.matches(COLOR) ? trimmed.toLowerCase(Locale.ROOT) : null;
-    }
 
     private static String clean(String value) {
         if (value == null) {

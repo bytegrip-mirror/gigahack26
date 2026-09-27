@@ -27,7 +27,7 @@ import java.util.UUID;
 @RequestMapping("/api/icp-profiles")
 public class IcpProfileController {
 
-    public record Request(String name, String color, String countries, String regions, String industries,
+    public record Request(String name, String countries, String regions, String industries,
                           int minEmployees, String sizeBands, boolean excludeCompetitors, boolean untouchedOnly,
                           boolean active) {
     }
@@ -61,7 +61,7 @@ public class IcpProfileController {
                                            boolean excludeCompetitors,
                                            @RequestParam(name = "untouchedOnly", defaultValue = "false")
                                            boolean untouchedOnly) {
-        return service.preview(new IcpProfileService.Draft(null, null, countries, regions, industries,
+        return service.preview(new IcpProfileService.Draft(null, countries, regions, industries,
                 minEmployees, sizeBands, excludeCompetitors, untouchedOnly, true));
     }
 
@@ -87,7 +87,7 @@ public class IcpProfileController {
     }
 
     private static IcpProfileService.Draft draft(Request request) {
-        return new IcpProfileService.Draft(request.name(), request.color(), request.countries(), request.regions(),
+        return new IcpProfileService.Draft(request.name(), request.countries(), request.regions(),
                 request.industries(), request.minEmployees(), request.sizeBands(), request.excludeCompetitors(),
                 request.untouchedOnly(), request.active());
     }
@@ -96,7 +96,6 @@ public class IcpProfileController {
         return new IcpProfileView(
                 profile.getId(),
                 profile.getName(),
-                profile.getColor(),
                 split(profile.getCountries()),
                 split(profile.getRegions()),
                 split(profile.getIndustries()),

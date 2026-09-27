@@ -6,7 +6,6 @@ import java.util.UUID;
 public record IcpProfileView(
         UUID id,
         String name,
-        String color,
         List<String> countries,
         List<String> regions,
         List<String> industries,

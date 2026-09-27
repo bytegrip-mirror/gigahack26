@@ -16,7 +16,7 @@ class IcpProfileTest {
     private static final Instant NOW = Instant.parse("2026-09-26T12:00:00Z");
 
     private static IcpProfile profile(String countries, String industries, int minEmployees) {
-        return new IcpProfile(UUID.randomUUID(), "Test", null, countries, "", industries, minEmployees,
+        return new IcpProfile(UUID.randomUUID(), "Test", countries, "", industries, minEmployees,
                 "", false, false, true, 0, NOW);
     }
 
@@ -75,7 +75,7 @@ class IcpProfileTest {
 
     @Test
     void aSizeBandIsASecondWayToSayHowBig() {
-        IcpProfile large = new IcpProfile(UUID.randomUUID(), "Large", null, "", "", "", 0,
+        IcpProfile large = new IcpProfile(UUID.randomUUID(), "Large", "", "", "", 0,
                 "10001+", false, false, true, 0, NOW);
         assertTrue(large.covers(company("DE", "Retail", 20000, "10001+", false), large.namedCountries(), false));
         assertFalse(large.covers(company("DE", "Retail", 3000, "1001-5000", false), large.namedCountries(), false));
@@ -83,7 +83,7 @@ class IcpProfileTest {
 
     @Test
     void aVendorCanBeKeptOutOfOneBookWithoutBeingKeptOutOfTheBoard() {
-        IcpProfile ours = new IcpProfile(UUID.randomUUID(), "Ours", null, "", "", "", 0,
+        IcpProfile ours = new IcpProfile(UUID.randomUUID(), "Ours", "", "", "", 0,
                 "", true, false, true, 0, NOW);
         assertFalse(ours.covers(company("DE", "IT Services", 5000, "1001-5000", true), ours.namedCountries(), false));
         assertTrue(ours.covers(company("DE", "IT Services", 5000, "1001-5000", false), ours.namedCountries(), false));
@@ -91,7 +91,7 @@ class IcpProfileTest {
 
     @Test
     void untouchedOnlyLeavesOutTheOnesSomebodyHasAlreadyRung() {
-        IcpProfile fresh = new IcpProfile(UUID.randomUUID(), "Fresh", null, "", "", "", 0,
+        IcpProfile fresh = new IcpProfile(UUID.randomUUID(), "Fresh", "", "", "", 0,
                 "", false, true, true, 0, NOW);
         assertTrue(fresh.covers(company("DE", "Retail", 5000), fresh.namedCountries(), false));
         assertFalse(fresh.covers(company("DE", "Retail", 5000), fresh.namedCountries(), true));

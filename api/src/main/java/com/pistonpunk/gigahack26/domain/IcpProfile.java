@@ -32,9 +32,6 @@ public class IcpProfile {
     @Column(nullable = false, length = 120)
     private String name;
 
-    @Column(length = 32)
-    private String color;
-
     @Column(nullable = false, length = 1000)
     private String countries;
 
@@ -70,12 +67,11 @@ public class IcpProfile {
     protected IcpProfile() {
     }
 
-    public IcpProfile(UUID id, String name, String color, String countries, String regions, String industries,
+    public IcpProfile(UUID id, String name, String countries, String regions, String industries,
                       int minEmployees, String sizeBands, boolean excludeCompetitors, boolean untouchedOnly,
                       boolean active, int sortOrder, Instant createdAt) {
         this.id = id;
         this.name = name;
-        this.color = color;
         this.countries = countries;
         this.regions = regions;
         this.industries = industries;
@@ -94,10 +90,6 @@ public class IcpProfile {
 
     public String getName() {
         return name;
-    }
-
-    public String getColor() {
-        return color;
     }
 
     public String getCountries() {
@@ -201,11 +193,10 @@ public class IcpProfile {
                 .toList();
     }
 
-    public void revise(String name, String color, String countries, String regions, String industries,
+    public void revise(String name, String countries, String regions, String industries,
                        int minEmployees, String sizeBands, boolean excludeCompetitors, boolean untouchedOnly,
                        boolean active, int sortOrder) {
         this.name = name;
-        this.color = color;
         this.countries = countries;
         this.regions = regions;
         this.industries = industries;

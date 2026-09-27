@@ -814,7 +814,6 @@ export function fetchTelemetry(): Promise<Telemetry> {
 export type IcpProfile = {
 	id: string;
 	name: string;
-	color: string | null;
 	countries: string[];
 	regions: string[];
 	industries: string[];
@@ -829,7 +828,6 @@ export type IcpProfile = {
 
 export type IcpProfileInput = {
 	name: string;
-	color: string | null;
 	countries: string;
 	regions: string;
 	industries: string;
@@ -843,7 +841,7 @@ export type IcpProfileInput = {
 export type IcpMatch = { companies: number; sample: string[] };
 
 export function previewIcpProfile(
-	input: Omit<IcpProfileInput, 'name' | 'color' | 'active'>
+	input: Omit<IcpProfileInput, 'name' | 'active'>
 ): Promise<IcpMatch> {
 	return request<IcpMatch>(
 		`/api/icp-profiles/preview${query({

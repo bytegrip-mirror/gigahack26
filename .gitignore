@@ -21,3 +21,6 @@ claude-deepseek.bat
 
 # Local verification screenshots (headless Chrome against the running stack)
 .shots/
+
+# The Gradle cache mounted into the test container; never part of the source.
+.gradle-cache/
