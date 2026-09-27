@@ -47,8 +47,12 @@
 		{ id: 'documents', label: 'Documents' }
 	];
 
-	const READINGS: Record<string, string> = {
-		Strong: 'The evidence here is well clear of what a company in your market shows by default.',
+	/*
+	 * The bands that need explaining get a sentence. Strong has none on purpose:
+	 * a company at the top of the queue is the one case where the reading says
+	 * everything the evidence below it is about to say anyway.
+	 */
+	const READINGS: Record<string, string | undefined> = {
 		Good: 'The evidence here sits above what a company in your market shows by default.',
 		Fair: 'The evidence here is close to what a company in your market shows by default.',
 		Weak: 'Nothing we hold lifts this company above the market default.'
@@ -294,7 +298,9 @@
 					<div class="score-row">
 						<span class="verdict dsp" data-tone={tone}>{word}</span>
 					</div>
-					<p class="reading">{READINGS[word]}</p>
+					{#if READINGS[word]}
+						<p class="reading">{READINGS[word]}</p>
+					{/if}
 					{#if detail.themes.length > 0}
 						<div class="themes">
 							<span class="label">Themes</span>
@@ -331,7 +337,7 @@
 					<div class="panel-head">
 						<h3 class="label">Signals Frequency</h3>
 					</div>
-					<SignalTimeline rows={detail.ledger} note="height is what each was worth to the score" />
+					<SignalTimeline rows={detail.ledger} note="height is what each was worth to the score" onselect={openRow} />
 				</section>
 
 				<section class="panel">

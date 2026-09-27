@@ -2,7 +2,15 @@
 	import type { LedgerRow } from '$lib/api';
 	import { date } from '$lib/format';
 
-	let { rows, note = '' }: { rows: LedgerRow[]; note?: string } = $props();
+	/**
+	 * Every point opens the signal it stands for, so the handler is not optional:
+	 * a chart of buttons that do nothing is worse than one that is not clickable.
+	 */
+	let {
+		rows,
+		note = '',
+		onselect
+	}: { rows: LedgerRow[]; note?: string; onselect: (row: LedgerRow) => void } = $props();
 
 	const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 	const DAY = 86_400_000;
@@ -23,7 +31,11 @@
 		const dated = rows
 			.filter((row) => !row.blocking && row.anchor)
 			.map((row) => ({ row, at: new Date(row.anchor).getTime(), value: row.contributionNats }))
-			.filter((entry) => Number.isFinite(entry.at));
+			.filter((entry) => Number.isFinite(entry.at))
+			// Chronological, because the line through the points runs left to
+			// right: in ledger order it would double back on itself and read as a
+			// reading that never happened.
+			.sort((left, right) => left.at - right.at);
 		if (dated.length === 0) return null;
 
 		const times = dated.map((entry) => entry.at);
@@ -70,11 +82,15 @@
 			against: dated.length - counts,
 			first: new Date(Math.min(...times)),
 			last: new Date(Math.max(...times)),
+			// The dots joined up in time order, so the chart reads as one path
+			// through the evidence rather than as loose marks.
+			path: dated.map((entry) => `${x(entry.at).toFixed(1)},${y(entry.value).toFixed(1)}`).join(' '),
 			dots: dated.map((entry, index) => ({
 				// Keyed by what the signal is, not where it landed: two signals on
 				// one day at one weight share a coordinate, and a coordinate key
 				// threw on the second of them and took the whole pane down with it.
 				key: `${entry.row.evidenceId}:${entry.row.questionId}:${index}`,
+				row: entry.row,
 				cx: x(entry.at),
 				cy: y(entry.value),
 				negative: entry.row.polarity !== 'POSITIVE',
@@ -86,7 +102,9 @@
 
 {#if plotted}
 	<figure class="timeline">
-		<svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${plotted.count} signals between ${date(plotted.first.toISOString())} and ${date(plotted.last.toISOString())}`}>
+		<!-- `group`, not `img`: the points are buttons now, and everything inside a
+		     role="img" is hidden from assistive technology. -->
+		<svg viewBox={`0 0 ${W} ${H}`} role="group" aria-label={`${plotted.count} signals between ${date(plotted.first.toISOString())} and ${date(plotted.last.toISOString())}`}>
 			<line class="grid" x1={PAD.left} x2={W - PAD.right} y1={plotted.high} y2={plotted.high} />
 			<line class="grid" x1={PAD.left} x2={W - PAD.right} y1={plotted.low} y2={plotted.low} />
 
@@ -101,15 +119,34 @@
 				<text class="axis" x={PAD.left - 6} y={plotted.high + 3.5}>{plotted.high.toFixed(1)}</text>
 			{/if}
 
+			{#if plotted.dots.length > 1}
+				<polyline class="trace" points={plotted.path} />
+			{/if}
+
 			{#each plotted.dots as dot (dot.key)}
-				<circle class="dot" class:against={dot.negative} cx={dot.cx} cy={dot.cy} r="4.5">
+				<g
+					class="point"
+					role="button"
+					tabindex={0}
+					aria-label={`${dot.label}. Open this signal.`}
+					onclick={() => onselect(dot.row)}
+					onkeydown={(event) => {
+						if (event.key === 'Enter' || event.key === ' ') {
+							event.preventDefault();
+							onselect(dot.row);
+						}
+					}}
+				>
 					<title>{dot.label}</title>
-				</circle>
+					<!-- The mark is 4.5 across; the target is 22. -->
+					<circle class="hit" cx={dot.cx} cy={dot.cy} r="11" />
+					<circle class="dot" class:against={dot.negative} cx={dot.cx} cy={dot.cy} r="4.5" />
+				</g>
 			{/each}
 		</svg>
 
 		<figcaption class="sub dim">
-			<span class="key"><span class="mark for"></span> counts for · {plotted.counts}</span>
+			<span class="key for"><span class="mark for"></span> counts for · {plotted.counts}</span>
 			<span class="key"><span class="mark against"></span> counts against · {plotted.against}</span>
 			<span class="span">
 				{plotted.count} {plotted.count === 1 ? 'signal' : 'signals'}, {date(plotted.first.toISOString())} to {date(
@@ -167,15 +204,44 @@
 		text-anchor: end;
 	}
 
+	/* The connector is neutral and thin: it says these marks are one series over
+	   time, and it deliberately takes no colour of its own — the points carry the
+	   polarity, and a line through both green and red cannot be either. */
+	.trace {
+		fill: none;
+		stroke: var(--color-ink-4);
+		stroke-width: 2;
+		stroke-linejoin: round;
+		stroke-linecap: round;
+	}
+
+	.point {
+		cursor: pointer;
+	}
+
+	.hit {
+		fill: transparent;
+	}
+
 	/* A surface ring keeps two signals on the same day legible as two. */
 	.dot {
-		fill: var(--color-orange);
+		fill: var(--color-accent);
 		stroke: var(--color-surface);
 		stroke-width: 2;
 	}
 
 	.dot.against {
 		fill: var(--color-oxblood);
+	}
+
+	.point:hover .dot,
+	.point:focus-visible .dot {
+		stroke: var(--color-ink);
+		stroke-width: 3;
+	}
+
+	.point:focus-visible {
+		outline: none;
 	}
 
 	figcaption {
@@ -191,11 +257,15 @@
 		gap: 6px;
 	}
 
+	.key.for {
+		color: var(--color-accent-ink);
+	}
+
 	.key .mark {
 		width: 9px;
 		height: 9px;
 		border-radius: 50%;
-		background: var(--color-orange);
+		background: var(--color-accent);
 	}
 
 	.key .mark.against {

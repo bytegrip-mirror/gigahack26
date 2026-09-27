@@ -23,6 +23,10 @@
 	--color-accent: #32c832;
 	--color-accent-wash: #e6f7e6;
 	--color-accent-line: #32c832;
+	/* Boosted ships one green and it is a fill: 2.2:1 on white, which is not
+	   readable as words. The deeper step is what green text wears, in the same
+	   pairing `--color-orange` already keeps with `--color-orange-ink`. */
+	--color-accent-ink: #1f7a1f;
 	--color-oxblood: #cd3c14;
 	--color-oxblood-wash: #faebe8;
 	--color-oxblood-line: #cd3c14;

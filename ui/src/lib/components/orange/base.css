@@ -19,6 +19,9 @@
 		--color-orange-wash: #3d1d00;
 		--color-accent-wash: #0f3310;
 		--color-oxblood-wash: #3a1106;
+		/* The green the fill already is reads at 7.7:1 on this ground, so green
+		   text needs no deepening here — it needs lightening on white. */
+		--color-accent-ink: #5ee05e;
 
 		/* The Fit meter runs dim amber to bright orange here, not pale to deep:
 		   the same "further along is more" reading, in the direction a dark ground
