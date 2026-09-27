@@ -908,6 +908,7 @@
 				icon="layers"
 				align="start"
 				searchable
+				wide
 				label="What the board shows"
 				title="The service line it is ranked for, and the ICP profiles it is narrowed to"
 				items={scopeItems}

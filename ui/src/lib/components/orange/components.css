@@ -687,6 +687,14 @@
 		overflow-y: auto;
 	}
 
+	/* A menu of verbs fits in 320px. One whose entries are the names of ICP
+	   profiles does not: they wrapped onto three lines each and made the list too
+	   tall to scan, which is what a list of choices should never be. */
+	.menu.wide {
+		min-width: 320px;
+		max-width: 480px;
+	}
+
 	.menu-label {
 		padding: var(--spacing-1) var(--spacing-3) 3px;
 		font-size: var(--text-micro);

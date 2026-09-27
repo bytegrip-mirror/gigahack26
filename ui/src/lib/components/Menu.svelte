@@ -13,6 +13,7 @@
 		align = 'end',
 		stretch = false,
 		searchable = false,
+		wide = false,
 		disabled = false,
 		title = ''
 	}: {
@@ -25,6 +26,8 @@
 		align?: 'start' | 'end';
 		stretch?: boolean;
 		searchable?: boolean;
+		/** For entries that are names rather than verbs: a service line, a profile. */
+		wide?: boolean;
 		disabled?: boolean;
 		title?: string;
 	} = $props();
@@ -84,7 +87,20 @@
 			place();
 			if (searchable) field?.focus();
 		});
-		const close = () => hide();
+		/*
+		 * Registered in the capture phase, so it hears every scroll on the page and
+		 * not just the document's own — the menu has to close when the page moves,
+		 * because it is fixed to a trigger that does not move with it. But the
+		 * panel is itself a scroll container, and this caught that too: scrolling a
+		 * long list of profiles closed the menu on the first flick of the wheel.
+		 * A scroll that starts inside the panel is the reader moving through the
+		 * list, so it is not the page moving out from under the menu.
+		 */
+		const close = (event: Event) => {
+			const from = event.target;
+			if (from instanceof Node && panel?.contains(from)) return;
+			hide();
+		};
 		window.addEventListener('scroll', close, true);
 		return () => window.removeEventListener('scroll', close, true);
 	});
@@ -151,6 +167,7 @@
 	<div
 		bind:this={panel}
 		class="menu"
+		class:wide
 		role="menu"
 		aria-label={label}
 		style:top="{at.top}px"
