@@ -13,9 +13,9 @@ interface is built; this says what it is for.
 
 | # | Requirement | Status |
 | --- | --- | --- |
-| 1.1 | Create an ICP profile | done — Settings → *Customer profiles* |
+| 1.1 | Create an ICP profile | done — ICP Studio |
 | 1.2 | A board of companies | exists |
-| 1.3 | On the board, see clearly which ICP profile a company belongs to | done — a profile tag in the company cell |
+| 1.3 | On the board, see clearly which ICP profile a company belongs to | partly — the profile filter narrows the board to the books you switch on, but the per-row tag was removed as noise |
 | 1.4 | Filter the board by ICP profile | done — under `Filters` |
 | 1.5 | Activate / deactivate an ICP profile | done — *Turn off* in Settings; it leaves the board and the filter |
 

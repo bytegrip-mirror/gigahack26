@@ -431,7 +431,7 @@ Two more source findings worth knowing:
   `sizeGate: false`. The brief's "ICP by company size" dimension does not bind on
   anything.
 - **Two of four ICP gates are off live**: `sizeGate: false`, `industryGate:
-  false`, and `icpIndustries: []`. A juror opening the Customer profile sees the
+  false`, and `icpIndustries: []`. A juror opening Qualification sees the
   capability with most of it switched off.
 - **Nothing expires.** `MAX_AGE_DAYS = 548` is enforced as 1,096
   (`fast_corpus.py:235` compares against `MAX_AGE_DAYS * 2`); 175 documents exceed

@@ -30,7 +30,7 @@
 
 	const SECTIONS: { id: string; label: string; hint: string; icon: IconName }[] = [
 		{ id: 'voice', label: 'Voice and style', hint: 'How drafts read', icon: 'mail' },
-		{ id: 'profile', label: 'Customer profile', hint: 'Who counts as a prospect', icon: 'target' },
+		{ id: 'qualification', label: 'Qualification', hint: 'Who counts as a prospect', icon: 'target' },
 		{ id: 'lines', label: 'Service lines', hint: 'What we sell', icon: 'layers' },
 		{ id: 'scoring', label: 'Scoring', hint: 'Where the bands sit', icon: 'sliders' },
 		{ id: 'reading', label: 'Reading', hint: 'What has been read, and when', icon: 'clock' }
@@ -427,18 +427,7 @@
 					</section>
 				{/if}
 
-				{#if section === 'profile'}
-					<section class="panel">
-						<div class="panel-head">
-							<h2 class="dsp">ICP Profiles</h2>
-						</div>
-						<p class="sub dim">
-							The named profiles — their titles, colours and filters — are made and kept in the
-							<a class="link" href="/icp">ICP Studio</a>. What is switched on there is what the board
-							shows.
-						</p>
-					</section>
-
+				{#if section === 'qualification'}
 					<section class="panel">
 						<div class="panel-head">
 							<h2 class="dsp">Where we sell</h2>
