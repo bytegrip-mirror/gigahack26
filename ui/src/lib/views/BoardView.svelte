@@ -1349,7 +1349,12 @@
 		table-layout: fixed;
 	}
 
+	/*
+	 * A measure, not a bucket. The signal titles are a line or two each, and this
+	 * column has no business being wider than the longest of them needs.
+	 */
 	.c-sig {
+		width: 340px;
 		min-width: 0;
 	}
 
@@ -1371,10 +1376,25 @@
 		vertical-align: middle;
 	}
 
+	/*
+	 * No width, on purpose. With `table-layout: fixed` the column that declares no
+	 * width takes what the others leave, and that used to be this one's neighbour:
+	 * the signals column measured 222px at 1600 and 1062px at 2800 while the graph
+	 * stayed at 180 — a field of white to the right of titles that needed a third
+	 * of it. A graph is the thing on this row that is worth more room; a title is
+	 * not improved by being given more than it wraps in.
+	 *
+	 * Bottom, not top: the trace has an x-axis at its foot, and a row three lines
+	 * tall left that axis floating in the middle of the cell.
+	 */
 	.c-trend {
-		width: 180px;
-		/* Bottom, not top: the trace has an x-axis at its foot, and a row three
-		   lines tall left that axis floating in the middle of the cell. */
+		/* A share, not a fixed 180px: the graph is the thing on this row that is
+		   worth more room on a bigger screen. `min-width` does not hold here —
+		   a fixed-layout table sizes columns from the first row's widths and
+		   ignores the minimum — so this is a percentage, which scales at both ends
+		   instead of collapsing on a laptop and stretching into a hairline on a
+		   monitor. */
+		width: 18%;
 		vertical-align: bottom;
 	}
 
