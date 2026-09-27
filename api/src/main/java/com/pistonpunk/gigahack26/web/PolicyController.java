@@ -3,8 +3,10 @@ package com.pistonpunk.gigahack26.web;
 import com.pistonpunk.gigahack26.domain.DecayClass;
 import com.pistonpunk.gigahack26.domain.Polarity;
 import com.pistonpunk.gigahack26.domain.WeightTier;
+import com.pistonpunk.gigahack26.repository.jpa.PolicyQuestionRepository;
 import com.pistonpunk.gigahack26.service.LocalRubricEngine;
 import com.pistonpunk.gigahack26.service.PolicyService;
+import com.pistonpunk.gigahack26.service.RescoreService;
 import com.pistonpunk.gigahack26.web.dto.PolicyRequest;
 import com.pistonpunk.gigahack26.web.dto.PolicyView;
 import com.pistonpunk.gigahack26.web.dto.PreviewResponse;
@@ -32,8 +34,12 @@ import java.util.UUID;
 public class PolicyController {
 
     private final PolicyService policies;
+    private final PolicyQuestionRepository questions;
+    private final RescoreService rescorer;
 
-    public PolicyController(PolicyService policies) {
+    public PolicyController(PolicyService policies, PolicyQuestionRepository questions, RescoreService rescorer) {
+        this.questions = questions;
+        this.rescorer = rescorer;
         this.policies = policies;
     }
 
@@ -42,10 +48,28 @@ public class PolicyController {
         return policies.list(serviceLine);
     }
 
+    /**
+     * A new question is read before it is returned.
+     *
+     * Creating one only made a row: nothing had been looked for, so it matched
+     * nothing and a profile built on it would have been empty until the next full
+     * pass. `reclassify` reads every stored document against the questions given
+     * and writes the signals — seconds on the local engine — and it deliberately
+     * does not re-score, because a question is not a weighting. The one caller
+     * today is the ICP Studio, whose questions narrow a book of business and are
+     * meant to touch no score at all.
+     */
     @org.springframework.cache.annotation.CacheEvict(value = "board", allEntries = true)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public PolicyView create(@Valid @RequestBody PolicyRequest request) {
+        PolicyView created = save(request);
+        questions.findByKey(created.key())
+                .ifPresent(question -> rescorer.reclassify(List.of(question), true, null));
+        return created;
+    }
+
+    private PolicyView save(PolicyRequest request) {
         return policies.create(request);
     }
 

@@ -4,9 +4,12 @@ import com.pistonpunk.gigahack26.domain.Company;
 import com.pistonpunk.gigahack26.domain.IcpProfile;
 import com.pistonpunk.gigahack26.domain.Lead;
 import com.pistonpunk.gigahack26.domain.LeadStatus;
+import com.pistonpunk.gigahack26.domain.Signal;
 import com.pistonpunk.gigahack26.repository.jpa.CompanyRepository;
 import com.pistonpunk.gigahack26.repository.jpa.IcpProfileRepository;
 import com.pistonpunk.gigahack26.repository.jpa.LeadRepository;
+import com.pistonpunk.gigahack26.repository.jpa.PolicyQuestionRepository;
+import com.pistonpunk.gigahack26.repository.jpa.SignalRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,8 +37,8 @@ import java.util.stream.Collectors;
 public class IcpProfileService {
 
     public record Draft(String name, String countries, String regions, String industries,
-                        int minEmployees, String sizeBands, boolean excludeCompetitors, boolean untouchedOnly,
-                        boolean active) {
+                        int minEmployees, String sizeBands, String questionKeys, boolean excludeCompetitors,
+                        boolean untouchedOnly, boolean active) {
     }
 
     public record Match(long companies, List<String> sample) {
@@ -47,14 +50,19 @@ public class IcpProfileService {
     private final CompanyRepository companies;
     private final RegionService regions;
     private final LeadRepository leads;
+    private final SignalRepository signals;
+    private final PolicyQuestionRepository questions;
     private final Clock clock;
 
     public IcpProfileService(IcpProfileRepository profiles, CompanyRepository companies, RegionService regions,
-                             LeadRepository leads, Clock clock) {
+                             LeadRepository leads, SignalRepository signals, PolicyQuestionRepository questions,
+                             Clock clock) {
         this.profiles = profiles;
         this.companies = companies;
         this.regions = regions;
         this.leads = leads;
+        this.signals = signals;
+        this.questions = questions;
         this.clock = clock;
     }
 
@@ -78,7 +86,8 @@ public class IcpProfileService {
         return profiles.findById(id).map(profile -> {
             profile.revise(name(draft), clean(draft.countries()), clean(draft.regions()),
                     clean(draft.industries()), Math.max(0, draft.minEmployees()), clean(draft.sizeBands()),
-                    draft.excludeCompetitors(), draft.untouchedOnly(), draft.active(), profile.getSortOrder());
+                    keys(draft.questionKeys()), draft.excludeCompetitors(), draft.untouchedOnly(), draft.active(),
+                    profile.getSortOrder());
             return profiles.save(profile);
         });
     }
@@ -96,15 +105,17 @@ public class IcpProfileService {
             return byCompany;
         }
         Map<UUID, Boolean> worked = worked(targets);
+        Map<UUID, Set<String>> signalled = signalled(targets);
         Map<UUID, Set<String>> geography = new LinkedHashMap<>();
         for (IcpProfile profile : active) {
             geography.put(profile.getId(), geography(profile));
         }
         for (Company company : targets) {
             boolean touched = worked.getOrDefault(company.getId(), false);
+            Set<String> fired = signalled.getOrDefault(company.getId(), Set.of());
             List<String> names = new ArrayList<>();
             for (IcpProfile profile : active) {
-                if (profile.covers(company, geography.get(profile.getId()), touched)) {
+                if (profile.covers(company, geography.get(profile.getId()), touched, fired)) {
                     names.add(profile.getName());
                 }
             }
@@ -118,12 +129,14 @@ public class IcpProfileService {
     @Transactional(readOnly = true)
     public Map<UUID, Long> sizes(List<Company> targets) {
         Map<UUID, Boolean> worked = worked(targets);
+        Map<UUID, Set<String>> signalled = signalled(targets);
         Map<UUID, Long> counts = new LinkedHashMap<>();
         for (IcpProfile profile : list()) {
             Set<String> geography = geography(profile);
             counts.put(profile.getId(), targets.stream()
                     .filter(company -> profile.covers(company, geography,
-                            worked.getOrDefault(company.getId(), false)))
+                            worked.getOrDefault(company.getId(), false),
+                            signalled.getOrDefault(company.getId(), Set.of())))
                     .count());
         }
         return counts;
@@ -142,10 +155,12 @@ public class IcpProfileService {
         IcpProfile probe = probe(draft, 0, false);
         Set<String> geography = geography(probe);
         Map<UUID, Boolean> worked = worked(all);
+        Map<UUID, Set<String>> signalled = signalled(all);
         List<String> sample = new ArrayList<>();
         long total = 0;
         for (Company company : all) {
-            if (probe.covers(company, geography, worked.getOrDefault(company.getId(), false))) {
+            if (probe.covers(company, geography, worked.getOrDefault(company.getId(), false),
+                    signalled.getOrDefault(company.getId(), Set.of()))) {
                 total += 1;
                 if (sample.size() < SAMPLE) {
                     sample.add(company.getName());
@@ -158,8 +173,53 @@ public class IcpProfileService {
     private IcpProfile probe(Draft draft, int sortOrder, boolean active) {
         return new IcpProfile(UUID.randomUUID(), name(draft), clean(draft.countries()),
                 clean(draft.regions()), clean(draft.industries()), Math.max(0, draft.minEmployees()),
-                clean(draft.sizeBands()), draft.excludeCompetitors(), draft.untouchedOnly(), active, sortOrder,
-                clock.instant());
+                clean(draft.sizeBands()), keys(draft.questionKeys()), draft.excludeCompetitors(),
+                draft.untouchedOnly(), active, sortOrder, clock.instant());
+    }
+
+    /**
+     * Which question keys fired for each company.
+     *
+     * The questions are loaded once and read through a map rather than joined:
+     * a signal carries a question id and the key lives on the question, and one
+     * `findByActiveTrue()` is cheaper than a join per company. Companies with
+     * nothing are absent, the same shape `worked` uses.
+     */
+    private Map<UUID, Set<String>> signalled(List<Company> targets) {
+        Map<UUID, Set<String>> byCompany = new LinkedHashMap<>();
+        if (targets.isEmpty()) {
+            return byCompany;
+        }
+        Map<UUID, String> keyById = questions.findByActiveTrue().stream()
+                .collect(Collectors.toMap(question -> question.getId(), question -> question.getKey(),
+                        (first, second) -> first));
+        if (keyById.isEmpty()) {
+            return byCompany;
+        }
+        List<UUID> ids = targets.stream().map(Company::getId).toList();
+        for (Signal signal : signals.findByCompanyIdIn(ids)) {
+            String key = keyById.get(signal.getQuestionId());
+            if (key != null) {
+                byCompany.computeIfAbsent(signal.getCompanyId(), id -> new LinkedHashSet<>()).add(key);
+            }
+        }
+        return byCompany;
+    }
+
+    /**
+     * Question keys are identifiers, not words: no case folding, no country-code
+     * shouting. Only trimmed, deduped and capped to fit the column.
+     */
+    private static String keys(String value) {
+        if (value == null || value.isBlank()) {
+            return "";
+        }
+        return Arrays.stream(value.split(","))
+                .map(String::trim)
+                .filter(entry -> !entry.isEmpty())
+                .distinct()
+                .limit(40)
+                .collect(Collectors.joining(","));
     }
 
     /** A profile's geography is what it names outright plus every region it picked,

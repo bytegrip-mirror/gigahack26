@@ -1,14 +1,18 @@
 <script lang="ts">
 	import NotificationBell from '$lib/components/NotificationBell.svelte';
 	import {
+		PROFILE_QUESTIONS,
 		createIcpProfile,
+		createPolicy,
 		deleteIcpProfile,
 		fetchIcpProfiles,
+		fetchPolicies,
 		fetchSettings,
 		previewIcpProfile,
 		updateIcpProfile,
 		type IcpMatch,
-		type IcpProfile
+		type IcpProfile,
+		type Policy
 	} from '$lib/api';
 	import { workspace } from '$lib/workspace.svelte';
 	import { toasts } from '$lib/toast.svelte';
@@ -31,6 +35,10 @@
 		'10001+'
 	];
 
+	/** A question written here, not yet a row. Created when the profile is saved,
+	 *  so an abandoned edit leaves nothing behind. */
+	type NewQuestion = { text: string; cues: string };
+
 	type Draft = {
 		id: string | null;
 		name: string;
@@ -39,6 +47,7 @@
 		industries: string;
 		minEmployees: number;
 		sizeBands: string;
+		questionKeys: string;
 		excludeCompetitors: boolean;
 		untouchedOnly: boolean;
 		active: boolean;
@@ -52,6 +61,7 @@
 		industries: '',
 		minEmployees: 0,
 		sizeBands: '',
+		questionKeys: '',
 		excludeCompetitors: false,
 		untouchedOnly: false,
 		active: true
@@ -68,6 +78,9 @@
 	let previewing = $state(false);
 	let industriesPresent = $state<string[]>([]);
 	let industryDraft = $state('');
+	let policies = $state<Policy[]>([]);
+	let newQuestions = $state<NewQuestion[]>([]);
+	let questionDraft = $state<NewQuestion>({ text: '', cues: '' });
 	let countryDraft = $state('');
 
 	function list(value: string): string[] {
@@ -95,6 +108,26 @@
 	const chosenRegions = $derived(list(draft.regions));
 	const chosenIndustries = $derived(list(draft.industries));
 	const chosenBands = $derived(list(draft.sizeBands));
+	const chosenQuestions = $derived(list(draft.questionKeys));
+
+	/** The library, minus the bucket profile questions are filed under: those are
+	 *  shown beside the profile that wrote them, not in a list of everything. */
+	const library = $derived(policies.filter((policy) => policy.serviceLine !== PROFILE_QUESTIONS));
+	const byLine = $derived.by(() => {
+		const groups = new Map<string, Policy[]>();
+		for (const policy of library) {
+			groups.set(policy.serviceLine, [...(groups.get(policy.serviceLine) ?? []), policy]);
+		}
+		return [...groups.entries()];
+	});
+	/** Keys the draft holds that are not in the library — the ones written here. */
+	const written = $derived(
+		chosenQuestions
+			.map((key) => policies.find((policy) => policy.key === key))
+			.filter((policy): policy is Policy =>
+				policy !== undefined && policy.serviceLine === PROFILE_QUESTIONS
+			)
+	);
 
 	const matched = $derived.by(() => {
 		const needle = query.trim().toLowerCase();
@@ -106,11 +139,12 @@
 
 	$effect(() => {
 		let cancelled = false;
-		Promise.all([fetchIcpProfiles(), fetchSettings()])
-			.then(([all, settings]) => {
+		Promise.all([fetchIcpProfiles(), fetchSettings(), fetchPolicies()])
+			.then(([all, settings, questions]) => {
 				if (cancelled) return;
 				profiles = all;
 				industriesPresent = settings.industriesPresent ?? [];
+				policies = questions.filter((policy) => policy.active);
 			})
 			.catch(() => {})
 			.finally(() => {
@@ -132,6 +166,7 @@
 			industries: draft.industries,
 			minEmployees: draft.minEmployees,
 			sizeBands: draft.sizeBands,
+			questionKeys: draft.questionKeys,
 			excludeCompetitors: draft.excludeCompetitors,
 			untouchedOnly: draft.untouchedOnly
 		};
@@ -163,6 +198,7 @@
 
 	function startNew() {
 		draft = { ...BLANK };
+		newQuestions = [];
 		dirty = true;
 	}
 
@@ -175,11 +211,26 @@
 			industries: join(profile.industries),
 			minEmployees: profile.minEmployees,
 			sizeBands: join(profile.sizeBands),
+			questionKeys: join(profile.questionKeys),
 			excludeCompetitors: profile.excludeCompetitors,
 			untouchedOnly: profile.untouchedOnly,
 			active: profile.active
 		};
+		newQuestions = [];
 		dirty = false;
+	}
+
+	/** Adds a written question to the draft. It is a row only once the profile is
+	 *  saved — until then it is a sentence and some phrases. */
+	function queueQuestion() {
+		const text = questionDraft.text.trim();
+		if (text.length < 10) {
+			toasts.push('Write the question out — ten characters at least.', 'warn');
+			return;
+		}
+		newQuestions = [...newQuestions, { text, cues: questionDraft.cues.trim() }];
+		questionDraft = { text: '', cues: '' };
+		dirty = true;
 	}
 
 	function discard() {
@@ -195,6 +246,7 @@
 			industries: source.industries,
 			minEmployees: source.minEmployees,
 			sizeBands: source.sizeBands,
+			questionKeys: source.questionKeys,
 			excludeCompetitors: source.excludeCompetitors,
 			untouchedOnly: source.untouchedOnly,
 			active: source.active
@@ -208,8 +260,31 @@
 		}
 		saving = true;
 		try {
-			if (draft.id) await updateIcpProfile(draft.id, body(draft));
-			else await createIcpProfile(body(draft));
+			/*
+			 * The written questions become rows first. Each one is created and then
+			 * read — the server re-reads every stored document against a new
+			 * question before answering — so by the time the profile is saved the
+			 * questions in it have signals to match on. Creating them here rather
+			 * than on "Add" means an abandoned edit leaves nothing behind.
+			 */
+			const written: string[] = [];
+			for (const question of newQuestions) {
+				const created = await createPolicy({
+					serviceLine: PROFILE_QUESTIONS,
+					text: question.text,
+					cues: list(question.cues)
+				});
+				written.push(created.key);
+			}
+			const keys = join([...list(draft.questionKeys), ...written]);
+			const payload = { ...body(draft), questionKeys: keys };
+
+			if (draft.id) await updateIcpProfile(draft.id, payload);
+			else await createIcpProfile(payload);
+			if (written.length > 0) {
+				policies = await fetchPolicies().then((all) => all.filter((policy) => policy.active));
+				newQuestions = [];
+			}
 			await load();
 			const saved = profiles.find((profile) => profile.name === draft.name.trim());
 			if (saved) open(saved);
@@ -233,6 +308,7 @@
 				industries: join(profile.industries),
 				minEmployees: profile.minEmployees,
 				sizeBands: join(profile.sizeBands),
+				questionKeys: join(profile.questionKeys),
 				excludeCompetitors: profile.excludeCompetitors,
 				untouchedOnly: profile.untouchedOnly,
 				active: !profile.active
@@ -561,6 +637,122 @@
 						/>
 						<span>Accounts already worked</span>
 					</label>
+				</section>
+
+				<!--
+					Questions narrow the book and never touch a score: a company is in
+					when any of them has fired for it. Ticking reaches the questions the
+					engine already reads; writing adds one and has it read.
+				-->
+				<section class="panel">
+					<div class="panel-head">
+						<h3 class="label">Questions</h3>
+						<span class="sub dim">
+							{chosenQuestions.length === 0 ? 'any evidence' : `${chosenQuestions.length} of them`}
+						</span>
+					</div>
+
+					<div class="chips">
+						{#each chosenQuestions as key (key)}
+							{@const held = policies.find((policy) => policy.key === key)}
+							<button
+								class="chip"
+								title={held?.text ?? key}
+								onclick={() => {
+									draft.questionKeys = toggleIn(draft.questionKeys, key);
+									dirty = true;
+								}}
+							>
+								{held?.title ?? key}
+								<Icon name="close" size={11} />
+							</button>
+						{/each}
+						{#if chosenQuestions.length === 0}
+							<span class="sub dim">Any evidence will do. Add a question to narrow it.</span>
+						{/if}
+					</div>
+
+					<div class="add">
+						<Menu
+							text="Add a question"
+							size="sm"
+							align="start"
+							searchable
+							wide
+							label="Questions the engine already reads"
+							items={byLine.flatMap(([line, group]) => [
+								{ id: `head-${line}`, label: line, heading: true, separatorBefore: true },
+								...group.map((policy) => ({
+									id: policy.key,
+									label: policy.title,
+									hint: policy.signalCount > 0 ? String(policy.signalCount) : '',
+									checked: chosenQuestions.includes(policy.key)
+								}))
+							])}
+							onselect={(id) => {
+								draft.questionKeys = toggleIn(draft.questionKeys, id);
+								dirty = true;
+							}}
+						/>
+					</div>
+
+					<p class="label against-label">Written for this profile</p>
+					<div class="chips">
+						{#each written as policy (policy.key)}
+							<button
+								class="chip"
+								title={policy.text}
+								onclick={() => {
+									draft.questionKeys = toggleIn(draft.questionKeys, policy.key);
+									dirty = true;
+								}}
+							>
+								{policy.title}
+								<Icon name="close" size={11} />
+							</button>
+						{/each}
+						{#each newQuestions as question, index (index)}
+							<button
+								class="chip"
+								title={question.text}
+								onclick={() => {
+									newQuestions = newQuestions.filter((_, at) => at !== index);
+									dirty = true;
+								}}
+							>
+								{question.text}
+								<Icon name="close" size={11} />
+							</button>
+						{/each}
+						{#if written.length === 0 && newQuestions.length === 0}
+							<span class="sub dim">Nothing yet.</span>
+						{/if}
+					</div>
+					<form
+						class="cue-add"
+						onsubmit={(event) => {
+							event.preventDefault();
+							queueQuestion();
+						}}
+					>
+						<input
+							class="input input-sm"
+							bind:value={questionDraft.text}
+							placeholder="Are they making layoffs?"
+							aria-label="A question this profile asks"
+						/>
+						<input
+							class="input input-sm"
+							bind:value={questionDraft.cues}
+							placeholder="phrases to look for"
+							aria-label="Phrases that answer it"
+						/>
+						<button class="btn btn-sm" type="submit">Add</button>
+					</form>
+					<span class="sub dim">
+						A question written here is read against every stored document when you save, and
+						decides who is in this book. It never changes a score.
+					</span>
 				</section>
 
 				<section class="panel">

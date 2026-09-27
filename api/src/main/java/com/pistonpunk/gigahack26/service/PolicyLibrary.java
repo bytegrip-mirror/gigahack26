@@ -24,6 +24,29 @@ public class PolicyLibrary {
     public static final String ERP = "ERP & Business Applications";
     public static final String SOFTWARE = "Software Engineering";
 
+    /**
+     * The service line a question written for an ICP profile is filed under.
+     *
+     * A question has to name a service line — the column is not null and the
+     * database predates this feature, so it cannot be relaxed — and a profile has
+     * none, being a lens over companies rather than a line of business. Filing
+     * them here gives exactly the behaviour wanted, and it is worth being precise
+     * about why:
+     *
+     * <p>`CorpusSeeder.persistSignals` reads **every** active question, so a
+     * profile's question is read against every document and produces signals.
+     * `ScoreboardService` and `ScoringService` both scope their questions by
+     * service line, so this one contributes to **no** board's score — which is
+     * the promise a profile makes: it narrows a book of business and never
+     * weights it. And `ServiceLineService.activeKeys()` is driven by the library
+     * and by stored service-line rows, so this string never appears in the
+     * picker as a line anybody can select.
+     *
+     * <p>Deliberately not a real line name: it should read as a bucket, not as
+     * something we sell.
+     */
+    public static final String PROFILE_SCOPE = "Profile questions";
+
     private final PolicyQuestionRepository questions;
     private final Clock clock;
 

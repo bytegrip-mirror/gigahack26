@@ -28,8 +28,8 @@ import java.util.UUID;
 public class IcpProfileController {
 
     public record Request(String name, String countries, String regions, String industries,
-                          int minEmployees, String sizeBands, boolean excludeCompetitors, boolean untouchedOnly,
-                          boolean active) {
+                          int minEmployees, String sizeBands, String questionKeys, boolean excludeCompetitors,
+                          boolean untouchedOnly, boolean active) {
     }
 
     private final IcpProfileService service;
@@ -57,12 +57,13 @@ public class IcpProfileController {
                                            @RequestParam(name = "industries", required = false) String industries,
                                            @RequestParam(name = "minEmployees", defaultValue = "0") int minEmployees,
                                            @RequestParam(name = "sizeBands", required = false) String sizeBands,
+                                           @RequestParam(name = "questionKeys", required = false) String questionKeys,
                                            @RequestParam(name = "excludeCompetitors", defaultValue = "false")
                                            boolean excludeCompetitors,
                                            @RequestParam(name = "untouchedOnly", defaultValue = "false")
                                            boolean untouchedOnly) {
         return service.preview(new IcpProfileService.Draft(null, countries, regions, industries,
-                minEmployees, sizeBands, excludeCompetitors, untouchedOnly, true));
+                minEmployees, sizeBands, questionKeys, excludeCompetitors, untouchedOnly, true));
     }
 
     @PostMapping
@@ -88,8 +89,8 @@ public class IcpProfileController {
 
     private static IcpProfileService.Draft draft(Request request) {
         return new IcpProfileService.Draft(request.name(), request.countries(), request.regions(),
-                request.industries(), request.minEmployees(), request.sizeBands(), request.excludeCompetitors(),
-                request.untouchedOnly(), request.active());
+                request.industries(), request.minEmployees(), request.sizeBands(), request.questionKeys(),
+                request.excludeCompetitors(), request.untouchedOnly(), request.active());
     }
 
     private static IcpProfileView view(IcpProfile profile, long companies) {
@@ -101,6 +102,7 @@ public class IcpProfileController {
                 split(profile.getIndustries()),
                 profile.getMinEmployees(),
                 split(profile.getSizeBands()),
+                split(profile.getQuestionKeys()),
                 profile.excludesCompetitors(),
                 profile.untouchedOnly(),
                 profile.isActive(),

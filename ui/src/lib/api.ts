@@ -267,19 +267,34 @@ export type Policy = {
 	updatedAt: string;
 };
 
+/**
+ * Only `serviceLine` and `text` are required — `PolicyRequest` on the server
+ * defaults everything else, including the key, the title, the weight, the theme
+ * and the cues, which it derives from the text when none are given.
+ */
 export type PolicyInput = {
+	key?: string;
 	title?: string;
 	serviceLine: string;
 	text: string;
-	instructions: string;
-	weightTier: WeightTier;
-	polarity: Polarity;
-	theme: string;
-	decayClass: DecayClass;
+	instructions?: string;
+	weightTier?: WeightTier;
+	polarity?: Polarity;
+	theme?: string;
+	decayClass?: DecayClass;
 	cues?: string[];
 	counterCues?: string[];
-	active: boolean;
+	active?: boolean;
 };
+
+/**
+ * The bucket a question written for an ICP profile is filed under, mirroring
+ * `PolicyLibrary.PROFILE_SCOPE` on the server. It is not a service line anybody
+ * can pick: questions filed here are read against every document and feed no
+ * board's score, which is what lets a profile carry questions without changing
+ * how companies rank.
+ */
+export const PROFILE_QUESTIONS = 'Profile questions';
 
 export type PreviewMatch = {
 	companyId: string;
@@ -819,6 +834,7 @@ export type IcpProfile = {
 	industries: string[];
 	minEmployees: number;
 	sizeBands: string[];
+	questionKeys: string[];
 	excludeCompetitors: boolean;
 	untouchedOnly: boolean;
 	active: boolean;
@@ -833,6 +849,7 @@ export type IcpProfileInput = {
 	industries: string;
 	minEmployees: number;
 	sizeBands: string;
+	questionKeys: string;
 	excludeCompetitors: boolean;
 	untouchedOnly: boolean;
 	active: boolean;
@@ -850,6 +867,7 @@ export function previewIcpProfile(
 			industries: input.industries,
 			minEmployees: input.minEmployees,
 			sizeBands: input.sizeBands,
+			questionKeys: input.questionKeys,
 			excludeCompetitors: input.excludeCompetitors,
 			untouchedOnly: input.untouchedOnly
 		})}`

@@ -11,6 +11,7 @@ public record IcpProfileView(
         List<String> industries,
         int minEmployees,
         List<String> sizeBands,
+        List<String> questionKeys,
         boolean excludeCompetitors,
         boolean untouchedOnly,
         boolean active,
