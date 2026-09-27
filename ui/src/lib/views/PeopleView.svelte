@@ -282,9 +282,8 @@
 		<div class="ident">
 			<h1 class="dsp">People</h1>
 			<p class="sub">
-				{serviceLine} · who to ring, and what they have said lately. The seeded book the demo ships with, plus
-				anyone “Read for names” finds in a stored document — a person read out of a page keeps the sentence
-				they were printed in.
+				{serviceLine} · signals from people. Who to reach, what they have said publicly, and how strong the
+				evidence behind it is.
 			</p>
 		</div>
 		<div class="topbar-tools">
@@ -364,6 +363,7 @@
 			<table class="tbl">
 				<thead>
 					<tr>
+						<th scope="col" class="c-rank">#</th>
 						<th scope="col" class="c-person">Person</th>
 						<th scope="col" class="c-stage">Stage</th>
 						<th scope="col" class="c-fit">Fit</th>
@@ -373,9 +373,13 @@
 					</tr>
 				</thead>
 				<tbody>
-					{#each matched as person (person.id)}
+					{#each matched as person, index (person.id)}
 						{@const top = strongest(person)}
 						<tr onclick={() => (window.location.href = `/companies/${person.companyId}?line=${encodeURIComponent(person.serviceLine)}`)}>
+							<!-- Position in the list as it is shown, the same as the board's
+							     rank column: the list is already ordered, and a number makes
+							     "the fourth one down" something two people can both mean. -->
+							<td class="num c-rank">{index + 1}</td>
 							<td class="c-person">
 								<span class="p-name">{person.name}</span>
 								<span class="co-line">
@@ -498,6 +502,14 @@
 	 * column is left unsized, so it takes the room the others do not use and the
 	 * headings stay where they are however wide the window gets.
 	 */
+	/* The same shape as the board's rank column, so the two lists read alike. */
+	.c-rank {
+		width: 42px;
+		font-size: var(--text-base);
+		color: var(--color-ink-3);
+		vertical-align: top;
+	}
+
 	.c-person {
 		vertical-align: top;
 	}

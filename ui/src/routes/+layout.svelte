@@ -63,7 +63,7 @@
 			<a class="brand" href="/">
 				<Logo size={19} />
 				<span class="wordmark">
-					<strong class="dsp">Lead Radar</strong>
+					<strong class="dsp">Lead <span class="radar">Radar</span></strong>
 					<span class="label">Orange Systems</span>
 				</span>
 			</a>
@@ -175,6 +175,12 @@
 	.wordmark strong {
 		font-size: var(--text-xl);
 		line-height: 1.1;
+	}
+
+	/* The second word carries the colour, so the name reads as one lockup with
+	   the mark beside it rather than as two grey words and an orange dot. */
+	.wordmark .radar {
+		color: var(--color-orange);
 	}
 
 	.wordmark .label {
