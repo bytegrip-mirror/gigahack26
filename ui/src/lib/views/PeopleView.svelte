@@ -539,8 +539,15 @@
 		width: 96px;
 	}
 
+	/*
+	 * Sized to the widest thing this cell holds, which is not much: the "To
+	 * contact" button at 90px, or a stage badge with a contact count beside it at
+	 * 90px again, so 106 with the cell's padding. At 190 the column carried
+	 * eighty-four pixels of nothing between the button and the score, and every
+	 * row showed it. The width goes to the person's name, which uses all it gets.
+	 */
 	.c-stage {
-		width: 190px;
+		width: 106px;
 	}
 
 	.p-stage {
