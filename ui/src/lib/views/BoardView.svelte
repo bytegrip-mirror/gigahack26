@@ -1535,8 +1535,17 @@
 		font-weight: 500;
 	}
 
+	/*
+	 * Sized to the tag a rep actually sees, not to the longest one the board can
+	 * draw. At 104px it fitted "Contacted ×12" — a stage set and a dozen contacts
+	 * — and that is 99px, so every row whose stage is still "New" (32px) carried
+	 * seventy pixels of nothing between its tag and the signals. The rare long one
+	 * wraps to a second line, which is a legible thing to do; a column of empty
+	 * cells is not. The width this gives up goes to the graph, which takes the
+	 * table's slack.
+	 */
 	.c-stage {
-		width: 104px;
+		width: 78px;
 		/* Centred with the fit column beside it: the two are the row's verdict —
 		   what we make of the company and where it has got to — so they sit on the
 		   same line however tall the signals list makes the row. */
