@@ -3,28 +3,24 @@
 </script>
 
 <!--
-	A signal leaving a point: one dot, three waves.
+	Three bars, rising, the tallest in the accent — the same drawing as
+	`static/favicon.svg`, which is the tab and was the only place it survived
+	two changes of mark.
 
-	The mark before this was a radar — concentric ranges with a sweep and the
-	single contact it had found. That described a thing that watches. This
-	describes the thing that happens next: something occurred, and it reached you.
-	The dot is the occurrence and wears the accent; the waves are the signal
-	travelling, and stay ink so the eye lands on the dot first.
+	It was replaced once for a radar and once for a signal, both of which
+	argued that the product does more than draw a chart. True, and beside the
+	point: this reads at 16 pixels, it is unmistakably ours, and it is the one
+	the tab has been showing all along.
 -->
 <svg
 	width={size}
 	height={size}
-	viewBox="0 0 20 20"
+	viewBox="0 0 19 20"
 	role="img"
 	aria-label={title}
 	focusable="false"
-	fill="none"
-	stroke-linecap="round"
 >
-	<g stroke="var(--color-ink)" stroke-width="1.6">
-		<path d="M4.6 9.8a6.2 6.2 0 0 1 6.2 6.2" />
-		<path d="M4.6 5.8a10.2 10.2 0 0 1 10.2 10.2" />
-		<path d="M4.6 1.8a14.2 14.2 0 0 1 14.2 14.2" />
-	</g>
-	<circle cx="4.6" cy="16" r="2.2" fill="var(--color-orange)" stroke="none" />
+	<rect x="0" y="12" width="5" height="8" fill="var(--color-ink)" />
+	<rect x="7" y="7" width="5" height="13" fill="var(--color-ink)" />
+	<rect x="14" y="2" width="5" height="18" fill="var(--color-orange)" />
 </svg>
