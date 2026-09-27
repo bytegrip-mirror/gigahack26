@@ -185,7 +185,7 @@
 										</a>
 									{/if}
 								</td>
-								<td class="sub">{contact.role}</td>
+								<td class="c-role">{contact.role}</td>
 								<td class="c-mail">
 									{#if emailDraft?.id === contact.id}
 										<span class="mail-edit">
@@ -465,10 +465,15 @@
 		flex-direction: column;
 	}
 
+	/*
+	 * Full width. These were capped at 110ch, which left a third of the pane
+	 * empty on the right while the sentences — the reason anyone opened this tab
+	 * — wrapped early. A reading measure belongs on prose you read as prose; a
+	 * list of evidence is scanned, and the eye goes down the left edge.
+	 */
 	.line {
 		padding: var(--spacing-3) 0;
 		border-bottom: 1px solid var(--color-rule);
-		max-width: 110ch;
 	}
 
 	.line-head {
@@ -524,11 +529,11 @@
 		font-size: var(--text-sm);
 	}
 
+	/* Full width, for the same reason the signals list is. */
 	.docs {
 		list-style: none;
 		margin: 0;
 		padding: 0;
-		max-width: 110ch;
 	}
 
 	.docs li {
@@ -575,6 +580,23 @@
 		width: 170px;
 	}
 
+	/*
+	 * The role is a `td`, and a td is a table cell. It used to carry the `.sub`
+	 * text class, and this file then forced `display: block` on `.contacts .sub`
+	 * — which is not a text style. A td that is not a table cell drops out of the
+	 * row: the browser wraps it in an anonymous cell with none of the column's
+	 * width or the row's rule, and the column stops lining up with its own
+	 * heading. The text styling is what was wanted, so it is repeated here and
+	 * `.sub` goes back to meaning a line inside a block.
+	 */
+	.contacts .c-role {
+		font-size: var(--text-sm);
+		line-height: 1.45;
+		color: var(--color-ink-3);
+	}
+
+	/* These are the spans inside a cell — the "2×" under a stage, a dash for a
+	   source we do not have — and those do want their own line. */
 	.contacts .sub {
 		display: block;
 	}
@@ -636,17 +658,15 @@
 		color: var(--color-orange-ink);
 	}
 
+	/*
+	 * One column, and no boxes. Four bordered tiles in a grid read as four
+	 * separate things that happen to share a screen; the overview is one answer
+	 * about one company, and it is read top to bottom.
+	 */
 	.cards {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-		gap: var(--spacing-3);
-		max-width: 1200px;
-	}
-
-	.card {
-		border: 1px solid var(--color-rule);
-		padding: var(--spacing-3);
-		background: var(--color-paper);
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-5);
 	}
 
 	.prose {
