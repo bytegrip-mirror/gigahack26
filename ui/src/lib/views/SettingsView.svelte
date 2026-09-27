@@ -57,6 +57,15 @@
 	let industries = $state('');
 	let blacklist = $state<string[]>([]);
 	const exclusions = $derived(settings?.exclusions ?? []);
+	/*
+	 * There are ninety-two of these — every consultancy the corpus knows sells what
+	 * we sell — and rendering all of them is a wall of chips, not a list anyone
+	 * reads. The first screenful is enough to see what the gate is doing, and the
+	 * rest is one click away.
+	 */
+	const EXCLUSIONS_SHOWN = 12;
+	let allExclusions = $state(false);
+	const shownExclusions = $derived(allExclusions ? exclusions : exclusions.slice(0, EXCLUSIONS_SHOWN));
 	let blacklistDraft = $state('');
 	let rowBusy = $state<string | null>(null);
 	let newLine = $state({ name: '', valueProposition: '' });
@@ -539,7 +548,7 @@
 								Companies that sell what we sell. Take one off and it is callable again.
 							</p>
 							<div class="chips">
-								{#each exclusions as company (company.id)}
+								{#each shownExclusions as company (company.id)}
 									<button
 										class="chip"
 										type="button"
@@ -550,24 +559,9 @@
 										{company.name}<Icon name="close" size={11} />
 									</button>
 								{/each}
-							</div>
-						{/if}
-
-						{#if exclusions.length > 0}
-							<p class="label against-label">Also kept out</p>
-							<p class="sub dim">Companies that sell what we sell. Take one off and it is callable again.</p>
-							<div class="chips">
-								{#each exclusions as company (company.id)}
-									<button
-										class="chip"
-										type="button"
-										title={`Bring ${company.name} back into the queue`}
-										disabled={rowBusy === company.id}
-										onclick={() => bringBack(company)}
-									>
-										{company.name}<Icon name="close" size={11} />
-									</button>
-								{/each}
+								<button class="tag region-pick" type="button" onclick={() => (allExclusions = !allExclusions)}>
+									{allExclusions ? 'Show fewer' : `+${exclusions.length - shownExclusions.length} more`}
+								</button>
 							</div>
 						{/if}
 					</section>
@@ -841,12 +835,13 @@
 						<div class="panel-head">
 							<h2 class="dsp">What answered each row</h2>
 						</div>
+						<!-- One grid, not two: two grids each lay out their own columns, so
+						     the cache figures only lined up under the engine figures while
+						     both happened to hold exactly two. -->
 						<div class="metrics">
 							{#each Object.entries(telemetry?.signalsByEngine ?? {}) as [engine, count] (engine)}
 								<Metric value={shortNumber(count)} label={engine} />
 							{/each}
-						</div>
-						<div class="metrics">
 							<Metric
 								value={shortNumber(telemetry?.classificationCache?.entries ?? 0)}
 								label="Cached classifications"
@@ -873,6 +868,14 @@
 									label="Accepted share"
 								/>
 							</div>
+						{:else}
+							<!-- Without this the panel was a heading over an empty box: the
+							     figures are behind the guard, so nobody having judged a row
+							     left the panel looking broken rather than looking new. -->
+							<p class="sub dim">
+								Nobody has judged a row yet. Accept or reject a company on its page and it lands here —
+								it is what the precision figure on the board is counted from.
+							</p>
 						{/if}
 					</section>
 				{/if}
@@ -972,6 +975,47 @@
 		/* A lone text field the width of the pane is one you cannot read a value
 		   back from. The fields inside a `.fields` grid are sized by the grid. */
 		max-width: 460px;
+	}
+
+	/*
+	 * The figures are a grid that fills the panel, not a row of divided blocks
+	 * packed against the left. Three metrics measured 221, 170 and 109 pixels and
+	 * left six hundred of the panel empty, and because each was sized by its own
+	 * text the labels under them started at three different places. Their left
+	 * dividers also came along when the row wrapped, drawing a rule down the start
+	 * of the second line, which reads as a separator between nothing and nothing.
+	 */
+	.panel .metrics {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+		gap: var(--spacing-4) var(--spacing-5);
+		align-items: start;
+	}
+
+	/* :global — the figure is drawn by the Metric component, so a scoped selector
+	   here matches nothing and Svelte says so. */
+	.panel :global(.metric) {
+		padding: 0;
+		border-top: 2px solid var(--color-rule);
+		padding-top: var(--spacing-2);
+	}
+
+	/* The number leads and the words under it stay out of its way. */
+	.panel :global(.metric-val) {
+		font-size: var(--text-title);
+		line-height: 1;
+	}
+
+	.panel :global(.metric-lab) {
+		font-size: var(--text-sm);
+		line-height: 1.35;
+	}
+
+	/* A sentence about the figures is read, so it keeps a readable measure even
+	   where the figures beside it now use the whole panel. */
+	.panel > .sub.dim,
+	.panel .field .sub {
+		max-width: 78ch;
 	}
 
 	.panel-head h2 {
