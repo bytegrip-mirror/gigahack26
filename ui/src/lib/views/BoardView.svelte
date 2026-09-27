@@ -1267,6 +1267,10 @@
 	.c-mark {
 		width: 34px;
 		padding-right: 0;
+		/* Centred with the company beside it. The mark is the first character of
+		   the name, not a label for the row — pinned to the top of a tall row it
+		   floated above the words it belongs to. */
+		vertical-align: middle;
 	}
 
 	.c-fit {
@@ -1336,6 +1340,7 @@
 
 	.c-co {
 		overflow-wrap: anywhere;
+		vertical-align: middle;
 	}
 
 	.c-trend {
