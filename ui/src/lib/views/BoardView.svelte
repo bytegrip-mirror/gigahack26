@@ -198,7 +198,18 @@
 		{
 			id: ALL_LINES,
 			label: 'All service lines',
-			hint: String(Object.values(workspace.counts).reduce((sum, count) => sum + count, 0)),
+			/*
+			 * The live board's own count, not the per-line counts added up. A company
+			 * can be ready to call for more than one line, and summing answers "how
+			 * many line-and-company pairs", which claimed ten companies where the
+			 * board — which keeps one row per company — showed six. Falls back to the
+			 * sum until the merged rows land, so the menu is never blank.
+			 */
+			hint: String(
+				allLines && rows.length > 0
+					? rows.filter((row) => row.band === 'PRIORITY').length
+					: Object.values(workspace.counts).reduce((sum, count) => sum + count, 0)
+			),
 			checked: allLines
 		},
 		...workspace.lines.map((line) => ({
@@ -371,6 +382,14 @@
 	$effect(() => {
 		const line = serviceLine;
 		void allLines;
+		/*
+		 * Read synchronously, so the effect re-runs when the line list arrives.
+		 * `loadBoard` reads it too, but it runs inside a timeout, where the read is
+		 * not tracked — so on a fresh load, with the list still empty, the board
+		 * quietly fetched one line and stayed on it while the picker said every
+		 * line. Opening on "All service lines" showed a single line's queue.
+		 */
+		void workspace.lines.length;
 		const search = query;
 		const activeStage = stage;
 		const activeRegion = session.region;
