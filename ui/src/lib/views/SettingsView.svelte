@@ -662,18 +662,33 @@
 							<label class="field">
 								<span class="label">Base rate</span>
 								<input class="input" type="number" step="0.01" min="0.01" max="0.9" bind:value={draft.baseRate} />
+								<span class="sub dim">
+									The share of your pool worth calling at all. Every reading is measured against it, so a
+									company scores well by beating this rather than by clearing a fixed bar.
+								</span>
 							</label>
 							<label class="field">
 								<span class="label">Priority at</span>
 								<input class="input" type="number" step="0.01" bind:value={draft.priorityThreshold} />
+								<span class="sub dim">
+									At or above this the board calls it ready. Set it where a rep would actually pick up the
+									phone.
+								</span>
 							</label>
 							<label class="field">
 								<span class="label">Nurture at</span>
 								<input class="input" type="number" step="0.01" bind:value={draft.nurtureThreshold} />
+								<span class="sub dim">
+									Above Watch and below Priority: worth keeping close, not worth a call yet.
+								</span>
 							</label>
 							<label class="field">
 								<span class="label">Watch at</span>
 								<input class="input" type="number" step="0.01" bind:value={draft.watchThreshold} />
+								<span class="sub dim">
+									Below this a company leaves the queue. We keep reading it, but nothing on file lifts it
+									above the market default.
+								</span>
 							</label>
 							<label class="field">
 								<span class="label">Confidence shrink</span>
@@ -692,8 +707,8 @@
 							</label>
 						</div>
 						<p class="sub dim">
-							The base rate is the share of the pool worth calling. One theme can only carry a company as far
-							as the Priority line above, so no single loud topic reaches it on its own.
+							One theme can only carry a company as far as the Priority line above, so no single loud topic
+							reaches it on its own.
 						</p>
 					</section>
 
@@ -959,8 +974,15 @@
 		background: var(--color-surface);
 	}
 
-	.panel {
-		max-width: 900px;
+	/*
+	 * The panel takes the pane. It was capped at 900px, which left a third of the
+	 * screen empty to the right of every section — including the rule each panel
+	 * draws along its own foot, which stopped in mid-air.
+	 */
+	.panel > .field {
+		/* A lone text field the width of the pane is one you cannot read a value
+		   back from. The fields inside a `.fields` grid are sized by the grid. */
+		max-width: 460px;
 	}
 
 	.panel-head h2 {
