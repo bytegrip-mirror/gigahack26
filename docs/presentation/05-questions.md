@@ -33,6 +33,24 @@ answer without it.
 
 ---
 
+**"Has any of this been validated?"**
+
+Four ways, and none of them is us saying so. **Every figure is recomputable** —
+a score prints its whole ledger, term by term, so a jury can take one apart by
+hand. **Every quotation is re-verified** against the stored page, and the count
+of ones that failed is on screen rather than in a log. **The decay assumptions
+are stress-tested**: we recompute the score at 30-, 90- and 180-day half-lives
+and show the reader all three, so they can see whether the number depends on
+them. And **the only figure that measures whether we are right is not ours** —
+it comes from reps accepting or rejecting rows, which is the one thing nobody
+here can mark.
+
+What we do *not* have is a labelled ground-truth set. With a demo-sized corpus
+the honest position is traceability over statistics: we would rather show you
+why a number is what it is than quote a benchmark we would have had to invent.
+
+---
+
 **"Explain the score."**
 
 It is a log-odds sum. Each sentence we find answers a question that carries a
