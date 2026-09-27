@@ -6,6 +6,6 @@
 	const line = $derived(page.url.searchParams.get('line'));
 </script>
 
-<svelte:head><title>Companies · Lead Radar</title></svelte:head>
+<svelte:head><title>Companies · Nudge</title></svelte:head>
 
 <BoardView initialSelected={selected} initialLine={line} />

@@ -1,12 +1,15 @@
 <script lang="ts">
-	let { size = 20, title = 'Lead Radar' }: { size?: number; title?: string } = $props();
+	let { size = 20, title = 'Nudge' }: { size?: number; title?: string } = $props();
 </script>
 
 <!--
-	A radar: three ranges on a common origin, the sweep, and the one contact the
-	sweep has found. The mark before this was three rising bars, which said
-	"chart" — this says what the product does, which is watch a market and pick
-	one thing out of it.
+	A signal leaving a point: one dot, three waves.
+
+	The mark before this was a radar — concentric ranges with a sweep and the
+	single contact it had found. That described a thing that watches. This
+	describes the thing that happens next: something occurred, and it reached you.
+	The dot is the occurrence and wears the accent; the waves are the signal
+	travelling, and stay ink so the eye lands on the dot first.
 -->
 <svg
 	width={size}
@@ -18,11 +21,10 @@
 	fill="none"
 	stroke-linecap="round"
 >
-	<g stroke="var(--color-ink)" stroke-width="1.5">
-		<path d="M4.5 2.5a13 13 0 0 1 13 13" />
-		<path d="M4.5 7a8.5 8.5 0 0 1 8.5 8.5" />
-		<path d="M4.5 11.5a4 4 0 0 1 4 4" />
-		<path d="M4.5 15.5 13.7 6.3" />
+	<g stroke="var(--color-ink)" stroke-width="1.6">
+		<path d="M4.6 9.8a6.2 6.2 0 0 1 6.2 6.2" />
+		<path d="M4.6 5.8a10.2 10.2 0 0 1 10.2 10.2" />
+		<path d="M4.6 1.8a14.2 14.2 0 0 1 14.2 14.2" />
 	</g>
-	<circle cx="11.2" cy="8.8" r="1.7" fill="var(--color-orange)" stroke="none" />
+	<circle cx="4.6" cy="16" r="2.2" fill="var(--color-orange)" stroke="none" />
 </svg>

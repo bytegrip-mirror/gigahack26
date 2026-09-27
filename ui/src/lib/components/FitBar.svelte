@@ -1,31 +1,37 @@
 <script lang="ts">
 	/**
-	 * The Fit meter: how far a company has come from the watch line to the
-	 * Priority line. `value` is that fraction, 0 to 1, and it drives both the
-	 * length and the colour, so the mark carries one reading.
+	 * The Fit bar, in two channels.
 	 *
-	 * The colour is not computed here, only interpolated: the two ends are
-	 * `--fit-lo` and `--fit-hi`, which the theme sets per mode. A ramp that means
-	 * "darker is stronger" cannot survive an automatic flip into dark mode —
-	 * the strongest company would be the one closest to the background — so the
-	 * dark end is a chosen pair that runs the other way, dim amber to bright
-	 * orange, and stays above 3:1 against both the surface and the track.
+	 * `value` is the reading itself, 0 to 1, and it is the length: a company at
+	 * 0.71 fills seventy-one percent of the track. It used to be the distance from
+	 * the watch line to the Priority line, which meant anything at Priority filled
+	 * the bar and 0.71 and 0.55 looked identical.
+	 *
+	 * `shade` is where that reading sits between those two lines, and it is the
+	 * colour — yellow on the companies that have barely cleared the floor, deep
+	 * green on the ones at the top. Colour saturates at the Priority line on
+	 * purpose: past it the question stops being "how strong" and becomes "how far
+	 * past", which is what the length is for.
+	 *
+	 * The colour is interpolated rather than computed here. Its two ends are
+	 * `--fit-lo` and `--fit-hi`, which the theme sets per mode: a ramp that means
+	 * "darker is stronger" cannot survive an automatic flip into dark mode, where
+	 * the strongest company would be the one nearest the background.
 	 */
-	let { value }: { value: number } = $props();
+	let { value, shade }: { value: number; shade: number } = $props();
 
-	const meter = $derived(`${(Math.max(0, Math.min(1, value)) * 100).toFixed(1)}%`);
+	const clamp = (n: number) => Math.max(0, Math.min(1, n));
+	const width = $derived(`${(clamp(value) * 100).toFixed(1)}%`);
+	const tone = $derived(`${(clamp(shade) * 100).toFixed(1)}%`);
 </script>
 
 <span class="fit-bar" aria-hidden="true">
-	<span class="filled" style:--meter={meter}></span>
+	<span class="filled" style:--width={width} style:--tone={tone}></span>
 </span>
 
 <style>
 	.fit-bar {
 		display: block;
-		/* Shorter than the column: the fill now reaches the end of the track at
-		   the Priority line, so a full-width rail would leave the words above it
-		   looking like an afterthought. */
 		width: 88px;
 		max-width: 100%;
 		height: 4px;
@@ -36,10 +42,10 @@
 	.filled {
 		display: block;
 		height: 100%;
-		width: var(--meter);
+		width: var(--width);
 		/* A browser without color-mix gets the deep end rather than no bar at
 		   all; the reading is wrong by a shade, never invisible. */
 		background: var(--fit-hi);
-		background: color-mix(in oklab, var(--fit-hi) var(--meter), var(--fit-lo));
+		background: color-mix(in oklab, var(--fit-hi) var(--tone), var(--fit-lo));
 	}
 </style>

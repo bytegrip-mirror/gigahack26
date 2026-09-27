@@ -1,4 +1,4 @@
-# FINAL_VALIDATION — Lead Radar vs. the Gigahack 26 brief
+# FINAL_VALIDATION — Nudge vs. the Gigahack 26 brief
 
 **Audited:** 2026-09-26, against `main` @ `9d4b53d`, the live deployment
 (`hack.pistonpunk.com` / `hackapi.pistonpunk.com`), the committed corpus

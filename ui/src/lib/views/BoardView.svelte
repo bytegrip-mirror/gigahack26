@@ -17,7 +17,7 @@
 	import { session } from '$lib/session.svelte';
 	import { workspace } from '$lib/workspace.svelte';
 	import { toasts } from '$lib/toast.svelte';
-	import { ageShort, duration, fit, fitMeter, fitTone, fitWord, precise, shortNumber } from '$lib/format';
+	import { ageShort, duration, fit, fitShade, fitTone, fitWord, precise, shortNumber } from '$lib/format';
 	import { regionLabel } from '$lib/regions';
 	import { copy, csv, save } from '$lib/export';
 	import Tag from '$lib/components/Tag.svelte';
@@ -1069,7 +1069,7 @@
 											>{fitWord(row.probability, thresholds)}</span>
 											<span class="fitnum num dsp" title="The reading itself">{fit(row.probability)}</span>
 										</span>
-										<FitBar value={fitMeter(row.probability, thresholds)} />
+										<FitBar value={row.probability} shade={fitShade(row.probability, thresholds)} />
 										{#if row.themeCount === 1 && row.probability >= thresholds.priority}
 											<span class="one-theme" title="The evidence is at the Priority line and stops there: one theme is all they have, and a single topic is capped so it cannot carry a company on its own.">
 												capped · one theme

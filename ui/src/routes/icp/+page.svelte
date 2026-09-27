@@ -2,6 +2,6 @@
 	import IcpStudioView from '$lib/views/IcpStudioView.svelte';
 </script>
 
-<svelte:head><title>ICP Studio · Lead Radar</title></svelte:head>
+<svelte:head><title>ICP Studio · Nudge</title></svelte:head>
 
 <IcpStudioView />

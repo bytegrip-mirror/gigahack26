@@ -7,6 +7,6 @@
 	const line = $derived(page.url.searchParams.get('line') ?? session.serviceLine);
 </script>
 
-<svelte:head><title>Company · Lead Radar</title></svelte:head>
+<svelte:head><title>Company · Nudge</title></svelte:head>
 
 <CompanyView companyId={id} serviceLine={line} />

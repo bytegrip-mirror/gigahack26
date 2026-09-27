@@ -1,4 +1,4 @@
-# Lead Radar — architecture
+# Nudge — architecture
 
 How a page on the internet becomes a company at the top of a call list. Read in
 order; each file is short and the diagrams carry the shape.
