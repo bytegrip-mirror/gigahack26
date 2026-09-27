@@ -23,11 +23,11 @@
 		   text needs no deepening here — it needs lightening on white. */
 		--color-accent-ink: #5ee05e;
 
-		/* The Fit meter runs dim amber to bright orange here, not pale to deep:
-		   the same "further along is more" reading, in the direction a dark ground
-		   allows. Both ends clear 3:1 against the surface and the track. */
-		--fit-lo: hsl(38 50% 44%);
-		--fit-hi: hsl(30 100% 60%);
+		/* The Fit meter runs dim olive to bright green here, not yellow to deep
+		   green: the same "further along is more" reading, in the direction a dark
+		   ground allows. Both ends clear 4.9:1 against the surface and the track. */
+		--fit-lo: hsl(50 62% 42%);
+		--fit-hi: hsl(132 62% 54%);
 	}
 
 	*,

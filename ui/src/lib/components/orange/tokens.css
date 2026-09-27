@@ -32,12 +32,13 @@
 	--color-oxblood-line: #cd3c14;
 	--color-warning: #ffcc00;
 
-	/* The two ends of the Fit meter, pale at the watch line and deep at the
-	   Priority line. Not `--color-warning`: that is a status colour and stays
-	   reserved, and this ramp is a magnitude. The dark-mode pair lives in
-	   base.css and deliberately runs the other way — see FitBar.svelte. */
-	--fit-lo: hsl(48 100% 66%);
-	--fit-hi: hsl(22 100% 34%);
+	/* The two ends of the Fit meter: yellow at the watch line, dark green at the
+	   Priority line, so the bar darkens and ripens as a company gets stronger.
+	   Not `--color-warning` and not `--color-accent`: those are status colours and
+	   stay reserved, and this ramp is a magnitude. The dark-mode pair lives in
+	   base.css and runs the other way — see FitBar.svelte. */
+	--fit-lo: hsl(52 100% 62%);
+	--fit-hi: hsl(132 62% 23%);
 
 	/* Boosted greys: black text, `$gray-900` to `$gray-600` for the steps down,
 	   `$gray-500`/`$gray-400` for control and table borders, white surfaces. */
