@@ -42,7 +42,7 @@ profile order and says so on hover.
 | 2.1 | A signal graph to the left of the company — strength over time | done — `SignalTrace`, an orange curve across its whole column |
 | 2.2 | The time of the last signal | done — the `Latest` column |
 | 2.3 | The score of the last signal | done — the word in `Fit`, the amount on the Signals list |
-| 2.4 | Rename "Why we would call" to "Signals" | done |
+| 2.4 | Rename "Why we would call" to "Reasons to call" | done — paired with the "Against calling" panel beside it; "Signals" was the original target but collides with the board column of that name |
 | 2.5 | Rename "Newest" to "Latest" | done |
 | 2.6 | The signal chart is *nonchalant*: the shape only, inside the row, between the status and documents columns, with no points and no axis, and the detail on hover | done — no axis, no points, no tooltip of its own; the numbers are in the hover card |
 

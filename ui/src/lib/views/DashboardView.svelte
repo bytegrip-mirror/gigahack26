@@ -307,7 +307,7 @@
 
 			<section class="card facts-card">
 				<div class="card-head">
-					<h2 class="card-title">What we read</h2>
+					<h2 class="card-title">Sources read</h2>
 				</div>
 				<dl class="facts">
 					<dt>Documents</dt>

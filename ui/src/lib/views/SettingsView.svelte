@@ -31,7 +31,7 @@
 	const SECTIONS: { id: string; label: string; hint: string; icon: IconName }[] = [
 		{ id: 'voice', label: 'Voice and style', hint: 'How drafts read', icon: 'mail' },
 		{ id: 'qualification', label: 'Qualification', hint: 'Who counts as a prospect', icon: 'target' },
-		{ id: 'lines', label: 'Service lines', hint: 'What we sell', icon: 'layers' },
+		{ id: 'lines', label: 'Service lines', hint: 'The lines you sell', icon: 'layers' },
 		{ id: 'scoring', label: 'Scoring', hint: 'Where the bands sit', icon: 'sliders' },
 		{ id: 'reading', label: 'Reading', hint: 'What has been read, and when', icon: 'clock' }
 	];
@@ -463,7 +463,7 @@
 					</section>
 
 					<section class="panel">
-						<div class="panel-head"><h3 class="label">The brief the writer receives</h3></div>
+						<div class="panel-head"><h3 class="label">Writer brief</h3></div>
 						<p class="brief">{voicePreview}</p>
 						<p class="sub dim">
 							{draft.modelWritesDrafts
@@ -604,7 +604,7 @@
 					</section>
 
 					<section class="panel">
-						<div class="panel-head"><h3 class="label">What that leaves</h3></div>
+						<div class="panel-head"><h3 class="label">In scope</h3></div>
 						<div class="metrics">
 							<Metric value={shortNumber(settings?.indexedCompanies ?? 0)} label="Indexed" />
 							<Metric value={shortNumber(settings?.inScope?.inGeography ?? 0)} label="In geography" />
@@ -625,7 +625,7 @@
 				{#if section === 'lines'}
 					<section class="panel">
 						<div class="panel-head">
-							<h2 class="dsp">What we sell</h2>
+							<h2 class="dsp">Configured lines</h2>
 							<span class="sub dim">{lines.length} configured</span>
 						</div>
 						<ul class="lines">
@@ -733,7 +733,7 @@
 					</section>
 
 					<section class="panel">
-						<div class="panel-head"><h3 class="label">The board right now</h3></div>
+						<div class="panel-head"><h3 class="label">Board now</h3></div>
 						<div class="metrics">
 							<Metric value={bands.PRIORITY ?? 0} label="Priority" tone="hot" />
 							<Metric value={bands.NURTURE ?? 0} label="Nurture" />
@@ -745,7 +745,7 @@
 
 					<section class="panel">
 						<div class="panel-head">
-							<h3 class="label">Where these numbers would put the board</h3>
+							<h3 class="label">Effect on the board</h3>
 							{#if curve.length === 0}<span class="sub dim">no scores loaded</span>{/if}
 						</div>
 						{#if curve.length > 0}
@@ -769,7 +769,7 @@
 				{#if section === 'reading'}
 					<section class="panel">
 						<div class="panel-head">
-							<h2 class="dsp">What a pass costs, at your own rate</h2>
+							<h2 class="dsp">Pass cost, at your rate</h2>
 						</div>
 						{#if telemetry}
 							{@const pairs = telemetry.signalsBySource?.classificationPairs ?? 0}
@@ -788,7 +788,7 @@
 								/>
 							</div>
 							<label class="field">
-								<span class="label">Your cost per 1,000 model calls</span>
+								<span class="label">Cost per 1000 model calls</span>
 								<input class="input" type="number" min="0" step="0.1" bind:value={perThousand} />
 								<span class="sub dim">
 									We do not know your contract, so the rate is yours to set and the counts are the system's. At the
@@ -804,7 +804,7 @@
 					</section>
 					<section class="panel">
 						<div class="panel-head">
-							<h2 class="dsp">What the model half cost, and what it found</h2>
+							<h2 class="dsp">Model pass</h2>
 							{#if telemetry?.overlay?.present}
 								<span class="sub dim" title={telemetry.overlay.engine}>
 									read by the model on {date(telemetry.overlay.generatedAt)}
@@ -845,7 +845,7 @@
 					</section>
 					<section class="panel">
 						<div class="panel-head">
-							<h2 class="dsp">What the crawl reached</h2>
+							<h2 class="dsp">Crawl reached</h2>
 							<span class="sub dim num">
 								{telemetry?.freshness?.newestCaptureAgeHours != null
 									? `newest document ${telemetry.freshness.newestCaptureAgeHours}h old`
@@ -870,7 +870,7 @@
 
 					<section class="panel">
 						<div class="panel-head">
-							<h2 class="dsp">What answered each row</h2>
+							<h2 class="dsp">Answered each row</h2>
 						</div>
 						<!-- One grid, not two: two grids each lay out their own columns, so
 						     the cache figures only lined up under the engine figures while
@@ -893,7 +893,7 @@
 
 					<section class="panel">
 						<div class="panel-head">
-							<h2 class="dsp">What the team did with what it was shown</h2>
+							<h2 class="dsp">Team review</h2>
 						</div>
 						{#if (precision?.decisions ?? 0) > 0}
 							<div class="metrics">

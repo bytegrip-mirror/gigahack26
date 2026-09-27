@@ -266,7 +266,7 @@ it, then the stage and the two things you do about it.
   counts, how long the band holds, documents read — were removed: they were
   arithmetic in a slot that wanted a sentence, and every one of them is in the
   export.
-- **Why we would call** lists the question titles that fired, each opening the
+- **Reasons to call** lists the question titles that fired, each opening the
   capture it was read from; then **Reasons not to call**, then **Read, not
   evidence**. No contribution is printed on any of them.
 - **Documents** lists what answered a question first, then, under *Read, nothing to
@@ -400,7 +400,7 @@ Dense data is a table, never a grid of cards.
 - Columns drop in a fixed order as width falls, so the table never squeezes: Docs
   and Newest below 1180px, then the split gives way to an overlay at 1100px.
 
-The board's columns are `#`, the company mark, Company, Fit, Why we would call,
+The board's columns are `#`, the company mark, Company, Fit, Reasons to call,
 Docs, Newest, save and actions.
 
 **The mark is its own column**, not a glyph inside the company cell: the names

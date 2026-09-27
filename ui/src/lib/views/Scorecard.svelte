@@ -359,7 +359,7 @@
 
 				<section class="panel">
 					<div class="panel-head">
-						<h3 class="label">Why we would call</h3>
+						<h3 class="label">Reasons to call</h3>
 						<span class="sub dim num">{plural(triggers.length, 'reason')}</span>
 					</div>
 					<div class="lines">
@@ -409,7 +409,7 @@
 
 				<section class="panel offer">
 					<div class="panel-head">
-						<h3 class="label">What we can offer</h3>
+						<h3 class="label">Offer</h3>
 						<span class="sub dim">{detail.serviceLine}</span>
 					</div>
 					<p class="offer-line">

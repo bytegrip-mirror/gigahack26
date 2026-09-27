@@ -332,12 +332,12 @@
 			{#if tab === 'overview'}
 				<div class="cards">
 					<article class="card">
-						<h2 class="label">Why this is a fit</h2>
+						<h2 class="label">Fit</h2>
 						<p class="prose">{detail.whyNow.narrative || detail.whyNow.headline}</p>
 					</article>
 
 					<article class="card">
-						<h2 class="label">What it is made of</h2>
+						<h2 class="label">Themes</h2>
 						<div class="chips">
 							{#each detail.themes as item (item.name)}<Tag>{theme(item.name)}</Tag>{/each}
 							{#if detail.themes.length === 0}<span class="sub dim">No theme carries it.</span>{/if}
@@ -351,14 +351,14 @@
 					</article>
 
 					<article class="card">
-						<h2 class="label">What we would offer</h2>
+						<h2 class="label">Offer</h2>
 						<p class="prose">
 							{proposition ?? `${detail.serviceLine} — no proposition written for this service line yet.`}
 						</p>
 					</article>
 
 					<article class="card">
-						<h2 class="label">What argues against calling</h2>
+						<h2 class="label">Against calling</h2>
 						{#if detail.whyNow.counters.length > 0}
 							<ul class="plain">
 								{#each detail.whyNow.counters as row (row.evidenceId + row.spanStart)}
